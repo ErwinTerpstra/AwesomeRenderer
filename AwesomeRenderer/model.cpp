@@ -10,32 +10,12 @@ Model::Model() : meshes(), materials()
 
 Model::~Model()
 {
-
-	{
-		//std::vector<Mesh*>::iterator it;
-
-		//for (it = meshes.begin(); it != meshes.end(); ++it)
-			//delete (*it);
-
-		meshes.clear();
-	}
-
-	{
-		//std::vector<Material*>::iterator it;
-
-		//for (it = materials.begin(); it != materials.end(); ++it)
-			//delete (*it);
-
-		materials.clear();
-	}
+	meshes.clear();
+	materials.clear();
 }
 
-Mesh* Model::AddMesh(Mesh::VertexAttributes attributes, const Material& material)
+void Model::AddMesh(Mesh* mesh, Material* material)
 {
-	Mesh mesh(attributes);
-
 	meshes.push_back(mesh);
 	materials.push_back(material);
-
-	return &meshes[meshes.size() - 1];
 }

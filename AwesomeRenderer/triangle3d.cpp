@@ -9,7 +9,7 @@ Triangle3D::Triangle3D(const Vector3& a, const Vector3& b, const Vector3& c) :
 }
 
 Triangle3D::Triangle3D(const Triangle3D& other) :
-	Triangle(other.v[0], other.v[1], other.v[2]), dirty(true)
+	Triangle3D(other.v[0], other.v[1], other.v[2])
 {
 	
 }

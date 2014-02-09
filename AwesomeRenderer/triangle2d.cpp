@@ -8,6 +8,12 @@ Triangle2D::Triangle2D(const Vector2& a, const Vector2& b, const Vector2& c)
 	
 }
 
+Triangle2D::Triangle2D(const Triangle2D& other)
+	: Triangle2D(other.v[0], other.v[1], other.v[2])
+{
+
+}
+
 void Triangle2D::CalculateBounds(Vector2& lower, Vector2& upper)
 {
 	lower.set(FLT_MAX, FLT_MAX);

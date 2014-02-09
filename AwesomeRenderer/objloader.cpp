@@ -23,6 +23,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 	std::vector<Vector2> texcoordBuffer;
 
 	Mesh* mesh = NULL;
+	Material* material = NULL;
 
 	while (char* lineBuffer = reader.ReadLine())
 	{		
@@ -44,7 +45,10 @@ void ObjLoader::Load(const char* fileName, Model& model)
 			case 'g':
 			{
 				// New submesh
-				mesh = model.AddMesh(Mesh::VERTEX_ALL, Material());
+				// TODO: Manage memory registered by factory
+				mesh = new Mesh(Mesh::VERTEX_ALL);
+				material = new Material();
+				model.AddMesh(mesh, material);
 				
 				break;
 			}
@@ -140,7 +144,8 @@ void ObjLoader::Load(const char* fileName, Model& model)
 				if (line.compare(0, 6, "usemtl") == 0)
 				{
 					std::string name = line.substr(7);
-					mesh = model.AddMesh(Mesh::VERTEX_ALL, materialLib[name]);
+					mesh = new Mesh(Mesh::VERTEX_ALL);
+					model.AddMesh(mesh, materialLib[name]);
 					break;
 				}
 
@@ -154,11 +159,11 @@ void ObjLoader::Load(const char* fileName, Model& model)
 	// Count total number of vertices/triangles
 	int verts = 0, tris = 0;
 
-	std::vector<Mesh>& meshes = model.meshes;
-
+	std::vector<Mesh*>& meshes = model.meshes;
+	
 	for (unsigned int cMesh = 0; cMesh < meshes.size(); ++cMesh)
 	{
-		Mesh& mesh = meshes[0];
+		Mesh& mesh = *meshes[0];
 		verts += mesh.vertices.size();
 		tris += mesh.indices.size() / 3;
 
@@ -216,7 +221,8 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 				if (line.compare(0, 6, "newmtl") == 0)
 				{
 					std::string name = line.substr(7);
-					material = &materialLib[name];
+					material = new Material();
+					materialLib[name] = material;
 					break;
 				}
 

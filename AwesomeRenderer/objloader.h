@@ -11,7 +11,7 @@ namespace AwesomeRenderer
 	public:
 
 	private:
-		std::map<std::string, Material> materialLib;
+		std::map<std::string, Material*> materialLib;
 
 		const TextureFactory& textureFactory;
 

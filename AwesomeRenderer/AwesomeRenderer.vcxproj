@@ -74,7 +74,9 @@
     <ClCompile Include="filereader.cpp" />
     <ClCompile Include="inputmanager.cpp" />
     <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="meshex.cpp" />
     <ClCompile Include="model.cpp" />
+    <ClCompile Include="modelex.cpp" />
     <ClCompile Include="node.cpp" />
     <ClCompile Include="objloader.cpp" />
     <ClCompile Include="octree.cpp" />
@@ -108,6 +110,7 @@
     <ClInclude Include="filereader.h" />
     <ClInclude Include="inputmanager.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="modelex.h" />
     <ClInclude Include="node.h" />
     <ClInclude Include="objloader.h" />
     <ClInclude Include="cameracontroller.h" />
@@ -117,6 +120,7 @@
     <ClInclude Include="raytracer.h" />
     <ClInclude Include="rendercontext.h" />
     <ClInclude Include="renderer.h" />
+    <ClInclude Include="meshex.h" />
     <ClInclude Include="rendertarget.h" />
     <ClInclude Include="shape.h" />
     <ClInclude Include="sphere.h" />

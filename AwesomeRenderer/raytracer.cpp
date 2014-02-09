@@ -22,7 +22,7 @@ void RayTracer::Render()
 		for (unsigned int cMesh = 0; cMesh < node.model.meshes.size(); ++cMesh)
 		{
 			// Transform bounding shape of mesh according to world transformation
-			Mesh& mesh = node.model.meshes[cMesh];
+			Mesh& mesh = *node.model.meshes[cMesh];
 			mesh.bounds.Transform(node.transform.WorldMtx());
 		}
 	}
@@ -57,8 +57,8 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 		// Iterate through submeshes in a node
 		for (unsigned int cMesh = 0; cMesh < node.model.meshes.size(); ++cMesh)
 		{
-			Mesh& mesh = node.model.meshes[cMesh];
-			Material& material = node.model.materials[cMesh];
+			Mesh& mesh = *node.model.meshes[cMesh];
+			Material& material = *node.model.materials[cMesh];
 
 			// Check if some part of the mesh is hit by the ray
 			RaycastHit boundsHitInfo(ray);
@@ -88,36 +88,36 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 				if (hitInfo.distance > cameraDepth)
 					continue;
 
-				// Interpolate pixel data
-				Shader::VertexToPixel interpolated;
-				interpolated.screenPosition = Vector4(((float) screenPosition[0]) / frameBuffer->width, 
-													  ((float) screenPosition[1]) / frameBuffer->height, 
-													  hitInfo.distance / cameraDepth, 1.0f);
-				interpolated.worldPosition = Vector4(hitInfo.point, 1.0f);
 
-				if (depthBuffer != NULL)
-				{
-					// Depth testing
-					float depth = 1.0f - interpolated.screenPosition[2];
-	
-					if (depthBuffer->GetPixel(screenPosition[0], screenPosition[1]) > depth)
-						continue;
-
-					// Write to depth buffer
-					depthBuffer->SetPixel(screenPosition[0], screenPosition[1], depth);
-				}
-
-				//VectorUtil<4>::Interpolate(mesh.colors[vIdx0], mesh.colors[vIdx1], mesh.colors[vIdx2], hitInfo.barycentricCoords, interpolated.color);
-				VectorUtil<3>::Interpolate(mesh.normals[vIdx0], mesh.normals[vIdx1], mesh.normals[vIdx2], hitInfo.barycentricCoords, interpolated.normal);
-				VectorUtil<2>::Interpolate(mesh.texcoords[vIdx0], mesh.texcoords[vIdx1], mesh.texcoords[vIdx2], hitInfo.barycentricCoords, interpolated.uv);
-			
-				// Compute pixel shading
-				Shader::PixelInfo pixelInfo;
-				shader.ProcessPixel(interpolated, pixelInfo);
-						
-				// Write to color buffer
-				frameBuffer->SetPixel(screenPosition[0], screenPosition[1], pixelInfo.color);
 			}
 		}
 	}
+
+	// Interpolate pixel data
+	Shader::VertexToPixel interpolated;
+	interpolated.screenPosition = Vector4(((float)screenPosition[0]) / frameBuffer->width,
+										  ((float)screenPosition[1]) / frameBuffer->height,
+										  hitInfo.distance / cameraDepth, 1.0f);
+	interpolated.worldPosition = Vector4(hitInfo.point, 1.0f);
+
+
+	if (depthBuffer != NULL)
+	{
+		// Depth testing
+		float depth = 1.0f - interpolated.screenPosition[2];
+
+		// Write to depth buffer
+		depthBuffer->SetPixel(screenPosition[0], screenPosition[1], depth);
+	}
+
+	//VectorUtil<4>::Interpolate(mesh.colors[vIdx0], mesh.colors[vIdx1], mesh.colors[vIdx2], hitInfo.barycentricCoords, interpolated.color);
+	VectorUtil<3>::Interpolate(mesh.normals[vIdx0], mesh.normals[vIdx1], mesh.normals[vIdx2], hitInfo.barycentricCoords, interpolated.normal);
+	VectorUtil<2>::Interpolate(mesh.texcoords[vIdx0], mesh.texcoords[vIdx1], mesh.texcoords[vIdx2], hitInfo.barycentricCoords, interpolated.uv);
+
+	// Compute pixel shading
+	Shader::PixelInfo pixelInfo;
+	shader.ProcessPixel(interpolated, pixelInfo);
+
+	// Write to color buffer
+	frameBuffer->SetPixel(screenPosition[0], screenPosition[1], pixelInfo.color);
 }

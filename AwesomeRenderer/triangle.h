@@ -21,6 +21,11 @@ namespace AwesomeRenderer
 		{
 			v[0] = a; v[1] = b; v[2] = c;
 		}
+
+		Triangle(const Triangle<VectorType>& other) : Triangle(other.v[0], other.v[1], other.v[1])
+		{
+
+		}
 		
 		const VectorType& operator[](int idx)
 		{

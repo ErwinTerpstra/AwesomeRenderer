@@ -38,7 +38,9 @@
 #include "texture.h"
 #include "material.h"
 #include "mesh.h"
+#include "meshex.h"
 #include "model.h"
+#include "modelex.h"
 
 // Scene graph
 #include "node.h"

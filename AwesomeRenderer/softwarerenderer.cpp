@@ -28,8 +28,8 @@ void SoftwareRenderer::DrawModel(const Model& model, Transformation& trans)
 {
 	for (unsigned int cMesh = 0; cMesh < model.meshes.size(); ++cMesh)
 	{
-		const Mesh& mesh = model.meshes[cMesh];
-		const Material& material = model.materials[cMesh];
+		const Mesh& mesh = *model.meshes[cMesh];
+		const Material& material = *model.materials[cMesh];
 
 		BeginDraw(trans.WorldMtx(), material);
 

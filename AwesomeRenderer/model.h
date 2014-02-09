@@ -8,15 +8,15 @@ namespace AwesomeRenderer
 	{
 
 	public:
-		std::vector<Mesh> meshes;
+		std::vector<Mesh*> meshes;
 
-		std::vector<Material> materials;
+		std::vector<Material*> materials;
 	public:
 
 		Model();
 		~Model();
 
-		Mesh* AddMesh(Mesh::VertexAttributes attributes, const Material& material);
+		void AddMesh(Mesh* mesh, Material* material);
 	};
 
 }
