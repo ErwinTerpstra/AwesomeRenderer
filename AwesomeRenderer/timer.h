@@ -20,12 +20,12 @@ namespace AwesomeRenderer
 
 		TimingInfo lastInfo;
 
-		float maxFrameTime;
+		float minFrameTime, maxFrameTime;
 
 		int framesThisSecond;
 
 	public:
-		Timer(float maxFrameTime = 1.0f);
+		Timer(float minFrameTime = 0.000001f, float maxFrameTime = 1.0f);
 
 		const TimingInfo& Tick();
 

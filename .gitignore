@@ -1,1 +1,7 @@
 *.suo
+*.opensdf
+AwesomeRenderer/Debug/
+AwesomeRenderer/Release/
+Debug/
+Release/
+*.sdf

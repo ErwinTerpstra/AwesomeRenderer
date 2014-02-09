@@ -97,8 +97,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		// Rendering
 		renderTarget.Clear(Color::BLACK);
 
-		softwareRenderer.Render();
-		//rayTracer.Render();
+		//softwareRenderer.Render();
+		rayTracer.Render();
 
 		// Present window
 		window.ProcessMessages();
