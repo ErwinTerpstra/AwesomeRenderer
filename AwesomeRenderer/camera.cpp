@@ -1,0 +1,57 @@
+	#include "awesomerenderer.h"
+
+using namespace AwesomeRenderer;
+
+Camera::Camera(cml::Handedness handedness) :
+	position(0.0f, 0.0f, 0.0f), lookAt(0.0f, 0.0f, 1.0f), up(0.0f, 1.0f, 0.0f),
+	handedness(handedness)
+{
+	UpdateViewMtx();
+
+	projMtx.identity();
+	viewportMtx.identity();
+}
+
+void Camera::UpdateViewMtx()
+{
+	cml::matrix_look_at(viewMtx, position, lookAt, up, handedness);
+}
+		
+void Camera::SetLookAt(const Vector3& position, const Vector3& lookAt, const Vector3& up)
+{
+	this->position = position;
+	this->lookAt = lookAt;
+	this->up = up;
+
+	UpdateViewMtx();
+}
+
+void Camera::SetPerspective(float fov, float aspect, float near, float far)
+{
+	this->fov = fov;
+	this->aspect = aspect;
+	this->nearPlane = near;
+	this->farPlane = far;
+
+	cml::matrix_perspective_xfov(projMtx, fov, aspect, near, far, handedness, cml::z_clip_zero);
+}
+
+void Camera::SetOrthographic(float width, float height, float near, float far)
+{
+	this->fov = 1.0f;
+	this->aspect = width / height;
+	this->nearPlane = near;
+	this->farPlane = far;
+
+	cml::matrix_orthographic(projMtx, width, height, near, far, handedness, cml::z_clip_zero);
+}
+		
+void Camera::SetViewport(float x, float y, float width, float height)
+{
+	cml::matrix_viewport(viewportMtx, x, width, y, height, cml::z_clip_zero, 0.0f, 1.0f);
+}
+
+void Camera::ViewportToRay(const Vector2& viewport, Ray& ray)
+{
+	cml::make_pick_ray(viewport[0], viewport[1], viewMtx, projMtx, viewportMtx, ray.origin, ray.direction);
+}
