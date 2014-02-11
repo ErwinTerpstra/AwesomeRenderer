@@ -1,5 +1,5 @@
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
+#define SCREEN_WIDTH 400
+#define SCREEN_HEIGHT 300
 
 #include <Windows.h>
 #include <stdio.h>
@@ -64,6 +64,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	softwareRenderer.renderContext = &renderContext;
 	rayTracer.renderContext = &renderContext;
+
+	// Shader
+	DiffuseShader diffuseShader;
 	
 	// Camera controller
 	CameraController cameraController(camera);
@@ -72,6 +75,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Assets factories
 	TextureFactory textureFactory;
 	ObjLoader objLoader(textureFactory);
+	objLoader.defaultShader = &diffuseShader;
 	
 	// Game loop timer
 	Timer timer;
@@ -84,8 +88,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	
 	window.Show(nCmdShow);
 
+	// Frame counter variables
 	float timeSinceLastPrint = 0.0f;
 	int framesDrawn = 0;
+
 	while (!window.closed)
 	{
 		const TimingInfo& timingInfo = timer.Tick();
@@ -94,12 +100,29 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		cameraController.Update(timingInfo);
 		camera.UpdateViewMtx();
 
+		// Prepare models in scene
+		std::vector<Node*>::iterator it;
+
+		for (it = renderContext.nodes.begin(); it != renderContext.nodes.end(); ++it)
+		{
+			Node& node = **it;
+			node.transform.CalculateMtx();
+
+			// Iterate through submeshes in a node
+			for (unsigned int cMesh = 0; cMesh < node.model.meshes.size(); ++cMesh)
+			{
+				// Transform bounding shape of mesh according to world transformation
+				Mesh& mesh = *node.model.meshes[cMesh];
+				mesh.bounds.Transform(node.transform.WorldMtx());
+			}
+		}
+		
 		// Rendering
 		renderTarget.Clear(Color::BLACK);
 
-		//softwareRenderer.Render();
-		rayTracer.Render();
-
+		softwareRenderer.Render();
+		//rayTracer.Render();
+		
 		// Present window
 		window.ProcessMessages();
 		window.DrawBuffer(frameBuffer);

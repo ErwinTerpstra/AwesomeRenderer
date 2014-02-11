@@ -46,9 +46,11 @@
 #include "node.h"
 
 // Renderer
+#include "shader.h"
+#include "diffuseshader.h"
+
 #include "rendertarget.h"
 #include "rendercontext.h"
-#include "shader.h"
 #include "renderer.h"
 #include "softwarerenderer.h"
 #include "raytracer.h"

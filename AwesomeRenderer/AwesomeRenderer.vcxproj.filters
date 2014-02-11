@@ -49,6 +49,12 @@
     <Filter Include="Source Files\Shapes">
       <UniqueIdentifier>{0c27a60f-c33b-4700-976d-6f5f32bbea68}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Renderer\Shading">
+      <UniqueIdentifier>{97e3d185-c780-4463-9175-7e9c58ddbc54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\Shading">
+      <UniqueIdentifier>{7190acbd-e1f8-4699-924e-5d5f668ab83a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -120,9 +126,6 @@
     <ClCompile Include="softwarerenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="shader.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="raytracer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
@@ -152,6 +155,12 @@
     </ClCompile>
     <ClCompile Include="modelex.cpp">
       <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="shader.cpp">
+      <Filter>Source Files\Renderer\Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="diffuseshader.cpp">
+      <Filter>Source Files\Renderer\Shading</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -227,9 +236,6 @@
     <ClInclude Include="rendertarget.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="shader.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="raytracer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
@@ -265,6 +271,12 @@
     </ClInclude>
     <ClInclude Include="modelex.h">
       <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="shader.h">
+      <Filter>Header Files\Renderer\Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="diffuseshader.h">
+      <Filter>Header Files\Renderer\Shading</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -47,7 +47,10 @@ void ObjLoader::Load(const char* fileName, Model& model)
 				// New submesh
 				// TODO: Manage memory registered by factory
 				mesh = new Mesh(Mesh::VERTEX_ALL);
+				
 				material = new Material();
+				material->shader = defaultShader;
+
 				model.AddMesh(mesh, material);
 				
 				break;
@@ -221,7 +224,11 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 				if (line.compare(0, 6, "newmtl") == 0)
 				{
 					std::string name = line.substr(7);
+					
+					// TODO: Move memory allocation to somewhere else
 					material = new Material();
+					material->shader = defaultShader;
+
 					materialLib[name] = material;
 					break;
 				}

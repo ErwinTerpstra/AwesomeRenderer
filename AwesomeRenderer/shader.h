@@ -38,10 +38,10 @@ namespace AwesomeRenderer
 	public:
 		Shader();
 
-		void CombineMatrices() { screenMtx = modelMtx * viewMtx * projMtx; }
+		void Prepare() { screenMtx = modelMtx * viewMtx * projMtx; }
 
-		void ProcessVertex(const VertexInfo& in, VertexToPixel& out) const;
-		void ProcessPixel(const VertexToPixel& in, PixelInfo& out) const;
+		virtual void ProcessVertex(const VertexInfo& in, VertexToPixel& out) const = 0;
+		virtual void ProcessPixel(const VertexToPixel& in, PixelInfo& out) const = 0;
 
 	};
 

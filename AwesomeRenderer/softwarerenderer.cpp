@@ -18,7 +18,7 @@ SoftwareRenderer::~SoftwareRenderer()
 
 void SoftwareRenderer::Render()
 {
-	std::vector<Node*>::iterator it;
+	std::vector<Node*>::const_iterator it;
 
 	for (it = renderContext->nodes.begin(); it != renderContext->nodes.end(); ++it)
 		DrawModel((*it)->model, (*it)->transform);
@@ -26,6 +26,7 @@ void SoftwareRenderer::Render()
 
 void SoftwareRenderer::DrawModel(const Model& model, Transformation& trans)
 {
+	// Iterate through meshes in the model
 	for (unsigned int cMesh = 0; cMesh < model.meshes.size(); ++cMesh)
 	{
 		const Mesh& mesh = *model.meshes[cMesh];
@@ -33,10 +34,12 @@ void SoftwareRenderer::DrawModel(const Model& model, Transformation& trans)
 
 		BeginDraw(trans.WorldMtx(), material);
 
+		// Iterate through triangles in the mesh
 		for (unsigned int cIndex = 0; cIndex < mesh.indices.size(); cIndex += 3)
 		{
 			Shader::VertexInfo vertexBuffer[3];
 
+			// Setup vertex data buffer for rendering
 			for (int cVertex = 0; cVertex < 3; ++cVertex)
 			{
 				int index = mesh.indices[cIndex + cVertex];
@@ -57,15 +60,20 @@ void SoftwareRenderer::DrawModel(const Model& model, Transformation& trans)
 
 void SoftwareRenderer::BeginDraw(const Matrix44& model, const Material& material, DrawMode drawMode)
 {
-	// Setup geometry matrices for shader
-	shader.modelMtx = model;
-	shader.viewMtx = renderContext->camera->viewMtx;
-	shader.projMtx = renderContext->camera->projMtx;
+	currentMaterial = &material;
 
-	shader.CombineMatrices();
+	Shader* shader = currentMaterial->shader;
+
+	// Setup geometry matrices for shader
+	shader->modelMtx = model;
+	shader->viewMtx = renderContext->camera->viewMtx;
+	shader->projMtx = renderContext->camera->projMtx;
 
 	// Setup shader rendering parameters
-	shader.material = &material;
+	shader->material = &material;
+
+	shader->Prepare();
+
 }
 
 void SoftwareRenderer::EndDraw()
@@ -83,7 +91,7 @@ void SoftwareRenderer::DrawTriangle(const Shader::VertexInfo* vertexBuffer)
 	for (int cVertex = 0; cVertex < 3; ++cVertex)
 	{
 		// Retrieve output from vertex shader
-		shader.ProcessVertex(vertexBuffer[cVertex], vtp[cVertex]);
+		currentMaterial->shader->ProcessVertex(vertexBuffer[cVertex], vtp[cVertex]);
 	}
 	
 	for (int cVertex = 0; cVertex < 3; ++cVertex)
@@ -178,9 +186,8 @@ void SoftwareRenderer::DrawTriangle(const Shader::VertexInfo* vertexBuffer)
 
 			// Compute pixel shading
 			Shader::PixelInfo pixelInfo;
-			shader.ProcessPixel(interpolated, pixelInfo);
+			currentMaterial->shader->ProcessPixel(interpolated, pixelInfo);
 						
-
 			// Write to color buffer
 			frameBuffer->SetPixel(x, y, pixelInfo.color);
 		}

@@ -3,7 +3,7 @@
 using namespace AwesomeRenderer;
 
 
-Renderer::Renderer() : shader(), cullMode(CULL_BACK)
+Renderer::Renderer() : cullMode(CULL_BACK)
 {
 
 }

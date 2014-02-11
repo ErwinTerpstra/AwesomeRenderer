@@ -10,6 +10,8 @@ namespace AwesomeRenderer
 		
 	public:
 
+		Shader* defaultShader;
+
 	private:
 		std::map<std::string, Material*> materialLib;
 

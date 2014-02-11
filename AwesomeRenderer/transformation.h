@@ -39,10 +39,9 @@ namespace AwesomeRenderer
 
 		void SetParent(Transformation* parent) { this->parent = parent; }
 		
-		const Matrix44& WorldMtx();
-		const Matrix44& LocalMtx();
+		const Matrix44& WorldMtx() const;
+		const Matrix44& LocalMtx() const;
 
-	private:
 		void CalculateMtx();
 	};
 

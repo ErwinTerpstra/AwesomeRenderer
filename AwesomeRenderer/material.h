@@ -4,12 +4,16 @@
 
 namespace AwesomeRenderer
 {
+	class Texture;
+	class Shader;
 
 	class Material
 	{
 
 	public:
 		Texture* texture;
+
+		Shader* shader;
 
 	public:
 		Material();

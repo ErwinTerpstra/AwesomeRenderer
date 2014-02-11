@@ -28,24 +28,21 @@ void Transformation::SetScale(const Vector3& scale)
 	this->dirty = true;
 }
 
-const Matrix44& Transformation::WorldMtx()
+const Matrix44& Transformation::WorldMtx() const
 {
-	if (dirty)
-		CalculateMtx();
-
 	return worldMtx;
 }
 
-const Matrix44& Transformation::LocalMtx()
+const Matrix44& Transformation::LocalMtx() const
 {
-	if (dirty)
-		CalculateMtx();
-
 	return localMtx;
 }
 
 void Transformation::CalculateMtx()
 {
+	if (!dirty)
+		return;
+
 	Matrix44 t, r, s;
 	cml::matrix_translation(t, position);
 	cml::matrix_rotation_quaternion(r, rotation);

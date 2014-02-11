@@ -22,13 +22,10 @@ namespace AwesomeRenderer
 			CULL_BACK = 1,
 		};
 
-		RenderContext* renderContext;
+		const RenderContext* renderContext;
 
 		CullMode cullMode;
-
-	protected:
-		Shader shader;
-
+		
 	public:
 
 		virtual void Render() = 0;

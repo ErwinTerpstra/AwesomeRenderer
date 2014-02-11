@@ -8,6 +8,11 @@ namespace AwesomeRenderer
 	{
 
 	public:
+
+	private:
+		const Material* currentMaterial;
+
+	public:
 		SoftwareRenderer();
 		~SoftwareRenderer();
 
@@ -17,7 +22,8 @@ namespace AwesomeRenderer
 		void EndDraw();
 		
 		void DrawModel(const Model& model, Transformation& trans);
-		
+
+	private:
 		void DrawTriangle(const Shader::VertexInfo* vertexBuffer);
 
 	};
