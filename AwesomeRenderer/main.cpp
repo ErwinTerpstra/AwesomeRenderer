@@ -1,5 +1,5 @@
-#define SCREEN_WIDTH 400
-#define SCREEN_HEIGHT 300
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
 
 #include <Windows.h>
 #include <stdio.h>
@@ -66,7 +66,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	rayTracer.renderContext = &renderContext;
 
 	// Shader
-	DiffuseShader diffuseShader;
+	PhongShader phongShader;
+	phongShader.lightData.numPixelLights = 8;
+	phongShader.lightData.ambient = Color(0.1f, 0.1f, 0.1f);
+
+	{
+		PhongShader::Light& light = phongShader.lightData.lights[0];
+		light.position = Vector3(0.0f, 5.0f, 5.0f);
+		light.type = PhongShader::LightType::POINT;
+		light.constantAttenuation = 0.0f;
+		light.lineairAttenuation = 0.01f;
+		light.quadricAttenuation = 0.001f;
+		light.intensity = 1.0f;
+		light.enabled = true;
+	}
+	
 	
 	// Camera controller
 	CameraController cameraController(camera);
@@ -75,16 +89,30 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Assets factories
 	TextureFactory textureFactory;
 	ObjLoader objLoader(textureFactory);
-	objLoader.defaultShader = &diffuseShader;
+	objLoader.defaultShader = &phongShader;
 	
 	// Game loop timer
 	Timer timer;
 
-	// Test model
+	// Test models
 	Node car;
 	objLoader.Load("../Assets/car.obj", car.model);
 
+	Node plane;
+	{
+		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL));
+		mesh->AddQuad(Vector3(-1.0f, 0.0f, -1.0f), Vector3(-1.0f, 0.0f, 1.0f), Vector3(1.0f, 0.0f, 1.0f), Vector3(1.0f, 0.0f, -1.0f));
+
+		Material* material = new Material();
+		material->shader = &phongShader;
+
+		plane.model.AddMesh(mesh, material);
+	}
+
+	softwareRenderer.cullMode = Renderer::CULL_NONE;
+
 	renderContext.nodes.push_back(&car);
+	renderContext.nodes.push_back(&plane);
 	
 	window.Show(nCmdShow);
 

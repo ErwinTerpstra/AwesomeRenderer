@@ -50,23 +50,49 @@ void Mesh::CalculateBounds()
 	
 void Mesh::AddTri(const Vector3& a, const Vector3& b, const Vector3& c)
 {
-	vertices.push_back(a);
-	vertices.push_back(b);
-	vertices.push_back(c);
+	if (this->HasAttribute(VERTEX_POSITION))
+	{
+		vertices.push_back(a);
+		vertices.push_back(b);
+		vertices.push_back(c);
+	}
 
-	if (a[1] > 0.0f)
+	if (this->HasAttribute(VERTEX_COLOR))
 	{
-		texcoords.push_back(Vector2(1.0f, 1.0f));
-		texcoords.push_back(Vector2(1.0f, 0.0f));
-		texcoords.push_back(Vector2(0.0f, 0.0f));
+		colors.push_back(Color::WHITE);
+		colors.push_back(Color::WHITE);
+		colors.push_back(Color::WHITE);
 	}
-	else
+
+	if (this->HasAttribute(VERTEX_TEXCOORD))
 	{
-		texcoords.push_back(Vector2(0.0f, 0.0f));
-		texcoords.push_back(Vector2(0.0f, 1.0f));
-		texcoords.push_back(Vector2(1.0f, 1.0f));
+		if (a[1] > 0.0f)
+		{
+			texcoords.push_back(Vector2(1.0f, 1.0f));
+			texcoords.push_back(Vector2(1.0f, 0.0f));
+			texcoords.push_back(Vector2(0.0f, 0.0f));
+		}
+		else
+		{
+			texcoords.push_back(Vector2(0.0f, 0.0f));
+			texcoords.push_back(Vector2(0.0f, 1.0f));
+			texcoords.push_back(Vector2(1.0f, 1.0f));
+		}
+
 	}
-	
+
+	if (this->HasAttribute(VERTEX_NORMAL))
+	{
+		Vector3 ab = b - a;
+		Vector3 ac = c - a;
+		Vector3 normal = cml::cross(ab, ac);
+		normal.normalize();
+
+		normals.push_back(normal);
+		normals.push_back(normal);
+		normals.push_back(normal);
+	}
+
 	indices.push_back(vertices.size() - 3);
 	indices.push_back(vertices.size() - 2);
 	indices.push_back(vertices.size() - 1);

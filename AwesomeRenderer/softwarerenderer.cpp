@@ -44,11 +44,17 @@ void SoftwareRenderer::DrawModel(const Model& model, Transformation& trans)
 			{
 				int index = mesh.indices[cIndex + cVertex];
 				
-				// TODO: Check model attributes and copy only used attributes
-				vertexBuffer[cVertex].position = mesh.vertices[index];
-				vertexBuffer[cVertex].normal = mesh.normals[index];
-				//vertexBuffer[cVertex].color = mesh.colors[index];
-				vertexBuffer[cVertex].uv = mesh.texcoords[index];
+				if (mesh.HasAttribute(Mesh::VERTEX_POSITION))
+					vertexBuffer[cVertex].position = mesh.vertices[index];
+
+				if (mesh.HasAttribute(Mesh::VERTEX_NORMAL))
+					vertexBuffer[cVertex].normal = mesh.normals[index];
+
+				if (mesh.HasAttribute(Mesh::VERTEX_COLOR))
+					vertexBuffer[cVertex].color = mesh.colors[index];
+
+				if (mesh.HasAttribute(Mesh::VERTEX_TEXCOORD))
+					vertexBuffer[cVertex].uv = mesh.texcoords[index];
 			}
 
 			DrawTriangle(vertexBuffer);

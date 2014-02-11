@@ -71,7 +71,7 @@
   <ItemGroup>
     <ClCompile Include="aabb.cpp" />
     <ClCompile Include="cameracontroller.cpp" />
-    <ClCompile Include="diffuseshader.cpp" />
+    <ClCompile Include="phongshader.cpp" />
     <ClCompile Include="filereader.cpp" />
     <ClCompile Include="inputmanager.cpp" />
     <ClCompile Include="mesh.cpp" />
@@ -108,7 +108,7 @@
   <ItemGroup>
     <ClInclude Include="aabb.h" />
     <ClInclude Include="buffer.h" />
-    <ClInclude Include="diffuseshader.h" />
+    <ClInclude Include="phongshader.h" />
     <ClInclude Include="filereader.h" />
     <ClInclude Include="inputmanager.h" />
     <ClInclude Include="mesh.h" />

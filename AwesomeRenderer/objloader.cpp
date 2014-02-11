@@ -147,7 +147,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 				if (line.compare(0, 6, "usemtl") == 0)
 				{
 					std::string name = line.substr(7);
-					mesh = new Mesh(Mesh::VERTEX_ALL);
+					mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL | Mesh::VERTEX_TEXCOORD));
 					model.AddMesh(mesh, materialLib[name]);
 					break;
 				}
@@ -245,7 +245,7 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 					Texture* texture = new Texture();
 
 					if (textureFactory.LoadBmp(textureFile.c_str(), *texture))
-						material->texture = texture;
+						material->diffuseMap = texture;
 					else
 						printf("[ObjLoader]: Failed to load diffuse map for material.\n");
 

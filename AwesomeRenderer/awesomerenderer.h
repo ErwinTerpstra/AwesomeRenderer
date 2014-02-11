@@ -47,7 +47,7 @@
 
 // Renderer
 #include "shader.h"
-#include "diffuseshader.h"
+#include "phongshader.h"
 
 #include "rendertarget.h"
 #include "rendercontext.h"

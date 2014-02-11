@@ -11,7 +11,15 @@ namespace AwesomeRenderer
 	{
 
 	public:
-		Texture* texture;
+		Texture* diffuseMap;
+		Texture* specularMap;
+		Texture* normalMap;
+		
+		Color ambientColor;
+		Color diffuseColor;
+		Color specularColor;
+
+		float shininess;
 
 		Shader* shader;
 
