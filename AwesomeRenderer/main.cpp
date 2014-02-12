@@ -72,11 +72,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	{
 		PhongShader::Light& light = phongShader.lightData.lights[0];
-		light.position = Vector3(0.0f, 5.0f, 5.0f);
+		light.position = Vector3(0.0f, 8.0f, 0.0f);
 		light.type = PhongShader::LightType::POINT;
 		light.constantAttenuation = 0.0f;
 		light.lineairAttenuation = 0.01f;
-		light.quadricAttenuation = 0.001f;
+		light.quadricAttenuation = 0.01f;
 		light.intensity = 1.0f;
 		light.enabled = true;
 	}
@@ -101,15 +101,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Node plane;
 	{
 		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL));
-		mesh->AddQuad(Vector3(-1.0f, 0.0f, -1.0f), Vector3(-1.0f, 0.0f, 1.0f), Vector3(1.0f, 0.0f, 1.0f), Vector3(1.0f, 0.0f, -1.0f));
+		mesh->AddQuad(Vector3(1.0f, 0.0f, -1.0f), Vector3(1.0f, 0.0f, 1.0f), Vector3(-1.0f, 0.0f, 1.0f), Vector3(-1.0f, 0.0f, -1.0f));
 
 		Material* material = new Material();
 		material->shader = &phongShader;
 
 		plane.model.AddMesh(mesh, material);
+		plane.transform.SetScale(Vector3(10.0f, 10.0f, 10.0f));
 	}
 
-	softwareRenderer.cullMode = Renderer::CULL_NONE;
+	//softwareRenderer.cullMode = Renderer::CULL_NONE;
 
 	renderContext.nodes.push_back(&car);
 	renderContext.nodes.push_back(&plane);

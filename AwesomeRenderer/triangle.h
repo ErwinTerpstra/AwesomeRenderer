@@ -65,7 +65,13 @@ namespace AwesomeRenderer
 			dot00 = cml::dot(v0, v0);
 			dot01 = cml::dot(v0, v1);
 			dot11 = cml::dot(v1, v1);
-			invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
+
+			float denom = dot00 * dot11 - dot01 * dot01;
+
+			if (denom < FLT_EPSILON)
+				invDenom = 1.0;
+			else
+				invDenom = 1.0f / denom;
 		}
 
 	};
