@@ -2,7 +2,7 @@
 
 using namespace AwesomeRenderer;
 
-Plane::Plane(float d, const Vector3& normal) : d(d), normal(normal), dTransformed(d), normalTransformed(normal)
+Plane::Plane(float d, const Vector3& normal) : Shape(), d(d), normal(normal), dTransformed(d), normalTransformed(normal)
 {
 
 }
@@ -18,7 +18,7 @@ void Plane::Transform(const Matrix44& mtx)
 	dTransformed = cml::dot(transformedPoint, normalTransformed);
 }
 
-bool Plane::IntersectRay(const Ray& ray, RaycastHit& hitInfo)
+bool Plane::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 {
 	float dot = cml::dot(normalTransformed, ray.direction);
 

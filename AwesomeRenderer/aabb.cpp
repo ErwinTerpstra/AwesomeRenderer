@@ -3,7 +3,7 @@
 using namespace AwesomeRenderer;
 
 
-AABB::AABB() : min(), max(), minTransformed(), maxTransformed()
+AABB::AABB() : Shape(), min(), max(), minTransformed(), maxTransformed()
 {
 
 }

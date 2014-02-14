@@ -2,7 +2,7 @@
 
 using namespace AwesomeRenderer;
 
-Sphere::Sphere() : center(), centerTransformed()
+Sphere::Sphere() : Shape(), center(), centerTransformed()
 {
 
 }

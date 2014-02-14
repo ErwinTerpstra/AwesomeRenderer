@@ -12,9 +12,9 @@ namespace AwesomeRenderer
 		static const int MAX_NODES_PER_LEAF;
 		static const int MAX_DEPTH;
 
-		KDTree *leftNode, *rightNode;
+		KDTree *upperNode, *lowerNode;
 
-		std::vector<Object*> objects;
+		std::vector<const Object*> objects;
 
 	private:
 		KDTree *parent;
@@ -30,7 +30,7 @@ namespace AwesomeRenderer
 
 		void Optimize(int depth = 0);
 
-		bool IsLeaf() const { return leftNode == NULL && rightNode == NULL; }
+		bool IsLeaf() const { return upperNode == NULL && lowerNode == NULL; }
 
 	private:
 		void Split();

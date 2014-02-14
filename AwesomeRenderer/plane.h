@@ -18,7 +18,7 @@ namespace AwesomeRenderer
 
 		void Transform(const Matrix44& mtx);
 
-		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo);
+		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo) const;
 
 		int SideOfPlane(const Plane& plane) const;
 		int SideOfPlane(const Vector3& point) const;
