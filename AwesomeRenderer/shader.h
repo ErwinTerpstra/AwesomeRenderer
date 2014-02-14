@@ -29,7 +29,7 @@ namespace AwesomeRenderer
 			Vector2 uv;
 			Color color;
 
-			VertexToPixel() : screenPosition(), worldPosition(), normal(0.0f, 1.0f, 0.0f), uv(0.0f, 0.0f), color(Color::WHITE)
+			VertexToPixel() : screenPosition(), worldPosition(), normal(), uv(0.0f, 0.0f), color(Color::WHITE)
 			{
 
 			}

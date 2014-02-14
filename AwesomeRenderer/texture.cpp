@@ -2,20 +2,20 @@
 
 using namespace AwesomeRenderer;
 
-Texture::Texture() : MemoryBuffer()
+Texture::Texture() : MemoryBuffer(), wrapMode(WM_DEFAULT)
 {
 
 }
 
-Color Texture::Sample(const Vector2& uv, WrapMode wrapMode) const
+Color Texture::Sample(const Vector2& uv) const
 {
 	Color sample;
-	Sample(uv, sample, wrapMode);
+	Sample(uv, sample);
 
 	return sample;
 }
 
-void Texture::Sample(const Vector2& uv, Color& sample, WrapMode wrapMode) const
+void Texture::Sample(const Vector2& uv, Color& sample) const
 {
 	Vector2 ts(uv);
 

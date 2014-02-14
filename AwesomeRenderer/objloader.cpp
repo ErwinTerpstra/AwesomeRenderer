@@ -173,6 +173,8 @@ void ObjLoader::Load(const char* fileName, Model& model)
 		mesh.CalculateBounds();
 	}
 
+	model.CalculateBounds();
+
 	// Release buffers
 	vertexBuffer.clear();
 	normalBuffer.clear();

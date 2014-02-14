@@ -26,13 +26,15 @@ namespace AwesomeRenderer
 		{
 
 		}
+
+		virtual ~Triangle() { }
 		
-		const VectorType& operator[](int idx)
+		const VectorType& operator[](int idx) const
 		{
 			return v[idx];
 		}
 
-		void CalculateBarycentricCoords(const VectorType& p, Vector3& barycentricCoords)
+		void CalculateBarycentricCoords(const VectorType& p, Vector3& barycentricCoords) const
 		{
 			VectorType v2 = p - v[0];
 
@@ -48,7 +50,7 @@ namespace AwesomeRenderer
 			barycentricCoords.set(1.0f - u - v, v, u);
 		}
 
-		bool IsPointInside(const VectorType& p, Vector3& barycentricCoords)
+		bool IsPointInside(const VectorType& p, Vector3& barycentricCoords) const
 		{
 			CalculateBarycentricCoords(p, barycentricCoords);
 
@@ -72,6 +74,23 @@ namespace AwesomeRenderer
 				invDenom = 1.0;
 			else
 				invDenom = 1.0f / denom;
+		}
+
+
+		void CalculateBounds(VectorType& lower, VectorType& upper) const
+		{
+
+			for (int i = 0; i < VectorType::dimension; ++i)
+			{
+				lower[i] = FLT_MAX;
+				upper[i] = FLT_MIN;
+
+				for (int cVertex = 0; cVertex < 3; ++cVertex)
+				{
+					lower[i] = std::min(v[cVertex][i], lower[i]);
+					upper[i] = std::max(v[cVertex][i], upper[i]);
+				}
+			}
 		}
 
 	};

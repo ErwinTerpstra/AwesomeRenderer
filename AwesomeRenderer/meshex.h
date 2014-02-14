@@ -6,7 +6,7 @@ namespace AwesomeRenderer
 	class MeshEx
 	{
 	public:
-		std::vector<Triangle3D> triangles;
+		std::vector<Triangle3D*> triangles;
 
 	public:
 		MeshEx(const Mesh& mesh);

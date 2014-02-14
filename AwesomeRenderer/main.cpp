@@ -113,7 +113,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//softwareRenderer.cullMode = Renderer::CULL_NONE;
 
 	renderContext.nodes.push_back(&car);
-	renderContext.nodes.push_back(&plane);
+	//renderContext.nodes.push_back(&plane);
 	
 	window.Show(nCmdShow);
 
@@ -149,8 +149,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		// Rendering
 		renderTarget.Clear(Color::BLACK);
 
+		//*
 		softwareRenderer.Render();
-		//rayTracer.Render();
+		/*/
+		rayTracer.Render();
+		//*/
 		
 		// Present window
 		window.ProcessMessages();

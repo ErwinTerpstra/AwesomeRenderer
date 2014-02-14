@@ -15,7 +15,6 @@ namespace AwesomeRenderer
 		Texture* specularMap;
 		Texture* normalMap;
 		
-		Color ambientColor;
 		Color diffuseColor;
 		Color specularColor;
 

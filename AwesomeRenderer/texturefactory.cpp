@@ -32,7 +32,7 @@ bool TextureFactory::LoadBmp(const char* fileName, Texture& texture) const
 
 	// TODO: Move binary reading of file to FileReader class
 	FILE* filePtr;
-
+	
 	// Open filename in read binary mode
 	filePtr = fopen(fileName, "rb");
 	if (filePtr == NULL)

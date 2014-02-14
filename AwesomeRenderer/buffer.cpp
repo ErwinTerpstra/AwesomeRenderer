@@ -52,7 +52,7 @@ void Buffer::SetPixel(int x, int y, float f)
 	// Scales a float in 0 .. 1 range to the max value stored per pixel
 	f = cml::clamp(f, 0.0f, 1.0f);
 	unsigned long max = (1 << bpp) - 1;
-	unsigned long value = f * max;
+	unsigned long value = (unsigned long) (f * max);
 	
 	uchar* pixelBase = GetBase(x, y);
 	memcpy(pixelBase, reinterpret_cast<uchar*>(&value), stride);

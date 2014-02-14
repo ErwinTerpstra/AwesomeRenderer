@@ -13,18 +13,3 @@ Triangle2D::Triangle2D(const Triangle2D& other)
 {
 
 }
-
-void Triangle2D::CalculateBounds(Vector2& lower, Vector2& upper)
-{
-	lower.set(FLT_MAX, FLT_MAX);
-	upper.set(FLT_MIN, FLT_MIN);
-
-	for (int cVertex = 0; cVertex < 3; ++cVertex)
-	{
-		for (int i = 0; i < 2; ++i)
-		{
-			lower[i] = std::min(v[cVertex][i], lower[i]);
-			upper[i] = std::max(v[cVertex][i], upper[i]);
-		}
-	}
-}

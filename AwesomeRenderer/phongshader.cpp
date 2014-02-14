@@ -13,7 +13,11 @@ void PhongShader::ProcessVertex(const VertexInfo& in, VertexToPixel& out) const
 
 	out.worldPosition = position * modelMtx;
 	out.screenPosition = position * screenMtx;
-	out.normal = in.normal;
+	
+	Vector4 normal(in.normal, 0.0f);
+	normal = normal * modelMtx;
+	out.normal = normal.subvector(3).normalize();
+	
 	out.color = in.color;
 
 	out.uv = in.uv;
@@ -35,7 +39,7 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 	{
 		Color sample = material->diffuseMap->Sample(in.uv);
 		
-		specular *= sample;
+		specular *= sample;		// Multiply specular color with the color for this pixel
 		shininess *= sample[3];	// Multiply global shininess with the local value for this pixel
 	}
 
@@ -75,8 +79,5 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 		specularLight += light.color * specularTerm * intensity;
 	}
 
-	// Ambient Term
-	Color ambient = material->ambientColor * lightData.ambient;
-	
-	out.color = ambient + diffuse * diffuseLight + specular * specularLight;
+	out.color = diffuse * (lightData.ambient + diffuseLight) + specular * specularLight;
 }

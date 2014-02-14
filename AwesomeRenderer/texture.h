@@ -17,11 +17,12 @@ namespace AwesomeRenderer
 			WM_DEFAULT = WM_REPEAT
 		};
 
+		WrapMode wrapMode;
 	public:
 		Texture();
 
-		Color Sample(const Vector2& uv, WrapMode wrapMode = WM_DEFAULT) const;
-		void Sample(const Vector2& uv, Color& sample, WrapMode wrapMode = WM_DEFAULT) const;
+		Color Sample(const Vector2& uv) const;
+		void Sample(const Vector2& uv, Color& sample) const;
 
 	};
 

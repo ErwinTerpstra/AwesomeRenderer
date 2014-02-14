@@ -8,9 +8,6 @@
 
 // Data types
 #include "color.h"
-#include "triangle.h"
-#include "triangle3d.h"
-#include "triangle2d.h"
 
 // Memory
 #include "buffer.h"
@@ -25,10 +22,14 @@
 #include "camera.h"
 
 // Shapes
+#include "object.h"
 #include "shape.h"
+#include "plane.h"
 #include "aabb.h"
 #include "sphere.h"
-#include "octree.h"
+#include "triangle.h"
+#include "triangle3d.h"
+#include "triangle2d.h"
 
 // Input
 #include "inputmanager.h"
@@ -44,6 +45,8 @@
 
 // Scene graph
 #include "node.h"
+#include "kdtree.h"
+#include "octree.h"
 
 // Renderer
 #include "shader.h"

@@ -7,14 +7,17 @@ namespace AwesomeRenderer
 	class Ray;
 	struct RaycastHit;
 
-	class Triangle3D : public Triangle<Vector3>
+	class Triangle3D : public Triangle<Vector3>, public Shape
 	{
 
 	public:
+		// Normal vector for this triangle (word space)
 		Vector3 normal;
 
+		// Vertices in object space
+		Vector3 vO[3];
+
 	private:
-		bool dirty;
 
 	public:
 		Triangle3D(const Vector3& a, const Vector3& b, const Vector3& c);
@@ -23,8 +26,10 @@ namespace AwesomeRenderer
 		const Vector3& CalculateNormal();
 		
 		void Transform(const Matrix44& mtx);
-		
-		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo);
+
+		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo) const;
+
+		int SideOfPlane(const Plane& plane) const;
 	};
 }
 

@@ -25,7 +25,7 @@ void Sphere::Transform(const Matrix44& mtx)
 {
 	// Transform a uniform scale to find out the maximum scaled dimension
 	// TODO: Is this the best/fastest way to retrieve the scale from a matrix?
-	Vector3 scale = cml::transform_point(mtx, Vector3(1.0f, 1.0f, 1.0f));
+	Vector3 scale = cml::transform_vector(mtx, Vector3(1.0f, 1.0f, 1.0f));
 
 	radiusTransformed = radius * std::max(scale[0], std::max(scale[1], scale[2]));
 	centerTransformed = cml::transform_point(mtx, center);
@@ -78,4 +78,11 @@ bool Sphere::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 	hitInfo.point = ray.origin + ray.direction * t0;
 	
 	return true;
+}
+
+int Sphere::SideOfPlane(const Plane& plane) const
+{
+	// The plane intersects the sphere if the shortest distance from the center to the plane is smaller than the radius
+	// Otherwise the sphere is on the side the center is located
+	return plane.Distance(centerTransformed) < radiusTransformed ? 0 : plane.SideOfPlane(centerTransformed);
 }

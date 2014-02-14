@@ -22,8 +22,8 @@ MeshEx::~MeshEx()
 
 Triangle3D& MeshEx::AddTri(const Vector3& a, const Vector3& b, const Vector3& c)
 {
-	Triangle3D triangle(a, b, c);
+	Triangle3D* triangle = new Triangle3D(a, b, c);
 	triangles.push_back(triangle);
 
-	return triangles[triangles.size() - 1];
+	return *triangle;
 }

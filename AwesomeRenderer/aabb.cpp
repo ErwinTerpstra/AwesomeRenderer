@@ -24,19 +24,9 @@ void AABB::Initialize(const Vector3& min, const Vector3& max)
 
 void AABB::Transform(const Matrix44& mtx)
 {
-	// Transform all corner points of the cube
-	Vector3 corners[] = 
-	{
-		cml::transform_point(mtx, Vector3(min[0], min[1], min[2])),
-		cml::transform_point(mtx, Vector3(max[0], min[1], min[2])),
-		cml::transform_point(mtx, Vector3(min[0], max[1], min[2])),
-		cml::transform_point(mtx, Vector3(max[0], max[1], min[2])),
-		
-		cml::transform_point(mtx, Vector3(min[0], min[1], max[2])),
-		cml::transform_point(mtx, Vector3(max[0], min[1], max[2])),
-		cml::transform_point(mtx, Vector3(min[0], max[1], max[2])),
-		cml::transform_point(mtx, Vector3(max[0], max[1], max[2])),
-	};
+	// Retrieve all corner points of the cube
+	Vector3 corners[8];
+	GetCorners(corners);
 
 	// Initialize transformed boundaries to extreme values
 	minTransformed.set(FLT_MAX, FLT_MAX, FLT_MAX);
@@ -45,7 +35,7 @@ void AABB::Transform(const Matrix44& mtx)
 	// Iterate through all corners to find the bounding values
 	for (int cCorner = 0; cCorner < 8; ++cCorner)
 	{
-		const Vector3& corner = corners[cCorner];
+		Vector3 corner = cml::transform_point(mtx, corners[cCorner]);
 
 		// Find the max/min values for each axis
 		// This could be in a seperate loop but I think this is significantly faster
@@ -57,6 +47,32 @@ void AABB::Transform(const Matrix44& mtx)
 		maxTransformed[1] = std::min(corner[1], maxTransformed[1]);
 		maxTransformed[2] = std::min(corner[2], maxTransformed[2]);
 	}
+}
+
+void AABB::GetCorners(Vector3* corners) const
+{
+	corners[0] = Vector3(min[0], min[1], min[2]);
+	corners[1] = Vector3(max[0], min[1], min[2]);
+	corners[2] = Vector3(min[0], max[1], min[2]);
+	corners[3] = Vector3(max[0], max[1], min[2]);
+
+	corners[4] = Vector3(min[0], min[1], max[2]);
+	corners[5] = Vector3(max[0], min[1], max[2]);
+	corners[6] = Vector3(min[0], max[1], max[2]);
+	corners[7] = Vector3(max[0], max[1], max[2]);
+}
+
+void AABB::GetTransformedCorners(Vector3* corners) const
+{
+	corners[0] = Vector3(minTransformed[0], minTransformed[1], minTransformed[2]);
+	corners[1] = Vector3(maxTransformed[0], minTransformed[1], minTransformed[2]);
+	corners[2] = Vector3(minTransformed[0], maxTransformed[1], minTransformed[2]);
+	corners[3] = Vector3(maxTransformed[0], maxTransformed[1], minTransformed[2]);
+
+	corners[4] = Vector3(minTransformed[0], minTransformed[1], maxTransformed[2]);
+	corners[5] = Vector3(maxTransformed[0], minTransformed[1], maxTransformed[2]);
+	corners[6] = Vector3(minTransformed[0], maxTransformed[1], maxTransformed[2]);
+	corners[7] = Vector3(maxTransformed[0], maxTransformed[1], maxTransformed[2]);
 }
 
 bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
@@ -84,4 +100,23 @@ bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 	hitInfo.point = ray.origin + ray.direction * tMin;
 
 	return true;
+}
+
+int AABB::SideOfPlane(const Plane& plane) const
+{
+	// Retrieve all corners of cube
+	Vector3 corners[8];
+	GetTransformedCorners(corners);
+
+	// Retrieve side of first corner, if all other corners are on the same side, the entire box is on that side
+	int side = plane.SideOfPlane(corners[0]);
+
+	for (int cCorner = 1; cCorner < 8; ++cCorner)
+	{
+		// If at least two corners are on different sides, the box intersects the plane
+		if (plane.SideOfPlane(corners[cCorner]) != side)
+			return 0;
+	}
+
+	return side;
 }

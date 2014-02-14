@@ -56,7 +56,7 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 
 				// Create triangle object based on the vertex data
 				Triangle3D triangle(mesh.vertices[vIdx0], mesh.vertices[vIdx1], mesh.vertices[vIdx2]);
-
+				
 				// Transform the triangle from model to world space
 				triangle.Transform(node.transform.WorldMtx());
 				triangle.PreCalculateBarycentric();
@@ -90,16 +90,8 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 					depthBuffer->SetPixel(screenPosition[0], screenPosition[1], depth);
 				}
 
-				//VectorUtil<4>::Interpolate(mesh.colors[vIdx0], mesh.colors[vIdx1], mesh.colors[vIdx2], hitInfo.barycentricCoords, interpolated.color);
-				VectorUtil<3>::Interpolate(mesh.normals[vIdx0], mesh.normals[vIdx1], mesh.normals[vIdx2], hitInfo.barycentricCoords, interpolated.normal);
-				VectorUtil<2>::Interpolate(mesh.texcoords[vIdx0], mesh.texcoords[vIdx1], mesh.texcoords[vIdx2], hitInfo.barycentricCoords, interpolated.uv);
-
-				// Compute pixel shading
-				Shader::PixelInfo pixelInfo;
-				material.shader->ProcessPixel(interpolated, pixelInfo);
-
 				// Write to color buffer
-				frameBuffer->SetPixel(screenPosition[0], screenPosition[1], pixelInfo.color);
+				frameBuffer->SetPixel(screenPosition[0], screenPosition[1], Color::WHITE);
 			}
 		}
 	}

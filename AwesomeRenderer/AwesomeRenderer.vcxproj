@@ -71,6 +71,7 @@
   <ItemGroup>
     <ClCompile Include="aabb.cpp" />
     <ClCompile Include="cameracontroller.cpp" />
+    <ClCompile Include="kdtree.cpp" />
     <ClCompile Include="phongshader.cpp" />
     <ClCompile Include="filereader.cpp" />
     <ClCompile Include="inputmanager.cpp" />
@@ -81,6 +82,7 @@
     <ClCompile Include="node.cpp" />
     <ClCompile Include="objloader.cpp" />
     <ClCompile Include="octree.cpp" />
+    <ClCompile Include="plane.cpp" />
     <ClCompile Include="ray.cpp" />
     <ClCompile Include="raytracer.cpp" />
     <ClCompile Include="rendercontext.cpp" />
@@ -108,6 +110,8 @@
   <ItemGroup>
     <ClInclude Include="aabb.h" />
     <ClInclude Include="buffer.h" />
+    <ClInclude Include="kdtree.h" />
+    <ClInclude Include="object.h" />
     <ClInclude Include="phongshader.h" />
     <ClInclude Include="filereader.h" />
     <ClInclude Include="inputmanager.h" />
@@ -117,6 +121,7 @@
     <ClInclude Include="objloader.h" />
     <ClInclude Include="cameracontroller.h" />
     <ClInclude Include="octree.h" />
+    <ClInclude Include="plane.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="raycasthit.h" />
     <ClInclude Include="raytracer.h" />

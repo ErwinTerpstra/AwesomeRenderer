@@ -23,6 +23,8 @@ namespace AwesomeRenderer
 		
 		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo) const;
 
+		int SideOfPlane(const Plane& plane) const;
+
 		const Vector3& Center() { return centerTransformed; }
 		const float& Radius() { return radiusTransformed; }
 	};

@@ -4,7 +4,7 @@ using namespace AwesomeRenderer;
 
 CameraController::CameraController(Camera& camera) : 
 	camera(camera), distance(1.0f),
-	azimuth(0.0f), zenith(M_PI * 0.5f),
+	azimuth(0.0f), zenith((float) M_PI * 0.5f),
 	azimuthSpeed(2.0f), zenithSpeed(2.0f)
 {
 

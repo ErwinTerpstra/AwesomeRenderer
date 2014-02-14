@@ -4,7 +4,7 @@
 namespace AwesomeRenderer
 {
 
-	class Node
+	class Node : public Object
 	{
 
 	public:
@@ -14,6 +14,8 @@ namespace AwesomeRenderer
 
 	public:
 		Node();
+
+		virtual const Shape& GetBounds() const { return model.bounds; }
 
 	};
 
