@@ -9,7 +9,7 @@ namespace AwesomeRenderer
 	{
 	public:
 		virtual ~Object() { }
-		virtual const Shape& GetBounds() const = 0;
+		virtual const Shape& GetShape() const = 0;
 	};
 
 }

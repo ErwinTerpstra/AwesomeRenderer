@@ -22,7 +22,7 @@ namespace AwesomeRenderer
 		void AddMesh(Mesh* mesh, Material* material);
 		void CalculateBounds();
 
-		virtual const Shape& GetBounds() const { return bounds; }
+		virtual const Shape& GetShape() const { return bounds; }
 	};
 
 }

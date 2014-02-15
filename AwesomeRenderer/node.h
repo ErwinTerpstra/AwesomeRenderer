@@ -15,7 +15,7 @@ namespace AwesomeRenderer
 	public:
 		Node();
 
-		virtual const Shape& GetBounds() const { return model.bounds; }
+		virtual const Shape& GetShape() const { return model.bounds; }
 
 	};
 

@@ -9,6 +9,8 @@ namespace AwesomeRenderer
 
 	class Triangle3D : public Triangle<Vector3>, public Shape
 	{
+		using Triangle<Vector3>::CalculateBounds;
+		using Shape::CalculateBounds;
 
 	public:
 		// Normal vector for this triangle (word space)
@@ -30,6 +32,8 @@ namespace AwesomeRenderer
 		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo) const;
 
 		int SideOfPlane(const Plane& plane) const;
+
+		void CalculateBounds(AABB& bounds) const;
 	};
 }
 

@@ -4,7 +4,13 @@ using namespace AwesomeRenderer;
 
 ModelEx::ModelEx(const Model& model)
 {
+	std::vector<Mesh*>::const_iterator it;
 
+	for (it = model.meshes.begin(); it != model.meshes.end(); ++it)
+	{
+		MeshEx* mesh = new MeshEx(**it);
+		meshes.push_back(mesh);
+	}
 }
 
 ModelEx::~ModelEx()

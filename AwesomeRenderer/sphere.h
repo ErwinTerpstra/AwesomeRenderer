@@ -25,6 +25,12 @@ namespace AwesomeRenderer
 
 		int SideOfPlane(const Plane& plane) const;
 
+		void CalculateBounds(AABB& bounds) const 
+		{
+			Vector3 extents(radiusTransformed, radiusTransformed, radiusTransformed);
+			bounds.Initialize(centerTransformed - extents, centerTransformed + extents);
+		}
+
 		const Vector3& Center() { return centerTransformed; }
 		const float& Radius() { return radiusTransformed; }
 	};

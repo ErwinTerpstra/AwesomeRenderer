@@ -78,3 +78,11 @@ int Triangle3D::SideOfPlane(const Plane& plane) const
 	// Otherwise the triangle intersects the plane
 	return (a == b && a == c) ? a : 0;
 }
+
+void Triangle3D::CalculateBounds(AABB& bounds) const
+{
+	Vector3 lower, upper;
+	CalculateBounds(lower, upper);
+
+	bounds.Initialize(lower, upper);
+}

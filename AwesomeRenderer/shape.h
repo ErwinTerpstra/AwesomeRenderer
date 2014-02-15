@@ -4,8 +4,9 @@
 namespace AwesomeRenderer
 {
 	class Plane;
+	class AABB;
 
-	class Shape : public Object
+	class Shape : public virtual Object
 	{
 
 	public:
@@ -22,7 +23,9 @@ namespace AwesomeRenderer
 
 		virtual int SideOfPlane(const Plane& plane) const = 0;
 
-		virtual const Shape& GetBounds() const { return *this; }
+		virtual void CalculateBounds(AABB& bounds) const = 0;
+
+		virtual const Shape& GetShape() const { return *this; }
 	};
 }
 

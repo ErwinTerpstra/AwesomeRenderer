@@ -79,7 +79,6 @@ namespace AwesomeRenderer
 
 		void CalculateBounds(VectorType& lower, VectorType& upper) const
 		{
-
 			for (int i = 0; i < VectorType::dimension; ++i)
 			{
 				lower[i] = FLT_MAX;

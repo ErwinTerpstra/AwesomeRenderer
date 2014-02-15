@@ -46,7 +46,7 @@ namespace AwesomeRenderer
 		void AddTri(const Vector3& a, const Vector3& b, const Vector3& c);
 		void AddQuad(const Vector3& a, const Vector3& b, const Vector3& c, const Vector3& d);
 
-		virtual const Shape& GetBounds() const { return bounds; }
+		virtual const Shape& GetShape() const { return bounds; }
 
 	};
 

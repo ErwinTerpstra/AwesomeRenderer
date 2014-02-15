@@ -98,6 +98,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Node car;
 	objLoader.Load("../Assets/car.obj", car.model);
 
+	ModelEx modelEx(car.model);
+	KDTree tree;
+
+	for (std::vector<MeshEx*>::iterator meshIterator = modelEx.meshes.begin(); meshIterator != modelEx.meshes.end(); ++meshIterator)
+	{
+		std::vector<Triangle3D*> triangles = (*meshIterator)->triangles;
+		tree.objects.insert(tree.objects.end(), triangles.begin(), triangles.end());
+	}
+
+	tree.Optimize(car.model.bounds);
+
 	Node plane;
 	{
 		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL));

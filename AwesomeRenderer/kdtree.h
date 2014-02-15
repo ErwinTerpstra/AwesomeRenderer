@@ -11,6 +11,9 @@ namespace AwesomeRenderer
 	public:
 		static const int MAX_NODES_PER_LEAF;
 		static const int MAX_DEPTH;
+		static const float TRAVERSAL_COST;
+		static const float INTERSECTION_COST;
+		static const float POSITION_EPSILON;
 
 		KDTree *upperNode, *lowerNode;
 
@@ -25,15 +28,17 @@ namespace AwesomeRenderer
 
 	public:
 
-		KDTree(KDTree* parent);
+		KDTree(KDTree* parent = NULL);
 		~KDTree();
 
-		void Optimize(int depth = 0);
+		void Optimize(const AABB& bounds, int depth = 0);
 
 		bool IsLeaf() const { return upperNode == NULL && lowerNode == NULL; }
 
 	private:
-		void Split();
+		void Split(const AABB& bounds);
+		
+		void CalculateBounds(const AABB& bounds, float splitPoint, AABB& upper, AABB& lower);
 
 	};
 }
