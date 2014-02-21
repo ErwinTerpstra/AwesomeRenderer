@@ -6,7 +6,7 @@
 namespace AwesomeRenderer
 {
 
-	class PhongShader : public Shader
+	class PhongShader : public SoftwareShader
 	{
 
 	public:

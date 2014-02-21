@@ -37,7 +37,7 @@ void SoftwareRenderer::DrawModel(const Model& model, Transformation& trans)
 		// Iterate through triangles in the mesh
 		for (unsigned int cIndex = 0; cIndex < mesh.indices.size(); cIndex += 3)
 		{
-			Shader::VertexInfo vertexBuffer[3];
+			SoftwareShader::VertexInfo vertexBuffer[3];
 
 			// Setup vertex data buffer for rendering
 			for (int cVertex = 0; cVertex < 3; ++cVertex)
@@ -68,7 +68,7 @@ void SoftwareRenderer::BeginDraw(const Matrix44& model, const Material& material
 {
 	currentMaterial = &material;
 
-	Shader* shader = currentMaterial->shader;
+	SoftwareShader* shader = static_cast<SoftwareShader*>(currentMaterial->shader);
 
 	// Setup geometry matrices for shader
 	shader->modelMtx = model;
@@ -87,17 +87,18 @@ void SoftwareRenderer::EndDraw()
 
 }
 
-void SoftwareRenderer::DrawTriangle(const Shader::VertexInfo* vertexBuffer)
+void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuffer)
 {
 	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
 	Buffer* depthBuffer = renderContext->renderTarget->depthBuffer;
+	SoftwareShader* shader = static_cast<SoftwareShader*>(currentMaterial->shader);
 
-	Shader::VertexToPixel vtp[3];
+	SoftwareShader::VertexToPixel vtp[3];
 	
 	for (int cVertex = 0; cVertex < 3; ++cVertex)
 	{
 		// Retrieve output from vertex shader
-		currentMaterial->shader->ProcessVertex(vertexBuffer[cVertex], vtp[cVertex]);
+		shader->ProcessVertex(vertexBuffer[cVertex], vtp[cVertex]);
 	}
 	
 	for (int cVertex = 0; cVertex < 3; ++cVertex)
@@ -126,9 +127,9 @@ void SoftwareRenderer::DrawTriangle(const Shader::VertexInfo* vertexBuffer)
 			return;
 	}
 	
-	Shader::VertexToPixel* a = &vtp[0];
-	Shader::VertexToPixel* b = &vtp[1];
-	Shader::VertexToPixel* c = &vtp[2];
+	SoftwareShader::VertexToPixel* a = &vtp[0];
+	SoftwareShader::VertexToPixel* b = &vtp[1];
+	SoftwareShader::VertexToPixel* c = &vtp[2];
 
 	// Sort the vertices in Y direction for rasterizing
 	SortTriangle(&a, &b, &c);
@@ -171,7 +172,7 @@ void SoftwareRenderer::DrawTriangle(const Shader::VertexInfo* vertexBuffer)
 			sst.CalculateBarycentricCoords(Vector2((float) x, (float) y), bcCoords);
 			
 			// Interpolate pixel data
-			Shader::VertexToPixel interpolated;
+			SoftwareShader::VertexToPixel interpolated;
 			VectorUtil<4>::Interpolate(a->screenPosition,	b->screenPosition,	c->screenPosition,	bcCoords,	interpolated.screenPosition);
 			VectorUtil<4>::Interpolate(a->worldPosition,	b->worldPosition,	c->worldPosition,	bcCoords,	interpolated.worldPosition);
 			VectorUtil<4>::Interpolate(a->color,			b->color,			c->color,			bcCoords,	interpolated.color);
@@ -191,12 +192,27 @@ void SoftwareRenderer::DrawTriangle(const Shader::VertexInfo* vertexBuffer)
 			}
 
 			// Compute pixel shading
-			Shader::PixelInfo pixelInfo;
-			currentMaterial->shader->ProcessPixel(interpolated, pixelInfo);
+			SoftwareShader::PixelInfo pixelInfo;
+			shader->ProcessPixel(interpolated, pixelInfo);
 						
 			// Write to color buffer
 			frameBuffer->SetPixel(x, y, pixelInfo.color);
 		}
 	}
 
+}
+
+void SoftwareRenderer::SortTriangle(SoftwareShader::VertexToPixel** a, SoftwareShader::VertexToPixel** b, SoftwareShader::VertexToPixel** c)
+{
+	if ((*a)->screenPosition[1] > (*b)->screenPosition[1]) Swap<SoftwareShader::VertexToPixel>(a, b);
+	if ((*b)->screenPosition[1] > (*c)->screenPosition[1]) Swap<SoftwareShader::VertexToPixel>(b, c);
+	if ((*a)->screenPosition[1] > (*b)->screenPosition[1]) Swap<SoftwareShader::VertexToPixel>(a, b);
+}
+
+template <typename T>
+void SoftwareRenderer::Swap(T** a, T** b)
+{
+	T* tmp = *a;
+	*a = *b;
+	*b = tmp;
 }

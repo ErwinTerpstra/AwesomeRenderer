@@ -71,7 +71,7 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 					continue;
 				
 				// Interpolate pixel data
-				Shader::VertexToPixel interpolated;
+				SoftwareShader::VertexToPixel interpolated;
 				interpolated.screenPosition = Vector4(((float)screenPosition[0]) / frameBuffer->width,
 													  ((float)screenPosition[1]) / frameBuffer->height,
 														hitInfo.distance / cameraDepth, 1.0f);

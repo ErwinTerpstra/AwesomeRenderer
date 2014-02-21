@@ -24,7 +24,13 @@ namespace AwesomeRenderer
 		void DrawModel(const Model& model, Transformation& trans);
 
 	private:
-		void DrawTriangle(const Shader::VertexInfo* vertexBuffer);
+		void DrawTriangle(const SoftwareShader::VertexInfo* vertexBuffer);
+
+		static void SortTriangle(SoftwareShader::VertexToPixel** a, SoftwareShader::VertexToPixel** b, SoftwareShader::VertexToPixel** c);
+
+		template <typename T>
+		static void Swap(T** a, T** b);
+
 
 	};
 	

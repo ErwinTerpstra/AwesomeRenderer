@@ -99,7 +99,7 @@
     <ClCompile Include="material.cpp" />
     <ClCompile Include="memorybuffer.cpp" />
     <ClCompile Include="softwarerenderer.cpp" />
-    <ClCompile Include="shader.cpp" />
+    <ClCompile Include="softwareshader.cpp" />
     <ClCompile Include="texturefactory.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="transformation.cpp" />
@@ -129,6 +129,7 @@
     <ClInclude Include="renderer.h" />
     <ClInclude Include="meshex.h" />
     <ClInclude Include="rendertarget.h" />
+    <ClInclude Include="shader.h" />
     <ClInclude Include="shape.h" />
     <ClInclude Include="sphere.h" />
     <ClInclude Include="texture.h" />
@@ -138,7 +139,7 @@
     <ClInclude Include="material.h" />
     <ClInclude Include="memorybuffer.h" />
     <ClInclude Include="softwarerenderer.h" />
-    <ClInclude Include="shader.h" />
+    <ClInclude Include="softwareshader.h" />
     <ClInclude Include="texturefactory.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="transformation.h" />

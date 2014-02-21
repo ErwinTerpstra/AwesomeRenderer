@@ -33,12 +33,6 @@ namespace AwesomeRenderer
 	protected:
 		Renderer();
 
-		static void SortTriangle(Shader::VertexToPixel** a, Shader::VertexToPixel** b, Shader::VertexToPixel** c);
-
-		template <typename T>
-		static void Swap(T** a, T** b);
-
-
 	};
 
 }

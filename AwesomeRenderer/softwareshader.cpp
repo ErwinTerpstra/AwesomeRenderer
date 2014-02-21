@@ -2,12 +2,12 @@
 
 using namespace AwesomeRenderer;
 
-Shader::Shader()
+SoftwareShader::SoftwareShader() : Shader()
 {
 
 }
 
-void Shader::Prepare()
+void SoftwareShader::Prepare()
 {
 	screenMtx = modelMtx * viewMtx * projMtx;
 	viewPosition = viewMtx * Vector4();

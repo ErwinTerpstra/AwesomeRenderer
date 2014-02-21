@@ -2,7 +2,7 @@
 
 using namespace AwesomeRenderer;
 
-PhongShader::PhongShader() : Shader()
+PhongShader::PhongShader() : SoftwareShader()
 {
 
 }

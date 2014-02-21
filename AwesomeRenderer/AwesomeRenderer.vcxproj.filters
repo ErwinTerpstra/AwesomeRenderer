@@ -144,9 +144,6 @@
     <ClCompile Include="modelex.cpp">
       <Filter>Source Files\Model</Filter>
     </ClCompile>
-    <ClCompile Include="shader.cpp">
-      <Filter>Source Files\Renderer\Shading</Filter>
-    </ClCompile>
     <ClCompile Include="node.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
@@ -173,6 +170,9 @@
     </ClCompile>
     <ClCompile Include="plane.cpp">
       <Filter>Source Files\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="softwareshader.cpp">
+      <Filter>Source Files\Renderer\Shading</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -263,9 +263,6 @@
     <ClInclude Include="modelex.h">
       <Filter>Header Files\Model</Filter>
     </ClInclude>
-    <ClInclude Include="shader.h">
-      <Filter>Header Files\Renderer\Shading</Filter>
-    </ClInclude>
     <ClInclude Include="node.h">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
@@ -298,6 +295,12 @@
     </ClInclude>
     <ClInclude Include="plane.h">
       <Filter>Header Files\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="softwareshader.h">
+      <Filter>Header Files\Renderer\Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="shader.h">
+      <Filter>Header Files\Renderer\Shading</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -50,6 +50,7 @@
 
 // Renderer
 #include "shader.h"
+#include "softwareshader.h"
 #include "phongshader.h"
 
 #include "rendertarget.h"
