@@ -3,14 +3,14 @@
 
 namespace AwesomeRenderer
 {
-	class ModelEx
+	class ModelEx : public Extension<Model>
 	{
 	public:
 
 		std::vector<MeshEx*> meshes;
 
 	public:
-		ModelEx(const Model& model);
+		ModelEx(Model& model);
 		~ModelEx();
 
 	};

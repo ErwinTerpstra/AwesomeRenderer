@@ -21,7 +21,7 @@ namespace AwesomeRenderer
 		void BeginDraw(const Matrix44& model, const Material& material, DrawMode drawMode = DRAW_SOLID);
 		void EndDraw();
 		
-		void DrawModel(const Model& model, Transformation& trans);
+		void DrawModel(const Model& model, const Transformation& trans);
 
 	private:
 		void DrawTriangle(const SoftwareShader::VertexInfo* vertexBuffer);

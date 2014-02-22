@@ -1,12 +1,15 @@
 #ifndef _AWESOME_RENDERER_H_
 #define _AWESOME_RENDERER_H_
 
+// STD library
 #include <memory>
 #include <map>
-
-#include "typedefs.h"
+#include <stack>
 
 // Data types
+#include "extension.h"
+#include "extendee.h"
+#include "typedefs.h"
 #include "color.h"
 
 // Memory
@@ -35,6 +38,11 @@
 #include "inputmanager.h"
 #include "cameracontroller.h"
 
+// Scene graph
+#include "node.h"
+#include "kdtree.h"
+#include "octree.h"
+
 // Rendering
 #include "texture.h"
 #include "material.h"
@@ -42,11 +50,6 @@
 #include "meshex.h"
 #include "model.h"
 #include "modelex.h"
-
-// Scene graph
-#include "node.h"
-#include "kdtree.h"
-#include "octree.h"
 
 // Renderer
 #include "shader.h"

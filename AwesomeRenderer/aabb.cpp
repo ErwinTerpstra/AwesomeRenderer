@@ -43,13 +43,23 @@ void AABB::Transform(const Matrix44& mtx)
 		minTransformed[1] = std::min(corner[1], minTransformed[1]);
 		minTransformed[2] = std::min(corner[2], minTransformed[2]);
 
-		maxTransformed[0] = std::min(corner[0], maxTransformed[0]);
-		maxTransformed[1] = std::min(corner[1], maxTransformed[1]);
-		maxTransformed[2] = std::min(corner[2], maxTransformed[2]);
+		maxTransformed[0] = std::max(corner[0], maxTransformed[0]);
+		maxTransformed[1] = std::max(corner[1], maxTransformed[1]);
+		maxTransformed[2] = std::max(corner[2], maxTransformed[2]);
 	}
 }
 
 void AABB::GetCorners(Vector3* corners) const
+{
+	GetCorners(corners, min, max);
+}
+
+void AABB::GetTransformedCorners(Vector3* corners) const
+{
+	GetCorners(corners, minTransformed, maxTransformed);
+}
+
+void AABB::GetCorners(Vector3* corners, const Vector3& min, const Vector3& max)
 {
 	corners[0] = Vector3(min[0], min[1], min[2]);
 	corners[1] = Vector3(max[0], min[1], min[2]);
@@ -60,19 +70,6 @@ void AABB::GetCorners(Vector3* corners) const
 	corners[5] = Vector3(max[0], min[1], max[2]);
 	corners[6] = Vector3(min[0], max[1], max[2]);
 	corners[7] = Vector3(max[0], max[1], max[2]);
-}
-
-void AABB::GetTransformedCorners(Vector3* corners) const
-{
-	corners[0] = Vector3(minTransformed[0], minTransformed[1], minTransformed[2]);
-	corners[1] = Vector3(maxTransformed[0], minTransformed[1], minTransformed[2]);
-	corners[2] = Vector3(minTransformed[0], maxTransformed[1], minTransformed[2]);
-	corners[3] = Vector3(maxTransformed[0], maxTransformed[1], minTransformed[2]);
-
-	corners[4] = Vector3(minTransformed[0], minTransformed[1], maxTransformed[2]);
-	corners[5] = Vector3(maxTransformed[0], minTransformed[1], maxTransformed[2]);
-	corners[6] = Vector3(minTransformed[0], maxTransformed[1], maxTransformed[2]);
-	corners[7] = Vector3(maxTransformed[0], maxTransformed[1], maxTransformed[2]);
 }
 
 bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const

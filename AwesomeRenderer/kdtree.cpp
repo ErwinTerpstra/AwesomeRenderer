@@ -77,7 +77,8 @@ void KDTree::Optimize(const AABB& bounds, int depth)
 
 void KDTree::Split(const AABB& bounds)
 {
-	std::vector<float> splitPositions;
+	// Initialize a potentional position list with two positions per object
+	std::vector<float> splitPositions(objects.size() * 2);
 	std::vector<float>::iterator positionIterator;
 	std::vector<const Object*>::iterator objectIterator;
 
@@ -99,6 +100,9 @@ void KDTree::Split(const AABB& bounds)
 	float lowestCost = FLT_MAX;
 	float lowestSplitPoint;
 
+	// Copy the object list to keep count of which objects are potentionally above the current split plane
+	std::vector<const Object*> objectsAbove(objects.begin(), objects.end());
+
 	// Iterate through the selected split positions
 	for (positionIterator = splitPositions.begin(); positionIterator != splitPositions.end(); ++positionIterator)
 	{
@@ -114,10 +118,10 @@ void KDTree::Split(const AABB& bounds)
 		Plane splitPlane(point, normal);
 
 		int upperObjectCount = 0;
-		int lowerObjectCount = 0;
+		int lowerObjectCount = objects.size() - objectsAbove.size(); // Start with the number of objects we already know that are lower than this
 
 		// Iterate through all objects to count how many objects fall on each side of the split plane
-		for (objectIterator = objects.begin(); objectIterator != objects.end(); ++objectIterator)
+		for (objectIterator = objectsAbove.begin(); objectIterator != objectsAbove.end(); )
 		{
 			const Shape& shape = (*objectIterator)->GetShape();
 
@@ -129,6 +133,12 @@ void KDTree::Split(const AABB& bounds)
 
 			if (side <= 0)
 				++lowerObjectCount;
+
+			// Objects located below this split plane don't need to be checked the next iteration
+			if (side < 0)
+				objectIterator = objectsAbove.erase(objectIterator);
+			else
+				++objectIterator;
 		}
 
 		// Calculate area for upper and lower nodes

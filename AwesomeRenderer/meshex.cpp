@@ -2,7 +2,7 @@
 
 using namespace AwesomeRenderer;
 
-MeshEx::MeshEx(const Mesh& mesh)
+MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(NULL)
 {
 
 	for (unsigned int cIndex = 0; cIndex < mesh.indices.size(); cIndex += 3)
@@ -13,6 +13,8 @@ MeshEx::MeshEx(const Mesh& mesh)
 		// Create triangle object based on the vertex data
 		Triangle3D& triangle = AddTri(mesh.vertices[vIdx0], mesh.vertices[vIdx1], mesh.vertices[vIdx2]);
 	}
+
+	tree.objects.insert(tree.objects.end(), triangles.begin(), triangles.end());
 }
 
 MeshEx::~MeshEx()
@@ -26,4 +28,9 @@ Triangle3D& MeshEx::AddTri(const Vector3& a, const Vector3& b, const Vector3& c)
 	triangles.push_back(triangle);
 
 	return *triangle;
+}
+
+void MeshEx::OptimizeTree()
+{
+	tree.Optimize(base.bounds);
 }

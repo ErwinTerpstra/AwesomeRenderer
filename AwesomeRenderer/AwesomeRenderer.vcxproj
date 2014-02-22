@@ -110,6 +110,8 @@
   <ItemGroup>
     <ClInclude Include="aabb.h" />
     <ClInclude Include="buffer.h" />
+    <ClInclude Include="extendee.h" />
+    <ClInclude Include="extension.h" />
     <ClInclude Include="kdtree.h" />
     <ClInclude Include="object.h" />
     <ClInclude Include="phongshader.h" />

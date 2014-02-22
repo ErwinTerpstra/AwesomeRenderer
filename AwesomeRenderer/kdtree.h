@@ -35,6 +35,10 @@ namespace AwesomeRenderer
 
 		bool IsLeaf() const { return upperNode == NULL && lowerNode == NULL; }
 
+		float SplitPoint() const { return splitPoint; }
+		int Axis() const { return axis; }
+		KDTree* Parent() const { return parent; }
+
 	private:
 		void Split(const AABB& bounds);
 		

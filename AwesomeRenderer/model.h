@@ -3,8 +3,7 @@
 
 namespace AwesomeRenderer
 {
-
-	class Model : public Object
+	class Model : public Object, public Extendee<Model>
 	{
 
 	public:

@@ -21,10 +21,10 @@ void SoftwareRenderer::Render()
 	std::vector<Node*>::const_iterator it;
 
 	for (it = renderContext->nodes.begin(); it != renderContext->nodes.end(); ++it)
-		DrawModel((*it)->model, (*it)->transform);
+		DrawModel(*(*it)->model, *(*it)->transform);
 }
 
-void SoftwareRenderer::DrawModel(const Model& model, Transformation& trans)
+void SoftwareRenderer::DrawModel(const Model& model, const Transformation& trans)
 {
 	// Iterate through meshes in the model
 	for (unsigned int cMesh = 0; cMesh < model.meshes.size(); ++cMesh)

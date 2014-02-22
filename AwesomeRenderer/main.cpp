@@ -96,18 +96,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// Test models
 	Node car;
-	objLoader.Load("../Assets/car.obj", car.model);
+	car.model = new Model();
+	car.transform = new Transformation();
+	objLoader.Load("../Assets/car.obj", *car.model);
 
-	ModelEx modelEx(car.model);
-	KDTree tree;
+	ModelEx modelEx(*car.model);
 
 	for (std::vector<MeshEx*>::iterator meshIterator = modelEx.meshes.begin(); meshIterator != modelEx.meshes.end(); ++meshIterator)
-	{
-		std::vector<Triangle3D*> triangles = (*meshIterator)->triangles;
-		tree.objects.insert(tree.objects.end(), triangles.begin(), triangles.end());
-	}
-
-	tree.Optimize(car.model.bounds);
+		(*meshIterator)->OptimizeTree();
 
 	Node plane;
 	{
@@ -117,8 +113,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Material* material = new Material();
 		material->shader = &phongShader;
 
-		plane.model.AddMesh(mesh, material);
-		plane.transform.SetScale(Vector3(10.0f, 10.0f, 10.0f));
+		plane.model = new Model();
+		plane.model->AddMesh(mesh, material);
+
+		plane.transform = new Transformation();
+		plane.transform->SetScale(Vector3(10.0f, 10.0f, 10.0f));
 	}
 
 	//softwareRenderer.cullMode = Renderer::CULL_NONE;
@@ -146,21 +145,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		for (it = renderContext.nodes.begin(); it != renderContext.nodes.end(); ++it)
 		{
 			Node& node = **it;
-			node.transform.CalculateMtx();
+			node.transform->CalculateMtx();
 
 			// Iterate through submeshes in a node
-			for (unsigned int cMesh = 0; cMesh < node.model.meshes.size(); ++cMesh)
+			for (unsigned int cMesh = 0; cMesh < node.model->meshes.size(); ++cMesh)
 			{
 				// Transform bounding shape of mesh according to world transformation
-				Mesh& mesh = *node.model.meshes[cMesh];
-				mesh.bounds.Transform(node.transform.WorldMtx());
+				Mesh& mesh = *node.model->meshes[cMesh];
+				mesh.bounds.Transform(node.transform->WorldMtx());
 			}
 		}
 		
 		// Rendering
 		renderTarget.Clear(Color::BLACK);
 
-		//*
+		/*
 		softwareRenderer.Render();
 		/*/
 		rayTracer.Render();

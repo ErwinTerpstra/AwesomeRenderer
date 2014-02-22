@@ -3,8 +3,7 @@
 
 namespace AwesomeRenderer
 {
-
-	class Mesh : public Object
+	class Mesh : public Object, public Extendee<Mesh>
 	{
 	
 	public:

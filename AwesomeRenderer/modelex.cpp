@@ -2,7 +2,7 @@
 
 using namespace AwesomeRenderer;
 
-ModelEx::ModelEx(const Model& model)
+ModelEx::ModelEx(Model& model) : Extension(model)
 {
 	std::vector<Mesh*>::const_iterator it;
 

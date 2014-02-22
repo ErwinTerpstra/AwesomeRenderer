@@ -3,17 +3,19 @@
 
 namespace AwesomeRenderer
 {
-	class MeshEx
+	class MeshEx : public Extension<Mesh>
 	{
 	public:
 		std::vector<Triangle3D*> triangles;
 
+		KDTree tree;
+
 	public:
-		MeshEx(const Mesh& mesh);
+		MeshEx(Mesh& mesh);
 		~MeshEx();
 
 		Triangle3D& AddTri(const Vector3& a, const Vector3& b, const Vector3& c);
-
+		void OptimizeTree();
 	};
 }
 

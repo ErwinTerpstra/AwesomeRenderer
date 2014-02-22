@@ -3,19 +3,22 @@
 
 namespace AwesomeRenderer
 {
+	class Model;
+	class Transform;
 
-	class Node : public Object
+	class NodeEx;
+
+	class Node : public Object, public Extendee<NodeEx>
 	{
 
 	public:
-		Model model;
-		Transformation transform;
-
+		Model* model;
+		Transformation* transform;
 
 	public:
 		Node();
 
-		virtual const Shape& GetShape() const { return model.bounds; }
+		virtual const Shape& GetShape() const;
 
 	};
 

@@ -61,6 +61,9 @@
     <Filter Include="Header Files\Scene">
       <UniqueIdentifier>{c6f376e4-fa97-419d-a54b-72ab9a95e585}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Core">
+      <UniqueIdentifier>{6db6ef43-31f1-42e4-9880-9869f2aec25f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -182,12 +185,6 @@
     <ClInclude Include="color.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="typedefs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="util.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="awesomerenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -301,6 +298,18 @@
     </ClInclude>
     <ClInclude Include="shader.h">
       <Filter>Header Files\Renderer\Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="typedefs.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="util.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="extension.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="extendee.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

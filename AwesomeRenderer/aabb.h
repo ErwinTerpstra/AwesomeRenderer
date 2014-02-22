@@ -34,8 +34,11 @@ namespace AwesomeRenderer
 		float Height() const { return maxTransformed[1] - minTransformed[1]; }
 		float Depth() const { return maxTransformed[2] - minTransformed[2]; }
 
-		const Vector3& Min() const { return min; }
-		const Vector3& Max() const { return max; }
+		const Vector3& Min() const { return minTransformed; }
+		const Vector3& Max() const { return maxTransformed; }
+
+	private:
+		static void GetCorners(Vector3* corners, const Vector3& min, const Vector3& max);
 
 	};
 

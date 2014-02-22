@@ -166,7 +166,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 	
 	for (unsigned int cMesh = 0; cMesh < meshes.size(); ++cMesh)
 	{
-		Mesh& mesh = *meshes[0];
+		Mesh& mesh = *meshes[cMesh];
 		verts += mesh.vertices.size();
 		tris += mesh.indices.size() / 3;
 

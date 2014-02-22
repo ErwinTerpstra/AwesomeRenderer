@@ -34,6 +34,112 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 
 	std::vector<Node*>::const_iterator it;
 
+	// Iterate through all nodes in the scene
+	for (it = renderContext->nodes.begin(); it != renderContext->nodes.end(); ++it)
+	{
+		const Node& node = **it;
+
+		// Iterate through submeshes in a node
+		for (unsigned int cMesh = 0; cMesh < node.model->meshes.size(); ++cMesh)
+		{
+			const Mesh& mesh = *node.model->meshes[cMesh];
+			const Material& material = *node.model->materials[cMesh];
+
+			// Check if some part of the mesh is hit by the ray
+			RaycastHit boundsHitInfo(ray);
+			if (!mesh.bounds.IntersectRay(ray, boundsHitInfo))
+				continue;
+
+			// Stack for nodes we still have to traverse
+			std::stack<const KDTree*> nodesLeft;
+
+			// Start with the root node of the mesh
+			nodesLeft.push(&mesh.As<MeshEx>()->tree);
+
+			while (!nodesLeft.empty())
+			{
+				// Get the top node from the stack
+				const KDTree* tree = nodesLeft.top();
+				nodesLeft.pop();
+				
+				// The current node is a leaf node, this means we can check its contents
+				if (tree->IsLeaf())
+				{
+					std::vector<const Object*>::const_iterator objectIt;
+
+					for (objectIt = tree->objects.begin(); objectIt != tree->objects.end(); ++objectIt)
+					{
+						const Shape& shape = (*objectIt)->GetShape();
+
+						// Perform the ray-triangle intersection
+						RaycastHit hitInfo(ray);
+						if (!shape.IntersectRay(ray, hitInfo))
+							continue;
+
+						// Only hits outside viewing frustum
+						if (hitInfo.distance > cameraDepth)
+							continue;
+
+						if (depthBuffer != NULL)
+						{
+							// Depth testing
+							float depth = 1.0f - hitInfo.distance / cameraDepth;
+
+							if (depthBuffer->GetPixel(screenPosition[0], screenPosition[1]) >= depth)
+								continue;
+
+							// Write to depth buffer
+							depthBuffer->SetPixel(screenPosition[0], screenPosition[1], depth);
+						}
+
+						// Write to color buffer
+						frameBuffer->SetPixel(screenPosition[0], screenPosition[1], Color::WHITE);
+					}
+				}
+				else
+				{
+					// Construct the plane along which this tree node is split
+					Vector3 planeNormal(0.0f, 0.0f, 0.0f); planeNormal[tree->Axis()] = 1.0f;
+					Plane splitPlane(tree->SplitPoint(), planeNormal);
+
+					// Determine which side of the plane the origin of the ray is, this side should always be visited
+					int side = splitPlane.SideOfPlane(ray.origin);
+					const KDTree *near, *far;
+					
+					if (side > 0)
+					{
+						near = tree->upperNode;
+						far = tree->lowerNode;
+					}
+					else
+					{
+						near = tree->lowerNode;
+						far = tree->upperNode;
+					}
+
+					// If the ray intersects the split plane, we need to visit the far node
+					RaycastHit hitInfo(ray);
+					if (splitPlane.IntersectRay(ray, hitInfo))
+						nodesLeft.push(far);
+					
+					// Push the near node last so that we visit it first
+					nodesLeft.push(near);
+				}
+			}
+
+		}
+	}
+}
+
+#if FALSE
+void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
+{
+	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
+	Buffer* depthBuffer = renderContext->renderTarget->depthBuffer;
+	float cameraDepth = renderContext->camera->farPlane - renderContext->camera->nearPlane;
+
+	std::vector<Node*>::const_iterator it;
+
 	for (it = renderContext->nodes.begin(); it != renderContext->nodes.end(); ++it)
 	{
 		const Node& node = **it;
@@ -97,3 +203,4 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 	}
 
 }
+#endif
