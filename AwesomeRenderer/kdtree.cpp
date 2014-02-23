@@ -100,6 +100,10 @@ void KDTree::Split(const AABB& bounds)
 	float lowestCost = FLT_MAX;
 	float lowestSplitPoint;
 
+	// Normal vector for the split plane we create
+	Vector3 normal(0.0f, 0.0f, 0.0f);
+	normal[axis] = 1.0f;
+
 	// Copy the object list to keep count of which objects are potentionally above the current split plane
 	std::vector<const Object*> objectsAbove(objects.begin(), objects.end());
 
@@ -113,8 +117,6 @@ void KDTree::Split(const AABB& bounds)
 		CalculateBounds(bounds, point, upper, lower);
 
 		// Create a plane that represents the split we made
-		Vector3 normal(0.0f, 0.0f, 0.0f);
-		normal[axis] = 1.0f;
 		Plane splitPlane(point, normal);
 
 		int upperObjectCount = 0;

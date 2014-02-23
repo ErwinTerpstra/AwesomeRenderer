@@ -8,7 +8,7 @@ namespace AwesomeRenderer
 	class Extendee
 	{
 
-	public:
+	private:
 		Extension<T>* ex;
 
 	public:

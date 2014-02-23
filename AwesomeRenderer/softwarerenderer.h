@@ -17,13 +17,13 @@ namespace AwesomeRenderer
 		~SoftwareRenderer();
 
 		void Render();
-
-		void BeginDraw(const Matrix44& model, const Material& material, DrawMode drawMode = DRAW_SOLID);
-		void EndDraw();
-		
 		void DrawModel(const Model& model, const Transformation& trans);
 
 	private:
+
+		void BeginDraw(const Matrix44& model, const Material& material, DrawMode drawMode = DRAW_SOLID);
+		void EndDraw();
+
 		void DrawTriangle(const SoftwareShader::VertexInfo* vertexBuffer);
 
 		static void SortTriangle(SoftwareShader::VertexToPixel** a, SoftwareShader::VertexToPixel** b, SoftwareShader::VertexToPixel** c);

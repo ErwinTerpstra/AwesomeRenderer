@@ -64,12 +64,15 @@
     <Filter Include="Header Files\Core">
       <UniqueIdentifier>{6db6ef43-31f1-42e4-9880-9869f2aec25f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Window">
+      <UniqueIdentifier>{2d7a8d8e-d911-435e-9d63-a6faa1d25dcd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Window">
+      <UniqueIdentifier>{314b01e2-5537-43d6-a908-0c3b2ef4dd11}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="color.cpp">
@@ -177,11 +180,17 @@
     <ClCompile Include="softwareshader.cpp">
       <Filter>Source Files\Renderer\Shading</Filter>
     </ClCompile>
+    <ClCompile Include="window.cpp">
+      <Filter>Source Files\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="glwindow.cpp">
+      <Filter>Source Files\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="glrenderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="color.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -310,6 +319,15 @@
     </ClInclude>
     <ClInclude Include="extendee.h">
       <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="window.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="glwindow.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="glrenderer.h">
+      <Filter>Header Files\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <Windows.h>
 
 #include "awesomerenderer.h"
 
@@ -18,7 +17,7 @@ Window::~Window()
 	
 }
 
-void Window::RegisterClass()
+void Window::RegisterClass() const
 {
 	WNDCLASSEX wc;
 
@@ -49,13 +48,13 @@ void Window::Create(const char* title, int width, int height)
 	closed = false;
 }
 
-void Window::Show(int command)
+void Window::Show(int command) const
 {
 	ShowWindow(handle, command);
 	UpdateWindow(handle);
 }
 
-void Window::ProcessMessages()
+void Window::ProcessMessages() const
 {
 	MSG msg;
 
@@ -94,7 +93,7 @@ LRESULT CALLBACK Window::MessageCallback(HWND hWnd, UINT msg, WPARAM wParam, LPA
 	return 0;
 }
 
-void Window::DrawBuffer(const GdiBuffer& buffer)
+void Window::DrawBuffer(const GdiBuffer& buffer) const
 {
 	HDC windowDC = GetDC(handle);
 	HDC bufferDC = CreateCompatibleDC(windowDC);

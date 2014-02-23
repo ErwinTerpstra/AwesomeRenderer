@@ -4,7 +4,7 @@
 namespace AwesomeRenderer
 {
 
-	class Window
+	class Window : public Extendee<Window>
 	{
 
 	public:
@@ -23,17 +23,17 @@ namespace AwesomeRenderer
 		~Window();
 		
 		void Create(const char* title, int width, int height);
-		void Show(int command);
+		void Show(int command) const;
 		
-		void ProcessMessages();
+		void ProcessMessages() const;
 		
-		void DrawBuffer(const GdiBuffer& buffer);
+		void DrawBuffer(const GdiBuffer& buffer) const;
 
 		LRESULT CALLBACK MessageCallback(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	private:
 		
-		void RegisterClass();
+		void RegisterClass() const;
 
 
 

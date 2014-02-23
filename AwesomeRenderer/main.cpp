@@ -33,13 +33,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 {
 	SetupConsole();
 
-	SoftwareRenderer softwareRenderer;
-	RayTracer rayTracer;
-
 	// Open window
 	Window window(hInstance, "AwesomeRendererWindow");
 	window.Create("Awesome Renderer!", SCREEN_WIDTH, SCREEN_HEIGHT);
 	
+	GLWindow glWindow(window);
+	glWindow.Setup();
+
 	// Setup frame and depth buffers
 	GdiBuffer frameBuffer(window.handle);
 	MemoryBuffer depthBuffer;
@@ -62,8 +62,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	renderContext.camera = &camera;
 	renderContext.renderTarget = &renderTarget;
 
-	softwareRenderer.renderContext = &renderContext;
-	rayTracer.renderContext = &renderContext;
+	// Initialize renderer
+	SoftwareRenderer softwareRenderer;
+	RayTracer rayTracer;
+	GLRenderer glRenderer(glWindow);
+	
+	Renderer& renderer = glRenderer;
+	renderer.renderContext = &renderContext;
 
 	// Shader
 	PhongShader phongShader;
@@ -120,7 +125,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		plane.transform->SetScale(Vector3(10.0f, 10.0f, 10.0f));
 	}
 
-	//softwareRenderer.cullMode = Renderer::CULL_NONE;
+	//renderer.cullMode = Renderer::CULL_NONE;
 
 	renderContext.nodes.push_back(&car);
 	//renderContext.nodes.push_back(&plane);
@@ -159,16 +164,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		// Rendering
 		renderTarget.Clear(Color::BLACK);
 
-		/*
-		softwareRenderer.Render();
-		/*/
-		rayTracer.Render();
-		//*/
+		renderer.Render();
 		
 		// Present window
 		window.ProcessMessages();
-		window.DrawBuffer(frameBuffer);
-		
+		//window.DrawBuffer(frameBuffer);
+				
 		// Frame counter
 		++framesDrawn;
 		timeSinceLastPrint += timingInfo.elapsedSeconds;

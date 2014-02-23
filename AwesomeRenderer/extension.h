@@ -18,8 +18,8 @@ namespace AwesomeRenderer
 			base.Extend(this);
 		}
 
-
 	};
+
 
 }
 

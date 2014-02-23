@@ -6,6 +6,17 @@
 #include <map>
 #include <stack>
 
+// Windows libraries
+#define NOMINMAX
+#include <Windows.h>
+
+#undef near
+#undef far
+
+// OpenGL
+#include <GL/glew.h>
+#include <GL/wglew.h>
+
 // Data types
 #include "extension.h"
 #include "extendee.h"
@@ -59,24 +70,19 @@
 #include "rendertarget.h"
 #include "rendercontext.h"
 #include "renderer.h"
+
 #include "softwarerenderer.h"
 #include "raytracer.h"
+#include "glrenderer.h"
 
 // Assets
 #include "filereader.h"
 #include "texturefactory.h"
 #include "objloader.h"
 
-// Windows specific
-#ifdef _WIN32
-	#define NOMINMAX
-	#include <Windows.h>
-
-	#undef near
-	#undef far
-	
-	#include "gdibuffer.h"
-	#include "window.h"
-#endif
+// Win32
+#include "gdibuffer.h"
+#include "window.h"
+#include "glwindow.h"
 
 #endif

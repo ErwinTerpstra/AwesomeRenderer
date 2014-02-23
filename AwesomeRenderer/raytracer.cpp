@@ -50,6 +50,14 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 			if (!mesh.bounds.IntersectRay(ray, boundsHitInfo))
 				continue;
 
+			// Create an inversed transformation matrix to transform to object space
+			Matrix44 world2object = node.transform->WorldMtx();
+			world2object.inverse();
+
+			// Transform ray to object space to use for intersection
+			Ray objectSpaceRay(cml::transform_point(world2object, ray.origin), cml::transform_vector(world2object, ray.direction));
+			objectSpaceRay.direction.normalize();
+
 			// Stack for nodes we still have to traverse
 			std::stack<const KDTree*> nodesLeft;
 
@@ -72,8 +80,8 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 						const Shape& shape = (*objectIt)->GetShape();
 
 						// Perform the ray-triangle intersection
-						RaycastHit hitInfo(ray);
-						if (!shape.IntersectRay(ray, hitInfo))
+						RaycastHit hitInfo(objectSpaceRay);
+						if (!shape.IntersectRay(objectSpaceRay, hitInfo))
 							continue;
 
 						// Only hits outside viewing frustum
@@ -103,7 +111,7 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 					Plane splitPlane(tree->SplitPoint(), planeNormal);
 
 					// Determine which side of the plane the origin of the ray is, this side should always be visited
-					int side = splitPlane.SideOfPlane(ray.origin);
+					int side = splitPlane.SideOfPlane(objectSpaceRay.origin);
 					const KDTree *near, *far;
 					
 					if (side > 0)
@@ -118,8 +126,8 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 					}
 
 					// If the ray intersects the split plane, we need to visit the far node
-					RaycastHit hitInfo(ray);
-					if (splitPlane.IntersectRay(ray, hitInfo))
+					RaycastHit hitInfo(objectSpaceRay);
+					if (splitPlane.IntersectRay(objectSpaceRay, hitInfo))
 						nodesLeft.push(far);
 					
 					// Push the near node last so that we visit it first
