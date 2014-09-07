@@ -37,8 +37,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Window window(hInstance, "AwesomeRendererWindow");
 	window.Create("Awesome Renderer!", SCREEN_WIDTH, SCREEN_HEIGHT);
 	
-	GLWindow glWindow(window);
-	glWindow.Setup();
+	//GLWindow glWindow(window);
+	//glWindow.Setup();
 
 	// Setup frame and depth buffers
 	GdiBuffer frameBuffer(window.handle);
@@ -64,10 +64,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// Initialize renderer
 	SoftwareRenderer softwareRenderer;
-	RayTracer rayTracer;
-	GLRenderer glRenderer(glWindow);
+	//RayTracer rayTracer;
+	//GLRenderer glRenderer(glWindow);
 	
-	Renderer& renderer = glRenderer;
+	Renderer& renderer = softwareRenderer;
 	renderer.renderContext = &renderContext;
 
 	// Shader
@@ -75,13 +75,51 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	phongShader.lightData.numPixelLights = 8;
 	phongShader.lightData.ambient = Color(0.1f, 0.1f, 0.1f);
 
+	Vector3 zero(0.0f, 0.0f, 0.0f);
+
 	{
+
 		PhongShader::Light& light = phongShader.lightData.lights[0];
-		light.position = Vector3(0.0f, 8.0f, 0.0f);
-		light.type = PhongShader::LightType::POINT;
+		light.position = Vector3(0.0f, 15.0f, 0.0f);
+		light.direction = (zero - light.position).normalize();
+		light.type = PhongShader::LightType::SPOT;
+		light.angle = (float) (40.0f * (M_PI / 180.0f));
+		light.angleExponent = 20.0f;
+		light.color = Color::WHITE;
 		light.constantAttenuation = 0.0f;
-		light.lineairAttenuation = 0.01f;
-		light.quadricAttenuation = 0.01f;
+		light.lineairAttenuation = 0.03f;
+		light.quadricAttenuation = 0.003f;
+		light.intensity = 1.0f;
+		light.enabled = true;
+	}
+
+	{
+		PhongShader::Light& light = phongShader.lightData.lights[1];
+		light.position = Vector3(15.0f, 10.0f, 15.0f);
+		light.direction = (zero - light.position).normalize();
+		light.type = PhongShader::LightType::SPOT;
+		light.angle = (float) (30.0f * (M_PI / 180.0f));
+		light.angleExponent = 20.0f;
+		light.color = Color::BLUE;
+		light.constantAttenuation = 0.0f;
+		light.lineairAttenuation = 0.04f;
+		light.quadricAttenuation = 0.004f;
+		light.intensity = 1.0f;
+		light.enabled = true;
+	}
+
+	{
+
+		PhongShader::Light& light = phongShader.lightData.lights[2];
+		light.position = Vector3(-15.0f, 10.0f, -15.0f);
+		light.direction = (zero - light.position).normalize();
+		light.type = PhongShader::LightType::SPOT;
+		light.angle = ((float) 30.0f * (M_PI / 180.0f));
+		light.angleExponent = 20.0f;
+		light.color = Color::RED;
+		light.constantAttenuation = 0.0f;
+		light.lineairAttenuation = 0.04f;
+		light.quadricAttenuation = 0.004f;
 		light.intensity = 1.0f;
 		light.enabled = true;
 	}
@@ -89,7 +127,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	
 	// Camera controller
 	CameraController cameraController(camera);
-	cameraController.distance = 20.0f;
 
 	// Assets factories
 	TextureFactory textureFactory;
@@ -105,18 +142,36 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	car.transform = new Transformation();
 	objLoader.Load("../Assets/car.obj", *car.model);
 
+	/*
 	ModelEx modelEx(*car.model);
 
 	for (std::vector<MeshEx*>::iterator meshIterator = modelEx.meshes.begin(); meshIterator != modelEx.meshes.end(); ++meshIterator)
 		(*meshIterator)->OptimizeTree();
+	*/
+
 
 	Node plane;
 	{
-		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL));
+		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL | Mesh::VERTEX_TEXCOORD));
 		mesh->AddQuad(Vector3(1.0f, 0.0f, -1.0f), Vector3(1.0f, 0.0f, 1.0f), Vector3(-1.0f, 0.0f, 1.0f), Vector3(-1.0f, 0.0f, -1.0f));
+		
+		float uvScale = 5.0f;
+		mesh->texcoords[0] = Vector2(1.0f, 1.0f) * uvScale;
+		mesh->texcoords[1] = Vector2(0.0f, 1.0f) * uvScale;
+		mesh->texcoords[2] = Vector2(0.0f, 0.0f) * uvScale;
+
+		mesh->texcoords[3] = Vector2(0.0f, 0.0f) * uvScale;
+		mesh->texcoords[4] = Vector2(1.0f, 0.0f) * uvScale;
+		mesh->texcoords[5] = Vector2(1.0f, 1.0f) * uvScale;
+
+		Texture* texture = new Texture();
+		textureFactory.Load("../Assets/tiles.bmp", *texture);
 
 		Material* material = new Material();
 		material->shader = &phongShader;
+		material->diffuseMap = texture;
+		material->specularColor = Color::WHITE;
+		material->shininess = 2.0f;
 
 		plane.model = new Model();
 		plane.model->AddMesh(mesh, material);
@@ -125,16 +180,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		plane.transform->SetScale(Vector3(10.0f, 10.0f, 10.0f));
 	}
 
-	//renderer.cullMode = Renderer::CULL_NONE;
+	renderer.cullMode = Renderer::CULL_NONE;
 
 	renderContext.nodes.push_back(&car);
-	//renderContext.nodes.push_back(&plane);
+	renderContext.nodes.push_back(&plane);
 	
 	window.Show(nCmdShow);
 
 	// Frame counter variables
 	float timeSinceLastPrint = 0.0f;
-	int framesDrawn = 0;
+	uint32_t framesDrawn = 0;
 
 	while (!window.closed)
 	{
@@ -168,7 +223,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		
 		// Present window
 		window.ProcessMessages();
-		//window.DrawBuffer(frameBuffer);
+		window.DrawBuffer(frameBuffer);
 				
 		// Frame counter
 		++framesDrawn;

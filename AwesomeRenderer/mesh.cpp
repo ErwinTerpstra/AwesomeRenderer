@@ -9,7 +9,7 @@ vertices(0), colors(0), texcoords(0), normals(0), indices(0), attributes(attribu
 	
 }
 
-void Mesh::Reserve(int numTriangles, int numVertices)
+void Mesh::Reserve(uint32_t numTriangles, uint32_t numVertices)
 {	
 	if (HasAttribute(VERTEX_POSITION))
 		vertices.reserve(vertices.size() + numVertices);
@@ -66,19 +66,9 @@ void Mesh::AddTri(const Vector3& a, const Vector3& b, const Vector3& c)
 
 	if (this->HasAttribute(VERTEX_TEXCOORD))
 	{
-		if (a[1] > 0.0f)
-		{
-			texcoords.push_back(Vector2(1.0f, 1.0f));
-			texcoords.push_back(Vector2(1.0f, 0.0f));
-			texcoords.push_back(Vector2(0.0f, 0.0f));
-		}
-		else
-		{
-			texcoords.push_back(Vector2(0.0f, 0.0f));
-			texcoords.push_back(Vector2(0.0f, 1.0f));
-			texcoords.push_back(Vector2(1.0f, 1.0f));
-		}
-
+		texcoords.push_back(Vector2(0.0f, 0.0f));
+		texcoords.push_back(Vector2(0.0f, 0.0f));
+		texcoords.push_back(Vector2(0.0f, 0.0f));
 	}
 
 	if (this->HasAttribute(VERTEX_NORMAL))

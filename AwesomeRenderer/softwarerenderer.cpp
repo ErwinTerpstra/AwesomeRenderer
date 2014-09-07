@@ -5,8 +5,7 @@
 
 using namespace AwesomeRenderer;
 
-
-SoftwareRenderer::SoftwareRenderer() : Renderer()
+SoftwareRenderer::SoftwareRenderer() : Renderer(), renderQueue()
 {
 
 }
@@ -20,47 +19,92 @@ void SoftwareRenderer::Render()
 {
 	std::vector<Node*>::const_iterator it;
 
+	// Iterate through all renderable nodes
 	for (it = renderContext->nodes.begin(); it != renderContext->nodes.end(); ++it)
-		DrawModel(*(*it)->model, *(*it)->transform);
+	{
+		const Model* model = (*it)->model;
+		const Transformation* trans = (*it)->transform;
+
+		// Iterate through all meshes in the model
+		for (uint32_t cMesh = 0; cMesh < model->meshes.size(); ++cMesh)
+		{
+			const Mesh* mesh = model->meshes[cMesh];
+			const Material* material = model->materials[cMesh];
+
+			// Create a render job for this mesh
+			RenderJob job;
+			job.mesh = mesh;
+			job.material = material;
+			job.trans = trans;
+
+			// Render translucent objects last
+			if (material->translucent)
+				renderQueue.push_back(job);
+			else
+				renderQueue.push_front(job);
+		}
+
+	}
+
+	// Render all jobs in the queue
+	while (!renderQueue.empty())
+	{
+		const RenderJob& job = renderQueue.front();
+		DrawJob(job);
+
+		renderQueue.pop_front();
+	}
+}
+
+void SoftwareRenderer::DrawJob(const RenderJob& job)
+{
+	BeginDraw(job.trans->WorldMtx(), *job.material);
+	
+	DrawMesh(*job.mesh);
+
+	EndDraw();
 }
 
 void SoftwareRenderer::DrawModel(const Model& model, const Transformation& trans)
 {
 	// Iterate through meshes in the model
-	for (unsigned int cMesh = 0; cMesh < model.meshes.size(); ++cMesh)
+	for (uint32_t cMesh = 0; cMesh < model.meshes.size(); ++cMesh)
 	{
-		const Mesh& mesh = *model.meshes[cMesh];
-		const Material& material = *model.materials[cMesh];
+		BeginDraw(trans.WorldMtx(), *model.materials[cMesh]);
 
-		BeginDraw(trans.WorldMtx(), material);
-
-		// Iterate through triangles in the mesh
-		for (unsigned int cIndex = 0; cIndex < mesh.indices.size(); cIndex += 3)
-		{
-			SoftwareShader::VertexInfo vertexBuffer[3];
-
-			// Setup vertex data buffer for rendering
-			for (int cVertex = 0; cVertex < 3; ++cVertex)
-			{
-				int index = mesh.indices[cIndex + cVertex];
-				
-				if (mesh.HasAttribute(Mesh::VERTEX_POSITION))
-					vertexBuffer[cVertex].position = mesh.vertices[index];
-
-				if (mesh.HasAttribute(Mesh::VERTEX_NORMAL))
-					vertexBuffer[cVertex].normal = mesh.normals[index];
-
-				if (mesh.HasAttribute(Mesh::VERTEX_COLOR))
-					vertexBuffer[cVertex].color = mesh.colors[index];
-
-				if (mesh.HasAttribute(Mesh::VERTEX_TEXCOORD))
-					vertexBuffer[cVertex].uv = mesh.texcoords[index];
-			}
-
-			DrawTriangle(vertexBuffer);
-		}
+		DrawMesh(*model.meshes[cMesh]);
 
 		EndDraw();
+	}
+}
+
+void SoftwareRenderer::DrawMesh(const Mesh& mesh)
+{
+
+	// Iterate through triangles in the mesh
+	for (uint32_t cIndex = 0; cIndex < mesh.indices.size(); cIndex += 3)
+	{
+		SoftwareShader::VertexInfo vertexBuffer[3];
+
+		// Setup vertex data buffer for rendering
+		for (int cVertex = 0; cVertex < 3; ++cVertex)
+		{
+			int index = mesh.indices[cIndex + cVertex];
+
+			if (mesh.HasAttribute(Mesh::VERTEX_POSITION))
+				vertexBuffer[cVertex].position = mesh.vertices[index];
+
+			if (mesh.HasAttribute(Mesh::VERTEX_NORMAL))
+				vertexBuffer[cVertex].normal = mesh.normals[index];
+
+			if (mesh.HasAttribute(Mesh::VERTEX_COLOR))
+				vertexBuffer[cVertex].color = mesh.colors[index];
+
+			if (mesh.HasAttribute(Mesh::VERTEX_TEXCOORD))
+				vertexBuffer[cVertex].uv = mesh.texcoords[index];
+		}
+
+		DrawTriangle(vertexBuffer);
 	}
 }
 
@@ -95,25 +139,31 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 
 	SoftwareShader::VertexToPixel vtp[3];
 	
-	for (int cVertex = 0; cVertex < 3; ++cVertex)
+	for (uint8_t cVertex = 0; cVertex < 3; ++cVertex)
 	{
 		// Retrieve output from vertex shader
 		shader->ProcessVertex(vertexBuffer[cVertex], vtp[cVertex]);
 	}
 	
-	for (int cVertex = 0; cVertex < 3; ++cVertex)
+	for (uint8_t cVertex = 0; cVertex < 3; ++cVertex)
 	{
+		SoftwareShader::VertexToPixel& vertexData = vtp[cVertex];
+
 		// Retrieve z factor before normalizing, this is used for perspective correct interpolation
-		float zRecip = 1.0f / vtp[cVertex].screenPosition[3];
+		float wRecip = 1.0f / vertexData.screenPosition[3];
 
 		// Convert to screen (pixel) coordinates
-		vtp[cVertex].screenPosition = vtp[cVertex].screenPosition * renderContext->camera->viewportMtx;
+		vertexData.screenPosition = vertexData.screenPosition * renderContext->camera->viewportMtx;
 
-		// Normalize coordinates (perspective correction)
-		cml::detail::divide_by_w(vtp[cVertex].screenPosition);
+		// Normalize coordinates and vertex attributes (perspective correction)
+		vertexData.screenPosition	*= wRecip;
+		vertexData.worldPosition	*= wRecip;
+		vertexData.color			*= wRecip;
+		vertexData.normal			*= wRecip;
+		vertexData.uv				*= wRecip;
 		
 		// Store z factor in unused W channel
-		vtp[cVertex].screenPosition[3] = zRecip;
+		vertexData.screenPosition[3] = wRecip;
 	}
 
 	// Check if we can cull this triangle
@@ -150,8 +200,8 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 	float dBC = (sst[2][0] - sst[1][0]) / (sst[2][1] - sst[1][1]);
 
 	// Iterate trough scan lines
-	int minY = (int) std::ceil(sst[0][1]), maxY = (int) std::floor(sst[2][1]);
-	for (int y = std::max(minY, 0); y <= std::min(maxY, frameBuffer->height - 1); ++y)
+	int minY = (int)std::ceil(sst[0][1]), maxY = (int)std::floor(sst[2][1]);
+	for (int y = std::max(minY, 0); y <= std::min(maxY, (int) frameBuffer->height - 1); ++y)
 	{	
 		float x1 = _finite(dAC) ? sst[0][0] + (y - sst[0][1]) * dAC : sst[2][0];
 		float x2;
@@ -162,11 +212,11 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 		else
 			x2 = _finite(dAB) ? sst[0][0] + (y - sst[0][1]) * dAB : sst[1][0];
 		
-		int minX = (int) std::ceil(std::min(x1, x2));
-		int maxX = (int) std::floor(std::max(x1, x2));
+		int minX = (int)std::ceil(std::min(x1, x2));
+		int maxX = (int)std::floor(std::max(x1, x2));
 
 		// Fill this scan line
-		for (int x = std::max(minX, 0); x <= std::min(maxX, frameBuffer->width - 1); ++x)
+		for (int x = std::max(minX, 0); x <= std::min(maxX, (int) frameBuffer->width - 1); ++x)
 		{
 			Vector3 bcCoords;
 			sst.CalculateBarycentricCoords(Vector2((float) x, (float) y), bcCoords);
@@ -179,26 +229,52 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 			VectorUtil<3>::Interpolate(a->normal,			b->normal,			c->normal,			bcCoords,	interpolated.normal);
 			VectorUtil<2>::Interpolate(a->uv,				b->uv,				c->uv,				bcCoords,	interpolated.uv);
 			
-			if (depthBuffer != NULL)
-			{
-				// Depth testing
-				float depth = 1.0f - interpolated.screenPosition[2];
-	
-				if (depthBuffer->GetPixel(x, y) > depth)
-					continue;
+			// Correct for perspective since we interpolate in screen space
+			float wRecip = 1.0f / interpolated.screenPosition[3];
+			interpolated.worldPosition	*= wRecip;
+			interpolated.color			*= wRecip;
+			interpolated.normal			*= wRecip;
+			interpolated.uv				*= wRecip;
 
-				// Write to depth buffer
-				depthBuffer->SetPixel(x, y, depth);
-			}
+			float depth = 1.0f - interpolated.screenPosition[2];
+
+			// Depth testing
+			if (depthBuffer != NULL && depthBuffer->GetPixel(x, y) > depth)
+				continue;
 
 			// Compute pixel shading
 			SoftwareShader::PixelInfo pixelInfo;
 			shader->ProcessPixel(interpolated, pixelInfo);
-						
-			// Write to color buffer
-			frameBuffer->SetPixel(x, y, pixelInfo.color);
+
+			// Check whether we need to alpha blend colors
+			bool alphaBlend = pixelInfo.color[3] < 1.0f;
+			
+			if (alphaBlend)
+			{
+				Color color;
+				frameBuffer->GetPixel(x, y, color);
+
+				Blend(pixelInfo.color, color, color);
+				frameBuffer->SetPixel(x, y, color);
+			}
+			else
+			{
+				// Write to depth buffer
+				if (depthBuffer != NULL)
+					depthBuffer->SetPixel(x, y, depth);
+
+				// Write to color buffer
+				frameBuffer->SetPixel(x, y, pixelInfo.color);
+			}
 		}
 	}
+
+}
+
+void SoftwareRenderer::Blend(const Color& src, const Color& dst, Color& out)
+{
+	for (uint8_t channel = 0; channel < 3; ++channel)
+		out[channel] = (src[channel] * src[3]) + (dst[channel] * (1.0 - src[3]));
 
 }
 

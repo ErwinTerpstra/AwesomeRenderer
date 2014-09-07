@@ -199,7 +199,7 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 
 	Material* material = NULL;
 	
-	int lineLength;
+	int32_t lineLength;
 	char* lineBuffer;
 
 	while ((lineLength = reader.ReadLine(&lineBuffer)) >= 0)
@@ -219,6 +219,46 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 				// Empty line or comment, skip it
 				break;
 
+			case 'K':
+				if (line.length() < 3)
+				{
+					printf("[ObjLoader]: Invalid material color definition \"%s\"\n", lineBuffer);
+					break;
+				}
+
+				if (material == NULL)
+				{
+					printf("[ObjLoader]: Defined material color before newmtl definition \"%s\"\n", lineBuffer);
+					break;
+				}
+
+				switch (line[1])
+				{
+					case 'a':
+						break;
+
+					case 'd':
+						ParseColor(lineBuffer + 2, material->diffuseColor);
+						break;
+
+					case 's':
+						ParseColor(lineBuffer + 2, material->specularColor);
+						break;
+
+				}
+
+				break;
+
+			case 'd':
+			{
+				float alpha = strtof(lineBuffer + 1, NULL);
+				material->diffuseColor[3] = alpha;
+
+				if (alpha < 1.0f)
+					material->translucent = TRUE;
+
+				break;
+			}
 
 			default:
 
@@ -263,4 +303,23 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 	reader.Close();
 
 	printf("[ObjLoader]: Loaded %d materials\n", materialLib.size());
+}
+
+void ObjLoader::ParseColor(const char* input, Color& color)
+{
+	const char* base = input;
+	uint8_t channel = 0;
+	
+	// Read a maximum of 4 channels (r, g, b, a)
+	while (channel < 4)
+	{
+		char* next = NULL;
+		color[channel] = strtof(base, &next);
+
+		if (*next == '\0' || *next == '\r' || *next == '\n')
+			break;
+
+		base = next;
+		++channel;
+	}
 }

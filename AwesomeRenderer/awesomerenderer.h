@@ -5,6 +5,9 @@
 #include <memory>
 #include <map>
 #include <stack>
+#include <queue>
+#include <deque>
+#include <math.h>
 
 // Windows libraries
 #define NOMINMAX

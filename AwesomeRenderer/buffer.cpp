@@ -17,37 +17,33 @@ Buffer::~Buffer()
 
 void Buffer::Clear(const Color& color)
 {
-	for (int y = 0; y < height; ++y)
-	{
-		for (int x = 0; x < width; ++x)
-		{
+	for (uint8_t y = 0; y < height; ++y)
+		for (uint8_t x = 0; x < width; ++x)
 			SetPixel(x, y, color);
-		}
-	}
 }
 
-float Buffer::GetPixel(int x, int y) const
+float Buffer::GetPixel(uint32_t x, uint32_t y) const
 {
 	unsigned long max = (1 << bpp) - 1;
 	unsigned long value = 0;
 	
 	uchar* pixelBase = GetBase(x, y);
 	
-	for (int i = 0; i < stride; ++i)
+	for (uint8_t i = 0; i < stride; ++i)
 		value |= pixelBase[i] << (8 * i);
 
 	return ((float) value) / max;
 }
 
-void Buffer::GetPixel(int x, int y, Color& sample) const
+void Buffer::GetPixel(uint32_t x, uint32_t y, Color& sample) const
 {
 	uchar* base = GetBase(x, y);
 
-	for (int i = 0; i < stride; ++i)
+	for (uint8_t i = 0; i < stride; ++i)
 		sample[i] = *(base + i) / 255.0f;
 }
 
-void Buffer::SetPixel(int x, int y, float f)
+void Buffer::SetPixel(uint32_t x, uint32_t y, float f)
 {
 	// Scales a float in 0 .. 1 range to the max value stored per pixel
 	f = cml::clamp(f, 0.0f, 1.0f);
@@ -58,22 +54,22 @@ void Buffer::SetPixel(int x, int y, float f)
 	memcpy(pixelBase, reinterpret_cast<uchar*>(&value), stride);
 }
 
-void Buffer::SetPixel(int x, int y, const Color& color)
+void Buffer::SetPixel(uint32_t x, uint32_t y, const Color& color)
 {
 	uchar* pixelBase = GetBase(x, y);
 
 	// Copy as much elements from color as fit per pixel
-	for (int i = 0; i < stride; ++i)
+	for (uint8_t i = 0; i < stride; ++i)
 		*(pixelBase + i) = (uchar) (color[i] * 255);
 }
 
-void Buffer::SetPixel(int x, int y, uchar value)
+void Buffer::SetPixel(uint32_t x, uint32_t y, uchar value)
 {
 	// Set a single value for all channels per pixel
 	memset(GetBase(x, y), value, stride);
 }
 
-void Buffer::SetPixel(int x, int y, const uchar* buffer)
+void Buffer::SetPixel(uint32_t x, uint32_t y, const uchar* buffer)
 {
 	uchar* pixelBase = GetBase(x, y);
 	

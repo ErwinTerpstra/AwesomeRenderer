@@ -24,7 +24,7 @@ namespace AwesomeRenderer
 
 			Color color;
 
-			float angle;
+			float angle, angleExponent;
 			float intensity;
 
 			float constantAttenuation, lineairAttenuation, quadricAttenuation;
@@ -34,7 +34,8 @@ namespace AwesomeRenderer
 			bool enabled;
 
 			Light() :
-				position(0.0f, 0.0f, 0.0f), direction(0.0f, 1.0f, 0.0f), color(Color::WHITE), angle(0.0f), intensity(1.0f),
+				position(0.0f, 0.0f, 0.0f), direction(0.0f, 1.0f, 0.0f), color(Color::WHITE),
+				angle(0.0f), angleExponent(1.0f), intensity(1.0f),
 				constantAttenuation(1.0f), lineairAttenuation(0.0f), quadricAttenuation(0.0f),
 				type(LightType::POINT), enabled(false)
 			{

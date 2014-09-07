@@ -12,9 +12,9 @@ void RayTracer::Render()
 	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
 
 	// Iterate through all pixels in the output buffer
-	for (int y = 0; y < frameBuffer->height; ++y)
+	for (uint32_t y = 0; y < frameBuffer->height; ++y)
 	{
-		for (int x = 0; x < frameBuffer->width; ++x)
+		for (uint32_t x = 0; x < frameBuffer->width; ++x)
 		{
 			// Create a ray from the camera near plane through this pixel
 			Ray primaryRay;

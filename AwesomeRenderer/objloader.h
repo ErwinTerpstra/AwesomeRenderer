@@ -25,6 +25,8 @@ namespace AwesomeRenderer
 
 	private:
 		void Reset();
+
+		void ParseColor(const char* input, Color& color);
 	};
 
 

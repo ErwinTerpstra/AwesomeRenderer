@@ -4,7 +4,7 @@
 namespace AwesomeRenderer
 {
 	class Model;
-	class Transform;
+	class Transformation;
 
 	class NodeEx;
 

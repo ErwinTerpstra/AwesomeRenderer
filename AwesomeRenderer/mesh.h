@@ -23,7 +23,7 @@ namespace AwesomeRenderer
 		std::vector<Vector2> texcoords;
 		std::vector<Vector3> normals;
 
-		std::vector<int> indices;
+		std::vector<uint32_t> indices;
 
 		VertexAttributes attributes;
 		
@@ -35,7 +35,7 @@ namespace AwesomeRenderer
 	public:
 		Mesh(VertexAttributes attributes);
 		
-		void Reserve(int numTriangles, int numVertices);
+		void Reserve(uint32_t numTriangles, uint32_t numVertices);
 
 		void CreateCube(const Vector3& center, float extents);
 		void CalculateBounds();

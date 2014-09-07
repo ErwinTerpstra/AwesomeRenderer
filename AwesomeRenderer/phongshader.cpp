@@ -37,17 +37,21 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 	// Sample specular map if it is present
 	if (material->specularMap)
 	{
-		Color sample = material->diffuseMap->Sample(in.uv);
+		Color sample = material->specularMap->Sample(in.uv);
 		
 		specular *= sample;		// Multiply specular color with the color for this pixel
 		shininess *= sample[3];	// Multiply global shininess with the local value for this pixel
 	}
 
+	/*
+	Color diffuseLight = Color::WHITE;
+	Color specularLight = Color::BLACK;
+	/*/
 	Color diffuseLight = Color::BLACK;
 	Color specularLight = Color::BLACK;
 
 	// Iterate through all the lights
-	for (int i = 0; i < MAX_LIGHTS; ++i)
+	for (uint8_t i = 0; i < MAX_LIGHTS; ++i)
 	{
 		const Light& light = lightData.lights[i];
 
@@ -60,17 +64,29 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 		toLight.normalize();
 
 		float attenuation = light.constantAttenuation + (light.lineairAttenuation * distanceToLight) + (light.quadricAttenuation * distanceToLight * distanceToLight);
-		float intensity = light.intensity * (1.0f / attenuation);
+		float intensity = light.intensity;
+
+		if (light.type == PhongShader::LightType::SPOT)
+		{
+			float angleTerm = cml::dot(light.direction, -toLight); 
+			float cosAngle = cos(light.angle);
+			
+			if (angleTerm > cosAngle)
+				intensity *= (angleTerm - cosAngle) / (1.0f - cosAngle);
+			else
+				intensity = 0;
+		}
+
+		intensity /= attenuation;
 
 		// Compute the diffuse term
 		float diffuseTerm = std::max(cml::dot(in.normal, toLight), 0.0f);
-
 		diffuseLight += light.color * diffuseTerm * intensity;
 
 		// Compute the specular term
 		Vector3 toEye = cml::normalize(viewPosition - in.worldPosition).subvector(3);
 		Vector3 specularDirection = cml::normalize(toLight + toEye);
-
+		
 		float specularTerm = std::pow(std::max(cml::dot(in.normal, specularDirection), 0.0f), material->shininess);
 
 		if (diffuseTerm <= 0.0f) 
@@ -78,6 +94,10 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 
 		specularLight += light.color * specularTerm * intensity;
 	}
+	//*/
+
+	// Set alpha channel of specular to zero to have easier calculations
+	specular[3] = 0.0f;
 
 	out.color = diffuse * (lightData.ambient + diffuseLight) + specular * specularLight;
 }

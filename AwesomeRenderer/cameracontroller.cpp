@@ -3,9 +3,10 @@
 using namespace AwesomeRenderer;
 
 CameraController::CameraController(Camera& camera) : 
-	camera(camera), distance(1.0f),
-	azimuth(0.0f), zenith((float) M_PI * 0.5f),
-	azimuthSpeed(2.0f), zenithSpeed(2.0f)
+	camera(camera), 
+	distance(20.0f), zoomSpeed(6.0f),
+	yaw(0.2f), pitch(0.9f),
+	yawSpeed(2.0f), pitchSpeed(2.0f)
 {
 
 }
@@ -13,22 +14,29 @@ CameraController::CameraController(Camera& camera) :
 void CameraController::Update(const TimingInfo& timingInfo)
 {
 	InputManager& input = InputManager::Instance();
+	float dt = timingInfo.elapsedSeconds;
 
 	if (input.GetKey('W'))
-		zenith -= zenithSpeed * timingInfo.elapsedSeconds;
+		pitch -= pitchSpeed * dt;
 
 	if (input.GetKey('S'))
-		zenith += zenithSpeed * timingInfo.elapsedSeconds;
+		pitch += pitchSpeed * dt;
 
 	if (input.GetKey('A'))
-		azimuth -= azimuthSpeed * timingInfo.elapsedSeconds;
+		yaw -= yawSpeed * dt;
 
 	if (input.GetKey('D'))
-		azimuth += azimuthSpeed * timingInfo.elapsedSeconds;
+		yaw += yawSpeed * dt;
+
+	if (input.GetKey('Q'))
+		distance += zoomSpeed * dt;
+
+	if (input.GetKey('E'))
+		distance -= zoomSpeed * dt;
 
 	camera.position = camera.lookAt;
-	camera.position += Vector3(std::cos(azimuth) * std::sin(zenith), 
-							   std::cos(zenith),
-							   std::sin(azimuth) * std::sin(zenith)) * distance;
+	camera.position += Vector3(std::cos(yaw) * std::sin(pitch),
+							   std::cos(pitch),
+							   std::sin(yaw) * std::sin(pitch)) * distance;
 
 }

@@ -9,8 +9,9 @@ namespace AwesomeRenderer
 
 	class Material
 	{
-
 	public:
+		bool translucent;
+
 		Texture* diffuseMap;
 		Texture* specularMap;
 		Texture* normalMap;

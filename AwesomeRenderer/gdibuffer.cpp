@@ -14,12 +14,12 @@ GdiBuffer::~GdiBuffer()
 
 }
 
-void GdiBuffer::Allocate(int preferredWidth, int preferredHeight, int stride)
+void GdiBuffer::Allocate(uint32_t preferredWidth, uint32_t preferredHeight, uint32_t stride)
 {
 	SetDimensions(preferredWidth, preferredHeight, stride);
 
-	//bitmapInfo.bmiColors[0].rgbRed		= 255;
-	//bitmapInfo.bmiColors[0].rgbGreen	= 255;
+	bitmapInfo.bmiColors[0].rgbRed		= 255;
+	bitmapInfo.bmiColors[0].rgbGreen	= 255;
 	bitmapInfo.bmiColors[0].rgbBlue		= 255;
 
 	BITMAPINFOHEADER& header = bitmapInfo.bmiHeader;
