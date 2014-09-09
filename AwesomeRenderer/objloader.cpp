@@ -249,6 +249,29 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 
 				break;
 
+			case 'N':
+			{
+				if (line.length() < 3)
+				{
+					printf("[ObjLoader]: Invalid material definition \"%s\"\n", lineBuffer);
+					break;
+				}
+
+				if (material == NULL)
+				{
+					printf("[ObjLoader]: Defined material color before newmtl definition \"%s\"\n", lineBuffer);
+					break;
+				}
+
+				switch (line[1])
+				{
+					case 's':
+						material->shininess = strtof(lineBuffer + 2, NULL);
+						break;
+				}
+
+				break;
+			}
 			case 'd':
 			{
 				float alpha = strtof(lineBuffer + 1, NULL);
@@ -293,6 +316,8 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 
 					break;
 				}
+
+
 
 				printf("[ObjLoader]: Invalid line in MTL \"%s\"\n", lineBuffer);
 

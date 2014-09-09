@@ -119,6 +119,8 @@ void SoftwareRenderer::BeginDraw(const Matrix44& model, const Material& material
 	shader->viewMtx = renderContext->camera->viewMtx;
 	shader->projMtx = renderContext->camera->projMtx;
 
+	shader->viewPosition = Vector4(renderContext->camera->position, 1.0f);
+
 	// Setup shader rendering parameters
 	shader->material = &material;
 
@@ -236,8 +238,10 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 			interpolated.normal			*= wRecip;
 			interpolated.uv				*= wRecip;
 
-			float depth = 1.0f - interpolated.screenPosition[2];
+			interpolated.normal.normalize();
 
+			float depth = 1.0f - interpolated.screenPosition[2];
+			
 			// Depth testing
 			if (depthBuffer != NULL && depthBuffer->GetPixel(x, y) > depth)
 				continue;

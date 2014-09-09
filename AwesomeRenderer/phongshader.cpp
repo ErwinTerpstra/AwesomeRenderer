@@ -63,7 +63,6 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 		float distanceToLight = toLight.length();
 		toLight.normalize();
 
-		float attenuation = light.constantAttenuation + (light.lineairAttenuation * distanceToLight) + (light.quadricAttenuation * distanceToLight * distanceToLight);
 		float intensity = light.intensity;
 
 		if (light.type == PhongShader::LightType::SPOT)
@@ -77,7 +76,7 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 				intensity = 0;
 		}
 
-		intensity /= attenuation;
+		intensity /= light.constantAttenuation + (light.lineairAttenuation * distanceToLight) + (light.quadricAttenuation * distanceToLight * distanceToLight);
 
 		// Compute the diffuse term
 		float diffuseTerm = std::max(cml::dot(in.normal, toLight), 0.0f);
@@ -85,18 +84,17 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 
 		// Compute the specular term
 		Vector3 toEye = cml::normalize(viewPosition - in.worldPosition).subvector(3);
-		Vector3 specularDirection = cml::normalize(toLight + toEye);
-		
-		float specularTerm = std::pow(std::max(cml::dot(in.normal, specularDirection), 0.0f), material->shininess);
+		Vector3 halfVector = cml::normalize(toLight + toEye);
 
-		if (diffuseTerm <= 0.0f) 
-			specularTerm = 0.0f;
-
-		specularLight += light.color * specularTerm * intensity;
+		if (diffuseTerm > 0.0f)
+		{
+			float specularTerm = std::pow(std::max(cml::dot(in.normal, halfVector), 0.0f), shininess);
+			specularLight += light.color * specularTerm * intensity;
+		}
 	}
 	//*/
 
-	// Set alpha channel of specular to zero to have easier calculations
+	// Set alpha channel of specular to zero to prevent addition
 	specular[3] = 0.0f;
 
 	out.color = diffuse * (lightData.ambient + diffuseLight) + specular * specularLight;

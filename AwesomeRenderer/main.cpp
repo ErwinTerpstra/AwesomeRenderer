@@ -80,47 +80,47 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 
 		PhongShader::Light& light = phongShader.lightData.lights[0];
-		light.position = Vector3(0.0f, 15.0f, 0.0f);
+		light.position = Vector3(5.0f, 10.0f, 0.0f);
 		light.direction = (zero - light.position).normalize();
-		light.type = PhongShader::LightType::SPOT;
+		light.type = PhongShader::LightType::POINT;
 		light.angle = (float) (40.0f * (M_PI / 180.0f));
 		light.angleExponent = 20.0f;
 		light.color = Color::WHITE;
 		light.constantAttenuation = 0.0f;
-		light.lineairAttenuation = 0.03f;
-		light.quadricAttenuation = 0.003f;
-		light.intensity = 1.0f;
+		light.lineairAttenuation = 0.05f;
+		light.quadricAttenuation = 0.04f;
+		light.intensity = 4.0f;
 		light.enabled = true;
 	}
 
 	{
 		PhongShader::Light& light = phongShader.lightData.lights[1];
-		light.position = Vector3(15.0f, 10.0f, 15.0f);
+		light.position = Vector3(5.0f, 3.0f, 5.0f);
 		light.direction = (zero - light.position).normalize();
-		light.type = PhongShader::LightType::SPOT;
+		light.type = PhongShader::LightType::POINT;
 		light.angle = (float) (30.0f * (M_PI / 180.0f));
 		light.angleExponent = 20.0f;
 		light.color = Color::BLUE;
 		light.constantAttenuation = 0.0f;
-		light.lineairAttenuation = 0.04f;
-		light.quadricAttenuation = 0.004f;
-		light.intensity = 1.0f;
-		light.enabled = true;
+		light.lineairAttenuation = 0.0f;
+		light.quadricAttenuation = 2.0f;
+		light.intensity = 8.0f;
+		light.enabled = false;
 	}
 
 	{
 
 		PhongShader::Light& light = phongShader.lightData.lights[2];
-		light.position = Vector3(-15.0f, 10.0f, -15.0f);
+		light.position = Vector3(-5.0f, 3.0f, -5.0f);
 		light.direction = (zero - light.position).normalize();
-		light.type = PhongShader::LightType::SPOT;
+		light.type = PhongShader::LightType::POINT;
 		light.angle = ((float) 30.0f * (M_PI / 180.0f));
 		light.angleExponent = 20.0f;
 		light.color = Color::RED;
 		light.constantAttenuation = 0.0f;
-		light.lineairAttenuation = 0.04f;
-		light.quadricAttenuation = 0.004f;
-		light.intensity = 1.0f;
+		light.lineairAttenuation = 0.0f;
+		light.quadricAttenuation = 2.0f;
+		light.intensity = 8.0f;
 		light.enabled = true;
 	}
 	
@@ -171,7 +171,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		material->shader = &phongShader;
 		material->diffuseMap = texture;
 		material->specularColor = Color::WHITE;
-		material->shininess = 2.0f;
+		material->shininess = 50.0f;
 
 		plane.model = new Model();
 		plane.model->AddMesh(mesh, material);
@@ -180,7 +180,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		plane.transform->SetScale(Vector3(10.0f, 10.0f, 10.0f));
 	}
 
-	renderer.cullMode = Renderer::CULL_NONE;
+	//renderer.cullMode = Renderer::CULL_NONE;
 
 	renderContext.nodes.push_back(&car);
 	renderContext.nodes.push_back(&plane);
