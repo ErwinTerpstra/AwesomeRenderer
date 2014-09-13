@@ -22,9 +22,32 @@ namespace AwesomeRenderer
 			v[0] = a; v[1] = b; v[2] = c;
 		}
 
-		Triangle(const Triangle<VectorType>& other) : Triangle(other.v[0], other.v[1], other.v[1])
+		Triangle(const Triangle<VectorType>& other)
 		{
+			CopyFrom(other);
+		}
 
+		Triangle& operator=(const Triangle<VectorType>& rhs)
+		{
+			CopyFrom(rhs);
+
+			return *this;
+		}
+
+		void CopyFrom(const Triangle<VectorType>& other)
+		{
+			v[0] = other.v[0];
+			v[1] = other.v[1];
+			v[2] = other.v[2];
+
+			v0 = other.v0;
+			v1 = other.v1;
+
+			dot00 = other.dot00;
+			dot01 = other.dot01;
+			dot11 = other.dot11;
+
+			invDenom = other.invDenom;
 		}
 
 		virtual ~Triangle() { }

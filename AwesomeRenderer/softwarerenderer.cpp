@@ -15,6 +15,54 @@ SoftwareRenderer::~SoftwareRenderer()
 
 }
 
+void SoftwareRenderer::Initialize()
+{
+	// Semaphore that keeps track on how many workers are currently idle
+	availableWorkers = CreateSemaphore(NULL, 0, WORKER_AMOUNT, NULL);
+
+	for (uint32_t workerIdx = 0; workerIdx < WORKER_AMOUNT; ++workerIdx)
+	{	
+		WorkerThread& thread = workers[workerIdx];
+
+		WorkerData data;
+		data.renderer = this;
+		data.thread = &thread;
+		data.workerSemaphore = availableWorkers;
+
+		thread.Start(data);
+
+		// Wait for the thread so signal it is finished setting up
+		// This is neccesary since the worker creation accesses local stack data
+		thread.WaitUntilAvailable();
+	}
+}
+
+void SoftwareRenderer::Cleanup()
+{
+	// Close all created handles
+	CloseHandle(availableWorkers);
+
+	for (uint32_t workerIdx = 0; workerIdx < WORKER_AMOUNT; ++workerIdx)
+	{
+		WorkerThread& thread = workers[workerIdx];
+		thread.Stop();
+	}
+}
+
+void SoftwareRenderer::SetRenderContext(const RenderContext* context)
+{
+	Renderer::SetRenderContext(context);
+
+	Buffer* frameBuffer = context->renderTarget->frameBuffer;
+
+	// Calculate how many tiles we need for this frame buffer size
+	horizontalTiles = (frameBuffer->width + TILE_WIDTH - 1) / TILE_WIDTH;
+	verticalTiles = (frameBuffer->height + TILE_HEIGHT - 1) / TILE_HEIGHT;
+
+	// Resize our tiles vector to fit all tile bins on screen
+	tiles.resize(horizontalTiles * verticalTiles);
+}
+
 void SoftwareRenderer::Render()
 {
 	std::vector<Node*>::const_iterator it;
@@ -37,6 +85,8 @@ void SoftwareRenderer::Render()
 			job.material = material;
 			job.trans = trans;
 
+			// TODO: sort render jobs by material
+
 			// Render translucent objects last
 			if (material->translucent)
 				renderQueue.push_back(job);
@@ -50,8 +100,10 @@ void SoftwareRenderer::Render()
 	while (!renderQueue.empty())
 	{
 		const RenderJob& job = renderQueue.front();
-		DrawJob(job);
 
+		DrawJob(job);
+		DrawTiles();
+		
 		renderQueue.pop_front();
 	}
 }
@@ -135,18 +187,17 @@ void SoftwareRenderer::EndDraw()
 
 void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuffer)
 {
-	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
-	Buffer* depthBuffer = renderContext->renderTarget->depthBuffer;
 	SoftwareShader* shader = static_cast<SoftwareShader*>(currentMaterial->shader);
 
-	SoftwareShader::VertexToPixel vtp[3];
-	
+	TriangleData data;
+	SoftwareShader::VertexToPixel* vtp = data.vertexToPixel;
+
 	for (uint8_t cVertex = 0; cVertex < 3; ++cVertex)
 	{
 		// Retrieve output from vertex shader
 		shader->ProcessVertex(vertexBuffer[cVertex], vtp[cVertex]);
 	}
-	
+
 	for (uint8_t cVertex = 0; cVertex < 3; ++cVertex)
 	{
 		SoftwareShader::VertexToPixel& vertexData = vtp[cVertex];
@@ -158,12 +209,12 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 		vertexData.screenPosition = vertexData.screenPosition * renderContext->camera->viewportMtx;
 
 		// Normalize coordinates and vertex attributes (perspective correction)
-		vertexData.screenPosition	*= wRecip;
-		vertexData.worldPosition	*= wRecip;
-		vertexData.color			*= wRecip;
-		vertexData.normal			*= wRecip;
-		vertexData.uv				*= wRecip;
-		
+		vertexData.screenPosition		*= wRecip;
+		vertexData.worldPosition		*= wRecip;
+		vertexData.color				*= wRecip;
+		vertexData.normal				*= wRecip;
+		vertexData.uv					*= wRecip;
+
 		// Store z factor in unused W channel
 		vertexData.screenPosition[3] = wRecip;
 	}
@@ -175,104 +226,269 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 		Vector3 ac = (vtp[2].screenPosition.subvector(3) - vtp[0].screenPosition.subvector(3));
 		Vector3 normal = cml::cross(ab, ac);
 
-		if (normal[2] * (int) cullMode > 0.0f)
+		if (normal[2] * (int)cullMode > 0.0f)
 			return;
 	}
-	
-	SoftwareShader::VertexToPixel* a = &vtp[0];
-	SoftwareShader::VertexToPixel* b = &vtp[1];
-	SoftwareShader::VertexToPixel* c = &vtp[2];
 
 	// Sort the vertices in Y direction for rasterizing
-	SortTriangle(&a, &b, &c);
+	SortTriangle(vtp);
+
+	Triangle2D* sst = &data.screenSpaceTriangle;
 
 	// Screen-space triangle for bounds checking
-	Triangle2D sst(Vector2(a->screenPosition[0], a->screenPosition[1]), 
-				   Vector2(b->screenPosition[0], b->screenPosition[1]),  
-				   Vector2(c->screenPosition[0], c->screenPosition[1]));
+	*sst = Triangle2D(Vector2(vtp[0].screenPosition[0], vtp[0].screenPosition[1]),
+					  Vector2(vtp[1].screenPosition[0], vtp[1].screenPosition[1]),
+					  Vector2(vtp[2].screenPosition[0], vtp[2].screenPosition[1]));
 
-	sst.PreCalculateBarycentric();
+	sst->PreCalculateBarycentric();
 
-	//
-	// Scan line rasterization
-	//
+	// Calculate bounds for the triangle so that we can decide which tiles it is in
+	Vector2 lower, upper;
+	data.screenSpaceTriangle.CalculateBounds(lower, upper);
 	
-	float dAB = (sst[1][0] - sst[0][0]) / (sst[1][1] - sst[0][1]);
-	float dAC = (sst[2][0] - sst[0][0]) / (sst[2][1] - sst[0][1]);
-	float dBC = (sst[2][0] - sst[1][0]) / (sst[2][1] - sst[1][1]);
-
-	// Iterate trough scan lines
-	int minY = (int)std::ceil(sst[0][1]), maxY = (int)std::floor(sst[2][1]);
-	for (int y = std::max(minY, 0); y <= std::min(maxY, (int) frameBuffer->height - 1); ++y)
-	{	
-		float x1 = _finite(dAC) ? sst[0][0] + (y - sst[0][1]) * dAC : sst[2][0];
-		float x2;
-
-		// If we passed vertex B, we must use line BC instead of AB
-		if (y > sst[1][1])
-			x2 = _finite(dBC) ? sst[1][0] + (y - sst[1][1]) * dBC : sst[2][0];
-		else
-			x2 = _finite(dAB) ? sst[0][0] + (y - sst[0][1]) * dAB : sst[1][0];
-		
-		int minX = (int)std::ceil(std::min(x1, x2));
-		int maxX = (int)std::floor(std::max(x1, x2));
-
-		// Fill this scan line
-		for (int x = std::max(minX, 0); x <= std::min(maxX, (int) frameBuffer->width - 1); ++x)
+	// Iterate through all the tiles this triangle intersects with and save it for that tile
+	for (int tileY = std::max((int)lower[1] / TILE_HEIGHT, 0); tileY <= std::min((int)upper[1] / TILE_HEIGHT, (int)verticalTiles - 1); ++tileY)
+	{
+		for (int tileX = std::max((int) lower[0] / TILE_WIDTH, 0); tileX <= std::min((int) upper[0] / TILE_WIDTH, (int) horizontalTiles - 1); ++tileX)
 		{
-			Vector3 bcCoords;
-			sst.CalculateBarycentricCoords(Vector2((float) x, (float) y), bcCoords);
-			
-			// Interpolate pixel data
-			SoftwareShader::VertexToPixel interpolated;
-			VectorUtil<4>::Interpolate(a->screenPosition,	b->screenPosition,	c->screenPosition,	bcCoords,	interpolated.screenPosition);
-			VectorUtil<4>::Interpolate(a->worldPosition,	b->worldPosition,	c->worldPosition,	bcCoords,	interpolated.worldPosition);
-			VectorUtil<4>::Interpolate(a->color,			b->color,			c->color,			bcCoords,	interpolated.color);
-			VectorUtil<3>::Interpolate(a->normal,			b->normal,			c->normal,			bcCoords,	interpolated.normal);
-			VectorUtil<2>::Interpolate(a->uv,				b->uv,				c->uv,				bcCoords,	interpolated.uv);
-			
-			// Correct for perspective since we interpolate in screen space
-			float wRecip = 1.0f / interpolated.screenPosition[3];
-			interpolated.worldPosition	*= wRecip;
-			interpolated.color			*= wRecip;
-			interpolated.normal			*= wRecip;
-			interpolated.uv				*= wRecip;
+			int idx = (tileY * horizontalTiles) + tileX;
+			tiles[idx].push_back(data);
+		}
+	}
+}
 
-			interpolated.normal.normalize();
+void SoftwareRenderer::DrawTiles()
+{
+	for (uint32_t tileY = 0; tileY < verticalTiles; ++tileY)
+	{
+		for (uint32_t tileX = 0; tileX < horizontalTiles; ++tileX)
+		{
+			// Wait for at least one worker to become available
+			DWORD result = WaitForSingleObject(availableWorkers, INFINITE);
 
-			float depth = 1.0f - interpolated.screenPosition[2];
-			
-			// Depth testing
-			if (depthBuffer != NULL && depthBuffer->GetPixel(x, y) > depth)
-				continue;
-
-			// Compute pixel shading
-			SoftwareShader::PixelInfo pixelInfo;
-			shader->ProcessPixel(interpolated, pixelInfo);
-
-			// Check whether we need to alpha blend colors
-			bool alphaBlend = pixelInfo.color[3] < 1.0f;
-			
-			if (alphaBlend)
+			// Iterate through workers to find the available worker
+			for (uint32_t workerIdx = 0; workerIdx < WORKER_AMOUNT; ++workerIdx)
 			{
-				Color color;
-				frameBuffer->GetPixel(x, y, color);
-
-				Blend(pixelInfo.color, color, color);
-				frameBuffer->SetPixel(x, y, color);
+				WorkerThread& worker = workers[workerIdx];
+				
+				// Check if the worker is available
+				if (worker.IsAvailable())
+				{
+					// Assign the current tile to this worker
+					worker.DrawTile(tileX, tileY);
+					break;
+				}
 			}
-			else
-			{
-				// Write to depth buffer
-				if (depthBuffer != NULL)
-					depthBuffer->SetPixel(x, y, depth);
 
-				// Write to color buffer
-				frameBuffer->SetPixel(x, y, pixelInfo.color);
-			}
 		}
 	}
 
+	// Wait for all workers to finish
+	for (uint32_t workerIdx = 0; workerIdx < WORKER_AMOUNT; ++workerIdx)
+	{
+		WorkerThread& worker = workers[workerIdx];
+		worker.WaitUntilAvailable();
+	}
+
+}
+
+void SoftwareRenderer::DrawTile(uint32_t tileX, uint32_t tileY)
+{
+	std::vector<TriangleData>& bin = tiles[(tileY * horizontalTiles) + tileX];
+	
+	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
+	Buffer* depthBuffer = renderContext->renderTarget->depthBuffer;
+	SoftwareShader* shader = static_cast<SoftwareShader*>(currentMaterial->shader);
+
+	// Retrieve min and max screen coordinates for this tile
+	int minTileX = std::max(tileX * TILE_WIDTH, 0u);
+	int minTileY = std::max(tileY * TILE_HEIGHT, 0u);
+
+	int maxTileX = std::min(minTileX + TILE_WIDTH - 1, (int)frameBuffer->width - 1);
+	int maxTileY = std::min(minTileY + TILE_HEIGHT - 1, (int)frameBuffer->height - 1);
+
+	// Draw all triangles in the tile
+	while (!bin.empty())
+	{
+		const TriangleData& data = bin.back(); 
+
+		const Triangle2D& sst = data.screenSpaceTriangle;
+		const SoftwareShader::VertexToPixel* a = &data.vertexToPixel[0];
+		const SoftwareShader::VertexToPixel* b = &data.vertexToPixel[1];
+		const SoftwareShader::VertexToPixel* c = &data.vertexToPixel[2];
+
+		//
+		// Scan line rasterization
+		//
+
+		float dAB = (sst[1][0] - sst[0][0]) / (sst[1][1] - sst[0][1]);
+		float dAC = (sst[2][0] - sst[0][0]) / (sst[2][1] - sst[0][1]);
+		float dBC = (sst[2][0] - sst[1][0]) / (sst[2][1] - sst[1][1]);
+
+		// Iterate trough scan lines
+		int minY = (int)std::ceil(sst[0][1]), maxY = (int)std::floor(sst[2][1]);
+		for (int y = std::max(minY, minTileY); y <= std::min(maxY, maxTileY); ++y)
+		{
+			float x1 = _finite(dAC) ? sst[0][0] + (y - sst[0][1]) * dAC : sst[2][0];
+			float x2;
+
+			// If we passed vertex B, we must use line BC instead of AB
+			if (y > sst[1][1])
+				x2 = _finite(dBC) ? sst[1][0] + (y - sst[1][1]) * dBC : sst[2][0];
+			else
+				x2 = _finite(dAB) ? sst[0][0] + (y - sst[0][1]) * dAB : sst[1][0];
+
+			int minX = (int)std::ceil(std::min(x1, x2));
+			int maxX = (int)std::floor(std::max(x1, x2));
+
+			// Fill this scan line
+			for (int x = std::max(minX, minTileX); x <= std::min(maxX, maxTileX); ++x)
+			{
+				Vector3 bcCoords;
+				sst.CalculateBarycentricCoords(Vector2((float)x, (float)y), bcCoords);
+
+				// Interpolate pixel data
+				SoftwareShader::VertexToPixel interpolated;
+				VectorUtil<4>::Interpolate(a->screenPosition,	b->screenPosition,	c->screenPosition,	bcCoords, interpolated.screenPosition);
+				VectorUtil<4>::Interpolate(a->worldPosition,	b->worldPosition,	c->worldPosition,	bcCoords, interpolated.worldPosition);
+				VectorUtil<4>::Interpolate(a->color,			b->color,			c->color,			bcCoords, interpolated.color);
+				VectorUtil<3>::Interpolate(a->normal,			b->normal,			c->normal,			bcCoords, interpolated.normal);
+				VectorUtil<2>::Interpolate(a->uv,				b->uv,				c->uv,				bcCoords, interpolated.uv);
+
+				// Correct for perspective since we interpolate in screen space
+				float wRecip = 1.0f / interpolated.screenPosition[3];
+				interpolated.worldPosition	*= wRecip;
+				interpolated.color			*= wRecip;
+				interpolated.normal			*= wRecip;
+				interpolated.uv				*= wRecip;
+
+				interpolated.normal.normalize();
+
+				float depth = 1.0f - interpolated.screenPosition[2];
+
+				// Depth testing
+				if (depthBuffer != NULL && depthBuffer->GetPixel(x, y) > depth)
+					continue;
+
+				// Compute pixel shading
+				SoftwareShader::PixelInfo pixelInfo;
+				shader->ProcessPixel(interpolated, pixelInfo);
+
+				// Check whether we need to alpha blend colors
+				bool alphaBlend = pixelInfo.color[3] < 1.0f;
+
+				if (alphaBlend)
+				{
+					Color color;
+					frameBuffer->GetPixel(x, y, color);
+
+					Blend(pixelInfo.color, color, color);
+					frameBuffer->SetPixel(x, y, color);
+				}
+				else
+				{
+					// Write to depth buffer
+					if (depthBuffer != NULL)
+						depthBuffer->SetPixel(x, y, depth);
+
+					// Write to color buffer
+					frameBuffer->SetPixel(x, y, pixelInfo.color);
+				}
+			}
+		}
+
+		bin.pop_back();
+	}
+}
+
+DWORD SoftwareRenderer::StartWorker(WorkerThread* thread)
+{
+
+	while (true)
+	{
+		// Signal caller that the thread has been started and is ready for data
+		thread->SetAvailable();
+
+		// Wait until there is data to read
+		thread->WaitForData();
+
+		// Check if we need to shutdown the worker
+		if (!thread->IsRunning())
+			break;
+
+		// Render the tile assigned to this thread
+		DrawTile(thread->TileX(), thread->TileY());
+	}
+
+	// Signal that the worker is done and can be disposed
+	thread->SetAvailable();
+
+	return 0;
+}
+
+SoftwareRenderer::WorkerThread::WorkerThread() : available(false), running(false), tileX(0), tileY(0)
+{
+
+}
+
+void SoftwareRenderer::WorkerThread::Start(WorkerData& data)
+{
+	running = true;
+
+	// Create and start a thread for this worker
+	handle = CreateThread(NULL, 0, SoftwareRenderer::HandleWorker, &data, 0, &id);
+
+	// Create read and write wait handles for this worker
+	// These will signal when there is data available specific for this worker
+	readHandle = CreateEvent(NULL, FALSE, FALSE, NULL);
+	writeHandle = CreateEvent(NULL, FALSE, FALSE, NULL);
+
+	this->workerSemaphore = data.workerSemaphore;
+}
+
+void SoftwareRenderer::WorkerThread::Stop()
+{
+	// Wait until we can communicate with the thread
+	WaitUntilAvailable();
+
+	// Signal we are shutting down
+	running = false;
+	available = false;
+	SetEvent(readHandle);
+
+	// Wait until the thread has been shutdown
+	WaitUntilAvailable();
+
+	CloseHandle(readHandle);
+	CloseHandle(writeHandle);
+}
+
+void SoftwareRenderer::WorkerThread::DrawTile(uint32_t tileX, uint32_t tileY)
+{
+	available = false;
+
+	this->tileX = tileX;
+	this->tileY = tileY;
+
+	SetEvent(readHandle);
+}
+
+void SoftwareRenderer::WorkerThread::WaitUntilAvailable()
+{
+	WaitForSingleObject(writeHandle, INFINITE);
+}
+
+void SoftwareRenderer::WorkerThread::WaitForData()
+{
+	WaitForSingleObject(readHandle, INFINITE);
+}
+
+void SoftwareRenderer::WorkerThread::SetAvailable()
+{
+	// Set our state to available and signal that there can be written data for this thread
+	available = true;
+	SetEvent(writeHandle);
+	ReleaseSemaphore(workerSemaphore, 1, NULL);
 }
 
 void SoftwareRenderer::Blend(const Color& src, const Color& dst, Color& out)
@@ -281,6 +497,12 @@ void SoftwareRenderer::Blend(const Color& src, const Color& dst, Color& out)
 		out[channel] = (src[channel] * src[3]) + (dst[channel] * (1.0 - src[3]));
 
 }
+void SoftwareRenderer::SortTriangle(SoftwareShader::VertexToPixel* vtp)
+{
+	if (vtp[0].screenPosition[1] > vtp[1].screenPosition[1]) Swap<SoftwareShader::VertexToPixel>(vtp[0], vtp[1]);
+	if (vtp[1].screenPosition[1] > vtp[2].screenPosition[1]) Swap<SoftwareShader::VertexToPixel>(vtp[1], vtp[2]);
+	if (vtp[0].screenPosition[1] > vtp[1].screenPosition[1]) Swap<SoftwareShader::VertexToPixel>(vtp[0], vtp[1]);
+}
 
 void SoftwareRenderer::SortTriangle(SoftwareShader::VertexToPixel** a, SoftwareShader::VertexToPixel** b, SoftwareShader::VertexToPixel** c)
 {
@@ -288,6 +510,15 @@ void SoftwareRenderer::SortTriangle(SoftwareShader::VertexToPixel** a, SoftwareS
 	if ((*b)->screenPosition[1] > (*c)->screenPosition[1]) Swap<SoftwareShader::VertexToPixel>(b, c);
 	if ((*a)->screenPosition[1] > (*b)->screenPosition[1]) Swap<SoftwareShader::VertexToPixel>(a, b);
 }
+
+template <typename T>
+void SoftwareRenderer::Swap(T& a, T& b)
+{
+	T tmp = a;
+	a = b;
+	b = tmp;
+}
+
 
 template <typename T>
 void SoftwareRenderer::Swap(T** a, T** b)
