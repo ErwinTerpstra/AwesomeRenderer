@@ -266,6 +266,8 @@ void SoftwareRenderer::DrawTiles()
 			// Wait for at least one worker to become available
 			DWORD result = WaitForSingleObject(availableWorkers, INFINITE);
 
+			WorkerThread* freeWorker = NULL;
+
 			// Iterate through workers to find the available worker
 			for (uint32_t workerIdx = 0; workerIdx < WORKER_AMOUNT; ++workerIdx)
 			{
@@ -274,12 +276,16 @@ void SoftwareRenderer::DrawTiles()
 				// Check if the worker is available
 				if (worker.IsAvailable())
 				{
-					// Assign the current tile to this worker
-					worker.DrawTile(tileX, tileY);
+					freeWorker = &worker;
 					break;
 				}
 			}
 
+			if (freeWorker == NULL)
+				_CrtDbgBreak();
+
+			// Assign the current tile to this worker
+			freeWorker->DrawTile(tileX, tileY);
 		}
 	}
 
@@ -469,8 +475,11 @@ void SoftwareRenderer::WorkerThread::DrawTile(uint32_t tileX, uint32_t tileY)
 
 	this->tileX = tileX;
 	this->tileY = tileY;
-
+	// Set the read handle to signal the worker thread there is data available
 	SetEvent(readHandle);
+
+	// Reset the write handle since we are not available any more
+	ResetEvent(writeHandle);
 }
 
 void SoftwareRenderer::WorkerThread::WaitUntilAvailable()
@@ -499,16 +508,26 @@ void SoftwareRenderer::Blend(const Color& src, const Color& dst, Color& out)
 }
 void SoftwareRenderer::SortTriangle(SoftwareShader::VertexToPixel* vtp)
 {
-	if (vtp[0].screenPosition[1] > vtp[1].screenPosition[1]) Swap<SoftwareShader::VertexToPixel>(vtp[0], vtp[1]);
-	if (vtp[1].screenPosition[1] > vtp[2].screenPosition[1]) Swap<SoftwareShader::VertexToPixel>(vtp[1], vtp[2]);
-	if (vtp[0].screenPosition[1] > vtp[1].screenPosition[1]) Swap<SoftwareShader::VertexToPixel>(vtp[0], vtp[1]);
+	if (vtp[0].screenPosition[1] > vtp[1].screenPosition[1]) 
+		Swap<SoftwareShader::VertexToPixel>(vtp[0], vtp[1]);
+
+	if (vtp[1].screenPosition[1] > vtp[2].screenPosition[1])
+		Swap<SoftwareShader::VertexToPixel>(vtp[1], vtp[2]);
+
+	if (vtp[0].screenPosition[1] > vtp[1].screenPosition[1])
+		Swap<SoftwareShader::VertexToPixel>(vtp[0], vtp[1]);
 }
 
 void SoftwareRenderer::SortTriangle(SoftwareShader::VertexToPixel** a, SoftwareShader::VertexToPixel** b, SoftwareShader::VertexToPixel** c)
 {
-	if ((*a)->screenPosition[1] > (*b)->screenPosition[1]) Swap<SoftwareShader::VertexToPixel>(a, b);
-	if ((*b)->screenPosition[1] > (*c)->screenPosition[1]) Swap<SoftwareShader::VertexToPixel>(b, c);
-	if ((*a)->screenPosition[1] > (*b)->screenPosition[1]) Swap<SoftwareShader::VertexToPixel>(a, b);
+	if ((*a)->screenPosition[1] > (*b)->screenPosition[1])
+		Swap<SoftwareShader::VertexToPixel>(a, b);
+
+	if ((*b)->screenPosition[1] > (*c)->screenPosition[1])
+		Swap<SoftwareShader::VertexToPixel>(b, c);
+
+	if ((*a)->screenPosition[1] > (*b)->screenPosition[1])
+		Swap<SoftwareShader::VertexToPixel>(a, b);
 }
 
 template <typename T>
