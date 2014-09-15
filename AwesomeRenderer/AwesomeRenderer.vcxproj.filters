@@ -189,6 +189,9 @@
     <ClCompile Include="glrenderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="sampler.cpp">
+      <Filter>Source Files\Renderer\Shading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h">
@@ -328,6 +331,9 @@
     </ClInclude>
     <ClInclude Include="glrenderer.h">
       <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="sampler.h">
+      <Filter>Header Files\Renderer\Shading</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

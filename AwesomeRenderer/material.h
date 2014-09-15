@@ -12,9 +12,9 @@ namespace AwesomeRenderer
 	public:
 		bool translucent;
 
-		Texture* diffuseMap;
-		Texture* specularMap;
-		Texture* normalMap;
+		Sampler* diffuseMap;
+		Sampler* specularMap;
+		Sampler* normalMap;
 		
 		Color diffuseColor;
 		Color specularColor;

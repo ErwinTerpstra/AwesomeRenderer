@@ -381,9 +381,7 @@ void SoftwareRenderer::DrawTile(uint32_t tileX, uint32_t tileY)
 				shader->ProcessPixel(interpolated, pixelInfo);
 
 				// Check whether we need to alpha blend colors
-				bool alphaBlend = pixelInfo.color[3] < 1.0f;
-
-				if (alphaBlend)
+				if (currentMaterial->translucent)
 				{
 					Color color;
 					frameBuffer->GetPixel(x, y, color);
@@ -440,16 +438,16 @@ SoftwareRenderer::WorkerThread::WorkerThread() : available(false), running(false
 void SoftwareRenderer::WorkerThread::Start(WorkerData& data)
 {
 	running = true;
-
-	// Create and start a thread for this worker
-	handle = CreateThread(NULL, 0, SoftwareRenderer::HandleWorker, &data, 0, &id);
+	
+	this->workerSemaphore = data.workerSemaphore;
 
 	// Create read and write wait handles for this worker
 	// These will signal when there is data available specific for this worker
 	readHandle = CreateEvent(NULL, FALSE, FALSE, NULL);
 	writeHandle = CreateEvent(NULL, FALSE, FALSE, NULL);
 
-	this->workerSemaphore = data.workerSemaphore;
+	// Create and start a thread for this worker
+	handle = CreateThread(NULL, 0, SoftwareRenderer::HandleWorker, &data, 0, &id);
 }
 
 void SoftwareRenderer::WorkerThread::Stop()
@@ -471,15 +469,16 @@ void SoftwareRenderer::WorkerThread::Stop()
 
 void SoftwareRenderer::WorkerThread::DrawTile(uint32_t tileX, uint32_t tileY)
 {
-	available = false;
-
 	this->tileX = tileX;
 	this->tileY = tileY;
-	// Set the read handle to signal the worker thread there is data available
-	SetEvent(readHandle);
+
+	available = false;
 
 	// Reset the write handle since we are not available any more
 	ResetEvent(writeHandle);
+
+	// Set the read handle to signal the worker thread there is data available
+	SetEvent(readHandle);
 }
 
 void SoftwareRenderer::WorkerThread::WaitUntilAvailable()
@@ -494,8 +493,9 @@ void SoftwareRenderer::WorkerThread::WaitForData()
 
 void SoftwareRenderer::WorkerThread::SetAvailable()
 {
-	// Set our state to available and signal that there can be written data for this thread
 	available = true;
+
+	// Set our state to available and signal that there can be written data for this thread
 	SetEvent(writeHandle);
 	ReleaseSemaphore(workerSemaphore, 1, NULL);
 }

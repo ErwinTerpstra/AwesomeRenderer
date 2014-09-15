@@ -9,15 +9,6 @@ namespace AwesomeRenderer
 	{
 	public:
 
-		enum WrapMode
-		{
-			WM_CLAMP,
-			WM_REPEAT,
-
-			WM_DEFAULT = WM_REPEAT
-		};
-
-		WrapMode wrapMode;
 	public:
 		Texture();
 

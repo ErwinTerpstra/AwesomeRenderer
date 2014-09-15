@@ -99,6 +99,7 @@
     <ClCompile Include="rendercontext.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="rendertarget.cpp" />
+    <ClCompile Include="sampler.cpp" />
     <ClCompile Include="shape.cpp" />
     <ClCompile Include="sphere.cpp" />
     <ClCompile Include="texture.cpp" />
@@ -143,6 +144,7 @@
     <ClInclude Include="renderer.h" />
     <ClInclude Include="meshex.h" />
     <ClInclude Include="rendertarget.h" />
+    <ClInclude Include="sampler.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="shape.h" />
     <ClInclude Include="sphere.h" />

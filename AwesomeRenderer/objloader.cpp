@@ -308,9 +308,11 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 					
 					// TODO: Move memory allocation to somewhere else
 					Texture* texture = new Texture();
+					Sampler* sampler = new Sampler();
+					sampler->texture = texture;
 
 					if (textureFactory.LoadBmp(textureFile.c_str(), *texture))
-						material->diffuseMap = texture;
+						material->diffuseMap = sampler;
 					else
 						printf("[ObjLoader]: Failed to load diffuse map for material.\n");
 

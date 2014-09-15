@@ -59,6 +59,7 @@
 
 // Rendering
 #include "texture.h"
+#include "sampler.h"
 #include "material.h"
 #include "mesh.h"
 #include "meshex.h"

@@ -116,7 +116,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		light.position = Vector3(-5.0f, 3.0f, -5.0f);
 		light.direction = (zero - light.position).normalize();
 		light.type = PhongShader::LightType::POINT;
-		light.angle = ((float) 30.0f * (M_PI / 180.0f));
+		light.angle = (float) (30.0f * (M_PI / 180.0f));
 		light.angleExponent = 20.0f;
 		light.color = Color::RED;
 		light.constantAttenuation = 0.0f;
@@ -136,7 +136,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	objLoader.defaultShader = &phongShader;
 	
 	// Game loop timer
-	Timer timer;
+	Timer timer(0.00001f, 100.0f);
+	timer.Tick();
 
 	// Test models
 	Node car;
@@ -169,9 +170,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Texture* texture = new Texture();
 		textureFactory.Load("../Assets/tiles.bmp", *texture);
 
+		Sampler* sampler = new Sampler();
+		sampler->texture = texture;
+
 		Material* material = new Material();
 		material->shader = &phongShader;
-		material->diffuseMap = texture;
+		material->diffuseMap = sampler;
 		material->specularColor = Color::WHITE;
 		material->shininess = 50.0f;
 
@@ -182,10 +186,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		plane.transform->SetScale(Vector3(10.0f, 10.0f, 10.0f));
 	}
 
-	//renderer.cullMode = Renderer::CULL_NONE;
+	renderer.cullMode = Renderer::CULL_NONE;
 
 	renderContext.nodes.push_back(&car);
-	//renderContext.nodes.push_back(&plane);
+	renderContext.nodes.push_back(&plane);
 	
 	window.Show(nCmdShow);
 
@@ -196,6 +200,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	while (!window.closed)
 	{
 		const TimingInfo& timingInfo = timer.Tick();
+
+		// Frame counter
+		++framesDrawn;
+		timeSinceLastPrint += timingInfo.elapsedSeconds;
+
+		if (timeSinceLastPrint >= 1.0f)
+		{
+			printf("FPS: %d; Last frame time: %dms;\n", framesDrawn, (uint32_t)(timingInfo.elapsedSeconds * 1000.0f));
+			framesDrawn = 0;
+			timeSinceLastPrint -= 1.0f;
+		}
 
 		// Updating logic
 		cameraController.Update(timingInfo);
@@ -226,18 +241,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		// Present window
 		window.ProcessMessages();
 		window.DrawBuffer(frameBuffer);
-				
-		// Frame counter
-		++framesDrawn;
-		timeSinceLastPrint += timingInfo.elapsedSeconds;
-
-		if (timeSinceLastPrint >= 1.0f)
-		{
-			printf("FPS: %d\n", framesDrawn);
-			framesDrawn = 0;
-			timeSinceLastPrint -= 1.0f;
-		}
-
 	}
 
 	softwareRenderer.Cleanup();
