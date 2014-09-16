@@ -5,7 +5,7 @@
 
 using namespace AwesomeRenderer;
 
-SoftwareRenderer::SoftwareRenderer() : Renderer(), renderQueue(), tilesLeft(0), renderedTiles(0)
+SoftwareRenderer::SoftwareRenderer() : Renderer(), renderQueue(), tilesLeft(0), renderedTiles(0), waitHandle(), waitLock(waitHandle)
 {
 
 }
@@ -17,9 +17,6 @@ SoftwareRenderer::~SoftwareRenderer()
 
 void SoftwareRenderer::Initialize()
 {
-	std::mutex waitHandle;
-	std::unique_lock<std::mutex> waitLock(waitHandle);
-
 	for (uint32_t workerIdx = 0; workerIdx < WORKER_AMOUNT; ++workerIdx)
 	{	
 		WorkerThread& thread = workers[workerIdx];
@@ -270,9 +267,6 @@ void SoftwareRenderer::DrawTiles()
 	signalWorkers.notify_all();
 
 	bool finished = false;
-
-	std::mutex waitHandle;
-	std::unique_lock<std::mutex> waitLock(waitHandle);
 
 	while (!finished)
 	{

@@ -89,6 +89,9 @@ namespace AwesomeRenderer
 		std::vector<std::vector<TriangleData> > tiles;
 		std::condition_variable signalWorkers, signalMainThread;
 
+		std::mutex waitHandle;
+		std::unique_lock<std::mutex> waitLock;
+
 		LockedVariable<uint32_t> tilesLeft;
 		LockedVariable<uint32_t> renderedTiles;
 
