@@ -5,7 +5,7 @@
 
 using namespace AwesomeRenderer;
 
-SoftwareRenderer::SoftwareRenderer() : Renderer(), renderQueue()
+SoftwareRenderer::SoftwareRenderer() : Renderer(), renderQueue(), tilesLeft(0), renderedTiles(0)
 {
 
 }
@@ -17,8 +17,8 @@ SoftwareRenderer::~SoftwareRenderer()
 
 void SoftwareRenderer::Initialize()
 {
-	// Semaphore that keeps track on how many workers are currently idle
-	availableWorkers = CreateSemaphore(NULL, 0, WORKER_AMOUNT, NULL);
+	std::mutex waitHandle;
+	std::unique_lock<std::mutex> waitLock(waitHandle);
 
 	for (uint32_t workerIdx = 0; workerIdx < WORKER_AMOUNT; ++workerIdx)
 	{	
@@ -27,21 +27,18 @@ void SoftwareRenderer::Initialize()
 		WorkerData data;
 		data.renderer = this;
 		data.thread = &thread;
-		data.workerSemaphore = availableWorkers;
 
 		thread.Start(data);
 
-		// Wait for the thread so signal it is finished setting up
+		// Wait for the thread to signal it is finished setting up
 		// This is neccesary since the worker creation accesses local stack data
-		thread.WaitUntilAvailable();
+		signalMainThread.wait(waitLock);
 	}
 }
 
 void SoftwareRenderer::Cleanup()
 {
-	// Close all created handles
-	CloseHandle(availableWorkers);
-
+	// Close all created threads
 	for (uint32_t workerIdx = 0; workerIdx < WORKER_AMOUNT; ++workerIdx)
 	{
 		WorkerThread& thread = workers[workerIdx];
@@ -259,43 +256,34 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 
 void SoftwareRenderer::DrawTiles()
 {
-	for (uint32_t tileY = 0; tileY < verticalTiles; ++tileY)
+	// Reset the rendered tiles counter
+	renderedTiles.Lock();
+	*renderedTiles = 0;
+	renderedTiles.Unlock();
+
+	// Set tile pointer to last tile
+	tilesLeft.Lock();
+	*tilesLeft = tiles.size();
+	tilesLeft.Unlock();
+
+	// Notify worker threads that there are tiles to be rendered
+	signalWorkers.notify_all();
+
+	bool finished = false;
+
+	std::mutex waitHandle;
+	std::unique_lock<std::mutex> waitLock(waitHandle);
+
+	while (!finished)
 	{
-		for (uint32_t tileX = 0; tileX < horizontalTiles; ++tileX)
-		{
-			// Wait for at least one worker to become available
-			DWORD result = WaitForSingleObject(availableWorkers, INFINITE);
+		signalMainThread.wait(waitLock);
 
-			WorkerThread* freeWorker = NULL;
-
-			// Iterate through workers to find the available worker
-			for (uint32_t workerIdx = 0; workerIdx < WORKER_AMOUNT; ++workerIdx)
-			{
-				WorkerThread& worker = workers[workerIdx];
-				
-				// Check if the worker is available
-				if (worker.IsAvailable())
-				{
-					freeWorker = &worker;
-					break;
-				}
-			}
-
-			if (freeWorker == NULL)
-				_CrtDbgBreak();
-
-			// Assign the current tile to this worker
-			freeWorker->DrawTile(tileX, tileY);
-		}
+		// Check if all tiles have been rendered
+		renderedTiles.Lock();
+		finished = *renderedTiles == tiles.size();
+		renderedTiles.Unlock();
 	}
-
-	// Wait for all workers to finish
-	for (uint32_t workerIdx = 0; workerIdx < WORKER_AMOUNT; ++workerIdx)
-	{
-		WorkerThread& worker = workers[workerIdx];
-		worker.WaitUntilAvailable();
-	}
-
+	
 }
 
 void SoftwareRenderer::DrawTile(uint32_t tileX, uint32_t tileY)
@@ -407,26 +395,60 @@ void SoftwareRenderer::DrawTile(uint32_t tileX, uint32_t tileY)
 
 DWORD SoftwareRenderer::StartWorker(WorkerThread* thread)
 {
+	// Signal the main thread that we finished setting up
+	signalMainThread.notify_one();
+
+	std::mutex waitHandle;
+	std::unique_lock<std::mutex> waitLock(waitHandle);
 
 	while (true)
 	{
-		// Signal caller that the thread has been started and is ready for data
-		thread->SetAvailable();
+		// Wait until the tiles are ready to be rendered
+		signalWorkers.wait(waitLock);
 
-		// Wait until there is data to read
-		thread->WaitForData();
+		while (true)
+		{
+			bool hasTile = false;
+
+			// Wait until we have access to the tiles left counter
+			tilesLeft.Lock();
+			
+			// Check if there are tiles left to render
+			if (*tilesLeft > 0)
+			{
+				int tileIdx = (*tilesLeft) - 1;
+				--(*tilesLeft);
+
+				thread->tileX = tileIdx % horizontalTiles;
+				thread->tileY = tileIdx / horizontalTiles;
+				hasTile = true;
+			}
+
+			tilesLeft.Unlock();
+
+			// No more tiles to render, break inner loop and wait until next frame
+			if (!hasTile)
+				break;
+
+			// Render the current tile
+			DrawTile(thread->tileX, thread->tileY);
+			
+			// Wait until we have access to the rendered tiles counter
+			renderedTiles.Lock();
+			
+			(*renderedTiles)++;
+
+			renderedTiles.Unlock();
+
+			// Signal the main thread that we finished rendering a tile
+			signalMainThread.notify_one();
+		}
 
 		// Check if we need to shutdown the worker
 		if (!thread->IsRunning())
 			break;
-
-		// Render the tile assigned to this thread
-		DrawTile(thread->TileX(), thread->TileY());
 	}
-
-	// Signal that the worker is done and can be disposed
-	thread->SetAvailable();
-
+	
 	return 0;
 }
 
@@ -439,65 +461,15 @@ void SoftwareRenderer::WorkerThread::Start(WorkerData& data)
 {
 	running = true;
 	
-	this->workerSemaphore = data.workerSemaphore;
-
-	// Create read and write wait handles for this worker
-	// These will signal when there is data available specific for this worker
-	readHandle = CreateEvent(NULL, FALSE, FALSE, NULL);
-	writeHandle = CreateEvent(NULL, FALSE, FALSE, NULL);
-
 	// Create and start a thread for this worker
 	handle = CreateThread(NULL, 0, SoftwareRenderer::HandleWorker, &data, 0, &id);
 }
 
 void SoftwareRenderer::WorkerThread::Stop()
 {
-	// Wait until we can communicate with the thread
-	WaitUntilAvailable();
-
 	// Signal we are shutting down
 	running = false;
 	available = false;
-	SetEvent(readHandle);
-
-	// Wait until the thread has been shutdown
-	WaitUntilAvailable();
-
-	CloseHandle(readHandle);
-	CloseHandle(writeHandle);
-}
-
-void SoftwareRenderer::WorkerThread::DrawTile(uint32_t tileX, uint32_t tileY)
-{
-	this->tileX = tileX;
-	this->tileY = tileY;
-
-	available = false;
-
-	// Reset the write handle since we are not available any more
-	ResetEvent(writeHandle);
-
-	// Set the read handle to signal the worker thread there is data available
-	SetEvent(readHandle);
-}
-
-void SoftwareRenderer::WorkerThread::WaitUntilAvailable()
-{
-	WaitForSingleObject(writeHandle, INFINITE);
-}
-
-void SoftwareRenderer::WorkerThread::WaitForData()
-{
-	WaitForSingleObject(readHandle, INFINITE);
-}
-
-void SoftwareRenderer::WorkerThread::SetAvailable()
-{
-	available = true;
-
-	// Set our state to available and signal that there can be written data for this thread
-	SetEvent(writeHandle);
-	ReleaseSemaphore(workerSemaphore, 1, NULL);
 }
 
 void SoftwareRenderer::Blend(const Color& src, const Color& dst, Color& out)

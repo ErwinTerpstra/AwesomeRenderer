@@ -36,21 +36,20 @@ namespace AwesomeRenderer
 		{
 			WorkerThread* thread;
 			SoftwareRenderer* renderer;
-			HANDLE workerSemaphore;
 		};
 
 		class WorkerThread
 		{
+
+		public:
+			uint32_t tileX, tileY;
+
 		private:
 
 			HANDLE handle;
 			DWORD id;
 
 			bool available, running;
-			HANDLE readHandle, writeHandle;
-			HANDLE workerSemaphore;
-
-			uint32_t tileX, tileY;
 
 		public:
 
@@ -59,27 +58,41 @@ namespace AwesomeRenderer
 			void Start(WorkerData& data);
 			void Stop();
 
-			void DrawTile(uint32_t tileX, uint32_t tileY);
-
-			void WaitUntilAvailable();
-			void WaitForData();
-			void SetAvailable();
-
-			bool IsAvailable() const { return available; }
 			bool IsRunning() const { return running; }
-
-			uint32_t TileX() const { return tileX; }
-			uint32_t TileY() const { return tileY; }
 		};
 
+		template<typename T>
+		class LockedVariable
+		{
+		private:
+			T value;
+
+			std::mutex mtx;
+
+		public:
+			LockedVariable(const T& initialValue) : value(initialValue)
+			{
+
+			}
+
+			void Lock() { mtx.lock(); }
+			void Unlock() { mtx.unlock();  }
+
+			T& operator*() { return value; }
+			T* operator->() { return &value; }
+		};
 
 		const Material* currentMaterial;
 
 		std::deque<RenderJob> renderQueue;
-
+		
 		std::vector<std::vector<TriangleData> > tiles;
+		std::condition_variable signalWorkers, signalMainThread;
+
+		LockedVariable<uint32_t> tilesLeft;
+		LockedVariable<uint32_t> renderedTiles;
+
 		WorkerThread workers[WORKER_AMOUNT];
-		HANDLE availableWorkers;
 
 		uint32_t horizontalTiles, verticalTiles;
 

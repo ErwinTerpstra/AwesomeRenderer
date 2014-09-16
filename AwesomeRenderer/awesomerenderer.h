@@ -8,6 +8,9 @@
 #include <queue>
 #include <deque>
 #include <math.h>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 
 // Windows libraries
 #define NOMINMAX
