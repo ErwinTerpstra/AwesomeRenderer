@@ -2,6 +2,8 @@
 #define _AWESOME_RENDERER_H_
 
 // STD library
+//#include <algorithm>
+//#include <limits>
 #include <memory>
 #include <map>
 #include <stack>

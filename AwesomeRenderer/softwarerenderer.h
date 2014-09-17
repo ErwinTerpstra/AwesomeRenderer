@@ -82,18 +82,47 @@ namespace AwesomeRenderer
 			T* operator->() { return &value; }
 		};
 
+		class Counter
+		{
+		private:
+			std::mutex m;
+			std::condition_variable signal;
+
+			LockedVariable<uint32_t> count;
+			uint32_t maxCount;
+		public:
+			Counter();
+
+			void Configure(uint32_t count, uint32_t maxCount);
+
+			void Reset();
+			void Decrement();
+			void WaitZero();
+		};
+
+		class Semaphore
+		{
+		private:
+			std::mutex m;
+			std::condition_variable signal;
+
+			LockedVariable<uint32_t> count;
+			const uint32_t maxCount;
+		public:
+			Semaphore(uint32_t count, uint32_t maxCount);
+			void Signal(uint32_t increment = 1);
+			void Wait();
+		};
+
 		const Material* currentMaterial;
 
 		std::deque<RenderJob> renderQueue;
 		
 		std::vector<std::vector<TriangleData> > tiles;
-		std::condition_variable signalWorkers, signalMainThread;
-
-		std::mutex waitHandle;
-		std::unique_lock<std::mutex> waitLock;
-
-		LockedVariable<uint32_t> tilesLeft;
-		LockedVariable<uint32_t> renderedTiles;
+		Semaphore workerSignal, mainThreadSignal;
+		
+		LockedVariable<uint32_t> tileIdx;
+		Counter tilesLeft;
 
 		WorkerThread workers[WORKER_AMOUNT];
 

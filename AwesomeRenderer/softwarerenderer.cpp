@@ -1,11 +1,8 @@
-#include <memory.h>
-#include <float.h>
-
 #include "awesomerenderer.h"
 
 using namespace AwesomeRenderer;
 
-SoftwareRenderer::SoftwareRenderer() : Renderer(), renderQueue(), tilesLeft(0), renderedTiles(0), waitHandle(), waitLock(waitHandle)
+SoftwareRenderer::SoftwareRenderer() : Renderer(), renderQueue(), tileIdx(0), tilesLeft(), workerSignal(0, WORKER_AMOUNT), mainThreadSignal(0, 1)
 {
 
 }
@@ -29,7 +26,7 @@ void SoftwareRenderer::Initialize()
 
 		// Wait for the thread to signal it is finished setting up
 		// This is neccesary since the worker creation accesses local stack data
-		signalMainThread.wait(waitLock);
+		mainThreadSignal.Wait();
 	}
 }
 
@@ -53,8 +50,12 @@ void SoftwareRenderer::SetRenderContext(const RenderContext* context)
 	horizontalTiles = (frameBuffer->width + TILE_WIDTH - 1) / TILE_WIDTH;
 	verticalTiles = (frameBuffer->height + TILE_HEIGHT - 1) / TILE_HEIGHT;
 
+	uint32_t tileAmount = horizontalTiles * verticalTiles;
+
 	// Resize our tiles vector to fit all tile bins on screen
-	tiles.resize(horizontalTiles * verticalTiles);
+	tiles.resize(tileAmount);
+
+	tilesLeft.Configure(0, tileAmount);
 }
 
 void SoftwareRenderer::Render()
@@ -254,30 +255,18 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 void SoftwareRenderer::DrawTiles()
 {
 	// Reset the rendered tiles counter
-	renderedTiles.Lock();
-	*renderedTiles = 0;
-	renderedTiles.Unlock();
+	tilesLeft.Reset();
 
 	// Set tile pointer to last tile
-	tilesLeft.Lock();
-	*tilesLeft = tiles.size();
-	tilesLeft.Unlock();
+	tileIdx.Lock();
+	*tileIdx = tiles.size();
+	tileIdx.Unlock();
 
 	// Notify worker threads that there are tiles to be rendered
-	signalWorkers.notify_all();
+	workerSignal.Signal(WORKER_AMOUNT);
 
-	bool finished = false;
-
-	while (!finished)
-	{
-		signalMainThread.wait(waitLock);
-
-		// Check if all tiles have been rendered
-		renderedTiles.Lock();
-		finished = *renderedTiles == tiles.size();
-		renderedTiles.Unlock();
-	}
-	
+	// Wait for all tiles to be rendered
+	tilesLeft.WaitZero();
 }
 
 void SoftwareRenderer::DrawTile(uint32_t tileX, uint32_t tileY)
@@ -390,35 +379,32 @@ void SoftwareRenderer::DrawTile(uint32_t tileX, uint32_t tileY)
 DWORD SoftwareRenderer::StartWorker(WorkerThread* thread)
 {
 	// Signal the main thread that we finished setting up
-	signalMainThread.notify_one();
-
-	std::mutex waitHandle;
-	std::unique_lock<std::mutex> waitLock(waitHandle);
+	mainThreadSignal.Signal();
 
 	while (true)
 	{
 		// Wait until the tiles are ready to be rendered
-		signalWorkers.wait(waitLock);
+		workerSignal.Wait();
 
 		while (true)
 		{
 			bool hasTile = false;
 
-			// Wait until we have access to the tiles left counter
-			tilesLeft.Lock();
+			// Wait until we have access to the tile index counter
+			tileIdx.Lock();
 			
 			// Check if there are tiles left to render
-			if (*tilesLeft > 0)
+			if (*tileIdx > 0)
 			{
-				int tileIdx = (*tilesLeft) - 1;
-				--(*tilesLeft);
+				int selectedIdx = (*tileIdx) - 1;
+				--(*tileIdx);
 
-				thread->tileX = tileIdx % horizontalTiles;
-				thread->tileY = tileIdx / horizontalTiles;
+				thread->tileX = selectedIdx % horizontalTiles;
+				thread->tileY = selectedIdx / horizontalTiles;
 				hasTile = true;
 			}
 
-			tilesLeft.Unlock();
+			tileIdx.Unlock();
 
 			// No more tiles to render, break inner loop and wait until next frame
 			if (!hasTile)
@@ -427,15 +413,7 @@ DWORD SoftwareRenderer::StartWorker(WorkerThread* thread)
 			// Render the current tile
 			DrawTile(thread->tileX, thread->tileY);
 			
-			// Wait until we have access to the rendered tiles counter
-			renderedTiles.Lock();
-			
-			(*renderedTiles)++;
-
-			renderedTiles.Unlock();
-
-			// Signal the main thread that we finished rendering a tile
-			signalMainThread.notify_one();
+			tilesLeft.Decrement();
 		}
 
 		// Check if we need to shutdown the worker
@@ -464,6 +442,73 @@ void SoftwareRenderer::WorkerThread::Stop()
 	// Signal we are shutting down
 	running = false;
 	available = false;
+}
+
+SoftwareRenderer::Counter::Counter() : m(), count(0), maxCount(0)
+{
+
+}
+
+void SoftwareRenderer::Counter::Configure(uint32_t count, uint32_t maxCount)
+{
+	*this->count = count;
+	this->maxCount = maxCount;
+}
+
+void SoftwareRenderer::Counter::Reset()
+{
+	count.Lock();
+	*count = maxCount;
+	count.Unlock();
+}
+
+void SoftwareRenderer::Counter::Decrement()
+{
+	count.Lock();
+	--(*count);
+	count.Unlock();
+
+	signal.notify_all();
+}
+
+void SoftwareRenderer::Counter::WaitZero()
+{
+	std::unique_lock<std::mutex> lock(m);
+
+	while (true)
+	{
+		if (*count == 0)
+			break;
+
+		signal.wait(lock);
+	}
+}
+
+
+SoftwareRenderer::Semaphore::Semaphore(uint32_t count, uint32_t maxCount) : count(count), maxCount(maxCount)
+{
+
+}
+
+void SoftwareRenderer::Semaphore::Signal(uint32_t increment)
+{
+	count.Lock();
+	*count = std::min((*count) + increment, maxCount);
+	count.Unlock();
+
+	signal.notify_all();
+}
+
+void SoftwareRenderer::Semaphore::Wait()
+{
+	std::unique_lock<std::mutex> lock(m);
+
+	if (*count == 0)
+		signal.wait(lock);
+
+	count.Lock();
+	--(*count);
+	count.Unlock();
 }
 
 void SoftwareRenderer::Blend(const Color& src, const Color& dst, Color& out)
