@@ -145,6 +145,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	car.transform = new Transformation();
 	objLoader.Load("../Assets/car.obj", *car.model);
 
+	Node church;
+	church.model = new Model();
+	church.transform = new Transformation();
+	church.transform->SetScale(Vector3(0.1f, 0.1f, 0.1f));
+
+	objLoader.Load("../Assets/church.obj", *church.model);
+
+
 	/*
 	ModelEx modelEx(*car.model);
 
@@ -189,6 +197,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	renderer.cullMode = Renderer::CULL_NONE;
 
 	renderContext.nodes.push_back(&car);
+	//renderContext.nodes.push_back(&church);
 	renderContext.nodes.push_back(&plane);
 	
 	window.Show(nCmdShow);

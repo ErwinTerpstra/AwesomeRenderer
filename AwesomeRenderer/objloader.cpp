@@ -17,6 +17,8 @@ void ObjLoader::Load(const char* fileName, Model& model)
 		return;
 	}
 
+	Mesh::VertexAttributes defaultAttributes = (Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL | Mesh::VERTEX_TEXCOORD);
+
 	// Buffers that hold the vertex lists
 	std::vector<Vector3> vertexBuffer;
 	std::vector<Vector3> normalBuffer;
@@ -46,7 +48,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 			{
 				// New submesh
 				// TODO: Manage memory registered by factory
-				mesh = new Mesh(Mesh::VERTEX_ALL);
+				mesh = new Mesh(defaultAttributes);
 				
 				material = new Material();
 				material->shader = defaultShader;
@@ -147,7 +149,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 				if (line.compare(0, 6, "usemtl") == 0)
 				{
 					std::string name = line.substr(7);
-					mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL | Mesh::VERTEX_TEXCOORD));
+					mesh = new Mesh(defaultAttributes);
 					model.AddMesh(mesh, materialLib[name]);
 					break;
 				}

@@ -86,10 +86,9 @@ namespace AwesomeRenderer
 		{
 		private:
 			std::mutex m;
-			std::condition_variable signal;
+			std::condition_variable_any signal;
 
-			LockedVariable<uint32_t> count;
-			uint32_t maxCount;
+			uint32_t count, maxCount;
 		public:
 			Counter();
 
@@ -104,9 +103,9 @@ namespace AwesomeRenderer
 		{
 		private:
 			std::mutex m;
-			std::condition_variable signal;
+			std::condition_variable_any signal;
 
-			LockedVariable<uint32_t> count;
+			uint32_t count;
 			const uint32_t maxCount;
 		public:
 			Semaphore(uint32_t count, uint32_t maxCount);

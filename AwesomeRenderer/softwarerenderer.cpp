@@ -37,6 +37,9 @@ void SoftwareRenderer::Cleanup()
 	{
 		WorkerThread& thread = workers[workerIdx];
 		thread.Stop();
+
+		// Wait for the thread to signal it has been shut down
+		mainThreadSignal.Wait();
 	}
 }
 
@@ -381,12 +384,12 @@ DWORD SoftwareRenderer::StartWorker(WorkerThread* thread)
 	// Signal the main thread that we finished setting up
 	mainThreadSignal.Signal();
 
-	while (true)
+	while (thread->IsRunning())
 	{
 		// Wait until the tiles are ready to be rendered
 		workerSignal.Wait();
 
-		while (true)
+		while (thread->IsRunning())
 		{
 			bool hasTile = false;
 
@@ -415,11 +418,11 @@ DWORD SoftwareRenderer::StartWorker(WorkerThread* thread)
 			
 			tilesLeft.Decrement();
 		}
-
-		// Check if we need to shutdown the worker
-		if (!thread->IsRunning())
-			break;
 	}
+
+	// Signal the main thread that we finished shutting down
+	mainThreadSignal.Signal();
+
 	
 	return 0;
 }
@@ -451,37 +454,43 @@ SoftwareRenderer::Counter::Counter() : m(), count(0), maxCount(0)
 
 void SoftwareRenderer::Counter::Configure(uint32_t count, uint32_t maxCount)
 {
-	*this->count = count;
+	this->count = count;
 	this->maxCount = maxCount;
 }
 
 void SoftwareRenderer::Counter::Reset()
 {
-	count.Lock();
-	*count = maxCount;
-	count.Unlock();
+	m.lock();
+	count = maxCount;
+	m.unlock();
 }
 
 void SoftwareRenderer::Counter::Decrement()
 {
-	count.Lock();
-	--(*count);
-	count.Unlock();
+	m.lock();
+	--count;
 
 	signal.notify_all();
+	m.unlock();
 }
 
 void SoftwareRenderer::Counter::WaitZero()
 {
-	std::unique_lock<std::mutex> lock(m);
+	// Gain access to the lock
+	m.lock();
 
 	while (true)
 	{
-		if (*count == 0)
+		// Check if our continue condition has been met
+		if (count == 0)
 			break;
-
-		signal.wait(lock);
+		
+		// Release the lock and wait for an other thread to signal change in the count
+		signal.wait(m);
 	}
+
+	// Release the lock since our wait condition is finished
+	m.unlock();
 }
 
 
@@ -492,23 +501,23 @@ SoftwareRenderer::Semaphore::Semaphore(uint32_t count, uint32_t maxCount) : coun
 
 void SoftwareRenderer::Semaphore::Signal(uint32_t increment)
 {
-	count.Lock();
-	*count = std::min((*count) + increment, maxCount);
-	count.Unlock();
+	m.lock();
+	count = std::min(count + increment, maxCount);
 
 	signal.notify_all();
+	m.unlock();
 }
 
 void SoftwareRenderer::Semaphore::Wait()
 {
-	std::unique_lock<std::mutex> lock(m);
+	m.lock();
 
-	if (*count == 0)
-		signal.wait(lock);
+	if (count == 0)
+		signal.wait(m);
 
-	count.Lock();
-	--(*count);
-	count.Unlock();
+	--count;
+
+	m.unlock();
 }
 
 void SoftwareRenderer::Blend(const Color& src, const Color& dst, Color& out)

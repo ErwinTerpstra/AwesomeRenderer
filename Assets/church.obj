@@ -1,7 +1,9 @@
 # Created with Anim8or 0.95
 # Object "church":
 # ComRec:
+mtllib church.mtl
 g mesh01
+usemtl church
 # No. points 71:
 v -5.3193 0.01560 12.091
 v -2.2175 10.0156 7.135
