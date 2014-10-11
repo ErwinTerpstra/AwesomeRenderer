@@ -31,6 +31,23 @@ void FileReader::Close()
 	ptr = NULL;
 }
 
+int FileReader::Read(char* buffer)
+{
+	int lineLength;
+	char* current = buffer;
+
+	// Read lines until no more are available
+	while ((lineLength = ReadLine(current)) >= 0)
+	{
+		// Advance the current buffer pointer and save a newline after the line
+		current += lineLength;
+		*(current++) = '\n';
+	}
+
+	// The total read length is difference between current and start pointers
+	return (current - buffer);
+}
+
 char* FileReader::ReadLine()
 {	
 	char* bufferPtr;
@@ -41,9 +58,9 @@ char* FileReader::ReadLine()
 	return NULL;
 }
 
-int FileReader::ReadLine(char** buffer)
+int FileReader::ReadLine(char* buffer)
 {
-	char* lineBufferPtr = &lineBuffer[0];
+	char* current = buffer;
 
 	// If we couldn't read a single character without EOF, let the caller know
 	if (feof(ptr))
@@ -52,20 +69,25 @@ int FileReader::ReadLine(char** buffer)
 	// Read until EOF
 	while (!feof(ptr))
 	{
-		char c = (char) fgetc(ptr);
-		
+		char c = (char)fgetc(ptr);
+
 		if (c == '\n')
 			break;
-		
-		*(lineBufferPtr++) = c;
-	}
-	
-	// Length is difference between start and end of buffer
-	int lineLength = (lineBufferPtr - lineBuffer);
-	*lineBufferPtr = '\0';	// Finish string with a NULL byte
 
+		*(current++) = c;
+	}
+
+	// Length is difference between start and end of buffer
+	int lineLength = (current - buffer);
+	*current = '\0';	// Finish string with a NULL byte
+
+	return lineLength;
+}
+
+int FileReader::ReadLine(char** buffer)
+{
 	// Pass the buffer pointer to the caller
 	*buffer = &lineBuffer[0];
 
-	return lineLength;
+	return ReadLine(*buffer);
 }

@@ -80,9 +80,12 @@
   <ItemGroup>
     <ClCompile Include="aabb.cpp" />
     <ClCompile Include="cameracontroller.cpp" />
+    <ClCompile Include="glprogram.cpp" />
+    <ClCompile Include="glshader.cpp" />
     <ClCompile Include="kdtree.cpp" />
     <ClCompile Include="glrenderer.cpp" />
     <ClCompile Include="glwindow.cpp" />
+    <ClCompile Include="meshgl.cpp" />
     <ClCompile Include="phongshader.cpp" />
     <ClCompile Include="filereader.cpp" />
     <ClCompile Include="inputmanager.cpp" />
@@ -113,6 +116,7 @@
     <ClCompile Include="softwarerenderer.cpp" />
     <ClCompile Include="softwareshader.cpp" />
     <ClCompile Include="texturefactory.cpp" />
+    <ClCompile Include="threading.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="transformation.cpp" />
     <ClCompile Include="triangle3d.cpp" />
@@ -124,7 +128,10 @@
     <ClInclude Include="buffer.h" />
     <ClInclude Include="extendee.h" />
     <ClInclude Include="extension.h" />
+    <ClInclude Include="glprogram.h" />
+    <ClInclude Include="glshader.h" />
     <ClInclude Include="kdtree.h" />
+    <ClInclude Include="meshgl.h" />
     <ClInclude Include="object.h" />
     <ClInclude Include="glrenderer.h" />
     <ClInclude Include="phongshader.h" />
@@ -157,6 +164,7 @@
     <ClInclude Include="softwarerenderer.h" />
     <ClInclude Include="softwareshader.h" />
     <ClInclude Include="texturefactory.h" />
+    <ClInclude Include="threading.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="transformation.h" />
     <ClInclude Include="triangle.h" />

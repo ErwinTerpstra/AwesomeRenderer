@@ -43,6 +43,9 @@
 #include "raycasthit.h"
 #include "camera.h"
 
+// Mult-threading
+#include "threading.h"
+
 // Shapes
 #include "object.h"
 #include "shape.h"
@@ -66,15 +69,21 @@
 #include "texture.h"
 #include "sampler.h"
 #include "material.h"
+
 #include "mesh.h"
-#include "meshex.h"
 #include "model.h"
+
+#include "meshex.h"
 #include "modelex.h"
+
+#include "meshgl.h"
 
 // Renderer
 #include "shader.h"
 #include "softwareshader.h"
 #include "phongshader.h"
+#include "glshader.h"
+#include "glprogram.h"
 
 #include "rendertarget.h"
 #include "rendercontext.h"

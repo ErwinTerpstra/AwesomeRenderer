@@ -104,6 +104,7 @@ void SoftwareRenderer::Render()
 		
 		renderQueue.pop_front();
 	}
+
 }
 
 void SoftwareRenderer::DrawJob(const RenderJob& job)
@@ -445,79 +446,6 @@ void SoftwareRenderer::WorkerThread::Stop()
 	// Signal we are shutting down
 	running = false;
 	available = false;
-}
-
-SoftwareRenderer::Counter::Counter() : m(), count(0), maxCount(0)
-{
-
-}
-
-void SoftwareRenderer::Counter::Configure(uint32_t count, uint32_t maxCount)
-{
-	this->count = count;
-	this->maxCount = maxCount;
-}
-
-void SoftwareRenderer::Counter::Reset()
-{
-	m.lock();
-	count = maxCount;
-	m.unlock();
-}
-
-void SoftwareRenderer::Counter::Decrement()
-{
-	m.lock();
-	--count;
-
-	signal.notify_all();
-	m.unlock();
-}
-
-void SoftwareRenderer::Counter::WaitZero()
-{
-	// Gain access to the lock
-	m.lock();
-
-	while (true)
-	{
-		// Check if our continue condition has been met
-		if (count == 0)
-			break;
-		
-		// Release the lock and wait for an other thread to signal change in the count
-		signal.wait(m);
-	}
-
-	// Release the lock since our wait condition is finished
-	m.unlock();
-}
-
-
-SoftwareRenderer::Semaphore::Semaphore(uint32_t count, uint32_t maxCount) : count(count), maxCount(maxCount)
-{
-
-}
-
-void SoftwareRenderer::Semaphore::Signal(uint32_t increment)
-{
-	m.lock();
-	count = std::min(count + increment, maxCount);
-
-	signal.notify_all();
-	m.unlock();
-}
-
-void SoftwareRenderer::Semaphore::Wait()
-{
-	m.lock();
-
-	if (count == 0)
-		signal.wait(m);
-
-	--count;
-
-	m.unlock();
 }
 
 void SoftwareRenderer::Blend(const Color& src, const Color& dst, Color& out)

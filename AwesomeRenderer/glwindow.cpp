@@ -72,7 +72,7 @@ bool GLWindow::Setup()
 	glGetIntegerv(GL_MAJOR_VERSION, &glVersion[0]);
 	glGetIntegerv(GL_MINOR_VERSION, &glVersion[1]);
 
-	printf("Using OpenGL: %d.%d\n", glVersion[0], glVersion[1]);
+	printf("[GLWindow]: Using OpenGL: %d.%d\n", glVersion[0], glVersion[1]);
 
 	return true;
 }

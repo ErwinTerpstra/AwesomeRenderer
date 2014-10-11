@@ -1,5 +1,5 @@
-#ifndef _OGL_RENDERER_H_
-#define _OGL_RENDERER_H_
+#ifndef _GL_RENDERER_H_
+#define _GL_RENDERER_H_
 
 namespace AwesomeRenderer
 {
@@ -16,6 +16,10 @@ namespace AwesomeRenderer
 	private:
 
 		const Material* currentMaterial;
+
+		GLProgram defaultShader;
+		GLShader defaultVertex;
+		GLShader defaultFragment;
 
 	public:
 

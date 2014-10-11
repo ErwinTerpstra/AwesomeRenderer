@@ -70,6 +70,9 @@
     <Filter Include="Source Files\Window">
       <UniqueIdentifier>{314b01e2-5537-43d6-a908-0c3b2ef4dd11}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Core">
+      <UniqueIdentifier>{fdfb8057-21d1-4bc3-b52e-f6ece06ca229}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -112,9 +115,6 @@
       <Filter>Source Files\Camera</Filter>
     </ClCompile>
     <ClCompile Include="inputmanager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="rendercontext.cpp">
@@ -192,6 +192,21 @@
     <ClCompile Include="sampler.cpp">
       <Filter>Source Files\Renderer\Shading</Filter>
     </ClCompile>
+    <ClCompile Include="meshgl.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="glprogram.cpp">
+      <Filter>Source Files\Renderer\Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="glshader.cpp">
+      <Filter>Source Files\Renderer\Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="timer.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="threading.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h">
@@ -231,9 +246,6 @@
       <Filter>Header Files\Camera</Filter>
     </ClInclude>
     <ClInclude Include="inputmanager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="rendercontext.h">
@@ -334,6 +346,21 @@
     </ClInclude>
     <ClInclude Include="sampler.h">
       <Filter>Header Files\Renderer\Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="meshgl.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="glshader.h">
+      <Filter>Header Files\Renderer\Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="glprogram.h">
+      <Filter>Header Files\Renderer\Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="threading.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="timer.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

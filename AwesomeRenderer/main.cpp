@@ -37,8 +37,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Window window(hInstance, "AwesomeRendererWindow");
 	window.Create("Awesome Renderer!", SCREEN_WIDTH, SCREEN_HEIGHT);
 	
-	//GLWindow glWindow(window);
-	//glWindow.Setup();
+	GLWindow glWindow(window);
+	glWindow.Setup();
 
 	// Setup frame and depth buffers
 	GdiBuffer frameBuffer(window.handle);
@@ -63,13 +63,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	renderContext.renderTarget = &renderTarget;
 
 	// Initialize renderer
+	/*
+	
 	SoftwareRenderer softwareRenderer;
 	softwareRenderer.Initialize();
 
-	//RayTracer rayTracer;
-	//GLRenderer glRenderer(glWindow);
-	
 	Renderer& renderer = softwareRenderer;
+
+	/*/
+
+	GLRenderer glRenderer(glWindow);
+	Renderer& renderer = glRenderer;
+
+	//*/
+
 	renderer.SetRenderContext(&renderContext);
 
 	// Shader
@@ -145,22 +152,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	car.transform = new Transformation();
 	objLoader.Load("../Assets/car.obj", *car.model);
 
-	Node church;
-	church.model = new Model();
-	church.transform = new Transformation();
-	church.transform->SetScale(Vector3(0.1f, 0.1f, 0.1f));
-
-	objLoader.Load("../Assets/church.obj", *church.model);
-
-
-	/*
-	ModelEx modelEx(*car.model);
-
-	for (std::vector<MeshEx*>::iterator meshIterator = modelEx.meshes.begin(); meshIterator != modelEx.meshes.end(); ++meshIterator)
-		(*meshIterator)->OptimizeTree();
-	*/
-
-
+	
 	Node plane;
 	{
 		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL | Mesh::VERTEX_TEXCOORD));
@@ -197,8 +189,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	renderer.cullMode = Renderer::CULL_NONE;
 
 	renderContext.nodes.push_back(&car);
-	//renderContext.nodes.push_back(&church);
 	renderContext.nodes.push_back(&plane);
+
+	// Convert all meshes to OpenGL meshes
+	for (auto nodeIt = renderContext.nodes.begin(); nodeIt != renderContext.nodes.end(); ++nodeIt)
+	{
+		Model* model = (*nodeIt)->model;
+
+		for (auto meshIt = model->meshes.begin(); meshIt != model->meshes.end(); ++meshIt)
+		{
+			MeshGL* meshGL = new MeshGL(**meshIt);
+			meshGL->CreateBuffers();
+		}
+	}
+
 	
 	window.Show(nCmdShow);
 
@@ -243,16 +247,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 		
 		// Rendering
-		renderTarget.Clear(Color::BLACK);
+		//renderTarget.Clear(Color::BLACK);
 
 		renderer.Render();
 		
 		// Present window
 		window.ProcessMessages();
-		window.DrawBuffer(frameBuffer);
+
+		//window.DrawBuffer(frameBuffer);
 	}
 
-	softwareRenderer.Cleanup();
+	//softwareRenderer.Cleanup();
 
 	frameBuffer.Destroy();
 	depthBuffer.Destroy();
