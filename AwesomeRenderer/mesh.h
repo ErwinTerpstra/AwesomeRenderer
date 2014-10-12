@@ -14,6 +14,8 @@ namespace AwesomeRenderer
 			VERTEX_TEXCOORD		= 4,
 			VERTEX_NORMAL		= 8,
 
+			MAX_VERTEX_ATTRIBUTES = 4,
+
 			VERTEX_ALL			= 255
 		};
 

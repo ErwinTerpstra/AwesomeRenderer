@@ -1,8 +1,13 @@
 #version 330
 
-out vec4 color;
+layout(location = 0) out vec4 outColor;
+
+uniform sampler2D diffuseMap;
+
+varying vec3 normal;
+varying vec2 texcoord;
 
 void main() 
 {
-	color = vec4(1.0, 1.0, 1.0, 1.0);
+	outColor = texture(diffuseMap, texcoord);
 }

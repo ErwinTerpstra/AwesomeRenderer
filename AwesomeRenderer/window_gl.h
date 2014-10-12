@@ -1,9 +1,9 @@
-#ifndef _WINDOW_OGL_H_
-#define _WINDOW_OGL_H_
+#ifndef _WINDOW_GL_H_
+#define _WINDOW_GL_H_
 
 namespace AwesomeRenderer
 {
-	class GLWindow : public Extension<Window>
+	class WindowGL : public Extension<Window>
 	{
 
 	public:
@@ -12,8 +12,8 @@ namespace AwesomeRenderer
 		HGLRC renderContext;
 
 	public:
-		GLWindow(Window& window);
-		~GLWindow();
+		WindowGL(Window& window);
+		~WindowGL();
 
 		bool Setup();
 		void Draw();

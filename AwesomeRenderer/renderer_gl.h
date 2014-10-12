@@ -4,28 +4,28 @@
 namespace AwesomeRenderer
 {
 
-	class GLWindow;
-
-	class GLRenderer : public Renderer
+	class WindowGL;
+	
+	class RendererGL : public Renderer
 	{
 
 	public:
 
-		GLWindow& window;
+		WindowGL& window;
 
 	private:
 
 		const Material* currentMaterial;
 
-		GLProgram defaultShader;
-		GLShader defaultVertex;
-		GLShader defaultFragment;
+		ProgramGL defaultShader;
+		ShaderGL defaultVertex;
+		ShaderGL defaultFragment;
 
 	public:
 
-		GLRenderer(GLWindow& window);
+		RendererGL(WindowGL& window);
 
-
+		void Initialize();
 		void Render();
 
 	private:

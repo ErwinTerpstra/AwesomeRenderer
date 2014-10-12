@@ -2,17 +2,17 @@
 
 using namespace AwesomeRenderer;
 
-GLShader::GLShader(GLenum type)
+ShaderGL::ShaderGL(GLenum type)
 {
 	handle = glCreateShader(type);
 }
 
-GLShader::~GLShader()
+ShaderGL::~ShaderGL()
 {
 
 }
 
-void GLShader::Compile(const char** source, int amount)
+void ShaderGL::Compile(const char** source, int amount)
 {
 	glShaderSource(handle, amount, source, NULL);
 	glCompileShader(handle);
@@ -21,11 +21,11 @@ void GLShader::Compile(const char** source, int amount)
 	glGetShaderiv(handle, GL_COMPILE_STATUS, &status);
 	if (!status) 
 	{
-		printf("[GLShader]: Error in compiling shader\n");
+		printf("[ShaderGL]: Error in compiling shader\n");
 		GLchar log[10240];
 		GLsizei length;
 		glGetShaderInfoLog(handle, 10239, &length, log);
 		
-		printf("[GLShader]: Compiler log : \n%s\n", log);
+		printf("[ShaderGL]: Compiler log : \n%s\n", log);
 	}
 }

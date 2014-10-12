@@ -2,10 +2,15 @@
 
 using namespace AwesomeRenderer;
 
-GLRenderer::GLRenderer(GLWindow& window) : Renderer(), window(window), 
+RendererGL::RendererGL(WindowGL& window) : Renderer(), window(window), 
 	defaultShader(),
 	defaultVertex(GL_VERTEX_SHADER),
 	defaultFragment(GL_FRAGMENT_SHADER)
+{
+}
+
+
+void RendererGL::Initialize()
 {
 	FileReader fileReader;
 
@@ -34,26 +39,28 @@ GLRenderer::GLRenderer(GLWindow& window) : Renderer(), window(window),
 	defaultShader.Attach(&defaultFragment);
 
 	defaultShader.Link();
+
+	glEnable(GL_DEPTH_TEST);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
-void GLRenderer::Render()
+void RendererGL::Render()
 {
-	glClearColor(0.4f, 0.6f, 0.9f, 0.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Clear required buffers  
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	
+	std::vector<Node*>::const_iterator it;
 
 	glEnableClientState(GL_VERTEX_ARRAY);
-
-	std::vector<Node*>::const_iterator it;
 
 	for (it = renderContext->nodes.begin(); it != renderContext->nodes.end(); ++it)
 		DrawModel(*(*it)->model, *(*it)->transform);
 
 	glDisableClientState(GL_VERTEX_ARRAY);
-
+	
 	window.Draw();
 }
 
-void GLRenderer::DrawModel(const Model& model, const Transformation& trans)
+void RendererGL::DrawModel(const Model& model, const Transformation& trans)
 {
 	// Iterate through meshes in the model
 	for (unsigned int cMesh = 0; cMesh < model.meshes.size(); ++cMesh)
@@ -64,41 +71,43 @@ void GLRenderer::DrawModel(const Model& model, const Transformation& trans)
 		BeginDraw(trans.WorldMtx(), material);
 
 		MeshGL* meshGL = mesh.As<MeshGL>();
+		
+		glBindVertexArray(meshGL->vertexArray);
 
-
-		// Vertices
-		glBindBuffer(GL_ARRAY_BUFFER, meshGL->vertexBuffer);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-		glEnableVertexAttribArray(0);
-
-		// Indices
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, meshGL->indexBuffer);
-
-		// Draw call
 		glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, NULL);
+		
+		glBindVertexArray(0);
 
 		EndDraw();
 	}
 }
 
-void GLRenderer::BeginDraw(const Matrix44& model, const Material& material, DrawMode drawMode)
+void RendererGL::BeginDraw(const Matrix44& model, const Material& material, DrawMode drawMode)
 {
 	currentMaterial = &material;
 
-	GLProgram* shader = &defaultShader;
-
-	// Setup geometry matrices for shader
-	//shader->modelMtx = model;
-	//shader->viewMtx = renderContext->camera->viewMtx;
-	//shader->projMtx = renderContext->camera->projMtx;
-
-	// Setup shader rendering parameters
-	//shader->material = &material;
+	ProgramGL* shader = &defaultShader;
 
 	shader->Bind();
+
+	// Setup geometry matrices for shader
+	glUniformMatrix4fv(shader->GetUniformLocation("modelMtx"), 1, GL_FALSE, model.data());
+	glUniformMatrix4fv(shader->GetUniformLocation("viewMtx"), 1, GL_FALSE, renderContext->camera->viewMtx.data());
+	glUniformMatrix4fv(shader->GetUniformLocation("projMtx"), 1, GL_FALSE, renderContext->camera->projMtx.data());
+	
+	// Load textures supplied by material
+	GLenum activeTexture = GL_TEXTURE0;
+	if (material.diffuseMap != NULL)
+		shader->BindTexture(material.diffuseMap->texture->As<TextureGL>(), "diffuseMap", activeTexture++);
+
+	if (material.normalMap != NULL)
+		shader->BindTexture(material.normalMap->texture->As<TextureGL>(), "normalMap", activeTexture++);
+
+	if (material.specularMap != NULL)
+		shader->BindTexture(material.specularMap->texture->As<TextureGL>(), "specularMap", activeTexture++);
 }
 
-void GLRenderer::EndDraw()
+void RendererGL::EndDraw()
 {
 
 }

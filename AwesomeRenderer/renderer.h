@@ -29,6 +29,7 @@ namespace AwesomeRenderer
 
 	public:
 
+		virtual void Initialize() = 0;
 		virtual void Render() = 0;
 
 		virtual void SetRenderContext(const RenderContext* renderContext);

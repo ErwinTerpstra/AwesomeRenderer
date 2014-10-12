@@ -1,17 +1,17 @@
-#ifndef _GL_SHADER_H_
-#define _GL_SHADER_H_
+#ifndef _SHADER_GL_H_
+#define _SHADER_GL_H_
 
 namespace AwesomeRenderer
 {
-	class GLShader : Shader
+	class ShaderGL : Shader
 	{
 
 	public:
 		GLuint handle;
 
 	public:
-		GLShader(GLenum type);
-		~GLShader();
+		ShaderGL(GLenum type);
+		~ShaderGL();
 
 		void Compile(const char** source, int amount);
 

@@ -37,8 +37,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Window window(hInstance, "AwesomeRendererWindow");
 	window.Create("Awesome Renderer!", SCREEN_WIDTH, SCREEN_HEIGHT);
 	
-	GLWindow glWindow(window);
-	glWindow.Setup();
+	WindowGL windowGL(window);
+	windowGL.Setup();
 
 	// Setup frame and depth buffers
 	GdiBuffer frameBuffer(window.handle);
@@ -66,17 +66,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	/*
 	
 	SoftwareRenderer softwareRenderer;
-	softwareRenderer.Initialize();
 
 	Renderer& renderer = softwareRenderer;
 
 	/*/
 
-	GLRenderer glRenderer(glWindow);
-	Renderer& renderer = glRenderer;
+	RendererGL rendererGL(windowGL);
+	Renderer& renderer = rendererGL;
 
 	//*/
 
+	renderer.Initialize();
 	renderer.SetRenderContext(&renderContext);
 
 	// Shader
@@ -188,18 +188,42 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	renderer.cullMode = Renderer::CULL_NONE;
 
-	renderContext.nodes.push_back(&car);
 	renderContext.nodes.push_back(&plane);
+	renderContext.nodes.push_back(&car);
 
 	// Convert all meshes to OpenGL meshes
 	for (auto nodeIt = renderContext.nodes.begin(); nodeIt != renderContext.nodes.end(); ++nodeIt)
 	{
 		Model* model = (*nodeIt)->model;
-
+		
 		for (auto meshIt = model->meshes.begin(); meshIt != model->meshes.end(); ++meshIt)
 		{
 			MeshGL* meshGL = new MeshGL(**meshIt);
 			meshGL->CreateBuffers();
+		}
+
+		for (auto materialIt = model->materials.begin(); materialIt != model->materials.end(); ++materialIt)
+		{
+			Material* material = (*materialIt);
+			TextureGL* texture;
+
+			if (material->diffuseMap != NULL)
+			{
+				texture = new TextureGL(*material->diffuseMap->texture);
+				texture->Load();
+			}
+
+			if (material->normalMap != NULL)
+			{
+				texture = new TextureGL(*material->normalMap->texture);
+				texture->Load();
+			}
+
+			if (material->specularMap != NULL)
+			{
+				texture = new TextureGL(*material->specularMap->texture);
+				texture->Load();
+			}
 		}
 	}
 

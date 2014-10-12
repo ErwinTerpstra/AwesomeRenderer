@@ -75,15 +75,10 @@
 
 #include "meshex.h"
 #include "modelex.h"
-
-#include "meshgl.h"
-
 // Renderer
 #include "shader.h"
 #include "softwareshader.h"
 #include "phongshader.h"
-#include "glshader.h"
-#include "glprogram.h"
 
 #include "rendertarget.h"
 #include "rendercontext.h"
@@ -91,7 +86,6 @@
 
 #include "softwarerenderer.h"
 #include "raytracer.h"
-#include "glrenderer.h"
 
 // Assets
 #include "filereader.h"
@@ -101,6 +95,13 @@
 // Win32
 #include "gdibuffer.h"
 #include "window.h"
-#include "glwindow.h"
+
+// OpenGL
+#include "mesh_gl.h"
+#include "texture_gl.h"
+#include "window_gl.h"
+#include "shader_gl.h"
+#include "program_gl.h"
+#include "renderer_gl.h"
 
 #endif

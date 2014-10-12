@@ -12,6 +12,9 @@ namespace AwesomeRenderer
 		
 		bool closed;
 
+		int width;
+		int height;
+
 	private:
 		HINSTANCE instance;
 

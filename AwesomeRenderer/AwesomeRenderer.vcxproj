@@ -80,11 +80,11 @@
   <ItemGroup>
     <ClCompile Include="aabb.cpp" />
     <ClCompile Include="cameracontroller.cpp" />
-    <ClCompile Include="glprogram.cpp" />
-    <ClCompile Include="glshader.cpp" />
+    <ClCompile Include="program_gl.cpp" />
+    <ClCompile Include="shader_gl.cpp" />
     <ClCompile Include="kdtree.cpp" />
-    <ClCompile Include="glrenderer.cpp" />
-    <ClCompile Include="glwindow.cpp" />
+    <ClCompile Include="renderer_gl.cpp" />
+    <ClCompile Include="window_gl.cpp" />
     <ClCompile Include="meshgl.cpp" />
     <ClCompile Include="phongshader.cpp" />
     <ClCompile Include="filereader.cpp" />
@@ -116,6 +116,7 @@
     <ClCompile Include="softwarerenderer.cpp" />
     <ClCompile Include="softwareshader.cpp" />
     <ClCompile Include="texturefactory.cpp" />
+    <ClCompile Include="texture_gl.cpp" />
     <ClCompile Include="threading.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="transformation.cpp" />
@@ -128,12 +129,13 @@
     <ClInclude Include="buffer.h" />
     <ClInclude Include="extendee.h" />
     <ClInclude Include="extension.h" />
-    <ClInclude Include="glprogram.h" />
-    <ClInclude Include="glshader.h" />
+    <ClInclude Include="factory.h" />
+    <ClInclude Include="program_gl.h" />
+    <ClInclude Include="shader_gl.h" />
     <ClInclude Include="kdtree.h" />
-    <ClInclude Include="meshgl.h" />
+    <ClInclude Include="mesh_gl.h" />
     <ClInclude Include="object.h" />
-    <ClInclude Include="glrenderer.h" />
+    <ClInclude Include="renderer_gl.h" />
     <ClInclude Include="phongshader.h" />
     <ClInclude Include="filereader.h" />
     <ClInclude Include="inputmanager.h" />
@@ -164,6 +166,7 @@
     <ClInclude Include="softwarerenderer.h" />
     <ClInclude Include="softwareshader.h" />
     <ClInclude Include="texturefactory.h" />
+    <ClInclude Include="texture_gl.h" />
     <ClInclude Include="threading.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="transformation.h" />
@@ -174,7 +177,7 @@
     <ClInclude Include="awesomerenderer.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="window.h" />
-    <ClInclude Include="glwindow.h" />
+    <ClInclude Include="window_gl.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="model.h" />

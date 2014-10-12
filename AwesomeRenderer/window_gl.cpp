@@ -2,19 +2,19 @@
 
 using namespace AwesomeRenderer;
 
-GLWindow::GLWindow(Window& window) : Extension(window)
+WindowGL::WindowGL(Window& window) : Extension(window)
 {
 	deviceContext = GetDC(window.handle);
 
 }
 
-GLWindow::~GLWindow()
+WindowGL::~WindowGL()
 {
 	wglMakeCurrent(deviceContext, 0); // Remove the rendering context from our device context  
 	wglDeleteContext(renderContext); // Delete our rendering context  
 }
 
-bool GLWindow::Setup()
+bool WindowGL::Setup()
 {
 	// Setup a pixel format descriptor to setup our window pixel format
 	PIXELFORMATDESCRIPTOR pfd;
@@ -72,12 +72,12 @@ bool GLWindow::Setup()
 	glGetIntegerv(GL_MAJOR_VERSION, &glVersion[0]);
 	glGetIntegerv(GL_MINOR_VERSION, &glVersion[1]);
 
-	printf("[GLWindow]: Using OpenGL: %d.%d\n", glVersion[0], glVersion[1]);
+	printf("[WindowGL]: Using OpenGL: %d.%d\n", glVersion[0], glVersion[1]);
 
 	return true;
 }
 
-void GLWindow::Draw()
+void WindowGL::Draw()
 {
 	SwapBuffers(deviceContext);
 }

@@ -9,7 +9,7 @@ namespace AwesomeRenderer
 	public:
 
 		GLuint vertexArray;
-		GLuint vertexBuffer;
+		GLuint vertexBuffers[Mesh::MAX_VERTEX_ATTRIBUTES];
 
 		GLuint indexBuffer;
 
@@ -18,8 +18,12 @@ namespace AwesomeRenderer
 		MeshGL(Mesh& mesh);
 
 		void CreateBuffers();
+
+	private:
+		void AddAttributeBuffer(uint32_t idx, GLuint* buffer);
+
 	};
 
 }
 
-#endif
+#endif	

@@ -13,14 +13,57 @@ void MeshGL::CreateBuffers()
 	glGenVertexArrays(1, &vertexArray);
 	glBindVertexArray(vertexArray);
 
-	// Vertices
-	glGenBuffers(1, &vertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, base.vertices.size() * sizeof(GL_FLOAT), &base.vertices[0], GL_STATIC_DRAW);
-	
+	uint32_t idx = 0;
+
+	if (base.HasAttribute(Mesh::VERTEX_POSITION))
+	{
+		AddAttributeBuffer(idx, &vertexBuffers[idx]);
+		glVertexAttribPointer(idx, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), NULL);
+		glBufferData(GL_ARRAY_BUFFER, base.vertices.size() * sizeof(GL_FLOAT) * 3, &base.vertices[0], GL_STATIC_DRAW);
+
+		++idx;
+	}
+
+	if (base.HasAttribute(Mesh::VERTEX_NORMAL))
+	{
+		AddAttributeBuffer(idx, &vertexBuffers[idx]);
+		glVertexAttribPointer(idx, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3), NULL);
+		glBufferData(GL_ARRAY_BUFFER, base.normals.size() * sizeof(GL_FLOAT)* 3, &base.normals[0], GL_STATIC_DRAW);
+
+		++idx;
+	}
+
+	if (base.HasAttribute(Mesh::VERTEX_TEXCOORD))
+	{
+		AddAttributeBuffer(idx, &vertexBuffers[idx]);
+		glVertexAttribPointer(idx, 2, GL_FLOAT, GL_FALSE, sizeof(Vector2), NULL);
+		glBufferData(GL_ARRAY_BUFFER, base.texcoords.size() * sizeof(GL_FLOAT)* 2, &base.texcoords[0], GL_STATIC_DRAW);
+
+		++idx;
+	}
+
+	if (base.HasAttribute(Mesh::VERTEX_COLOR))
+	{
+		AddAttributeBuffer(idx, &vertexBuffers[idx]);
+		glVertexAttribPointer(idx, 4, GL_FLOAT, GL_FALSE, sizeof(Color), NULL);
+		glBufferData(GL_ARRAY_BUFFER, base.colors.size() * sizeof(GL_FLOAT)* 4, &base.colors[0], GL_STATIC_DRAW);
+
+		++idx;
+	}
+
 	// Indices
 	glGenBuffers(1, &indexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, base.indices.size() * sizeof(uint32_t), &base.indices[0], GL_STATIC_DRAW);
 
+
+	glBindVertexArray(0);
+}
+
+void MeshGL::AddAttributeBuffer(uint32_t idx, GLuint* buffer)
+{
+	glGenBuffers(1, buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, *buffer);
+
+	glEnableVertexAttribArray(idx);
 }

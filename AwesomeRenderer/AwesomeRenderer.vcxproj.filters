@@ -183,29 +183,32 @@
     <ClCompile Include="window.cpp">
       <Filter>Source Files\Window</Filter>
     </ClCompile>
-    <ClCompile Include="glwindow.cpp">
-      <Filter>Source Files\Window</Filter>
-    </ClCompile>
-    <ClCompile Include="glrenderer.cpp">
-      <Filter>Source Files\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="sampler.cpp">
       <Filter>Source Files\Renderer\Shading</Filter>
     </ClCompile>
     <ClCompile Include="meshgl.cpp">
       <Filter>Source Files\Model</Filter>
     </ClCompile>
-    <ClCompile Include="glprogram.cpp">
-      <Filter>Source Files\Renderer\Shading</Filter>
-    </ClCompile>
-    <ClCompile Include="glshader.cpp">
-      <Filter>Source Files\Renderer\Shading</Filter>
-    </ClCompile>
     <ClCompile Include="timer.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="threading.cpp">
       <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="program_gl.cpp">
+      <Filter>Source Files\Renderer\Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="shader_gl.cpp">
+      <Filter>Source Files\Renderer\Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer_gl.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="window_gl.cpp">
+      <Filter>Source Files\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="texture_gl.cpp">
+      <Filter>Source Files\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -338,22 +341,7 @@
     <ClInclude Include="window.h">
       <Filter>Header Files\Window</Filter>
     </ClInclude>
-    <ClInclude Include="glwindow.h">
-      <Filter>Header Files\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="glrenderer.h">
-      <Filter>Header Files\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="sampler.h">
-      <Filter>Header Files\Renderer\Shading</Filter>
-    </ClInclude>
-    <ClInclude Include="meshgl.h">
-      <Filter>Header Files\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="glshader.h">
-      <Filter>Header Files\Renderer\Shading</Filter>
-    </ClInclude>
-    <ClInclude Include="glprogram.h">
       <Filter>Header Files\Renderer\Shading</Filter>
     </ClInclude>
     <ClInclude Include="threading.h">
@@ -361,6 +349,27 @@
     </ClInclude>
     <ClInclude Include="timer.h">
       <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer_gl.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="program_gl.h">
+      <Filter>Header Files\Renderer\Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="shader_gl.h">
+      <Filter>Header Files\Renderer\Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh_gl.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="window_gl.h">
+      <Filter>Header Files\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="texture_gl.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="factory.h">
+      <Filter>Header Files\Assets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -45,6 +45,9 @@ void Window::Create(const char* title, int width, int height)
 
     SetWindowLongPtrW(handle, GWLP_USERDATA, (long)this);
 	
+	this->width = width;
+	this->height = height;
+	
 	closed = false;
 }
 
