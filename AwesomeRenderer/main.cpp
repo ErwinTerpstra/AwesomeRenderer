@@ -167,8 +167,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		mesh->texcoords[4] = Vector2(1.0f, 0.0f) * uvScale;
 		mesh->texcoords[5] = Vector2(1.0f, 1.0f) * uvScale;
 
-		Texture* texture = new Texture();
-		textureFactory.Load("../Assets/tiles.bmp", *texture);
+		Texture* texture = NULL;
+		textureFactory.GetAsset("../Assets/tiles.bmp", &texture);
 
 		Sampler* sampler = new Sampler();
 		sampler->texture = texture;

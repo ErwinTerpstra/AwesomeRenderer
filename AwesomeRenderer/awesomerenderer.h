@@ -75,6 +75,7 @@
 
 #include "meshex.h"
 #include "modelex.h"
+
 // Renderer
 #include "shader.h"
 #include "softwareshader.h"
@@ -88,6 +89,7 @@
 #include "raytracer.h"
 
 // Assets
+#include "factory.h"
 #include "filereader.h"
 #include "texturefactory.h"
 #include "objloader.h"

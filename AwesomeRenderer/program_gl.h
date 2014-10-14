@@ -4,7 +4,7 @@
 namespace AwesomeRenderer
 {
 
-	class ProgramGL
+	class ProgramGL : public Shader
 	{
 
 	private:
@@ -17,6 +17,8 @@ namespace AwesomeRenderer
 	public:
 		ProgramGL();
 		~ProgramGL();
+
+		void Prepare();
 
 		void Attach(ShaderGL* shader);
 		void Link();

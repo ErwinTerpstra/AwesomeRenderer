@@ -4,28 +4,19 @@ using namespace AwesomeRenderer;
 
 TextureFactory::TextureFactory()
 {
-
+	AddLoadFunction("bmp", &TextureFactory::LoadBmp);
 }
 
-bool TextureFactory::Load(const char* fileName, Texture& texture) const
+bool TextureFactory::Instantiate(Texture** instance) const
 {
-	const char* extension = strrchr(fileName, '.');
+	new (*instance) Texture();
 
-	// Select correct loading function based on file extension
-	if (extension)
-	{
-		if (strcmp(extension, ".bmp") == 0)
-			return LoadBmp(fileName, texture);
-
-	}
-
-	printf("[TextureFactory]: Unsupported file format for file \"%s\"\n", fileName);
-	return false;
+	return true;
 }
 
-bool TextureFactory::LoadBmp(const char* fileName, Texture& texture) const
+bool TextureFactory::LoadBmp(const std::string& fileName, Texture** texture) const
 {
-	texture.Destroy();
+	(*texture)->Destroy();
 		
 	BmpFileHeader fileHeader;
 	BmpInfoHeader infoHeader;
@@ -34,7 +25,7 @@ bool TextureFactory::LoadBmp(const char* fileName, Texture& texture) const
 	FILE* filePtr;
 	
 	// Open filename in read binary mode
-	filePtr = fopen(fileName, "rb");
+	filePtr = fopen(fileName.c_str(), "rb");
 	if (filePtr == NULL)
 	{
 		printf("[Bitmap]: Failed to open file \"%s\"\n", fileName);
@@ -59,13 +50,13 @@ bool TextureFactory::LoadBmp(const char* fileName, Texture& texture) const
 	fread(&infoHeader, sizeof(BmpInfoHeader), 1, filePtr);
 
 	// Allocate memory
-	texture.Allocate(infoHeader.width, infoHeader.height, infoHeader.bitCount / 8);
+	(*texture)->Allocate(infoHeader.width, infoHeader.height, infoHeader.bitCount / 8);
 
 	// Read bitmap data
 	fseek(filePtr, fileHeader.offBits, SEEK_SET);
-	int bytesRead = fread(texture.data, sizeof(uchar), infoHeader.sizeImage, filePtr);
+	int bytesRead = fread((*texture)->data, sizeof(uchar), infoHeader.sizeImage, filePtr);
 	
-	printf("[Bitmap]: Loaded \"%s\" with %d bytes\n", fileName, bytesRead);
+	printf("[Bitmap]: Loaded \"%s\" with %d bytes\n", fileName.c_str(), bytesRead);
 
 	fclose(filePtr);
 	

@@ -5,7 +5,7 @@ namespace AwesomeRenderer
 {
 
 
-	class TextureFactory
+	class TextureFactory : public Factory<TextureFactory, Texture>
 	{
 
 	public:
@@ -43,8 +43,10 @@ namespace AwesomeRenderer
 
 		TextureFactory();
 		
-		bool Load(const char* fileName, Texture& texture) const;
-		bool LoadBmp(const char* fileName, Texture& texture) const;
+	protected:
+
+		bool Instantiate(Texture** instance) const;
+		bool LoadBmp(const std::string& fileName, Texture** texture) const;
 	};
 
 }

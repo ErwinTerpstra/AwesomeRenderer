@@ -13,6 +13,11 @@ ProgramGL::~ProgramGL()
 
 }
 
+void ProgramGL::Prepare()
+{
+	Bind();
+}
+
 void ProgramGL::Attach(ShaderGL* shader)
 {
 	glAttachShader(handle, shader->handle);

@@ -13,6 +13,7 @@ namespace AwesomeRenderer
 	public:
 		Shader() { }
 
+		virtual void Prepare() = 0;
 	};
 
 }

@@ -15,10 +15,10 @@ namespace AwesomeRenderer
 	private:
 		std::map<std::string, Material*> materialLib;
 
-		const TextureFactory& textureFactory;
+		TextureFactory& textureFactory;
 
 	public:
-		ObjLoader(const TextureFactory& textureFactory);
+		ObjLoader(TextureFactory& textureFactory);
 
 		void Load(const char* fileName, Model& model);
 		void LoadMaterialLib(const char* fileName);

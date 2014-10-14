@@ -2,7 +2,7 @@
 
 using namespace AwesomeRenderer;
 
-ObjLoader::ObjLoader(const TextureFactory& textureFactory) : textureFactory(textureFactory)
+ObjLoader::ObjLoader(TextureFactory& textureFactory) : textureFactory(textureFactory)
 {
 
 }
@@ -303,18 +303,20 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 				// Diffuse color map
 				if (line.compare(0, 6, "map_Kd") == 0)
 				{
+					// Create a filename relative to the filename of the material library
 					std::string textureFile(fileName);
 					size_t idx = textureFile.find_last_of('/');
 					textureFile.resize(idx != std::string::npos ? idx + 1 : 0);
 					textureFile += line.substr(7);
 					
-					// TODO: Move memory allocation to somewhere else
-					Texture* texture = new Texture();
-					Sampler* sampler = new Sampler();
-					sampler->texture = texture;
+					Texture* texture = NULL;
+					Sampler* sampler = new Sampler(); // TODO: Move memory allocation to somewhere else
 
-					if (textureFactory.LoadBmp(textureFile.c_str(), *texture))
+					if (textureFactory.GetAsset(textureFile, &texture))
+					{
+						sampler->texture = texture;
 						material->diffuseMap = sampler;
+					}
 					else
 						printf("[ObjLoader]: Failed to load diffuse map for material.\n");
 

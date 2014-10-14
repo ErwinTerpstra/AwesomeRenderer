@@ -87,9 +87,7 @@ void RendererGL::BeginDraw(const Matrix44& model, const Material& material, Draw
 	currentMaterial = &material;
 
 	ProgramGL* shader = &defaultShader;
-
-	shader->Bind();
-
+	
 	// Setup geometry matrices for shader
 	glUniformMatrix4fv(shader->GetUniformLocation("modelMtx"), 1, GL_FALSE, model.data());
 	glUniformMatrix4fv(shader->GetUniformLocation("viewMtx"), 1, GL_FALSE, renderContext->camera->viewMtx.data());
@@ -105,6 +103,8 @@ void RendererGL::BeginDraw(const Matrix44& model, const Material& material, Draw
 
 	if (material.specularMap != NULL)
 		shader->BindTexture(material.specularMap->texture->As<TextureGL>(), "specularMap", activeTexture++);
+
+	shader->Prepare();
 }
 
 void RendererGL::EndDraw()

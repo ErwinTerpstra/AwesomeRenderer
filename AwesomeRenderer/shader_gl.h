@@ -3,7 +3,7 @@
 
 namespace AwesomeRenderer
 {
-	class ShaderGL : Shader
+	class ShaderGL
 	{
 
 	public:
@@ -12,7 +12,7 @@ namespace AwesomeRenderer
 	public:
 		ShaderGL(GLenum type);
 		~ShaderGL();
-
+		
 		void Compile(const char** source, int amount);
 
 	};
