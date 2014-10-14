@@ -44,8 +44,11 @@ int FileReader::Read(char* buffer)
 		*(current++) = '\n';
 	}
 
+	// Finish string with null byte
+	*current = '\0';
+
 	// The total read length is difference between current and start pointers
-	return (current - buffer);
+	return (current - buffer - 1);
 }
 
 char* FileReader::ReadLine()
@@ -66,10 +69,13 @@ int FileReader::ReadLine(char* buffer)
 	if (feof(ptr))
 		return -1;
 
-	// Read until EOF
-	while (!feof(ptr))
+	// Read until End-of-file
+	char c;
+	while ((c = (char)fgetc(ptr)) != EOF)
 	{
-		char c = (char)fgetc(ptr);
+		// Ignore carriage return since they are always followed by line-feed (\n)
+		if (c == '\r')
+			continue;
 
 		if (c == '\n')
 			break;

@@ -8,8 +8,8 @@ uniform mat4 modelMtx;
 uniform mat4 viewMtx;
 uniform mat4 projMtx;
 
-varying vec3 normal;
-varying vec2 texcoord;
+out vec3 normal;
+out vec2 texcoord;
 
 void main()
 {

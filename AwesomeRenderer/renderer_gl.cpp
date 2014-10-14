@@ -20,7 +20,7 @@ void RendererGL::Initialize()
 	fileReader.Open("../Assets/vertex.glsl");
 	fileReader.Read(&buffer[0]);
 	fileReader.Close();
-
+	
 	// Compile vertex shader
 	const char *vertexShaderSrc[] = { buffer };
 	defaultVertex.Compile(vertexShaderSrc, 1);
@@ -29,7 +29,7 @@ void RendererGL::Initialize()
 	fileReader.Open("../Assets/fragment.glsl");
 	fileReader.Read(&buffer[0]);
 	fileReader.Close();
-
+	
 	// Compile fragment shader
 	const char *fragmentShaderSrc[] = { buffer };
 	defaultFragment.Compile(fragmentShaderSrc, 1);
