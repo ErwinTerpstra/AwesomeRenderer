@@ -84,7 +84,7 @@ void SoftwareRenderer::Render()
 			job.trans = trans;
 
 			// TODO: sort render jobs by material
-
+			
 			// Render translucent objects last
 			if (material->translucent)
 				renderQueue.push_back(job);

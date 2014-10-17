@@ -47,6 +47,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 
 		lineBuffer += charIdx;
 		line = line.substr(charIdx);
+		charIdx = 0;
 
 		switch (line[charIdx])
 		{
@@ -109,7 +110,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 			{
 
 				IndexReader reader;
-				int vertices = reader.Parse(lineBuffer, 2, line.length() - 2);
+				uint32_t vertices = reader.Parse(lineBuffer, 2, line.length() - 2);
 
 				if (vertices == 3 || vertices == 4)
 				{
@@ -262,8 +263,9 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 
 		lineBuffer += charIdx;
 		line = line.substr(charIdx);
+		charIdx = 0;
 
-		switch (line[charIdx])
+		switch (line[0])
 		{
 			case '\0':
 			case '\r':	

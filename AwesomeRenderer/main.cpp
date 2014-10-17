@@ -53,7 +53,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// Setup camera
 	Camera camera(cml::left_handed);
-	camera.SetLookAt(Vector3(0.0f, 5.0f, 0.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0));
+	camera.SetLookAt(Vector3(0.0f, 10.0f, 20.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0));
 	camera.SetPerspective(45.0f, ((float) SCREEN_WIDTH) / SCREEN_HEIGHT, 1.0f, 500.0f);
 	camera.SetViewport(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT);
 	
@@ -63,7 +63,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	renderContext.renderTarget = &renderTarget;
 
 	// Initialize renderer
-	/*
+	//*
 	
 	SoftwareRenderer softwareRenderer;
 
@@ -136,6 +136,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	
 	// Camera controller
 	CameraController cameraController(camera);
+	cameraController.CopyFromCamera();
 
 	// Assets factories
 	TextureFactory textureFactory;
@@ -196,10 +197,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	renderer.cullMode = Renderer::CULL_NONE;
 
 	renderContext.nodes.push_back(&testNode);
-	//renderContext.nodes.push_back(&plane);
+	renderContext.nodes.push_back(&plane);
 	//renderContext.nodes.push_back(&car);
 
 	// Convert all meshes to OpenGL meshes
+	/*
 	for (auto nodeIt = renderContext.nodes.begin(); nodeIt != renderContext.nodes.end(); ++nodeIt)
 	{
 		Model* model = (*nodeIt)->model;
@@ -234,7 +236,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 		}
 	}
-
+	//*/
 	
 	window.Show(nCmdShow);
 
@@ -279,17 +281,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 		
 		// Rendering
-		//renderTarget.Clear(Color::BLACK);
+		renderTarget.Clear(Color::BLACK);
 
 		renderer.Render();
 		
 		// Present window
 		window.ProcessMessages();
 
-		//window.DrawBuffer(frameBuffer);
+		window.DrawBuffer(frameBuffer);
 	}
 
-	//softwareRenderer.Cleanup();
+	softwareRenderer.Cleanup();
 
 	frameBuffer.Destroy();
 	depthBuffer.Destroy();

@@ -4,7 +4,7 @@ using namespace AwesomeRenderer;
 
 CameraController::CameraController(Camera& camera) : 
 	camera(camera), 
-	yaw(0.2f), pitch(0.9f),
+	yaw(0.2f), pitch(0.0f),
 	yawSpeed(2.0f), pitchSpeed(2.0f),
 	moveSpeed(2.0f), strafeSpeed(1.5f),
 	shiftMultiplier(2.0f)
@@ -12,6 +12,18 @@ CameraController::CameraController(Camera& camera) :
 
 }
 
+void CameraController::CopyFromCamera()
+{
+	// Calculate yaw and pitch from current camera position and look-at
+	Vector3 forward = camera.Forward();
+
+	Vector3 horizontalForward = forward;
+	horizontalForward[1] = 0;
+	horizontalForward.normalize();
+
+	yaw = acos(cml::dot(horizontalForward, Vector3(0.0f, 0.0f, -1.0f))) - HALF_PI;
+	pitch = acos(cml::dot(horizontalForward, forward)) + HALF_PI;
+}
 
 void CameraController::Update(const TimingInfo& timingInfo)
 {

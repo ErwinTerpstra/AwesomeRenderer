@@ -23,6 +23,7 @@ namespace AwesomeRenderer
 	public:
 		CameraController(Camera& camera);
 
+		void CopyFromCamera();
 		void Update(const TimingInfo& timingInfo);
 
 	};
