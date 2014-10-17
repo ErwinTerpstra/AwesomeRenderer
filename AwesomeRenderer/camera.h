@@ -20,6 +20,10 @@ namespace AwesomeRenderer
 	public:
 		Camera(cml::Handedness handedness);
 
+		Vector3 Forward() const;
+		Vector3 Right() const;
+		Vector3 Up() const;
+
 		void UpdateViewMtx();
 
 		// View matrix

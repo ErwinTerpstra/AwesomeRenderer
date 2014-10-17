@@ -49,6 +49,10 @@ bool TextureFactory::LoadBmp(const std::string& fileName, Texture** texture) con
 	// Read the bitmap info header
 	fread(&infoHeader, sizeof(BmpInfoHeader), 1, filePtr);
 
+	// Some editors don't write the sizeImage field
+	if (infoHeader.sizeImage == 0)
+		infoHeader.sizeImage = infoHeader.width * infoHeader.height * (infoHeader.bitCount / 8);
+
 	// Allocate memory
 	(*texture)->Allocate(infoHeader.width, infoHeader.height, infoHeader.bitCount / 8);
 

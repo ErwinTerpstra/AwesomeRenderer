@@ -12,6 +12,24 @@ Camera::Camera(cml::Handedness handedness) :
 	viewportMtx.identity();
 }
 
+Vector3 Camera::Forward() const
+{
+	Vector3 forward = (lookAt - position);
+	forward.normalize();
+
+	return forward;
+}
+
+Vector3 Camera::Right() const
+{
+	return cml::cross(Forward(), Up());
+}
+
+Vector3 Camera::Up() const
+{
+	return up;
+}
+
 void Camera::UpdateViewMtx()
 {
 	cml::matrix_look_at(viewMtx, position, lookAt, up, handedness);

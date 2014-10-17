@@ -152,6 +152,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	car.transform = new Transformation();
 	objLoader.Load("../Assets/car.obj", *car.model);
 
+
+	Node testNode;
+	testNode.model = new Model();
+	testNode.transform = new Transformation();
+	testNode.transform->SetScale(Vector3(0.2f, 0.2f, 0.2f));
+	objLoader.Load("../Assets/WoodenFortress/Wooden_Fortress_obj.obj", *testNode.model);
+
 	
 	Node plane;
 	{
@@ -188,8 +195,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	renderer.cullMode = Renderer::CULL_NONE;
 
-	renderContext.nodes.push_back(&plane);
-	renderContext.nodes.push_back(&car);
+	renderContext.nodes.push_back(&testNode);
+	//renderContext.nodes.push_back(&plane);
+	//renderContext.nodes.push_back(&car);
 
 	// Convert all meshes to OpenGL meshes
 	for (auto nodeIt = renderContext.nodes.begin(); nodeIt != renderContext.nodes.end(); ++nodeIt)

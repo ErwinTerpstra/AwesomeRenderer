@@ -12,9 +12,13 @@ namespace AwesomeRenderer
 		Camera& camera;
 
 	private:
-		float distance, yaw, pitch;
+		float yaw, pitch;
 
 		float zoomSpeed, yawSpeed, pitchSpeed;
+
+		float moveSpeed, strafeSpeed;
+
+		float shiftMultiplier;
 
 	public:
 		CameraController(Camera& camera);

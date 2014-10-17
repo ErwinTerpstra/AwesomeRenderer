@@ -31,15 +31,28 @@ void ObjLoader::Load(const char* fileName, Model& model)
 	{		
 		std::string line(lineBuffer);
 
-		if (line.length() == 0)
+		uint32_t charIdx = 0;
+		
+		// Skip whitespace at the start of the line
+		for (charIdx = 0; charIdx < line.length(); ++charIdx)
+		{
+			char c = line[charIdx];
+			if (c != ' ' || c != '\t')
+				break;
+
+		}
+
+		if (charIdx == line.length())
 			continue;
 
-		switch (line[0])
+		lineBuffer += charIdx;
+		line = line.substr(charIdx);
+
+		switch (line[charIdx])
 		{
 			case '\0':
 			case '\r':	
 			case '\n':
-			case ' ':
 			case '#':
 				// Empty line or comment, skip it
 				break;
@@ -94,38 +107,63 @@ void ObjLoader::Load(const char* fileName, Model& model)
 
 			case 'f':
 			{
-				int vi[] = { 0, 0, 0 };
-				int ti[] = { 0, 0, 0 };
-				int ni[] = { 0, 0, 0 };
-				
-				// TODO: Add support for Quads (Split) and Polygons(Triangulate)
 
-				int values = sscanf_s(lineBuffer, "f %d/%d/%d %d/%d/%d %d/%d/%d", 
-										&vi[0], &ti[0], &ni[0],  
-									    &vi[1], &ti[1], &ni[1],	
-										&vi[2], &ti[2], &ni[2]);
+				IndexReader reader;
+				int vertices = reader.Parse(lineBuffer, 2, line.length() - 2);
 
-				if (values > 0)
+				if (vertices == 3 || vertices == 4)
 				{
-					if (values < 9)
-						printf("[ObjLoader]: Warning! face definition with only %d indices (\"%s\")\n", values, lineBuffer);
-
-					// Iterate through all 3 vertices of the face
-					for (int i = 0; i < 3; ++i)
+					for (uint32_t vertexIdx = 0; vertexIdx < vertices; ++vertexIdx)
 					{
-						Vector3 vertex = vi[i] - 1 >= 0 ? vertexBuffer[vi[i] - 1] : Vector3(0.0f, 0.0f, 0.0f);
-						Vector3 normal = ni[i] - 1 >= 0 ? normalBuffer[ni[i] - 1] : Vector3(0.0f, 0.0f, 0.0f);
-						Vector2 texcoord = ti[i] - 1 >= 0 ? texcoordBuffer[ti[i] - 1] : Vector2(0.0f, 0.0f);
+						IndexReader::VertexIndices& vi = reader.vertexIndices[vertexIdx];
 
-						mesh->vertices.push_back(vertex);
-						mesh->texcoords.push_back(texcoord);
-						mesh->normals.push_back(normal);
+						// Negative indices are relative to the buffer arrays
+						// Others are index in the buffer array + 1
 
-						mesh->indices.push_back(mesh->vertices.size() - 1);
+						if (vi.vertexIdx < 0)
+							vi.vertexIdx = vertexBuffer.size() + vi.vertexIdx;
+						else
+							--vi.vertexIdx;
+
+						if (vi.normalIdx < 0)
+							vi.normalIdx = normalBuffer.size() + vi.normalIdx;
+						else
+							--vi.normalIdx;
+
+						if (vi.texcoordIdx < 0)
+							vi.texcoordIdx = texcoordBuffer.size() + vi.texcoordIdx;
+						else
+							--vi.texcoordIdx;
+					}
+
+					// Triangle indices
+					const uint32_t triangles[] =
+					{
+						0, 1, 2,
+						0, 2, 3
+					};
+
+					// Iterate through all vertices of the face
+					for (uint32_t triIdx = 0; triIdx < (vertices - 2); ++triIdx)
+					{
+						for (uint32_t vertexIdx = 0; vertexIdx < 3; ++vertexIdx)
+						{
+							IndexReader::VertexIndices& vi = reader.vertexIndices[triangles[triIdx * 3 + vertexIdx]];
+							
+							Vector3 vertex = vi.vertexIdx >= 0 ? vertexBuffer[vi.vertexIdx] : Vector3(0.0f, 0.0f, 0.0f);
+							Vector3 normal = vi.normalIdx >= 0 ? normalBuffer[vi.normalIdx] : Vector3(0.0f, 0.0f, 0.0f);
+							Vector2 texcoord = vi.texcoordIdx >= 0 ? texcoordBuffer[vi.texcoordIdx] : Vector2(0.0f, 0.0f);
+
+							mesh->vertices.push_back(vertex);
+							mesh->texcoords.push_back(texcoord);
+							mesh->normals.push_back(normal);
+
+							mesh->indices.push_back(mesh->vertices.size() - 1);
+						}
 					}
 				}
 				else
-					printf("[ObjLoader]: Invalid face definition in OBJ \"%s\"\n", lineBuffer);
+					printf("[ObjLoader]: Warning! face definition with %d vertices (\"%s\")\n", vertices, lineBuffer);
 
 
 				break;
@@ -208,15 +246,28 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 	{		
 		std::string line(lineBuffer);
 
-		if (line.length() == 0)
+		uint32_t charIdx;
+
+		// Skip whitespace at the start of the line
+		for (charIdx = 0; charIdx < line.length(); ++charIdx)
+		{
+			char c = line[charIdx];
+
+			if (c != ' ' && c != '\t')
+				break;
+		}
+
+		if (charIdx == line.length())
 			continue;
 
-		switch (line[0])
+		lineBuffer += charIdx;
+		line = line.substr(charIdx);
+
+		switch (line[charIdx])
 		{
 			case '\0':
 			case '\r':	
 			case '\n':
-			case ' ':
 			case '#':
 				// Empty line or comment, skip it
 				break;
@@ -234,7 +285,7 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 					break;
 				}
 
-				switch (line[1])
+				switch (lineBuffer[1])
 				{
 					case 'a':
 						break;
@@ -265,7 +316,7 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 					break;
 				}
 
-				switch (line[1])
+				switch (lineBuffer[1])
 				{
 					case 's':
 						material->shininess = strtof(lineBuffer + 2, NULL);
@@ -353,4 +404,103 @@ void ObjLoader::ParseColor(const char* input, Color& color)
 		base = next;
 		++channel;
 	}
+}
+
+uint32_t ObjLoader::IndexReader::Parse(const char* buffer, uint32_t offset, uint32_t amount)
+{
+	vertexIdx = -1;
+	NextVertex();
+
+	ResetIndex();
+
+	for (uint32_t charIdx = offset; charIdx < offset + amount + 1; ++charIdx)
+	{
+		const char c = buffer[charIdx];
+
+		switch (c)
+		{
+		case '\0':
+		case ' ':
+			// Extra whitespace without an index, ignore it
+			if (currentIdx == 0)
+				break;
+
+			// We finished the last index in a vertex, save it and move to the next one 
+			SaveCurrentIdx();
+			NextVertex();
+
+			break;
+
+		case '/':
+			// Save the index, even if it is zero
+			SaveCurrentIdx();
+			break;
+
+		case '#':
+			// Comment incoming, skip rest of line
+			charIdx = offset + amount;
+			break;
+
+		case '-':
+			// Unary operator should be before any digits
+			if (currentIdx != 0)
+			{
+				printf("[ObjLoader]: Unexpected character '-' in face definition.\n");
+				break;
+			}
+
+			// Flip sign (yeah we support --10 == 10 as an index)
+			sign *= -1;
+			break;
+
+		default:
+			// Check if character is a digit
+			if (c >= '0' && c <= '9')
+			{
+				// Add digit to current total index
+				currentIdx = (currentIdx * 10) + ((c - '0') * sign);
+				break;
+			}
+
+			printf("[ObjLoader]: Unkown character '%s' in face definition.\n", c);
+			break;
+		}
+	}
+	
+	return vertexIdx;
+}
+
+ObjLoader::IndexReader::IndexReader()
+{
+
+}
+
+void ObjLoader::IndexReader::SaveCurrentIdx()
+{
+	// Retrieve pointer to the VertexIndices element we want to save the index to
+	int32_t* base = reinterpret_cast<int32_t*>(&vertexIndices[vertexIdx]);
+
+	// Save index in the correct attribute
+	*(base + attributeIdx) = currentIdx;
+
+	// Reset index and move to the next attribute
+	++attributeIdx;
+
+	ResetIndex();
+}
+
+void ObjLoader::IndexReader::NextVertex()
+{
+	// Clear the next vertex indices struct
+	++vertexIdx;
+	attributeIdx = 0;
+
+	if (vertexIdx < MAX_VERTICES)
+		vertexIndices[vertexIdx] = VertexIndices();
+}
+
+void ObjLoader::IndexReader::ResetIndex()
+{
+	sign = 1;
+	currentIdx = 0;
 }
