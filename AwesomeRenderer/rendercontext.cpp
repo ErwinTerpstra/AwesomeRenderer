@@ -2,7 +2,7 @@
 
 using namespace AwesomeRenderer;
 
-RenderContext::RenderContext() : camera(NULL), renderTarget(NULL)
+RenderContext::RenderContext() : camera(NULL), renderTarget(NULL), window(NULL)
 {
 
 }

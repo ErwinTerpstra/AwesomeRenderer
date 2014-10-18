@@ -89,12 +89,17 @@ namespace AwesomeRenderer
 
 	private:
 
+		void PreRender();
+		void PostRender();
+
 		void DrawJob(const RenderJob& job);
 
 		void DrawTiles();
 		void DrawTile(uint32_t tileX, uint32_t tileY);
+		void DrawTileFill(uint32_t tileX, uint32_t tileY);
+		void DrawTileLine(uint32_t tileX, uint32_t tileY);
 
-		void BeginDraw(const Matrix44& model, const Material& material, DrawMode drawMode = DRAW_SOLID);
+		void BeginDraw(const Matrix44& model, const Material& material);
 		void DrawMesh(const Mesh& mesh);
 		void EndDraw();
 
@@ -109,15 +114,8 @@ namespace AwesomeRenderer
 		}
 
 		static void Blend(const Color& src, const Color& dst, Color& out);
-		static void SortTriangle(SoftwareShader::VertexToPixel* vtp);
-		static void SortTriangle(SoftwareShader::VertexToPixel** a, SoftwareShader::VertexToPixel** b, SoftwareShader::VertexToPixel** c);
-
-		template <typename T>
-		static void Swap(T& a, T& b);
-
-		template <typename T>
-		static void Swap(T** a, T** b);
-
+		static void SortTriangle(SoftwareShader::VertexToPixel* vtp, uint32_t axis);
+		static void SortTriangle(SoftwareShader::VertexToPixel** a, SoftwareShader::VertexToPixel** b, SoftwareShader::VertexToPixel** c, uint32_t axis);
 
 	};
 	

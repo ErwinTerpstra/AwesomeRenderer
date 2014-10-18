@@ -5,9 +5,7 @@ using namespace AwesomeRenderer;
 CameraController::CameraController(Camera& camera) : 
 	camera(camera), 
 	yaw(0.2f), pitch(0.0f),
-	yawSpeed(2.0f), pitchSpeed(2.0f),
-	moveSpeed(2.0f), strafeSpeed(1.5f),
-	shiftMultiplier(2.0f)
+	shiftMultiplier(1.0f)
 {
 
 }
@@ -29,31 +27,43 @@ void CameraController::Update(const TimingInfo& timingInfo)
 {
 	InputManager& input = InputManager::Instance();
 	float dt = timingInfo.elapsedSeconds;
-	float multiplier = (input.GetKey(VK_SHIFT) ? shiftMultiplier : 1.0f) * dt;
+
+	if (input.GetKey(VK_SHIFT))
+		shiftMultiplier += SHIFT_ACCELERATION * dt;
+	else
+		shiftMultiplier = MIN_SHIFT_MULTIPLIER;
 
 	if (input.GetKey(VK_DOWN))
-		pitch += pitchSpeed * dt;
+		pitch += PITCH_SPEED * dt;
 
 	if (input.GetKey(VK_UP))
-		pitch -= pitchSpeed * dt;
+		pitch -= PITCH_SPEED * dt;
 
 	if (input.GetKey(VK_LEFT))
-		yaw += yawSpeed * dt;
+		yaw += YAW_SPEED * dt;
 
 	if (input.GetKey(VK_RIGHT))
-		yaw -= yawSpeed * dt;
+		yaw -= YAW_SPEED * dt;
+
+	float multiplier = shiftMultiplier * dt;
 
 	if (input.GetKey('W'))
-		camera.position += camera.Forward() * moveSpeed * multiplier;
+		camera.position += camera.Forward() * MOVE_SPEED * multiplier;
 
 	if (input.GetKey('S'))
-		camera.position -= camera.Forward() * moveSpeed * multiplier;
+		camera.position -= camera.Forward() * MOVE_SPEED * multiplier;
 
 	if (input.GetKey('D'))
-		camera.position -= camera.Right() * strafeSpeed * multiplier;
+		camera.position -= camera.Right() * STRAFE_SPEED * multiplier;
 
 	if (input.GetKey('A'))
-		camera.position += camera.Right() * strafeSpeed * multiplier;
+		camera.position += camera.Right() * STRAFE_SPEED * multiplier;
+
+	if (input.GetKey('E'))
+		camera.position += camera.Up() * STRAFE_SPEED * multiplier;
+
+	if (input.GetKey('Q'))
+		camera.position -= camera.Up() * STRAFE_SPEED * multiplier;
 
 	camera.lookAt = camera.position + Vector3(std::cos(yaw) * std::sin(pitch),
 											  std::cos(pitch),

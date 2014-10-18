@@ -19,6 +19,39 @@ namespace AwesomeRenderer
 						 (c[i] * barycentricCoords[2]);
 			}
 		}
+
+	};
+
+
+	class Util
+	{
+
+	public:
+
+		template <typename T>
+		__inline static void Sort(T& a, T& b)
+		{
+			if (a > b)
+				Swap(a, b);
+		}
+
+		template <typename T>
+		__inline static void Swap(T& a, T& b)
+		{
+			T tmp = a;
+			a = b;
+			b = tmp;
+		}
+
+
+		template <typename T>
+		__inline static void Swap(T** a, T** b)
+		{
+			T* tmp = *a;
+			*a = *b;
+			*b = tmp;
+		}
+
 	};
 
 }

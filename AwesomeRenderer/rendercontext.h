@@ -3,7 +3,8 @@
 
 namespace AwesomeRenderer
 {
-	
+	class Window;
+
 	class RenderContext
 	{
 
@@ -11,6 +12,7 @@ namespace AwesomeRenderer
 
 		Camera* camera;
 		RenderTarget* renderTarget;
+		Window* window;
 
 		std::vector<Node*> nodes;
 

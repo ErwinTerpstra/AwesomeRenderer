@@ -27,6 +27,8 @@
 #undef near
 #undef far
 
+#include "debug.h"
+
 // OpenGL
 #include <GL/glew.h>
 #include <GL/wglew.h>

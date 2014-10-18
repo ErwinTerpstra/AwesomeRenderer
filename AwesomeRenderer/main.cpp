@@ -45,7 +45,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	MemoryBuffer depthBuffer;
 	
 	frameBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, 3);	// 24 bit RGB buffer
-	depthBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, 2);	// 16 bit depth buffer
+	depthBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, 4);	// 32 bit depth buffer
 
 	// Render target
 	RenderTarget renderTarget;
@@ -61,23 +61,31 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	RenderContext renderContext;
 	renderContext.camera = &camera;
 	renderContext.renderTarget = &renderTarget;
+	renderContext.window = &window;
 
 	// Initialize renderer
-	//*
-	
 	SoftwareRenderer softwareRenderer;
+	RendererGL rendererGL;
 
-	Renderer& renderer = softwareRenderer;
+	Renderer* renderer = &rendererGL;
 
-	/*/
+	const uint32_t NUM_RENDERERS = 2;
+	Renderer* renderers[NUM_RENDERERS];
+	renderers[0] = &softwareRenderer;
+	renderers[1] = &rendererGL;
 
-	RendererGL rendererGL(windowGL);
-	Renderer& renderer = rendererGL;
+	for (uint32_t rendererIdx = 0; rendererIdx < NUM_RENDERERS; ++rendererIdx)
+	{
+		Renderer* renderer = renderers[rendererIdx];
+		renderer->Initialize();
 
-	//*/
+		renderer->SetRenderContext(&renderContext);
+		
+		renderer->cullMode = Renderer::CULL_NONE;
+		renderer->drawMode = Renderer::DRAW_LINE;
+	}
 
-	renderer.Initialize();
-	renderer.SetRenderContext(&renderContext);
+	Renderer* activeRenderer = renderers[0];
 
 	// Shader
 	PhongShader phongShader;
@@ -114,7 +122,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		light.lineairAttenuation = 0.0f;
 		light.quadricAttenuation = 2.0f;
 		light.intensity = 8.0f;
-		light.enabled = false;
+		light.enabled = true;
 	}
 
 	{
@@ -194,14 +202,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		plane.transform->SetScale(Vector3(10.0f, 10.0f, 10.0f));
 	}
 
-	renderer.cullMode = Renderer::CULL_NONE;
 
 	renderContext.nodes.push_back(&testNode);
 	renderContext.nodes.push_back(&plane);
 	//renderContext.nodes.push_back(&car);
 
 	// Convert all meshes to OpenGL meshes
-	/*
 	for (auto nodeIt = renderContext.nodes.begin(); nodeIt != renderContext.nodes.end(); ++nodeIt)
 	{
 		Model* model = (*nodeIt)->model;
@@ -236,7 +242,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 		}
 	}
-	//*/
 	
 	window.Show(nCmdShow);
 
@@ -280,18 +285,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 		}
 		
-		// Rendering
-		renderTarget.Clear(Color::BLACK);
+		// Renderer switch keyhandling
+		for (uint32_t rendererIdx = 0; rendererIdx < NUM_RENDERERS; ++rendererIdx)
+		{
+			if (InputManager::Instance().GetKey(VK_NUMPAD0 + rendererIdx))
+				activeRenderer = renderers[rendererIdx];
+		}
 
-		renderer.Render();
+		activeRenderer->Render();
 		
 		// Present window
 		window.ProcessMessages();
-
-		window.DrawBuffer(frameBuffer);
 	}
 
-	softwareRenderer.Cleanup();
+	for (uint32_t rendererIdx = 0; rendererIdx < NUM_RENDERERS; ++rendererIdx)
+	{
+		Renderer* renderer = renderers[rendererIdx];
+		renderer->Cleanup();
+	}
 
 	frameBuffer.Destroy();
 	depthBuffer.Destroy();

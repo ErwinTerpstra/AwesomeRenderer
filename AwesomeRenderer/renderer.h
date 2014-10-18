@@ -11,8 +11,10 @@ namespace AwesomeRenderer
 	public:
 		enum DrawMode
 		{
-			DRAW_WIREFRAME,
-			DRAW_SOLID
+			DRAW_LINE,
+			DRAW_FILL,
+
+			DRAW_DEFAULT = DRAW_FILL
 		};
 
 		enum CullMode
@@ -20,9 +22,13 @@ namespace AwesomeRenderer
 			CULL_NONE = 0,
 			CULL_FRONT = -1,
 			CULL_BACK = 1,
+
+			CULL_DEFAULT = CULL_BACK
 		};
 
-		CullMode cullMode;
+		CullMode cullMode = CULL_DEFAULT;
+
+		DrawMode drawMode = DRAW_DEFAULT;
 		
 	protected:
 		const RenderContext* renderContext;
@@ -31,6 +37,7 @@ namespace AwesomeRenderer
 
 		virtual void Initialize() = 0;
 		virtual void Render() = 0;
+		virtual void Cleanup() = 0;
 
 		virtual void SetRenderContext(const RenderContext* renderContext);
 

@@ -127,6 +127,7 @@
   <ItemGroup>
     <ClInclude Include="aabb.h" />
     <ClInclude Include="buffer.h" />
+    <ClInclude Include="debug.h" />
     <ClInclude Include="extendee.h" />
     <ClInclude Include="extension.h" />
     <ClInclude Include="factory.h" />

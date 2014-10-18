@@ -9,10 +9,6 @@ namespace AwesomeRenderer
 	class RendererGL : public Renderer
 	{
 
-	public:
-
-		WindowGL& window;
-
 	private:
 
 		const Material* currentMaterial;
@@ -23,13 +19,17 @@ namespace AwesomeRenderer
 
 	public:
 
-		RendererGL(WindowGL& window);
+		RendererGL();
 
 		void Initialize();
 		void Render();
+		void Cleanup();
 
 	private:
-		void BeginDraw(const Matrix44& model, const Material& material, DrawMode drawMode = DRAW_SOLID);
+		void PreRender();
+		void PostRender();
+
+		void BeginDraw(const Matrix44& model, const Material& material);
 		void EndDraw();
 
 		void DrawModel(const Model& model, const Transformation& trans);

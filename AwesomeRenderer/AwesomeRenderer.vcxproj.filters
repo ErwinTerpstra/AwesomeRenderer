@@ -371,6 +371,9 @@
     <ClInclude Include="factory.h">
       <Filter>Header Files\Assets</Filter>
     </ClInclude>
+    <ClInclude Include="debug.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="model.h">

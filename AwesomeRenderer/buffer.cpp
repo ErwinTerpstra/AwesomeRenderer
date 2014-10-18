@@ -24,15 +24,9 @@ void Buffer::Clear(const Color& color)
 
 float Buffer::GetPixel(uint32_t x, uint32_t y) const
 {
-	unsigned long max = (1 << bpp) - 1;
-	unsigned long value = 0;
-	
-	uchar* pixelBase = GetBase(x, y);
-	
-	for (uint8_t i = 0; i < stride; ++i)
-		value |= pixelBase[i] << (8 * i);
+	assert(stride == 4);
 
-	return ((float) value) / max;
+	return *reinterpret_cast<float*>(GetBase(x, y));
 }
 
 void Buffer::GetPixel(uint32_t x, uint32_t y, Color& sample) const
@@ -45,13 +39,7 @@ void Buffer::GetPixel(uint32_t x, uint32_t y, Color& sample) const
 
 void Buffer::SetPixel(uint32_t x, uint32_t y, float f)
 {
-	// Scales a float in 0 .. 1 range to the max value stored per pixel
-	f = cml::clamp(f, 0.0f, 1.0f);
-	unsigned long max = (1 << bpp) - 1;
-	unsigned long value = (unsigned long) (f * max);
-	
-	uchar* pixelBase = GetBase(x, y);
-	memcpy(pixelBase, reinterpret_cast<uchar*>(&value), stride);
+	memcpy(GetBase(x, y), reinterpret_cast<uchar*>(&f), stride);
 }
 
 void Buffer::SetPixel(uint32_t x, uint32_t y, const Color& color)

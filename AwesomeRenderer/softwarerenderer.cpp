@@ -61,8 +61,23 @@ void SoftwareRenderer::SetRenderContext(const RenderContext* context)
 	tilesLeft.Configure(0, tileAmount);
 }
 
+void SoftwareRenderer::PreRender()
+{
+	renderContext->renderTarget->Clear(Color::BLACK);
+}
+
+void SoftwareRenderer::PostRender()
+{
+	GdiBuffer* buffer = static_cast<GdiBuffer*>(renderContext->renderTarget->frameBuffer);
+
+	if (renderContext->window != NULL && buffer != NULL)
+		renderContext->window->DrawBuffer(*buffer);
+}
+
 void SoftwareRenderer::Render()
 {
+	PreRender();
+
 	std::vector<Node*>::const_iterator it;
 
 	// Iterate through all renderable nodes
@@ -105,6 +120,7 @@ void SoftwareRenderer::Render()
 		renderQueue.pop_front();
 	}
 
+	PostRender();
 }
 
 void SoftwareRenderer::DrawJob(const RenderJob& job)
@@ -159,7 +175,7 @@ void SoftwareRenderer::DrawMesh(const Mesh& mesh)
 	}
 }
 
-void SoftwareRenderer::BeginDraw(const Matrix44& model, const Material& material, DrawMode drawMode)
+void SoftwareRenderer::BeginDraw(const Matrix44& model, const Material& material)
 {
 	currentMaterial = &material;
 
@@ -229,8 +245,13 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 			return;
 	}
 
-	// Sort the vertices in Y direction for rasterizing
-	SortTriangle(vtp);
+	// Sort the vertices for rasterizing
+	// y direction for FILL mode and x direction for LINE mode
+	switch (drawMode)
+	{
+	case DRAW_LINE: SortTriangle(vtp, 0);
+	case DRAW_FILL: SortTriangle(vtp, 1);
+	}
 
 	Triangle2D* sst = &data.screenSpaceTriangle;
 
@@ -275,23 +296,32 @@ void SoftwareRenderer::DrawTiles()
 
 void SoftwareRenderer::DrawTile(uint32_t tileX, uint32_t tileY)
 {
+	switch (drawMode)
+	{
+	case DRAW_LINE:		DrawTileLine(tileX, tileY);
+	case DRAW_FILL:		DrawTileFill(tileX, tileY);
+	}
+}
+
+void SoftwareRenderer::DrawTileFill(uint32_t tileX, uint32_t tileY)
+{
 	std::vector<TriangleData>& bin = tiles[(tileY * horizontalTiles) + tileX];
-	
+
 	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
 	Buffer* depthBuffer = renderContext->renderTarget->depthBuffer;
 	SoftwareShader* shader = static_cast<SoftwareShader*>(currentMaterial->shader);
 
 	// Retrieve min and max screen coordinates for this tile
-	int minTileX = std::max(tileX * TILE_WIDTH, 0u);
-	int minTileY = std::max(tileY * TILE_HEIGHT, 0u);
+	int32_t minTileX = std::max(tileX * TILE_WIDTH, 0u);
+	int32_t minTileY = std::max(tileY * TILE_HEIGHT, 0u);
 
-	int maxTileX = std::min(minTileX + TILE_WIDTH - 1, (int)frameBuffer->width - 1);
-	int maxTileY = std::min(minTileY + TILE_HEIGHT - 1, (int)frameBuffer->height - 1);
+	int32_t maxTileX = std::min(minTileX + TILE_WIDTH - 1, (int32_t)frameBuffer->width - 1);
+	int32_t maxTileY = std::min(minTileY + TILE_HEIGHT - 1, (int32_t)frameBuffer->height - 1);
 
 	// Draw all triangles in the tile
 	while (!bin.empty())
 	{
-		const TriangleData& data = bin.back(); 
+		const TriangleData& data = bin.back();
 
 		const Triangle2D& sst = data.screenSpaceTriangle;
 		const SoftwareShader::VertexToPixel* a = &data.vertexToPixel[0];
@@ -307,8 +337,8 @@ void SoftwareRenderer::DrawTile(uint32_t tileX, uint32_t tileY)
 		float dBC = (sst[2][0] - sst[1][0]) / (sst[2][1] - sst[1][1]);
 
 		// Iterate trough scan lines
-		int minY = (int)std::ceil(sst[0][1]), maxY = (int)std::floor(sst[2][1]);
-		for (int y = std::max(minY, minTileY); y <= std::min(maxY, maxTileY); ++y)
+		int32_t minY = (int32_t)std::ceil(sst[0][1]), maxY = (int32_t)std::floor(sst[2][1]);
+		for (int32_t y = std::max(minY, minTileY); y <= std::min(maxY, maxTileY); ++y)
 		{
 			float x1 = _finite(dAC) ? sst[0][0] + (y - sst[0][1]) * dAC : sst[2][0];
 			float x2;
@@ -319,8 +349,8 @@ void SoftwareRenderer::DrawTile(uint32_t tileX, uint32_t tileY)
 			else
 				x2 = _finite(dAB) ? sst[0][0] + (y - sst[0][1]) * dAB : sst[1][0];
 
-			int minX = (int)std::ceil(std::min(x1, x2));
-			int maxX = (int)std::floor(std::max(x1, x2));
+			int32_t minX = (int32_t)std::ceil(std::min(x1, x2));
+			int32_t maxX = (int32_t)std::floor(std::max(x1, x2));
 
 			// Fill this scan line
 			for (int x = std::max(minX, minTileX); x <= std::min(maxX, maxTileX); ++x)
@@ -330,18 +360,18 @@ void SoftwareRenderer::DrawTile(uint32_t tileX, uint32_t tileY)
 
 				// Interpolate pixel data
 				SoftwareShader::VertexToPixel interpolated;
-				VectorUtil<4>::Interpolate(a->screenPosition,	b->screenPosition,	c->screenPosition,	bcCoords, interpolated.screenPosition);
-				VectorUtil<4>::Interpolate(a->worldPosition,	b->worldPosition,	c->worldPosition,	bcCoords, interpolated.worldPosition);
-				VectorUtil<4>::Interpolate(a->color,			b->color,			c->color,			bcCoords, interpolated.color);
-				VectorUtil<3>::Interpolate(a->normal,			b->normal,			c->normal,			bcCoords, interpolated.normal);
-				VectorUtil<2>::Interpolate(a->uv,				b->uv,				c->uv,				bcCoords, interpolated.uv);
+				VectorUtil<4>::Interpolate(a->screenPosition, b->screenPosition, c->screenPosition, bcCoords, interpolated.screenPosition);
+				VectorUtil<4>::Interpolate(a->worldPosition, b->worldPosition, c->worldPosition, bcCoords, interpolated.worldPosition);
+				VectorUtil<4>::Interpolate(a->color, b->color, c->color, bcCoords, interpolated.color);
+				VectorUtil<3>::Interpolate(a->normal, b->normal, c->normal, bcCoords, interpolated.normal);
+				VectorUtil<2>::Interpolate(a->uv, b->uv, c->uv, bcCoords, interpolated.uv);
 
 				// Correct for perspective since we interpolate in screen space
 				float wRecip = 1.0f / interpolated.screenPosition[3];
-				interpolated.worldPosition	*= wRecip;
-				interpolated.color			*= wRecip;
-				interpolated.normal			*= wRecip;
-				interpolated.uv				*= wRecip;
+				interpolated.worldPosition *= wRecip;
+				interpolated.color *= wRecip;
+				interpolated.normal *= wRecip;
+				interpolated.uv *= wRecip;
 
 				interpolated.normal.normalize();
 
@@ -379,6 +409,102 @@ void SoftwareRenderer::DrawTile(uint32_t tileX, uint32_t tileY)
 		bin.pop_back();
 	}
 }
+
+void SoftwareRenderer::DrawTileLine(uint32_t tileX, uint32_t tileY)
+{
+	std::vector<TriangleData>& bin = tiles[(tileY * horizontalTiles) + tileX];
+	
+	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
+	Buffer* depthBuffer = renderContext->renderTarget->depthBuffer;
+	SoftwareShader* shader = static_cast<SoftwareShader*>(currentMaterial->shader);
+
+	// Retrieve min and max screen coordinates for this tile
+	int32_t minTileX = std::max(tileX * TILE_WIDTH, 0u);
+	int32_t minTileY = std::max(tileY * TILE_HEIGHT, 0u);
+
+	int32_t maxTileX = std::min(minTileX + TILE_WIDTH - 1, (int32_t)frameBuffer->width - 1);
+	int32_t maxTileY = std::min(minTileY + TILE_HEIGHT - 1, (int32_t)frameBuffer->height - 1);
+
+	// Draw all triangles in the tile
+	while (!bin.empty())
+	{
+		const TriangleData& data = bin.back(); 
+
+		const Triangle2D& sst = data.screenSpaceTriangle;
+		const SoftwareShader::VertexToPixel* a = &data.vertexToPixel[0];
+		const SoftwareShader::VertexToPixel* b = &data.vertexToPixel[1];
+		const SoftwareShader::VertexToPixel* c = &data.vertexToPixel[2];
+
+		int32_t points[] =
+		{
+			sst[0][0], sst[0][1], sst[1][0], sst[1][1],
+			sst[0][0], sst[0][1], sst[2][0], sst[2][1],
+			sst[1][0], sst[1][1], sst[2][0], sst[2][1],
+		};
+
+		//
+		// Bresenham's_line_algorithm
+		
+		for (uint32_t lineIdx = 0; lineIdx < 3; ++lineIdx)
+		{
+			uint32_t b = lineIdx * 4;
+
+			int32_t x1 = points[b + 0];
+			int32_t y1 = points[b + 1];
+			int32_t x2 = points[b + 2];
+			int32_t y2 = points[b + 3];
+
+			const bool steep = (abs(y2 - y1) > abs(x2 - x1));
+
+			// Swap coordinate system if slope is bigger than 45 degrees
+			if (steep)
+			{
+				Util::Swap(x1, y1);
+				Util::Swap(x2, y2);
+			}
+
+			// Make sure x1 is smaller than x2
+			if (x1 > x2)
+			{
+				Util::Swap(x1, x2);
+				Util::Swap(y1, y2);
+			}
+
+			int32_t deltaX = x2 - x1;
+			int32_t deltaY = y2 - y1;
+
+			float error = 0.0f;
+			float deltaError = abs((float) deltaY / deltaX);
+			int32_t yStep = y1 < y2 ? 1 : -1;
+
+			int32_t y = y1;
+
+			for (int32_t x = x1; x <= x2; ++x)
+			{
+				int32_t screenX = x;
+				int32_t screenY = y;
+
+				if (steep)
+					Util::Swap(screenX, screenY);
+
+				if (screenX >= minTileX && screenY >= minTileY && screenX <= maxTileX && screenY <= maxTileY)
+					frameBuffer->SetPixel(screenX, screenY, Color::WHITE);
+
+				error += deltaError;
+
+				if (error >= 0.5f)
+				{
+					y += yStep;
+					error -= 1.0f;
+				}
+			}
+
+		}
+
+		bin.pop_back();
+	}
+}
+
 
 DWORD SoftwareRenderer::StartWorker(WorkerThread* thread)
 {
@@ -454,43 +580,27 @@ void SoftwareRenderer::Blend(const Color& src, const Color& dst, Color& out)
 		out[channel] = (src[channel] * src[3]) + (dst[channel] * (1.0 - src[3]));
 
 }
-void SoftwareRenderer::SortTriangle(SoftwareShader::VertexToPixel* vtp)
+
+void SoftwareRenderer::SortTriangle(SoftwareShader::VertexToPixel* vtp, uint32_t axis)
 {
-	if (vtp[0].screenPosition[1] > vtp[1].screenPosition[1]) 
-		Swap<SoftwareShader::VertexToPixel>(vtp[0], vtp[1]);
+	if (vtp[0].screenPosition[axis] > vtp[1].screenPosition[axis])
+		Util::Swap<SoftwareShader::VertexToPixel>(vtp[0], vtp[1]);
 
-	if (vtp[1].screenPosition[1] > vtp[2].screenPosition[1])
-		Swap<SoftwareShader::VertexToPixel>(vtp[1], vtp[2]);
+	if (vtp[1].screenPosition[axis] > vtp[2].screenPosition[axis])
+		Util::Swap<SoftwareShader::VertexToPixel>(vtp[1], vtp[2]);
 
-	if (vtp[0].screenPosition[1] > vtp[1].screenPosition[1])
-		Swap<SoftwareShader::VertexToPixel>(vtp[0], vtp[1]);
+	if (vtp[0].screenPosition[axis] > vtp[1].screenPosition[axis])
+		Util::Swap<SoftwareShader::VertexToPixel>(vtp[0], vtp[1]);
 }
 
-void SoftwareRenderer::SortTriangle(SoftwareShader::VertexToPixel** a, SoftwareShader::VertexToPixel** b, SoftwareShader::VertexToPixel** c)
+void SoftwareRenderer::SortTriangle(SoftwareShader::VertexToPixel** a, SoftwareShader::VertexToPixel** b, SoftwareShader::VertexToPixel** c, uint32_t axis)
 {
-	if ((*a)->screenPosition[1] > (*b)->screenPosition[1])
-		Swap<SoftwareShader::VertexToPixel>(a, b);
+	if ((*a)->screenPosition[axis] > (*b)->screenPosition[axis])
+		Util::Swap<SoftwareShader::VertexToPixel>(a, b);
 
-	if ((*b)->screenPosition[1] > (*c)->screenPosition[1])
-		Swap<SoftwareShader::VertexToPixel>(b, c);
+	if ((*b)->screenPosition[axis] > (*c)->screenPosition[axis])
+		Util::Swap<SoftwareShader::VertexToPixel>(b, c);
 
-	if ((*a)->screenPosition[1] > (*b)->screenPosition[1])
-		Swap<SoftwareShader::VertexToPixel>(a, b);
-}
-
-template <typename T>
-void SoftwareRenderer::Swap(T& a, T& b)
-{
-	T tmp = a;
-	a = b;
-	b = tmp;
-}
-
-
-template <typename T>
-void SoftwareRenderer::Swap(T** a, T** b)
-{
-	T* tmp = *a;
-	*a = *b;
-	*b = tmp;
+	if ((*a)->screenPosition[axis] > (*b)->screenPosition[axis])
+		Util::Swap<SoftwareShader::VertexToPixel>(a, b);
 }

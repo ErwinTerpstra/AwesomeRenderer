@@ -2,7 +2,7 @@
 
 using namespace AwesomeRenderer;
 
-RendererGL::RendererGL(WindowGL& window) : Renderer(), window(window), 
+RendererGL::RendererGL() : Renderer(), 
 	defaultShader(),
 	defaultVertex(GL_VERTEX_SHADER),
 	defaultFragment(GL_FRAGMENT_SHADER)
@@ -44,10 +44,26 @@ void RendererGL::Initialize()
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
-void RendererGL::Render()
+void RendererGL::PreRender()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	
+}
+
+void RendererGL::PostRender()
+{
+	if (renderContext->window != NULL)
+	{
+		WindowGL* window = renderContext->window->As<WindowGL>();
+
+		if (window != NULL)
+			window->Draw();
+	}
+}
+
+void RendererGL::Render()
+{
+	PreRender();
+
 	std::vector<Node*>::const_iterator it;
 
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -57,7 +73,7 @@ void RendererGL::Render()
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	
-	window.Draw();
+	PostRender();
 }
 
 void RendererGL::DrawModel(const Model& model, const Transformation& trans)
@@ -82,7 +98,7 @@ void RendererGL::DrawModel(const Model& model, const Transformation& trans)
 	}
 }
 
-void RendererGL::BeginDraw(const Matrix44& model, const Material& material, DrawMode drawMode)
+void RendererGL::BeginDraw(const Matrix44& model, const Material& material)
 {
 	currentMaterial = &material;
 
@@ -108,6 +124,11 @@ void RendererGL::BeginDraw(const Matrix44& model, const Material& material, Draw
 }
 
 void RendererGL::EndDraw()
+{
+
+}
+
+void RendererGL::Cleanup()
 {
 
 }
