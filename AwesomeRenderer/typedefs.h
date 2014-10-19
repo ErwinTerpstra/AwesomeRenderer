@@ -28,6 +28,9 @@ namespace AwesomeRenderer
 
 	typedef cml::matrix44f_r Matrix44;
 	typedef cml::matrix43f_r Matrix43;
+
+	typedef cml::matrix22i_r IntMatrix22;
+	typedef cml::matrix32i_r IntMatrix23;
 }
 
 #endif

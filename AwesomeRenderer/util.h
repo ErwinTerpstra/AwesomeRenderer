@@ -52,6 +52,11 @@ namespace AwesomeRenderer
 			*b = tmp;
 		}
 
+		template <typename T> 
+		_inline static int32_t Sign(T val) 
+		{
+			return (T(0) < val) - (val < T(0));
+		}
 	};
 
 }

@@ -419,11 +419,11 @@ void SoftwareRenderer::DrawTileLine(uint32_t tileX, uint32_t tileY)
 	SoftwareShader* shader = static_cast<SoftwareShader*>(currentMaterial->shader);
 
 	// Retrieve min and max screen coordinates for this tile
-	int32_t minTileX = std::max(tileX * TILE_WIDTH, 0u);
-	int32_t minTileY = std::max(tileY * TILE_HEIGHT, 0u);
+	Point2 minTile(std::max(tileX * TILE_WIDTH, 0u), 
+				   std::max(tileY * TILE_HEIGHT, 0u));
 
-	int32_t maxTileX = std::min(minTileX + TILE_WIDTH - 1, (int32_t)frameBuffer->width - 1);
-	int32_t maxTileY = std::min(minTileY + TILE_HEIGHT - 1, (int32_t)frameBuffer->height - 1);
+	Point2 maxTile(std::min(minTile[0] + TILE_WIDTH - 1, (int32_t)frameBuffer->width - 1),
+				   std::min(minTile[1] + TILE_HEIGHT - 1, (int32_t)frameBuffer->height - 1));
 
 	// Draw all triangles in the tile
 	while (!bin.empty())
@@ -435,66 +435,115 @@ void SoftwareRenderer::DrawTileLine(uint32_t tileX, uint32_t tileY)
 		const SoftwareShader::VertexToPixel* b = &data.vertexToPixel[1];
 		const SoftwareShader::VertexToPixel* c = &data.vertexToPixel[2];
 
-		int32_t points[] =
+		Point2 points[] =
 		{
-			sst[0][0], sst[0][1], sst[1][0], sst[1][1],
-			sst[0][0], sst[0][1], sst[2][0], sst[2][1],
-			sst[1][0], sst[1][1], sst[2][0], sst[2][1],
+			Point2(sst[0][0], sst[0][1]), Point2(sst[1][0], sst[1][1]),
+			Point2(sst[0][0], sst[0][1]), Point2(sst[2][0], sst[2][1]),
+			Point2(sst[1][0], sst[1][1]), Point2(sst[2][0], sst[2][1]),
 		};
 
+
 		//
-		// Bresenham's_line_algorithm
+		// Bresenham's line algorithm
+		//
 		
 		for (uint32_t lineIdx = 0; lineIdx < 3; ++lineIdx)
 		{
-			uint32_t b = lineIdx * 4;
+			uint32_t b = lineIdx * 2;
 
-			int32_t x1 = points[b + 0];
-			int32_t y1 = points[b + 1];
-			int32_t x2 = points[b + 2];
-			int32_t y2 = points[b + 3];
+			Point2& from = points[b + 0];
+			Point2& to = points[b + 1];
 
-			const bool steep = (abs(y2 - y1) > abs(x2 - x1));
+			Point2 minLine = minTile;
+			Point2 maxLine = maxTile;
 
-			// Swap coordinate system if slope is bigger than 45 degrees
-			if (steep)
+			Point2 delta = to - from;
+			int32_t sx = Util::Sign(delta[0]);
+			int32_t sy = Util::Sign(delta[1]);
+
+			// Create a transformation matrix that converts the line so that it points in the (+x, +)y quadrant and such that dx > dy
+			// This is neccesary to not have to check all cases during the rasterization loop
+			IntMatrix22 mtx;
+			int32_t* m = mtx.data();
+
+			// Check if the slope is larger than 1.0
+			if (delta[1] * sy > delta[0] * sx)
 			{
-				Util::Swap(x1, y1);
-				Util::Swap(x2, y2);
+				// Find out of the sign of dx and dy are the same
+				// This decides of our matrix needs to be 0 1 or 0 -1
+				//										  1 0   -1  0
+				// By checking this we don't change the quadrant the line is in after this transformation
+				// Therefore we can use the original non-transformed coordinates for the next two checks
+				int32_t ds = 1 - (sx == sy) * 2;
+				m[0] = 0;
+				m[1] = ds;
+				m[2] = ds;
+				m[3] = 0;
+			}
+			else
+			{
+				m[0] = 1;
+				m[1] = 0;
+				m[2] = 0;
+				m[3] = 1;
 			}
 
-			// Make sure x1 is smaller than x2
-			if (x1 > x2)
+			// Make sure from.x is smaller than to.x
+			// Otherwise, mirror x axis
+			if (from[0] > to[0])
 			{
-				Util::Swap(x1, x2);
-				Util::Swap(y1, y2);
+				
+				m[0] = -m[0];
+				m[2] = -m[2];
 			}
 
-			int32_t deltaX = x2 - x1;
-			int32_t deltaY = y2 - y1;
+			// Make sure from.y is smaller than to.y
+			// Otherwise, mirror y axis
+			if (from[1] > to[1])
+			{
+				m[1] = -m[1];
+				m[3] = -m[3];
+			}
 
+			// Only if m01 and m10 have a different sign, the inverse of mtx is not the same as mtx but -mtx
+			IntMatrix22 invMtx = mtx * (1 - ((m[1] - m[2]) != 0) * 2);
+
+			// Convert all points we use to the desired space
+			from = from * mtx;
+			to = to * mtx;
+			minLine = minLine * mtx;
+			maxLine = maxLine * mtx;
+			delta = delta * mtx;
+
+			// Check if the line is completely outside the tile we are rendering
+			if (from[0] > maxLine[0] || from[1] > maxLine[1] || to[0] < minLine[0] || to[1] < minLine[1])
+				continue;
+			
 			float error = 0.0f;
-			float deltaError = abs((float) deltaY / deltaX);
-			int32_t yStep = y1 < y2 ? 1 : -1;
+			float deltaError = abs((float)delta[1] / delta[0]);
 
-			int32_t y = y1;
+			// Limit the line segment to within the tile
+			Point2 p = from;
 
-			for (int32_t x = x1; x <= x2; ++x)
+			Point2 toLine = minLine - p;
+			if (toLine[0] > 0)
 			{
-				int32_t screenX = x;
-				int32_t screenY = y;
+				p[0] = minLine[0];
+				p[1] += toLine[0] * deltaError;
+			}
 
-				if (steep)
-					Util::Swap(screenX, screenY);
-
-				if (screenX >= minTileX && screenY >= minTileY && screenX <= maxTileX && screenY <= maxTileY)
-					frameBuffer->SetPixel(screenX, screenY, Color::WHITE);
+			
+			for (; p[0] <= to[0]; ++p[0])
+			{
+				// Convert the point back to the screen space and plot it
+				Point2 pixel = p * invMtx;
+				frameBuffer->SetPixel(pixel[0], pixel[1], Color::WHITE);
 
 				error += deltaError;
 
 				if (error >= 0.5f)
 				{
-					y += yStep;
+					++p[1];
 					error -= 1.0f;
 				}
 			}
