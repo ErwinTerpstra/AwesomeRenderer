@@ -54,7 +54,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Setup camera
 	Camera camera(cml::left_handed);
 	camera.SetLookAt(Vector3(0.0f, 10.0f, 20.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0));
-	camera.SetPerspective(45.0f, ((float) SCREEN_WIDTH) / SCREEN_HEIGHT, 1.0f, 500.0f);
+	camera.SetPerspective(45.0f, ((float) SCREEN_WIDTH) / SCREEN_HEIGHT, 0.1f, 5000.0f);
 	camera.SetViewport(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT);
 	
 	// Render context
@@ -82,10 +82,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		renderer->SetRenderContext(&renderContext);
 		
 		renderer->cullMode = Renderer::CULL_NONE;
-		renderer->drawMode = Renderer::DRAW_LINE;
+		//renderer->drawMode = Renderer::DRAW_LINE;
 	}
 
-	Renderer* activeRenderer = renderers[0];
+	Renderer* activeRenderer = &rendererGL;
 
 	// Shader
 	PhongShader phongShader;
@@ -155,57 +155,41 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Timer timer(0.00001f, 100.0f);
 	timer.Tick();
 
-	// Test models
-	Node car;
-	car.model = new Model();
-	car.transform = new Transformation();
-	objLoader.Load("../Assets/car.obj", *car.model);
 
-
-	Node testNode;
-	testNode.model = new Model();
-	testNode.transform = new Transformation();
-	testNode.transform->SetScale(Vector3(0.2f, 0.2f, 0.2f));
-	objLoader.Load("../Assets/WoodenFortress/Wooden_Fortress_obj.obj", *testNode.model);
-
-	
-	Node plane;
+	/*
 	{
-		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL | Mesh::VERTEX_TEXCOORD));
-		mesh->AddQuad(Vector3(1.0f, 0.0f, -1.0f), Vector3(1.0f, 0.0f, 1.0f), Vector3(-1.0f, 0.0f, 1.0f), Vector3(-1.0f, 0.0f, -1.0f));
-		
-		float uvScale = 5.0f;
-		mesh->texcoords[0] = Vector2(1.0f, 1.0f) * uvScale;
-		mesh->texcoords[1] = Vector2(0.0f, 1.0f) * uvScale;
-		mesh->texcoords[2] = Vector2(0.0f, 0.0f) * uvScale;
+		Node node;
+		node.model = new Model();
+		node.transform = new Transformation();
+		objLoader.Load("../Assets/Town/town.obj", *node.model);
 
-		mesh->texcoords[3] = Vector2(0.0f, 0.0f) * uvScale;
-		mesh->texcoords[4] = Vector2(1.0f, 0.0f) * uvScale;
-		mesh->texcoords[5] = Vector2(1.0f, 1.0f) * uvScale;
-
-		Texture* texture = NULL;
-		textureFactory.GetAsset("../Assets/tiles.bmp", &texture);
-
-		Sampler* sampler = new Sampler();
-		sampler->texture = texture;
-
-		Material* material = new Material();
-		material->shader = &phongShader;
-		material->diffuseMap = sampler;
-		material->specularColor = Color::WHITE;
-		material->shininess = 50.0f;
-
-		plane.model = new Model();
-		plane.model->AddMesh(mesh, material);
-
-		plane.transform = new Transformation();
-		plane.transform->SetScale(Vector3(10.0f, 10.0f, 10.0f));
+		renderContext.nodes.push_back(&node);
 	}
+	//*/
 
+	/*
+	{
+		Node node;
+		node.model = new Model();
+		node.transform = new Transformation();
+		node.transform->SetScale(Vector3(0.1f, 0.1f, 0.1f));
+		objLoader.Load("../Assets/Castle01/castle.obj", *node.model);
 
-	renderContext.nodes.push_back(&testNode);
-	renderContext.nodes.push_back(&plane);
-	//renderContext.nodes.push_back(&car);
+		renderContext.nodes.push_back(&node);
+	}
+	//*/
+
+	//*
+	{
+		Node node;
+		node.model = new Model();
+		node.transform = new Transformation();
+		node.transform->SetScale(Vector3(0.1f, 0.1f, 0.1f));
+		objLoader.Load("../Assets/Sponza/sponza.obj", *node.model);
+
+		renderContext.nodes.push_back(&node);
+	}
+	//*/
 
 	// Convert all meshes to OpenGL meshes
 	for (auto nodeIt = renderContext.nodes.begin(); nodeIt != renderContext.nodes.end(); ++nodeIt)

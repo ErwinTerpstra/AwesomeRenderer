@@ -193,7 +193,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 					break;
 				}
 
-				printf("[ObjLoader]: Invalid line in OBJ \"%s\"\n", lineBuffer);
+				//printf("[ObjLoader]: Invalid line in OBJ \"%s\"\n", lineBuffer);
 				break;
 		}
 	}
@@ -464,7 +464,7 @@ uint32_t ObjLoader::IndexReader::Parse(const char* buffer, uint32_t offset, uint
 				break;
 			}
 
-			printf("[ObjLoader]: Unkown character '%s' in face definition.\n", c);
+			printf("[ObjLoader]: Unkown character '%c' in face definition.\n", c);
 			break;
 		}
 	}
