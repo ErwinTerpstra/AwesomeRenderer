@@ -105,6 +105,7 @@ namespace AwesomeRenderer
 		void EndDraw();
 
 		void DrawTriangle(const SoftwareShader::VertexInfo* vertexBuffer);
+		void DispatchTriangle(const SoftwareShader::VertexToPixel* vtp);
 
 		DWORD StartWorker(WorkerThread* thread);
 

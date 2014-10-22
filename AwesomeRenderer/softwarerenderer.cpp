@@ -204,36 +204,106 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 {
 	SoftwareShader* shader = static_cast<SoftwareShader*>(currentMaterial->shader);
 
-	TriangleData data;
-	SoftwareShader::VertexToPixel* vtp = data.vertexToPixel;
+	SoftwareShader::VertexToPixel vtp[3];
 
 	for (uint8_t cVertex = 0; cVertex < 3; ++cVertex)
 	{
 		// Retrieve output from vertex shader
 		shader->ProcessVertex(vertexBuffer[cVertex], vtp[cVertex]);
+	}
 
+	// For each vertex, check if it is inside the view frustum
+	uint8_t vertices[3];
+	uint8_t clippedVertices = 0;
+	for (uint8_t cVertex = 0; cVertex < 3; ++cVertex)
+	{
 		Vector4& v = vtp[cVertex].screenPosition;
+
+		// X and Y axis should be between -W and +W, Z should be between 0 and +W
+		// Otherwise vertex is outside the view frustum
 		bool inside = -v[3] < v[0] && v[0] < v[3] &&
 					  -v[3] < v[1] && v[1] < v[3] &&
 					      0 < v[2] && v[2] < v[3];
 
-		// Clipping
 		if (!inside)
-			return;
+			vertices[clippedVertices++] = cVertex;
 	}
+
+	switch (clippedVertices)
+	{
+	// All 3 vertices outside view frustum, don't draw this triangle
+	case 3:
+		break;
+
+	// Two vertices outside view frusum, this means we can both just move them to the edge
+	case 2:
+	{
+		// The vertex that is still in the frustum
+		uint8_t sharedVertex = 3 - (vertices[0] + vertices[1]);
+
+		// The vertices that are outside the frusum
+		uint8_t others[] =
+		{
+			(sharedVertex + 1) % 3,
+			(sharedVertex + 2) % 3
+		};
+
+		for (uint8_t cVertex = 0; cVertex < 2; ++cVertex)
+		{
+			uint8_t other = others[cVertex];
+
+			Vector4 onEdge = vtp[other].screenPosition;
+			Vector3 toShared = vtp[sharedVertex].screenPosition - onEdge;
+
+			// Clamp the coordinate to the edge of the view frustum
+			onEdge[0] = Util::Clamp(onEdge[0], -onEdge[3], onEdge[3]);
+			onEdge[1] = Util::Clamp(onEdge[1], -onEdge[3], onEdge[3]);
+			onEdge[2] = Util::Clamp(onEdge[2], 0.0f, onEdge[3]);
+
+			float d = cml::dot(onEdge, toShared);
+
+
+			// TODO: Interpolate other vertex attributes to match onEdge position
+		}
+
+		break;
+	}
+
+	// One vertex outside view frustum, this means we have to create two triangles
+	case 1:
+	{
+		break;
+	}
+
+	// All vertices inside view frustum, draw this triangla as-is
+	case 0:
+	{
+		DispatchTriangle(vtp);
+		break;
+	}
+
+	}
+}
+
+void SoftwareRenderer::DispatchTriangle(const SoftwareShader::VertexToPixel* vtp)
+{
+	SoftwareShader* shader = static_cast<SoftwareShader*>(currentMaterial->shader);
+
+	TriangleData data;
 
 	for (uint8_t cVertex = 0; cVertex < 3; ++cVertex)
 	{
-		SoftwareShader::VertexToPixel& vertexData = vtp[cVertex];
+		// Copy vertex data to our triangle struct
+		SoftwareShader::VertexToPixel& vertexData = (data.vertexToPixel[cVertex] = vtp[cVertex]);
 
 		// Retrieve z factor before normalizing, this is used for perspective correct interpolation
 		float wRecip = 1.0f / vertexData.screenPosition[3];
-		vertexData.screenPosition *= wRecip;
-
+		
 		// Convert to screen (pixel) coordinates
 		vertexData.screenPosition = vertexData.screenPosition * renderContext->camera->viewportMtx;
 
 		// Normalize coordinates and vertex attributes (perspective correction)
+		vertexData.screenPosition		*= wRecip;
 		vertexData.worldPosition		*= wRecip;
 		vertexData.color				*= wRecip;
 		vertexData.normal				*= wRecip;
@@ -258,16 +328,16 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 	// y direction for FILL mode and x direction for LINE mode
 	switch (drawMode)
 	{
-	case DRAW_LINE: SortTriangle(vtp, 0);
-	case DRAW_FILL: SortTriangle(vtp, 1);
+	case DRAW_LINE: SortTriangle(&data.vertexToPixel[0], 0);
+	case DRAW_FILL: SortTriangle(&data.vertexToPixel[0], 1);
 	}
 
 	Triangle2D* sst = &data.screenSpaceTriangle;
 
 	// Screen-space triangle for bounds checking
-	*sst = Triangle2D(Vector2(vtp[0].screenPosition[0], vtp[0].screenPosition[1]),
-					  Vector2(vtp[1].screenPosition[0], vtp[1].screenPosition[1]),
-					  Vector2(vtp[2].screenPosition[0], vtp[2].screenPosition[1]));
+	*sst = Triangle2D(Vector2(data.vertexToPixel[0].screenPosition[0], data.vertexToPixel[0].screenPosition[1]),
+					  Vector2(data.vertexToPixel[1].screenPosition[0], data.vertexToPixel[1].screenPosition[1]),
+					  Vector2(data.vertexToPixel[2].screenPosition[0], data.vertexToPixel[2].screenPosition[1]));
 
 	sst->PreCalculateBarycentric();
 
