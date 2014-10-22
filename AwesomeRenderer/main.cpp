@@ -53,7 +53,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// Setup camera
 	Camera camera(cml::left_handed);
-	camera.SetLookAt(Vector3(0.0f, 10.0f, 20.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0));
+	camera.SetLookAt(Vector3(-5.0f, 5.0f, 5.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0));
 	camera.SetPerspective(45.0f, ((float) SCREEN_WIDTH) / SCREEN_HEIGHT, 0.1f, 5000.0f);
 	camera.SetViewport(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT);
 	
@@ -92,6 +92,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	phongShader.lightData.numPixelLights = 8;
 	phongShader.lightData.ambient = Color(0.1f, 0.1f, 0.1f);
 
+	UnlitShader unlitShader;
+
 	Vector3 zero(0.0f, 0.0f, 0.0f);
 
 	{
@@ -109,39 +111,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		light.intensity = 4.0f;
 		light.enabled = true;
 	}
-
+		
 	{
+
 		PhongShader::Light& light = phongShader.lightData.lights[1];
-		light.position = Vector3(5.0f, 3.0f, 5.0f);
-		light.direction = (zero - light.position).normalize();
-		light.type = PhongShader::LightType::POINT;
-		light.angle = (float) (30.0f * (M_PI / 180.0f));
-		light.angleExponent = 20.0f;
-		light.color = Color::BLUE;
-		light.constantAttenuation = 0.0f;
-		light.lineairAttenuation = 0.0f;
-		light.quadricAttenuation = 2.0f;
-		light.intensity = 8.0f;
+		light.direction = Vector3(0.0f, -0.5f, -0.5f);
+		light.type = PhongShader::LightType::DIRECTIONAL;
+		light.color = Color::WHITE;
+		light.intensity = 4.0f;
 		light.enabled = true;
+
+		light.direction.normalize();
 	}
 
-	{
-
-		PhongShader::Light& light = phongShader.lightData.lights[2];
-		light.position = Vector3(-5.0f, 3.0f, -5.0f);
-		light.direction = (zero - light.position).normalize();
-		light.type = PhongShader::LightType::POINT;
-		light.angle = (float) (30.0f * (M_PI / 180.0f));
-		light.angleExponent = 20.0f;
-		light.color = Color::RED;
-		light.constantAttenuation = 0.0f;
-		light.lineairAttenuation = 0.0f;
-		light.quadricAttenuation = 2.0f;
-		light.intensity = 8.0f;
-		light.enabled = true;
-	}
-	
-	
 	// Camera controller
 	CameraController cameraController(camera);
 	cameraController.CopyFromCamera();
@@ -149,7 +131,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Assets factories
 	TextureFactory textureFactory;
 	ObjLoader objLoader(textureFactory);
-	objLoader.defaultShader = &phongShader;
+	objLoader.defaultShader = &unlitShader;
 	
 	// Game loop timer
 	Timer timer(0.00001f, 100.0f);
@@ -184,8 +166,46 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Node node;
 		node.model = new Model();
 		node.transform = new Transformation();
-		node.transform->SetScale(Vector3(0.1f, 0.1f, 0.1f));
-		objLoader.Load("../Assets/Sponza/sponza.obj", *node.model);
+		node.transform->SetScale(Vector3(0.2f, 0.2f, 0.2f));
+		objLoader.Load("../Assets/crytek-sponza/sponza.obj", *node.model);
+
+		renderContext.nodes.push_back(&node);
+	}
+	//*/
+
+	/*
+	{
+		Node node;
+
+		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL | Mesh::VERTEX_TEXCOORD));
+		mesh->AddQuad(Vector3(1.0f, 0.0f, -1.0f), Vector3(1.0f, 0.0f, 1.0f), Vector3(-1.0f, 0.0f, 1.0f), Vector3(-1.0f, 0.0f, -1.0f));
+
+		float uvScale = 5.0f;
+		mesh->texcoords[0] = Vector2(1.0f, 1.0f) * uvScale;
+		mesh->texcoords[1] = Vector2(0.0f, 1.0f) * uvScale;
+		mesh->texcoords[2] = Vector2(0.0f, 0.0f) * uvScale;
+
+		mesh->texcoords[3] = Vector2(0.0f, 0.0f) * uvScale;
+		mesh->texcoords[4] = Vector2(1.0f, 0.0f) * uvScale;
+		mesh->texcoords[5] = Vector2(1.0f, 1.0f) * uvScale;
+
+		Texture* texture = NULL;
+		textureFactory.GetAsset("../Assets/tiles.bmp", &texture);
+
+		Sampler* sampler = new Sampler();
+		sampler->texture = texture;
+
+		Material* material = new Material();
+		material->shader = &unlitShader;
+		material->diffuseMap = sampler;
+		material->specularColor = Color::WHITE;
+		material->shininess = 50.0f;
+
+		node.model = new Model();
+		node.model->AddMesh(mesh, material);
+
+		node.transform = new Transformation();
+		node.transform->SetScale(Vector3(10.0f, 10.0f, 10.0f));
 
 		renderContext.nodes.push_back(&node);
 	}
@@ -207,19 +227,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			Material* material = (*materialIt);
 			TextureGL* texture;
 
-			if (material->diffuseMap != NULL)
+			if (material->diffuseMap != NULL && !material->diffuseMap->texture->HasExtension())
 			{
 				texture = new TextureGL(*material->diffuseMap->texture);
 				texture->Load();
 			}
 
-			if (material->normalMap != NULL)
+			if (material->normalMap != NULL && !material->normalMap->texture->HasExtension())
 			{
 				texture = new TextureGL(*material->normalMap->texture);
 				texture->Load();
 			}
 
-			if (material->specularMap != NULL)
+			if (material->specularMap != NULL && !material->specularMap->texture->HasExtension())
 			{
 				texture = new TextureGL(*material->specularMap->texture);
 				texture->Load();

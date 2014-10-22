@@ -53,13 +53,18 @@ bool TextureFactory::LoadBmp(const std::string& fileName, Texture** texture) con
 	if (infoHeader.sizeImage == 0)
 		infoHeader.sizeImage = infoHeader.width * infoHeader.height * (infoHeader.bitCount / 8);
 
+	assert(infoHeader.width > 0 && infoHeader.height > 0 && infoHeader.bitCount > 0);
+	assert(infoHeader.sizeImage > 0);
+
 	// Allocate memory
 	(*texture)->Allocate(infoHeader.width, infoHeader.height, infoHeader.bitCount / 8);
 
-	// Read bitmap data
+	// Read bitmap data	
 	fseek(filePtr, fileHeader.offBits, SEEK_SET);
 	int bytesRead = fread((*texture)->data, sizeof(uchar), infoHeader.sizeImage, filePtr);
 	
+	assert(bytesRead == infoHeader.sizeImage);
+
 	printf("[Bitmap]: Loaded \"%s\" with %d bytes\n", fileName.c_str(), bytesRead);
 
 	fclose(filePtr);

@@ -211,6 +211,15 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 	{
 		// Retrieve output from vertex shader
 		shader->ProcessVertex(vertexBuffer[cVertex], vtp[cVertex]);
+
+		Vector4& v = vtp[cVertex].screenPosition;
+		bool inside = -v[3] < v[0] && v[0] < v[3] &&
+					  -v[3] < v[1] && v[1] < v[3] &&
+					      0 < v[2] && v[2] < v[3];
+
+		// Clipping
+		if (!inside)
+			return;
 	}
 
 	for (uint8_t cVertex = 0; cVertex < 3; ++cVertex)
@@ -219,12 +228,12 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 
 		// Retrieve z factor before normalizing, this is used for perspective correct interpolation
 		float wRecip = 1.0f / vertexData.screenPosition[3];
+		vertexData.screenPosition *= wRecip;
 
 		// Convert to screen (pixel) coordinates
 		vertexData.screenPosition = vertexData.screenPosition * renderContext->camera->viewportMtx;
 
 		// Normalize coordinates and vertex attributes (perspective correction)
-		vertexData.screenPosition		*= wRecip;
 		vertexData.worldPosition		*= wRecip;
 		vertexData.color				*= wRecip;
 		vertexData.normal				*= wRecip;
@@ -292,6 +301,17 @@ void SoftwareRenderer::DrawTiles()
 
 	// Wait for all tiles to be rendered
 	tilesLeft.WaitZero();
+}
+
+void SoftwareRenderer::DrawTilesST()
+{
+	for (uint32_t tileY = 0; tileY < verticalTiles; ++tileY)
+	{
+		for (uint32_t tileX = 0; tileX < horizontalTiles; ++tileX)
+		{
+			DrawTile(tileX, tileY);
+		}
+	}
 }
 
 void SoftwareRenderer::DrawTile(uint32_t tileX, uint32_t tileY)

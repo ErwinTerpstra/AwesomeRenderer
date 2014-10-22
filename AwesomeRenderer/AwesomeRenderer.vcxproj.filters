@@ -210,6 +210,9 @@
     <ClCompile Include="texture_gl.cpp">
       <Filter>Source Files\Model</Filter>
     </ClCompile>
+    <ClCompile Include="unlitshader.cpp">
+      <Filter>Source Files\Renderer\Shading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h">
@@ -373,6 +376,9 @@
     </ClInclude>
     <ClInclude Include="debug.h">
       <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="unlitshader.h">
+      <Filter>Header Files\Renderer\Shading</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

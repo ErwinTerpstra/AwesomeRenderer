@@ -95,6 +95,7 @@ namespace AwesomeRenderer
 		void DrawJob(const RenderJob& job);
 
 		void DrawTiles();
+		void DrawTilesST();
 		void DrawTile(uint32_t tileX, uint32_t tileY);
 		void DrawTileFill(uint32_t tileX, uint32_t tileY);
 		void DrawTileLine(uint32_t tileX, uint32_t tileY);

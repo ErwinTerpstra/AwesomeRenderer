@@ -87,6 +87,7 @@
 // Renderer
 #include "shader.h"
 #include "softwareshader.h"
+#include "unlitshader.h"
 #include "phongshader.h"
 
 #include "rendertarget.h"

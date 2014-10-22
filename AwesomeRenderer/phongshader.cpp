@@ -59,25 +59,39 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 			break;
 
 		// Calculate light intensity
-		Vector3 toLight = light.position - in.worldPosition.subvector(3);
-		float distanceToLight = toLight.length();
-		toLight.normalize();
-
+		Vector3 toLight;
 		float intensity = light.intensity;
 
-		if (light.type == PhongShader::LightType::SPOT)
+		switch (light.type)
 		{
-			float angleTerm = cml::dot(light.direction, -toLight); 
-			float cosAngle = cos(light.angle);
-			
-			if (angleTerm > cosAngle)
-				intensity *= (angleTerm - cosAngle) / (1.0f - cosAngle);
-			else
-				intensity = 0;
+			case PhongShader::LightType::POINT:
+			case PhongShader::LightType::SPOT:
+			{
+				toLight = light.position - in.worldPosition.subvector(3);
+
+				float distanceToLight = toLight.length();
+				toLight.normalize();
+								
+				float angleTerm = cml::dot(light.direction, -toLight);
+				float cosAngle = cos(light.angle);
+
+				if (angleTerm > cosAngle)
+					intensity *= (angleTerm - cosAngle) / (1.0f - cosAngle);
+				else
+					intensity = 0;
+				
+				intensity *= 1.0f / (light.constantAttenuation + (light.lineairAttenuation * distanceToLight) + (light.quadricAttenuation * distanceToLight * distanceToLight));
+				break;
+			}
+
+			case PhongShader::LightType::DIRECTIONAL:
+			{
+				toLight = -light.direction;
+				break;
+			}
 		}
 
-		intensity /= light.constantAttenuation + (light.lineairAttenuation * distanceToLight) + (light.quadricAttenuation * distanceToLight * distanceToLight);
-
+		
 		// Compute the diffuse term
 		float diffuseTerm = std::max(cml::dot(in.normal, toLight), 0.0f);
 		diffuseLight += light.color * diffuseTerm * intensity;
