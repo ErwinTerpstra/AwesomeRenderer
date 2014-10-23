@@ -73,6 +73,12 @@
     <Filter Include="Source Files\Core">
       <UniqueIdentifier>{fdfb8057-21d1-4bc3-b52e-f6ece06ca229}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Renderer\Shading\SoftwareShaders">
+      <UniqueIdentifier>{01f5bad3-3319-42e3-88ff-9ea577a66338}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\Shading\SoftwareShaders">
+      <UniqueIdentifier>{dfcbf972-dfb7-4c5b-9611-67dc430773f0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -159,9 +165,6 @@
     <ClCompile Include="material.cpp">
       <Filter>Source Files\Renderer\Shading</Filter>
     </ClCompile>
-    <ClCompile Include="phongshader.cpp">
-      <Filter>Source Files\Renderer\Shading</Filter>
-    </ClCompile>
     <ClCompile Include="octree.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
@@ -176,9 +179,6 @@
     </ClCompile>
     <ClCompile Include="plane.cpp">
       <Filter>Source Files\Shapes</Filter>
-    </ClCompile>
-    <ClCompile Include="softwareshader.cpp">
-      <Filter>Source Files\Renderer\Shading</Filter>
     </ClCompile>
     <ClCompile Include="window.cpp">
       <Filter>Source Files\Window</Filter>
@@ -212,6 +212,15 @@
     </ClCompile>
     <ClCompile Include="unlitshader.cpp">
       <Filter>Source Files\Renderer\Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="phongshader.cpp">
+      <Filter>Source Files\Renderer\Shading\SoftwareShaders</Filter>
+    </ClCompile>
+    <ClCompile Include="softwareshader.cpp">
+      <Filter>Source Files\Renderer\Shading\SoftwareShaders</Filter>
+    </ClCompile>
+    <ClCompile Include="textmesh.cpp">
+      <Filter>Source Files\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -299,9 +308,6 @@
     <ClInclude Include="material.h">
       <Filter>Header Files\Renderer\Shading</Filter>
     </ClInclude>
-    <ClInclude Include="phongshader.h">
-      <Filter>Header Files\Renderer\Shading</Filter>
-    </ClInclude>
     <ClInclude Include="octree.h">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
@@ -377,8 +383,14 @@
     <ClInclude Include="debug.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="phongshader.h">
+      <Filter>Header Files\Renderer\Shading\SoftwareShaders</Filter>
+    </ClInclude>
     <ClInclude Include="unlitshader.h">
-      <Filter>Header Files\Renderer\Shading</Filter>
+      <Filter>Header Files\Renderer\Shading\SoftwareShaders</Filter>
+    </ClInclude>
+    <ClInclude Include="textmesh.h">
+      <Filter>Header Files\Model</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

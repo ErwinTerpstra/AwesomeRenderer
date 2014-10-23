@@ -23,6 +23,7 @@ namespace AwesomeRenderer
 
 		void Initialize();
 		void Render();
+		void Present(Window& window);
 		void Cleanup();
 
 	private:

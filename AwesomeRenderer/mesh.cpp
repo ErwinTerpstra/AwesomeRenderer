@@ -24,6 +24,14 @@ void Mesh::Reserve(uint32_t numTriangles, uint32_t numVertices)
 		normals.reserve(normals.size() + numVertices);
 }
 
+void Mesh::Clear()
+{
+	vertices.clear();
+	colors.clear();
+	texcoords.clear();
+	normals.clear();
+}
+
 void Mesh::CalculateBounds()
 {
 	Vector3 min(FLT_MAX, FLT_MAX, FLT_MAX);

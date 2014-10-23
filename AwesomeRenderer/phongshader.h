@@ -1,8 +1,6 @@
 #ifndef _PHONG_SHADER_H_
 #define _PHONG_SHADER_H_
 
-#define MAX_LIGHTS 8
-
 namespace AwesomeRenderer
 {
 
@@ -10,6 +8,7 @@ namespace AwesomeRenderer
 	{
 
 	public:
+		static const uint32_t MAX_LIGHTS = 8;
 
 		enum LightType
 		{

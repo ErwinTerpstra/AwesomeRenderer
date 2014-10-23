@@ -84,6 +84,7 @@
     <ClCompile Include="shader_gl.cpp" />
     <ClCompile Include="kdtree.cpp" />
     <ClCompile Include="renderer_gl.cpp" />
+    <ClCompile Include="textmesh.cpp" />
     <ClCompile Include="unlitshader.cpp" />
     <ClCompile Include="window_gl.cpp" />
     <ClCompile Include="meshgl.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="shader.h" />
     <ClInclude Include="shape.h" />
     <ClInclude Include="sphere.h" />
+    <ClInclude Include="textmesh.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="color.h" />

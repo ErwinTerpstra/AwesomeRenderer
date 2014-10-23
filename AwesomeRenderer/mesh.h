@@ -37,6 +37,7 @@ namespace AwesomeRenderer
 	public:
 		Mesh(VertexAttributes attributes);
 		
+		void Clear();
 		void Reserve(uint32_t numTriangles, uint32_t numVertices);
 
 		void CreateCube(const Vector3& center, float extents);

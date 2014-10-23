@@ -13,6 +13,10 @@ namespace AwesomeRenderer
 		static const Color GREEN;
 		static const Color BLUE;
 
+		static const Color YELLOW;
+		static const Color PURPLE;
+		static const Color CYAN;
+
 		Color() : Vector4(0.0f, 0.0f, 0.0f, 1.0f)
 		{
 

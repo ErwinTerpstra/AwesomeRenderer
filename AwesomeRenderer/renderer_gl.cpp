@@ -46,18 +46,27 @@ void RendererGL::Initialize()
 
 void RendererGL::PreRender()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	uint32_t clearBits = 0;
+	
+	if ((renderContext->clearFlags & RenderTarget::BUFFER_COLOR) != 0)
+		clearBits |= GL_COLOR_BUFFER_BIT;
+
+	if ((renderContext->clearFlags & RenderTarget::BUFFER_DEPTH) != 0)
+		clearBits |= GL_DEPTH_BUFFER_BIT;
+
+	glClear(clearBits);
 }
 
 void RendererGL::PostRender()
 {
-	if (renderContext->window != NULL)
-	{
-		WindowGL* window = renderContext->window->As<WindowGL>();
+}
 
-		if (window != NULL)
-			window->Draw();
-	}
+void RendererGL::Present(Window& window)
+{
+	WindowGL* windowGL = window.As<WindowGL>();
+
+	if (windowGL != NULL)
+		windowGL->Draw();
 }
 
 void RendererGL::Render()

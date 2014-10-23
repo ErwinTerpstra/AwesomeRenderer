@@ -83,7 +83,7 @@ namespace AwesomeRenderer
 		void Cleanup();
 
 		void Render();
-		void DrawModel(const Model& model, const Transformation& trans);
+		void Present(Window& window);
 
 		void SetRenderContext(const RenderContext* context);
 
@@ -93,6 +93,7 @@ namespace AwesomeRenderer
 		void PostRender();
 
 		void DrawJob(const RenderJob& job);
+		void DrawModel(const Model& model, const Transformation& trans);
 
 		void DrawTiles();
 		void DrawTilesST();

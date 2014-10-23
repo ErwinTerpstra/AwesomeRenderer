@@ -81,6 +81,8 @@
 #include "mesh.h"
 #include "model.h"
 
+#include "textmesh.h"
+
 #include "meshex.h"
 #include "modelex.h"
 

@@ -63,15 +63,20 @@ void SoftwareRenderer::SetRenderContext(const RenderContext* context)
 
 void SoftwareRenderer::PreRender()
 {
-	renderContext->renderTarget->Clear(Color::BLACK);
+	renderContext->renderTarget->Clear(Color::BLACK, renderContext->clearFlags);
 }
 
 void SoftwareRenderer::PostRender()
 {
+
+}
+
+void SoftwareRenderer::Present(Window& window)
+{
 	GdiBuffer* buffer = static_cast<GdiBuffer*>(renderContext->renderTarget->frameBuffer);
 
-	if (renderContext->window != NULL && buffer != NULL)
-		renderContext->window->DrawBuffer(*buffer);
+	if (buffer != NULL)
+		window.DrawBuffer(*buffer);
 }
 
 void SoftwareRenderer::Render()
@@ -253,7 +258,7 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 			uint8_t other = others[cVertex];
 
 			Vector4 onEdge = vtp[other].screenPosition;
-			Vector3 toShared = vtp[sharedVertex].screenPosition - onEdge;
+			Vector4 toShared = vtp[sharedVertex].screenPosition - onEdge;
 
 			// Clamp the coordinate to the edge of the view frustum
 			onEdge[0] = Util::Clamp(onEdge[0], -onEdge[3], onEdge[3]);

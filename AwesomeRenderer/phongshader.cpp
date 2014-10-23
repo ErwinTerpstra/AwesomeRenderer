@@ -56,22 +56,20 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 		const Light& light = lightData.lights[i];
 
 		if (!light.enabled)
-			break;
+			continue;
 
 		// Calculate light intensity
 		Vector3 toLight;
 		float intensity = light.intensity;
 
-		switch (light.type)
+		if (light.type != PhongShader::DIRECTIONAL)
 		{
-			case PhongShader::LightType::POINT:
-			case PhongShader::LightType::SPOT:
-			{
-				toLight = light.position - in.worldPosition.subvector(3);
+			toLight = light.position - in.worldPosition.subvector(3);
+			float distanceToLight = toLight.length();
+			toLight.normalize();
 
-				float distanceToLight = toLight.length();
-				toLight.normalize();
-								
+			if (light.type == PhongShader::SPOT)
+			{
 				float angleTerm = cml::dot(light.direction, -toLight);
 				float cosAngle = cos(light.angle);
 
@@ -79,17 +77,12 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 					intensity *= (angleTerm - cosAngle) / (1.0f - cosAngle);
 				else
 					intensity = 0;
-				
-				intensity *= 1.0f / (light.constantAttenuation + (light.lineairAttenuation * distanceToLight) + (light.quadricAttenuation * distanceToLight * distanceToLight));
-				break;
 			}
 
-			case PhongShader::LightType::DIRECTIONAL:
-			{
-				toLight = -light.direction;
-				break;
-			}
+			intensity *= 1.0f / (light.constantAttenuation + (light.lineairAttenuation * distanceToLight) + (light.quadricAttenuation * distanceToLight * distanceToLight));
 		}
+		else
+			toLight = -light.direction;
 
 		
 		// Compute the diffuse term
@@ -107,7 +100,7 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 		}
 	}
 	//*/
-
+	
 	// Set alpha channel of specular to zero to prevent addition
 	specular[3] = 0.0f;
 

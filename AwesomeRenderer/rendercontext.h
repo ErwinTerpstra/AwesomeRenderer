@@ -9,10 +9,10 @@ namespace AwesomeRenderer
 	{
 
 	public:
+		RenderTarget::BufferType clearFlags;
 
 		Camera* camera;
 		RenderTarget* renderTarget;
-		Window* window;
 
 		std::vector<Node*> nodes;
 
