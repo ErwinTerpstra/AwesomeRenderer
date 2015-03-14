@@ -77,16 +77,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	renderContextHud.clearFlags = RenderTarget::BUFFER_DEPTH;
 	/**/
 
-	// Initialize renderer
+	// Initialize renderers
 	SoftwareRenderer softwareRenderer;
 	RendererGL rendererGL;
+	RayTracer rayTracer;
 
-	Renderer* renderer = &rendererGL;
 
-	const uint32_t NUM_RENDERERS = 2;
+	const uint32_t NUM_RENDERERS = 3;
 	Renderer* renderers[NUM_RENDERERS];
 	renderers[0] = &softwareRenderer;
 	renderers[1] = &rendererGL;
+	renderers[2] = &rayTracer;
 
 	for (uint32_t rendererIdx = 0; rendererIdx < NUM_RENDERERS; ++rendererIdx)
 	{
@@ -99,7 +100,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//renderer->drawMode = Renderer::DRAW_LINE;
 	}
 
-	Renderer* activeRenderer = &rendererGL;
+	Renderer* activeRenderer = &rayTracer;
 
 	// Shader
 	PhongShader phongShader;
@@ -180,14 +181,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	timer.Tick();
 
 
-	//*
+	/*
 	Node node;
 	{
 		node.model = new Model();
 		node.transform = new Transformation();
 		//node.transform->SetScale(Vector3(0.1f, 0.1f, 0.1f));
 		//node.transform->SetScale(Vector3(0.2f, 0.2f, 0.2f));
-		objLoader.Load("../Assets/Town/town.obj", *node.model);
+		//objLoader.Load("../Assets/Town/town.obj", *node.model);
 		//objLoader.Load("../Assets/crytek-sponza/sponza.obj", *node.model);
 		//objLoader.Load("../Assets/Castle01/castle.obj", *node.model);
 
@@ -222,7 +223,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 
-	/*
+	//*
 	Node node;
 	{
 		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL | Mesh::VERTEX_TEXCOORD));
@@ -373,11 +374,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 
 		// Keyboard renderer switching
-		if (inputManager.GetKey('O'))
+		if (inputManager.GetKey('I'))
 			activeRenderer = renderers[0];
 
-		if (inputManager.GetKey('P'))
+		if (inputManager.GetKey('O'))
 			activeRenderer = renderers[1];
+
+		if (inputManager.GetKey('P'))
+			activeRenderer = renderers[2];
 
 		activeRenderer->SetRenderContext(&renderContext);
 		activeRenderer->Render();

@@ -7,6 +7,11 @@ RayTracer::RayTracer() : Renderer()
 
 }
 
+void RayTracer::Initialize()
+{
+
+}
+
 void RayTracer::Render()
 {
 	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
@@ -26,6 +31,60 @@ void RayTracer::Render()
 	}
 }
 
+void RayTracer::Present(Window& window)
+{
+	GdiBuffer* buffer = static_cast<GdiBuffer*>(renderContext->renderTarget->frameBuffer);
+
+	if (buffer != NULL)
+		window.DrawBuffer(*buffer);
+}
+
+void RayTracer::Cleanup()
+{
+
+}
+
+void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
+{
+	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
+	Buffer* depthBuffer = renderContext->renderTarget->depthBuffer;
+	float cameraDepth = renderContext->camera->farPlane - renderContext->camera->nearPlane;
+
+	std::vector<Node*>::const_iterator it;
+
+	// Iterate through all nodes in the scene
+	for (it = renderContext->nodes.begin(); it != renderContext->nodes.end(); ++it)
+	{
+		const Node& node = **it;
+		const Shape& shape = node.GetShape();
+
+		// Perform the ray-triangle intersection
+		RaycastHit hitInfo(ray);
+		if (!shape.IntersectRay(ray, hitInfo))
+			continue;
+
+		// Only hits outside viewing frustum
+		if (hitInfo.distance > cameraDepth)
+			continue;
+
+		if (depthBuffer != NULL)
+		{
+			// Depth testing
+			float depth = 1.0f - hitInfo.distance / cameraDepth;
+
+			if (depthBuffer->GetPixel(screenPosition[0], screenPosition[1]) >= depth)
+				continue;
+
+			// Write to depth buffer
+			depthBuffer->SetPixel(screenPosition[0], screenPosition[1], depth);
+		}
+
+		// Write to color buffer
+		frameBuffer->SetPixel(screenPosition[0], screenPosition[1], Color::WHITE);
+	}
+}
+
+#if FALSE
 void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 {
 	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
@@ -138,6 +197,7 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 		}
 	}
 }
+#endif
 
 #if FALSE
 void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)

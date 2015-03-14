@@ -11,8 +11,10 @@ namespace AwesomeRenderer
 
 		RayTracer();
 
+		void Initialize();
 		void Render();
-
+		void Present(Window& window);
+		void Cleanup();
 	private:
 		
 		void Trace(const Ray& ray, const Point2& screenPosition);
