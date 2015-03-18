@@ -1,6 +1,8 @@
 #ifndef _INPUT_MANAGER_H_
 #define _INPUT_MANAGER_H_
 
+#include "awesomerenderer.h"
+
 namespace AwesomeRenderer
 {
 

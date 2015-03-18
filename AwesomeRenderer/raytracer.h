@@ -1,8 +1,13 @@
 #ifndef _RAY_TRACER_H_
 #define _RAY_TRACER_H_
 
+#include "awesomerenderer.h"
+#include "renderer.h"
+
 namespace AwesomeRenderer
 {
+	class Ray;
+	class Window;
 
 	class RayTracer : public Renderer
 	{

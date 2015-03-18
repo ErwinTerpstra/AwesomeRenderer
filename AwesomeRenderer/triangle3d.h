@@ -1,16 +1,19 @@
 #ifndef _TRIANGLE_3D_H_
 #define _TRIANGLE_3D_H_
 
+#include "awesomerenderer.h"
+#include "triangle.h"
+
 namespace AwesomeRenderer
 {
 
 	class Ray;
 	struct RaycastHit;
 
-	class Triangle3D : public Triangle<Vector3>, public Shape
+	class Triangle3D : public Triangle<Vector3>, public Primitive
 	{
 		using Triangle<Vector3>::CalculateBounds;
-		using Shape::CalculateBounds;
+		using Primitive::CalculateBounds;
 
 	public:
 		// Normal vector for this triangle (word space)

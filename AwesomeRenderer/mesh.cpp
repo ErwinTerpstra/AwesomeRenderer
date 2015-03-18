@@ -1,7 +1,7 @@
 #include "awesomerenderer.h"
+#include "mesh.h"
 
 using namespace AwesomeRenderer;
-
 
 Mesh::Mesh(VertexAttributes attributes) :
 vertices(0), colors(0), texcoords(0), normals(0), indices(0), attributes(attributes), bounds()

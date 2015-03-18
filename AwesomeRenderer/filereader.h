@@ -1,6 +1,8 @@
 #ifndef _FILE_READER_H_
 #define _FILE_READER_H_
 
+#include "awesomerenderer.h"
+
 namespace AwesomeRenderer
 {
 

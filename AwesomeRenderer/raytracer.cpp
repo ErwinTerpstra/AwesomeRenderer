@@ -1,5 +1,9 @@
 #include "awesomerenderer.h"
 
+#include "raytracer.h"
+#include "ray.h"
+#include "buffer.h"
+
 using namespace AwesomeRenderer;
 
 RayTracer::RayTracer() : Renderer()
@@ -47,7 +51,7 @@ void RayTracer::Cleanup()
 void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 {
 	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
-	Buffer* depthBuffer = renderContext->renderTarget->depthBuffer;
+	Buffer* depthBuffer = NULL;// renderContext->renderTarget->depthBuffer;
 	float cameraDepth = renderContext->camera->farPlane - renderContext->camera->nearPlane;
 
 	std::vector<Node*>::const_iterator it;
@@ -56,10 +60,11 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 	for (it = renderContext->nodes.begin(); it != renderContext->nodes.end(); ++it)
 	{
 		const Node& node = **it;
-		const Shape& shape = node.GetShape();
+		const Primitive& shape = node.GetShape();
 
 		// Perform the ray-triangle intersection
 		RaycastHit hitInfo(ray);
+
 		if (!shape.IntersectRay(ray, hitInfo))
 			continue;
 
@@ -136,7 +141,7 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 
 					for (objectIt = tree->objects.begin(); objectIt != tree->objects.end(); ++objectIt)
 					{
-						const Shape& shape = (*objectIt)->GetShape();
+						const Primitive& shape = (*objectIt)->GetShape();
 
 						// Perform the ray-triangle intersection
 						RaycastHit hitInfo(objectSpaceRay);

@@ -3,7 +3,7 @@
 using namespace AwesomeRenderer;
 
 Triangle3D::Triangle3D(const Vector3& a, const Vector3& b, const Vector3& c) :
-	Triangle(a, b, c), Shape()
+	Triangle(a, b, c), Primitive()
 {
 	vO[0] = a; vO[1] = b; vO[2] = c;
 	CalculateNormal();

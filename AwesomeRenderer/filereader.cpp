@@ -1,4 +1,5 @@
 #include "awesomerenderer.h"
+#include "filereader.h"
 
 using namespace AwesomeRenderer;
 

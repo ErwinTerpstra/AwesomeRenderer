@@ -1,8 +1,11 @@
 #ifndef _RENDER_TARGET_H_
 #define _RENDER_TARGET_H_
 
+#include "awesomerenderer.h"
+
 namespace AwesomeRenderer
 {
+	class Buffer;
 
 	class RenderTarget
 	{

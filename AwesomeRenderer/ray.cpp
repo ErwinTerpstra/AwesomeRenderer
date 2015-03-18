@@ -1,5 +1,7 @@
 #include "awesomerenderer.h"
 
+#include "ray.h"
+
 using namespace AwesomeRenderer;
 
 Ray::Ray() : origin(), direction()

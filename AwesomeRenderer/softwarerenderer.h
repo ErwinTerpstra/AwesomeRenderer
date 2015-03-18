@@ -1,8 +1,21 @@
 #ifndef _SOFTWARE_RENDERER_H_
 #define _SOFTWARE_RENDERER_H_
 
+#include "awesomerenderer.h"
+#include "renderer.h"
+
+#include "threading.h"
+
+#include "triangle2d.h"
+#include "softwareshader.h"
+
 namespace AwesomeRenderer
 {
+	class RenderContext;
+	class Model;
+	class Mesh;
+	class Material;
+	class Transformation;
 
 	class SoftwareRenderer : public Renderer
 	{

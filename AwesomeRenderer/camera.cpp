@@ -1,4 +1,6 @@
-	#include "awesomerenderer.h"
+#include "awesomerenderer.h"
+#include "camera.h"
+#include "ray.h"
 
 using namespace AwesomeRenderer;
 

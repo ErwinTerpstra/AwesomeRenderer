@@ -1,6 +1,7 @@
 #include <Windows.h>
 
 #include "awesomerenderer.h"
+#include "gdibuffer.h"
 
 using namespace AwesomeRenderer;
 

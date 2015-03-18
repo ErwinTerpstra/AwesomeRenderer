@@ -39,6 +39,7 @@
 #include "typedefs.h"
 #include "color.h"
 
+/*
 // Memory
 #include "buffer.h"
 #include "memorybuffer.h"
@@ -54,9 +55,9 @@
 // Mult-threading
 #include "threading.h"
 
-// Shapes
+// Primitives
 #include "object.h"
-#include "shape.h"
+#include "primitive.h"
 #include "plane.h"
 #include "aabb.h"
 #include "sphere.h"
@@ -116,5 +117,5 @@
 #include "shader_gl.h"
 #include "program_gl.h"
 #include "renderer_gl.h"
-
+*/
 #endif

@@ -1,4 +1,7 @@
 #include "awesomerenderer.h"
+#include "meshex.h"
+#include "mesh.h"
+#include "triangle3d.h"
 
 using namespace AwesomeRenderer;
 

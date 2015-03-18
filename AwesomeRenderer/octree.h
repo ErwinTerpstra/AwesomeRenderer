@@ -1,6 +1,8 @@
 #ifndef _OCTREE_H_
 #define _OCTREE_H_
 
+#include "awesomerenderer.h"
+
 namespace AwesomeRenderer
 {
 	

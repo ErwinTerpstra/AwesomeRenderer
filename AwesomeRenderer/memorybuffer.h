@@ -1,6 +1,9 @@
 #ifndef _MEMORY_BUFFER_H_
 #define _MEMORY_BUFFER_H_
 
+#include "awesomerenderer.h"
+#include "buffer.h"
+
 namespace AwesomeRenderer
 {
 

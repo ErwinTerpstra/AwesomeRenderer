@@ -1,6 +1,8 @@
 #ifndef _TEXTURE_H_
 #define _TEXTURE_H_
 
+#include "awesomerenderer.h"
+#include "memorybuffer.h"
 
 namespace AwesomeRenderer
 {

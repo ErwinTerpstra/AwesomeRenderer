@@ -1,8 +1,11 @@
 #ifndef _SOFTWARE_SHADER_H_
 #define _SOFTWARE_SHADER_H_
 
+#include "shader.h"
+
 namespace AwesomeRenderer
 {
+	class Material;
 
 	class SoftwareShader : public Shader
 	{

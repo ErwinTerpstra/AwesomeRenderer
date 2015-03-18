@@ -1,4 +1,6 @@
 #include "awesomerenderer.h"
+#include "model.h"
+#include "mesh.h"
 
 using namespace AwesomeRenderer;
 

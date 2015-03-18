@@ -1,6 +1,9 @@
 #ifndef _PHONG_SHADER_H_
 #define _PHONG_SHADER_H_
 
+#include "awesomerenderer.h"
+#include "softwareshader.h"
+
 namespace AwesomeRenderer
 {
 

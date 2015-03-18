@@ -43,23 +43,11 @@
     <Filter Include="Source Files\Renderer">
       <UniqueIdentifier>{c3faf7be-47e3-4a5e-9106-e011108318ad}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Shapes">
-      <UniqueIdentifier>{abb58cd2-fdc2-4922-a72e-766867bd37b0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Shapes">
-      <UniqueIdentifier>{0c27a60f-c33b-4700-976d-6f5f32bbea68}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Renderer\Shading">
       <UniqueIdentifier>{97e3d185-c780-4463-9175-7e9c58ddbc54}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Renderer\Shading">
       <UniqueIdentifier>{7190acbd-e1f8-4699-924e-5d5f668ab83a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Scene">
-      <UniqueIdentifier>{543f51ec-8f3e-44a0-b32b-88089524202e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Scene">
-      <UniqueIdentifier>{c6f376e4-fa97-419d-a54b-72ab9a95e585}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Core">
       <UniqueIdentifier>{6db6ef43-31f1-42e4-9880-9869f2aec25f}</UniqueIdentifier>
@@ -78,6 +66,18 @@
     </Filter>
     <Filter Include="Source Files\Renderer\Shading\SoftwareShaders">
       <UniqueIdentifier>{dfcbf972-dfb7-4c5b-9611-67dc430773f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Node">
+      <UniqueIdentifier>{c6f376e4-fa97-419d-a54b-72ab9a95e585}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Node">
+      <UniqueIdentifier>{543f51ec-8f3e-44a0-b32b-88089524202e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Primitives">
+      <UniqueIdentifier>{abb58cd2-fdc2-4922-a72e-766867bd37b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Primitives">
+      <UniqueIdentifier>{0c27a60f-c33b-4700-976d-6f5f32bbea68}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -138,17 +138,14 @@
     <ClCompile Include="renderer.cpp">
       <Filter>Source Files\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="shape.cpp">
-      <Filter>Source Files\Shapes</Filter>
-    </ClCompile>
     <ClCompile Include="sphere.cpp">
-      <Filter>Source Files\Shapes</Filter>
+      <Filter>Source Files\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="aabb.cpp">
-      <Filter>Source Files\Shapes</Filter>
+      <Filter>Source Files\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="ray.cpp">
-      <Filter>Source Files\Shapes</Filter>
+      <Filter>Source Files\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="meshex.cpp">
       <Filter>Source Files\Model</Filter>
@@ -157,28 +154,28 @@
       <Filter>Source Files\Model</Filter>
     </ClCompile>
     <ClCompile Include="node.cpp">
-      <Filter>Source Files\Scene</Filter>
+      <Filter>Source Files\Node</Filter>
     </ClCompile>
     <ClCompile Include="transformation.cpp">
-      <Filter>Source Files\Scene</Filter>
+      <Filter>Source Files\Node</Filter>
     </ClCompile>
     <ClCompile Include="material.cpp">
       <Filter>Source Files\Renderer\Shading</Filter>
     </ClCompile>
     <ClCompile Include="octree.cpp">
-      <Filter>Source Files\Scene</Filter>
+      <Filter>Source Files\Node</Filter>
     </ClCompile>
     <ClCompile Include="triangle2d.cpp">
-      <Filter>Source Files\Shapes</Filter>
+      <Filter>Source Files\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="triangle3d.cpp">
-      <Filter>Source Files\Shapes</Filter>
+      <Filter>Source Files\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="kdtree.cpp">
-      <Filter>Source Files\Scene</Filter>
+      <Filter>Source Files\Node</Filter>
     </ClCompile>
     <ClCompile Include="plane.cpp">
-      <Filter>Source Files\Shapes</Filter>
+      <Filter>Source Files\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="window.cpp">
       <Filter>Source Files\Window</Filter>
@@ -221,6 +218,12 @@
     </ClCompile>
     <ClCompile Include="textmesh.cpp">
       <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="primitive.cpp">
+      <Filter>Source Files\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="components.cpp">
+      <Filter>Source Files\Node</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -278,20 +281,17 @@
     <ClInclude Include="renderer.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="shape.h">
-      <Filter>Header Files\Shapes</Filter>
-    </ClInclude>
     <ClInclude Include="sphere.h">
-      <Filter>Header Files\Shapes</Filter>
+      <Filter>Header Files\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="aabb.h">
-      <Filter>Header Files\Shapes</Filter>
+      <Filter>Header Files\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="ray.h">
-      <Filter>Header Files\Shapes</Filter>
+      <Filter>Header Files\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="raycasthit.h">
-      <Filter>Header Files\Shapes</Filter>
+      <Filter>Header Files\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="meshex.h">
       <Filter>Header Files\Model</Filter>
@@ -300,34 +300,34 @@
       <Filter>Header Files\Model</Filter>
     </ClInclude>
     <ClInclude Include="node.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\Node</Filter>
     </ClInclude>
     <ClInclude Include="transformation.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\Node</Filter>
     </ClInclude>
     <ClInclude Include="material.h">
       <Filter>Header Files\Renderer\Shading</Filter>
     </ClInclude>
     <ClInclude Include="octree.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\Node</Filter>
     </ClInclude>
     <ClInclude Include="kdtree.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\Node</Filter>
     </ClInclude>
     <ClInclude Include="triangle.h">
-      <Filter>Header Files\Shapes</Filter>
+      <Filter>Header Files\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="triangle2d.h">
-      <Filter>Header Files\Shapes</Filter>
+      <Filter>Header Files\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="triangle3d.h">
-      <Filter>Header Files\Shapes</Filter>
+      <Filter>Header Files\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="object.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\Node</Filter>
     </ClInclude>
     <ClInclude Include="plane.h">
-      <Filter>Header Files\Shapes</Filter>
+      <Filter>Header Files\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="softwareshader.h">
       <Filter>Header Files\Renderer\Shading</Filter>
@@ -391,6 +391,12 @@
     </ClInclude>
     <ClInclude Include="textmesh.h">
       <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="component.h">
+      <Filter>Header Files\Node</Filter>
+    </ClInclude>
+    <ClInclude Include="primitive.h">
+      <Filter>Header Files\Primitives</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

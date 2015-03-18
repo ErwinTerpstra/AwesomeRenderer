@@ -1,9 +1,12 @@
 #ifndef _RENDERER_H_
 #define _RENDERER_H_
 
+#include "awesomerenderer.h"
+#include "rendercontext.h"
 
 namespace AwesomeRenderer
 {
+	class Window;
 
 	class Renderer
 	{

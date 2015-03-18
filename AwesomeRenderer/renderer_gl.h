@@ -1,11 +1,19 @@
 #ifndef _GL_RENDERER_H_
 #define _GL_RENDERER_H_
 
+#include "awesomerenderer.h"
+#include "renderer.h"
+#include "program_gl.h"
+#include "shader_gl.h"
+
 namespace AwesomeRenderer
 {
-
+	class Window;
 	class WindowGL;
-	
+	class Model;
+	class Material;
+	class Transformation;
+
 	class RendererGL : public Renderer
 	{
 

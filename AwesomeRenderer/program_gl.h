@@ -1,8 +1,13 @@
 #ifndef _PROGRAM_GL_H_
 #define _PROGRAM_GL_H_
 
+#include "awesomerenderer.h"
+#include "shader.h"
+#include "shader_gl.h"
+
 namespace AwesomeRenderer
 {
+	class TextureGL;
 
 	class ProgramGL : public Shader
 	{

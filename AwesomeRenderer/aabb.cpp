@@ -1,9 +1,9 @@
 #include "awesomerenderer.h"
+#include "aabb.h"
 
 using namespace AwesomeRenderer;
 
-
-AABB::AABB() : Shape(), min(), max(), minTransformed(), maxTransformed()
+AABB::AABB() : Primitive(), min(), max(), minTransformed(), maxTransformed()
 {
 
 }

@@ -1,4 +1,20 @@
 #include "awesomerenderer.h"
+#include "renderer_gl.h"
+#include "filereader.h"
+#include "rendercontext.h"
+#include "window.h"
+#include "window_gl.h"
+#include "material.h"
+#include "sampler.h"
+#include "texture.h"
+#include "texture_gl.h"
+#include "camera.h"
+
+#include "node.h"
+#include "model.h"
+#include "mesh.h"
+#include "mesh_gl.h"
+#include "transformation.h"
 
 using namespace AwesomeRenderer;
 
@@ -7,6 +23,7 @@ RendererGL::RendererGL() : Renderer(),
 	defaultVertex(GL_VERTEX_SHADER),
 	defaultFragment(GL_FRAGMENT_SHADER)
 {
+
 }
 
 
@@ -78,7 +95,12 @@ void RendererGL::Render()
 	glEnableClientState(GL_VERTEX_ARRAY);
 
 	for (it = renderContext->nodes.begin(); it != renderContext->nodes.end(); ++it)
-		DrawModel(*(*it)->model, *(*it)->transform);
+	{
+		Model* model = (*it)->GetComponent<Model>();
+		Transformation* transform = (*it)->GetComponent<Transformation>();
+
+		DrawModel(*model, *transform);
+	}
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	

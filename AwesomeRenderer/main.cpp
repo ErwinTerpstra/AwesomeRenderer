@@ -8,6 +8,83 @@
 
 #include "awesomerenderer.h"
 
+#include "buffer.h"
+#include "memorybuffer.h"
+
+// Utility
+#include "util.h"
+#include "timer.h"
+#include "transformation.h"
+#include "ray.h"
+#include "raycasthit.h"
+#include "camera.h"
+
+// Mult-threading
+#include "threading.h"
+
+// Primitives
+#include "object.h"
+#include "primitive.h"
+#include "plane.h"
+#include "aabb.h"
+#include "sphere.h"
+#include "triangle.h"
+#include "triangle3d.h"
+#include "triangle2d.h"
+
+// Input
+#include "inputmanager.h"
+#include "cameracontroller.h"
+
+// Scene graph
+#include "node.h"
+#include "kdtree.h"
+#include "octree.h"
+
+// Rendering
+#include "texture.h"
+#include "sampler.h"
+#include "material.h"
+
+#include "mesh.h"
+#include "model.h"
+
+#include "textmesh.h"
+
+#include "meshex.h"
+#include "modelex.h"
+
+// Renderer
+#include "shader.h"
+#include "softwareshader.h"
+#include "unlitshader.h"
+#include "phongshader.h"
+
+#include "rendertarget.h"
+#include "rendercontext.h"
+#include "renderer.h"
+
+#include "softwarerenderer.h"
+#include "raytracer.h"
+
+// Assets
+#include "factory.h"
+#include "filereader.h"
+#include "texturefactory.h"
+#include "objloader.h"
+
+// Win32
+#include "gdibuffer.h"
+#include "window.h"
+
+// OpenGL
+#include "mesh_gl.h"
+#include "texture_gl.h"
+#include "window_gl.h"
+#include "shader_gl.h"
+#include "program_gl.h"
+#include "renderer_gl.h"
+
 using namespace AwesomeRenderer;
 
 void SetupConsole()
@@ -214,10 +291,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		material->shader = &unlitShader;
 		material->diffuseMap = sampler;
 
-		textNode.model = new Model();
-		textNode.model->AddMesh(mesh, material);
+		Model* model = new Model();
+		model->AddMesh(mesh, material);
 
-		textNode.transform = new Transformation();
+		Transformation* transform = new Transformation();
+
+		textNode.AddComponent(model);
+		textNode.AddComponent(transform);
 
 		renderContextHud.nodes.push_back(&textNode);
 	}
@@ -250,11 +330,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		material->specularColor = Color::WHITE;
 		material->shininess = 50.0f;
 
-		node.model = new Model();
-		node.model->AddMesh(mesh, material);
+		Model* model = new Model();
+		model->AddMesh(mesh, material);
+		node.AddComponent(model);
 
-		node.transform = new Transformation();
-		node.transform->SetScale(Vector3(10.0f, 10.0f, 10.0f));
+		Transformation* transform = new Transformation();
+		transform->SetScale(Vector3(10.0f, 10.0f, 10.0f));
+		node.AddComponent(transform);
 
 		renderContext.nodes.push_back(&node);
 	}
@@ -269,7 +351,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		for (auto nodeIt = rc.nodes.begin(); nodeIt != rc.nodes.end(); ++nodeIt)
 		{
-			Model* model = (*nodeIt)->model;
+			Model* model = (*nodeIt)->GetComponent<Model>();
+
+			if (model == NULL)
+				continue;
 
 			for (auto meshIt = model->meshes.begin(); meshIt != model->meshes.end(); ++meshIt)
 			{
@@ -338,7 +423,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		Quaternion q;
 		cml::quaternion_rotation_world_axis(q, 1, animAngle);
-		node.transform->SetRotation(q);
+		Transformation* transform = node.GetComponent<Transformation>();
+		transform->SetRotation(q);
 
 		phongShader.lightData.lights[1].position = Vector3(std::cos(lightAngle) * lightDistance, std::sin(lightAngle) * lightDistance, 0.0f);
 
@@ -352,14 +438,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		for (it = renderContext.nodes.begin(); it != renderContext.nodes.end(); ++it)
 		{
 			Node& node = **it;
-			node.transform->CalculateMtx();
+			Transformation* transform = node.GetComponent<Transformation>();
 
-			// Iterate through submeshes in a node
-			for (uint32_t cMesh = 0; cMesh < node.model->meshes.size(); ++cMesh)
+			if (transform == NULL)
+				continue;
+
+			transform->CalculateMtx();
+
+			Model* model = node.GetComponent<Model>();
+
+			if (model != NULL)
 			{
-				// Transform bounding shape of mesh according to world transformation
-				Mesh& mesh = *node.model->meshes[cMesh];
-				mesh.bounds.Transform(node.transform->WorldMtx());
+				// Iterate through submeshes in a node
+				for (uint32_t cMesh = 0; cMesh < model->meshes.size(); ++cMesh)
+				{
+					// Transform bounding shape of mesh according to world transformation
+					Mesh& mesh = *model->meshes[cMesh];
+					mesh.bounds.Transform(transform->WorldMtx());
+				}
 			}
 		}
 		

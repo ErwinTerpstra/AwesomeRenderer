@@ -1,6 +1,8 @@
 #ifndef _SHADER_GL_H_
 #define _SHADER_GL_H_
 
+#include "awesomerenderer.h"
+
 namespace AwesomeRenderer
 {
 	class ShaderGL

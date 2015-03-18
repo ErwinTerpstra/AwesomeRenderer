@@ -1,6 +1,8 @@
 #ifndef _FACTORY_H_
 #define _FACTORY_H_
 
+#include "awesomerenderer.h"
+
 namespace AwesomeRenderer
 {
 	template<class FactoryType, class AssetType>

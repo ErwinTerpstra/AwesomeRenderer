@@ -1,4 +1,5 @@
 #include "awesomerenderer.h"
+#include "shader_gl.h"
 
 using namespace AwesomeRenderer;
 

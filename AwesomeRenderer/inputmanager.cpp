@@ -1,4 +1,5 @@
 #include "awesomerenderer.h"
+#include "inputmanager.h"
 
 using namespace AwesomeRenderer;
 

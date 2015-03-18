@@ -1,8 +1,11 @@
 #ifndef _SAMPLER_H_
 #define _SAMPLER_H_
 
+#include "awesomerenderer.h"
+
 namespace AwesomeRenderer
 {
+	class Texture;
 
 	class Sampler
 	{

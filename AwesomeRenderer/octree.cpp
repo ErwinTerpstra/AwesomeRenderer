@@ -1,4 +1,5 @@
 #include "awesomerenderer.h"
+#include "octree.h"
 
 using namespace AwesomeRenderer;
 

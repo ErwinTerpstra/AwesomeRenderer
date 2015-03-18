@@ -1,6 +1,7 @@
 #include <memory.h>
 
 #include "awesomerenderer.h"
+#include "buffer.h"
 
 using namespace AwesomeRenderer;
 

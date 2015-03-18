@@ -1,5 +1,9 @@
 #include "awesomerenderer.h"
 
+#include "cameracontroller.h"
+#include "inputmanager.h"
+#include "timer.h"
+
 using namespace AwesomeRenderer;
 
 CameraController::CameraController(Camera& camera) : 

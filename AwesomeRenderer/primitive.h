@@ -1,21 +1,27 @@
-#ifndef _SHAPE_H_
-#define _SHAPE_H_
+#ifndef _PRIMITIVE_H_
+#define _PRIMITIVE_H_
+
+#include "awesomerenderer.h"
+#include "object.h"
+
+#include "ray.h"
+#include "raycasthit.h"
 
 namespace AwesomeRenderer
 {
 	class Plane;
 	class AABB;
 
-	class Shape : public virtual Object
+	class Primitive : public virtual Object
 	{
 
 	public:
 
 
 	public:
-		Shape();
+		Primitive();
 
-		virtual ~Shape() { }
+		virtual ~Primitive() { }
 
 		virtual void Transform(const Matrix44& mtx) = 0;
 
@@ -25,7 +31,7 @@ namespace AwesomeRenderer
 
 		virtual void CalculateBounds(AABB& bounds) const = 0;
 
-		virtual const Shape& GetShape() const { return *this; }
+		virtual const Primitive& GetShape() const { return *this; }
 	};
 }
 

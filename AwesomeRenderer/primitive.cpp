@@ -1,8 +1,10 @@
 #include "awesomerenderer.h"
 
+#include "primitive.h"
+
 using namespace AwesomeRenderer;
 
-Shape::Shape()
+Primitive::Primitive()
 {
 
 }

@@ -1,12 +1,19 @@
 #ifndef _MESH_H_
 #define _MESH_H_
 
+#include "awesomerenderer.h"
+#include "object.h"
+#include "component.h"
+#include "aabb.h"
+
 namespace AwesomeRenderer
 {
-	class Mesh : public Object, public Extendee<Mesh>
+	class Mesh : public Object, public Component, public Extendee<Mesh>
 	{
 	
 	public:
+		static const int ID;
+
 		enum VertexAttributes
 		{
 			VERTEX_POSITION		= 1,
@@ -48,7 +55,7 @@ namespace AwesomeRenderer
 		void AddTri(const Vector3& a, const Vector3& b, const Vector3& c);
 		void AddQuad(const Vector3& a, const Vector3& b, const Vector3& c, const Vector3& d);
 
-		virtual const Shape& GetShape() const { return bounds; }
+		virtual const Primitive& GetShape() const { return bounds; }
 
 	};
 

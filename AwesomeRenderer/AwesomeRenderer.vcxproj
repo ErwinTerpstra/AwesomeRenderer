@@ -80,6 +80,7 @@
   <ItemGroup>
     <ClCompile Include="aabb.cpp" />
     <ClCompile Include="cameracontroller.cpp" />
+    <ClCompile Include="components.cpp" />
     <ClCompile Include="program_gl.cpp" />
     <ClCompile Include="shader_gl.cpp" />
     <ClCompile Include="kdtree.cpp" />
@@ -105,7 +106,7 @@
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="rendertarget.cpp" />
     <ClCompile Include="sampler.cpp" />
-    <ClCompile Include="shape.cpp" />
+    <ClCompile Include="primitive.cpp" />
     <ClCompile Include="sphere.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="buffer.cpp" />
@@ -129,6 +130,7 @@
   <ItemGroup>
     <ClInclude Include="aabb.h" />
     <ClInclude Include="buffer.h" />
+    <ClInclude Include="component.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="extendee.h" />
     <ClInclude Include="extension.h" />
@@ -158,7 +160,7 @@
     <ClInclude Include="rendertarget.h" />
     <ClInclude Include="sampler.h" />
     <ClInclude Include="shader.h" />
-    <ClInclude Include="shape.h" />
+    <ClInclude Include="primitive.h" />
     <ClInclude Include="sphere.h" />
     <ClInclude Include="textmesh.h" />
     <ClInclude Include="texture.h" />

@@ -1,5 +1,9 @@
 #include "awesomerenderer.h"
 
+#include "phongshader.h"
+#include "sampler.h"
+#include "material.h";
+
 using namespace AwesomeRenderer;
 
 PhongShader::PhongShader() : SoftwareShader()

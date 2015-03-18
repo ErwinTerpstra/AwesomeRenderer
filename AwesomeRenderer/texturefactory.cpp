@@ -1,4 +1,5 @@
 #include "awesomerenderer.h"
+#include "texturefactory.h"
 
 using namespace AwesomeRenderer;
 

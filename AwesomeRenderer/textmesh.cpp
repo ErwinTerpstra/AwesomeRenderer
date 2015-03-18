@@ -1,5 +1,8 @@
 #include "awesomerenderer.h"
 
+#include "textmesh.h"
+#include "texture.h
+
 using namespace AwesomeRenderer;
 
 TextMesh::TextMesh() : Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_TEXCOORD))

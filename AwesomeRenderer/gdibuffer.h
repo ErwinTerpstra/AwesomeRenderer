@@ -1,6 +1,9 @@
 #ifndef _GDI_BUFFER_H_
 #define _GDI_BUFFER_H_
 
+#include "awesomerenderer.h"
+#include "buffer.h"
+
 namespace AwesomeRenderer
 {
 

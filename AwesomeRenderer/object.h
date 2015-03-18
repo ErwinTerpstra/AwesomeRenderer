@@ -3,13 +3,13 @@
 
 namespace AwesomeRenderer
 {
-	class Shape;
+	class Primitive;
 
 	class Object
 	{
 	public:
 		virtual ~Object() { }
-		virtual const Shape& GetShape() const = 0;
+		virtual const Primitive& GetShape() const = 0;
 	};
 
 }

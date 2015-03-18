@@ -1,4 +1,11 @@
 #include "awesomerenderer.h"
+#include "objloader.h"
+#include "texturefactory.h"
+#include "model.h"
+#include "filereader.h"
+#include "mesh.h"
+#include "material.h"
+#include "sampler.h"
 
 using namespace AwesomeRenderer;
 

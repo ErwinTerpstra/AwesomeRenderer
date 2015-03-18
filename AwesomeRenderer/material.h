@@ -1,11 +1,13 @@
 #ifndef _MATERIAL_H_
 #define _MATERIAL_H_
 
+#include "awesomerenderer.h"
 
 namespace AwesomeRenderer
 {
 	class Texture;
 	class Shader;
+	class Sampler;
 
 	class Material
 	{

@@ -1,8 +1,10 @@
 #include "awesomerenderer.h"
 
+#include "plane.h"
+
 using namespace AwesomeRenderer;
 
-Plane::Plane(float d, const Vector3& normal) : Shape(), d(d), normal(normal), dTransformed(d), normalTransformed(normal)
+Plane::Plane(float d, const Vector3& normal) : Primitive(), d(d), normal(normal), dTransformed(d), normalTransformed(normal)
 {
 
 }

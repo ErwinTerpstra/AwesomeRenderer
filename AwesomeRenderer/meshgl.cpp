@@ -1,4 +1,5 @@
 #include "awesomerenderer.h"
+#include "mesh_gl.h"
 
 using namespace AwesomeRenderer;
 

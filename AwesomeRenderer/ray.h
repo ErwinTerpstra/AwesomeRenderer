@@ -1,6 +1,8 @@
 #ifndef _RAY_H_
 #define _RAY_H_
 
+#include "awesomerenderer.h"
+
 namespace AwesomeRenderer
 {
 

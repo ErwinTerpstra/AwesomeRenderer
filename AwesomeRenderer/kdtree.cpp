@@ -1,4 +1,5 @@
 #include "awesomerenderer.h"
+#include "kdtree.h"
 
 using namespace AwesomeRenderer;
 
@@ -46,7 +47,7 @@ void KDTree::Optimize(const AABB& bounds, int depth)
 	for (it = objects.begin(); it != objects.end(); ++it)
 	{
 		const Object* object = *it;
-		const Shape& shape = object->GetShape();
+		const Primitive& shape = object->GetShape();
 
 		// Determine which side of the plane this object is
 		int side = shape.SideOfPlane(splitPlane);
@@ -125,7 +126,7 @@ void KDTree::Split(const AABB& bounds)
 		// Iterate through all objects to count how many objects fall on each side of the split plane
 		for (objectIterator = objectsAbove.begin(); objectIterator != objectsAbove.end(); )
 		{
-			const Shape& shape = (*objectIterator)->GetShape();
+			const Primitive& shape = (*objectIterator)->GetShape();
 
 			// Determine which side of the plane this object is
 			int side = shape.SideOfPlane(splitPlane);

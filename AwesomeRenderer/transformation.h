@@ -1,12 +1,16 @@
 #ifndef _TRANSFORMATION_H_
 #define _TRANSFORMATION_H_
 
+#include "awesomerenderer.h"
+#include "component.h"
+
 namespace AwesomeRenderer
 {
 
-	class Transformation
+	class Transformation : public Component
 	{
 	public:
+		static const int ID;
 
 	private:
 		Transformation* parent;

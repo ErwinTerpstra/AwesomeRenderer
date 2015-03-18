@@ -1,6 +1,9 @@
 #ifndef _UNLIT_SHADER_H_
 #define _UNLIT_SHADER_H_
 
+#include "unlitshader.h"
+#include "softwareshader.h"
+
 namespace AwesomeRenderer
 {
 

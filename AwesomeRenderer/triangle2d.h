@@ -1,6 +1,7 @@
 #ifndef _TRIANGLE_2D_H_
 #define _TRIANGLE_2D_H_
 
+#include "triangle.h"
 
 namespace AwesomeRenderer
 {

@@ -1,5 +1,5 @@
 #include "awesomerenderer.h"
-
+#include "material.h"
 
 using namespace AwesomeRenderer;
 

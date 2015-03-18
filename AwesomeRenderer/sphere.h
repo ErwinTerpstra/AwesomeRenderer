@@ -3,7 +3,7 @@
 
 namespace AwesomeRenderer
 {
-	class Sphere : public Shape
+	class Sphere : public Primitive
 	{
 
 	private:

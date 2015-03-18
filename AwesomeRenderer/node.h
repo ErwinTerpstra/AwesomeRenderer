@@ -1,24 +1,31 @@
 #ifndef _NODE_H_
 #define _NODE_H_
 
+#include "component.h"
+
 namespace AwesomeRenderer
 {
-	class Model;
-	class Transformation;
 
-	class NodeEx;
-
-	class Node : public Object, public Extendee<NodeEx>
+	class Node
 	{
 
-	public:
-		Model* model;
-		Transformation* transform;
+	private:
+		Component* components[Component::LAST_ID];
 
 	public:
 		Node();
 
-		virtual const Shape& GetShape() const;
+		template <class T>
+		void AddComponent(Component* component, bool replace = true);
+
+		template <class T>
+		bool RemoveComponent();
+
+		template <class T>
+		bool HasComponent();
+
+		template <class T>
+		T* GetComponent();
 
 	};
 

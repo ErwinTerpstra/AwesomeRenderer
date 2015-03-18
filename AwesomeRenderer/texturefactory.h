@@ -1,9 +1,13 @@
 #ifndef _TEXTURE_FACTORY_H_
 #define _TEXTURE_FACTORY_H_
 
+#include "awesomerenderer.h"
+#include "factory.h"
+#include "texture.h"
+
 namespace AwesomeRenderer
 {
-
+	class Texture;
 
 	class TextureFactory : public Factory<TextureFactory, Texture>
 	{

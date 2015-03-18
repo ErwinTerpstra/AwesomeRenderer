@@ -3,6 +3,7 @@
 
 namespace AwesomeRenderer
 {
+	class GdiBuffer;
 
 	class Window : public Extendee<Window>
 	{

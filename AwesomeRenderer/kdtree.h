@@ -1,6 +1,9 @@
 #ifndef _KD_TREE_H_
 #define _KD_TREE_H_
 
+#include "awesomerenderer.h"
+#include "aabb.h"
+
 namespace AwesomeRenderer
 {
 	class Object;

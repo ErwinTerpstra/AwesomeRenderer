@@ -1,9 +1,16 @@
 #ifndef _OBJ_LOADER_H_
 #define _OBJ_LOADER_H_
 
+#include "awesomerenderer.h"
 
 namespace AwesomeRenderer
 {
+
+	class Model;
+	class Mesh;
+	class Material;
+	class Shader;
+	class TextureFactory;
 
 	class ObjLoader
 	{

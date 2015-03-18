@@ -1,8 +1,12 @@
 #ifndef _WINDOW_GL_H_
 #define _WINDOW_GL_H_
 
+#include "awesomerenderer.h"
+
 namespace AwesomeRenderer
 {
+	class Window;
+
 	class WindowGL : public Extension<Window>
 	{
 

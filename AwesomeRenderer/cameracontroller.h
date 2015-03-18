@@ -1,9 +1,13 @@
 #ifndef _CAMERA_CONTROLLER_H_
 #define _CAMERA_CONTROLLER_H_
 
+#include "awesomerenderer.h"
+#include "camera.h"
+
 namespace AwesomeRenderer
 {
 	class Camera;
+	class TimingInfo;
 
 	class CameraController
 	{

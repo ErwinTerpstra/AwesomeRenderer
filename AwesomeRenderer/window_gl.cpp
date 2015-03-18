@@ -1,5 +1,8 @@
 #include "awesomerenderer.h"
 
+#include "window_gl.h"
+#include "window.h"
+
 using namespace AwesomeRenderer;
 
 WindowGL::WindowGL(Window& window) : Extension(window)

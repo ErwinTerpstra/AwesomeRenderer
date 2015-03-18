@@ -1,8 +1,13 @@
 #ifndef _TEXT_MESH_H_
 #define _TEXT_MESH_H_
 
+#include "awesomerenderer.h"
+#include "mesh.h"
+
 namespace AwesomeRenderer
 {
+	class Texture;
+
 	class TextMesh : public Mesh
 	{
 

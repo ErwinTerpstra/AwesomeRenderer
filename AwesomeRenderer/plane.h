@@ -1,9 +1,12 @@
 #ifndef _PLANE_H_
 #define _PLANE_H_
 
+#include "awesomerenderer.h"
+#include "primitive.h"
+
 namespace AwesomeRenderer
 {
-	class Plane : public Shape
+	class Plane : public Primitive
 	{
 
 	private:

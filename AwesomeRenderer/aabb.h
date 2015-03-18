@@ -1,10 +1,14 @@
 #ifndef _AABB_H_
 #define _AABB_H_
 
+#include "awesomerenderer.h"
+#include "primitive.h"
+#include "plane.h"
+
 namespace AwesomeRenderer
 {
 
-	class AABB : public Shape
+	class AABB : public Primitive
 	{
 
 	private:
