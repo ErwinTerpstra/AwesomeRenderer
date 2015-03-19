@@ -12,6 +12,14 @@ namespace AwesomeRenderer
 	class MeshGL : public Extension<Mesh>
 	{
 	public:
+		enum VertexAttributeIndex
+		{
+			ATTR_POSITION		= 0,
+			ATTR_NORMAL			= 1,
+			ATTR_TEXCOORD		= 2,
+			ATTR_COLOR			= 3,
+		};
+
 		GLuint vertexArray;
 		GLuint vertexBuffers[Mesh::MAX_VERTEX_ATTRIBUTES];
 

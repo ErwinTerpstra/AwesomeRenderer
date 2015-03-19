@@ -1,6 +1,6 @@
 #version 330
 
-layout(location = 0) out vec4 outColor;
+out vec4 outColor;
 
 uniform sampler2D diffuseMap;
 

@@ -214,7 +214,6 @@ void SoftwareRenderer::BeginDraw(const Matrix44& model, const Material& material
 	shader->material = &material;
 
 	shader->Prepare();
-
 }
 
 void SoftwareRenderer::EndDraw()
@@ -294,6 +293,8 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 	// One vertex outside view frustum, this means we have to create two triangles
 	case 1:
 	{
+		// TODO: implement this
+
 		break;
 	}
 

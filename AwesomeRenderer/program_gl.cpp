@@ -72,3 +72,9 @@ GLint ProgramGL::GetAttribLocation(std::string name)
 
 	return it->second;
 }
+
+void ProgramGL::SetAttribLocation(std::string name, GLuint location)
+{
+	glBindAttribLocation(handle, location, name.c_str());
+	attribLocations[name] = location;
+}

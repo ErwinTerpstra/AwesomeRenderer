@@ -137,29 +137,29 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	camera.SetViewport(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT);
 	
 	// Render context
-	RenderContext renderContext;
-	renderContext.camera = &camera;
-	renderContext.renderTarget = &renderTarget;
+	RenderContext mainContext;
+	mainContext.camera = &camera;
+	mainContext.renderTarget = &renderTarget;
 
 	/**/
-
 	Camera cameraHud(cml::left_handed);
 	cameraHud.viewMtx.identity();
-	cameraHud.viewportMtx.identity();
-	cameraHud.SetOrthographic(SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 10.0f);
+	cml::matrix_set_translation(cameraHud.viewMtx, -SCREEN_WIDTH / 2.0f, -SCREEN_HEIGHT / 2.0f, 0.0f);
 
-	RenderContext renderContextHud;
-	renderContextHud.camera = &cameraHud;
-	renderContextHud.renderTarget = &renderTarget;
-	renderContextHud.clearFlags = RenderTarget::BUFFER_DEPTH;
+	cameraHud.SetOrthographic(SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 10.0f);
+	cameraHud.SetViewport(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	RenderContext hudContext;
+	hudContext.camera = &cameraHud;
+	hudContext.renderTarget = &renderTarget;
+	hudContext.clearFlags = RenderTarget::BUFFER_DEPTH;
 	/**/
 
 	// Initialize renderers
 	SoftwareRenderer softwareRenderer;
 	RendererGL rendererGL;
 	RayTracer rayTracer;
-
-
+	
 	const uint32_t NUM_RENDERERS = 3;
 	Renderer* renderers[NUM_RENDERERS];
 	renderers[0] = &softwareRenderer;
@@ -170,15 +170,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		Renderer* renderer = renderers[rendererIdx];
 		renderer->Initialize();
-
-		renderer->SetRenderContext(&renderContext);
-		
+				
 		renderer->cullMode = Renderer::CULL_NONE;
 		//renderer->drawMode = Renderer::DRAW_LINE;
 	}
 
-	Renderer* mainRenderer = &rayTracer;
-	Renderer* hudRenderer = &softwareRenderer;
+	Renderer* mainRenderer = &rendererGL;
 
 	// Shader
 	PhongShader phongShader;
@@ -243,8 +240,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		light.color = Color::CYAN;
 	}
 
-
-
+	
 	// Camera controller
 	CameraController cameraController(camera);
 	cameraController.CopyFromCamera();
@@ -270,7 +266,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//objLoader.Load("../Assets/crytek-sponza/sponza.obj", *node.model);
 		//objLoader.Load("../Assets/Castle01/castle.obj", *node.model);
 
-		renderContext.nodes.push_back(&node);
+		mainContext.nodes.push_back(&node);
 	}
 	//*/
 
@@ -281,7 +277,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		TextMesh* mesh = new TextMesh();
 		mesh->Configure(texture, 32, 32, 1);
-		mesh->SetText("Lorem ipsum dolor sit amet");
+		mesh->SetText("Lorem ipsum dolor sit amet.");
 
 		Sampler* sampler = new Sampler();
 		sampler->sampleMode = Sampler::SM_POINT;
@@ -296,11 +292,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		model->AddMesh(mesh, material);
 
 		Transformation* transform = new Transformation();
+		transform->SetPosition(Vector3(0.0f, 0.0f, -5.0f));
+		transform->SetScale(Vector3(1.0f, 1.0f, 1.0f) * 0.4f);
 
 		textNode.AddComponent<Model>(model);
 		textNode.AddComponent<Transformation>(transform);
 
-		renderContextHud.nodes.push_back(&textNode);
+		hudContext.nodes.push_back(&textNode);
 	}
 
 
@@ -342,18 +340,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		transform->SetScale(Vector3(10.0f, 10.0f, 10.0f));
 		node.AddComponent<Transformation>(transform);
 
-		renderContext.nodes.push_back(&node);
+		mainContext.nodes.push_back(&node);
 	}
 	//*/
 
 	// Convert all meshes to OpenGL meshes
-	RenderContext* contexts[] = { &renderContext, &renderContextHud };
+	RenderContext* contexts[] = { &mainContext, &hudContext };
 	
-	for (uint32_t idx = 0; idx < 2; ++idx)
+	for (uint32_t contextIdx = 0; contextIdx < 2; ++contextIdx)
 	{
-		RenderContext& rc = *contexts[idx];
+		RenderContext& renderContext = *contexts[contextIdx];
 
-		for (auto nodeIt = rc.nodes.begin(); nodeIt != rc.nodes.end(); ++nodeIt)
+		for (auto nodeIt = renderContext.nodes.begin(); nodeIt != renderContext.nodes.end(); ++nodeIt)
 		{
 			Model* model = (*nodeIt)->GetComponent<Model>();
 
@@ -435,35 +433,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		// Updating logic
 		cameraController.Update(timingInfo);
 		camera.UpdateViewMtx();
-
-		// Prepare models in scene
-		std::vector<Node*>::iterator it;
-
-		for (it = renderContext.nodes.begin(); it != renderContext.nodes.end(); ++it)
-		{
-			Node& node = **it;
-			Transformation* transform = node.GetComponent<Transformation>();
-
-			if (transform == NULL)
-				continue;
-
-			transform->CalculateMtx();
-
-			Model* model = node.GetComponent<Model>();
-
-			if (model != NULL)
-			{
-				// Iterate through submeshes in a node
-				for (uint32_t cMesh = 0; cMesh < model->meshes.size(); ++cMesh)
-				{
-					// Transform bounding shape of mesh according to world transformation
-					Mesh* mesh = model->meshes[cMesh];
-					mesh->bounds.Transform(transform->WorldMtx());
-				}
-
-				model->bounds.Transform(transform->WorldMtx());
-			}
-		}
 		
 		// Keyboard light switching
 		for (uint32_t lightIdx = 0; lightIdx < PhongShader::MAX_LIGHTS; ++lightIdx)
@@ -485,11 +454,42 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		if (inputManager.GetKey('P'))
 			mainRenderer = renderers[2];
 
-		mainRenderer->SetRenderContext(&renderContext);
-		mainRenderer->Render();
+		for (int contextIdx = 0; contextIdx < 2; ++contextIdx)
+		{
+			RenderContext& renderContext = *contexts[contextIdx];
 
-		hudRenderer->SetRenderContext(&renderContextHud);
-		hudRenderer->Render();
+			// Prepare models in scene
+			std::vector<Node*>::iterator it;
+
+			for (it = renderContext.nodes.begin(); it != renderContext.nodes.end(); ++it)
+			{
+				Node& node = **it;
+				Transformation* transform = node.GetComponent<Transformation>();
+
+				if (transform == NULL)
+					continue;
+
+				transform->CalculateMtx();
+
+				Model* model = node.GetComponent<Model>();
+
+				if (model != NULL)
+				{
+					// Iterate through submeshes in a node
+					for (uint32_t cMesh = 0; cMesh < model->meshes.size(); ++cMesh)
+					{
+						// Transform bounding shape of mesh according to world transformation
+						Mesh* mesh = model->meshes[cMesh];
+						mesh->bounds.Transform(transform->WorldMtx());
+					}
+
+					model->bounds.Transform(transform->WorldMtx());
+				}
+			}
+
+			mainRenderer->SetRenderContext(&renderContext);
+			mainRenderer->Render();
+		}
 
 		mainRenderer->Present(window);
 		

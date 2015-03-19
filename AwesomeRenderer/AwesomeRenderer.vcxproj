@@ -88,7 +88,7 @@
     <ClCompile Include="textmesh.cpp" />
     <ClCompile Include="unlitshader.cpp" />
     <ClCompile Include="window_gl.cpp" />
-    <ClCompile Include="meshgl.cpp" />
+    <ClCompile Include="mesh_gl.cpp" />
     <ClCompile Include="phongshader.cpp" />
     <ClCompile Include="filereader.cpp" />
     <ClCompile Include="inputmanager.cpp" />

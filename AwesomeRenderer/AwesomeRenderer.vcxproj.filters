@@ -183,9 +183,6 @@
     <ClCompile Include="sampler.cpp">
       <Filter>Source Files\Renderer\Shading</Filter>
     </ClCompile>
-    <ClCompile Include="meshgl.cpp">
-      <Filter>Source Files\Model</Filter>
-    </ClCompile>
     <ClCompile Include="timer.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
@@ -207,9 +204,6 @@
     <ClCompile Include="texture_gl.cpp">
       <Filter>Source Files\Model</Filter>
     </ClCompile>
-    <ClCompile Include="unlitshader.cpp">
-      <Filter>Source Files\Renderer\Shading</Filter>
-    </ClCompile>
     <ClCompile Include="phongshader.cpp">
       <Filter>Source Files\Renderer\Shading\SoftwareShaders</Filter>
     </ClCompile>
@@ -224,6 +218,12 @@
     </ClCompile>
     <ClCompile Include="components.cpp">
       <Filter>Source Files\Node</Filter>
+    </ClCompile>
+    <ClCompile Include="unlitshader.cpp">
+      <Filter>Source Files\Renderer\Shading\SoftwareShaders</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh_gl.cpp">
+      <Filter>Source Files\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -329,9 +329,6 @@
     <ClInclude Include="plane.h">
       <Filter>Header Files\Primitives</Filter>
     </ClInclude>
-    <ClInclude Include="softwareshader.h">
-      <Filter>Header Files\Renderer\Shading</Filter>
-    </ClInclude>
     <ClInclude Include="shader.h">
       <Filter>Header Files\Renderer\Shading</Filter>
     </ClInclude>
@@ -397,6 +394,9 @@
     </ClInclude>
     <ClInclude Include="primitive.h">
       <Filter>Header Files\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="softwareshader.h">
+      <Filter>Header Files\Renderer\Shading\SoftwareShaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

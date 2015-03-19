@@ -1,8 +1,8 @@
 #version 330
 
-layout(location = 0) in vec3 inPosition;
-layout(location = 1) in vec3 inNormal;
-layout(location = 2) in vec2 inTexcoord;
+in vec3 inPosition;
+in vec3 inNormal;
+in vec2 inTexcoord;
 
 uniform mat4 modelMtx;
 uniform mat4 viewMtx;

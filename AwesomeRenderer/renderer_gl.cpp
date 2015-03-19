@@ -55,6 +55,11 @@ void RendererGL::Initialize()
 	defaultShader.Attach(&defaultVertex);
 	defaultShader.Attach(&defaultFragment);
 
+	defaultShader.SetAttribLocation("inPosition",	MeshGL::ATTR_POSITION);
+	defaultShader.SetAttribLocation("inNormal",		MeshGL::ATTR_NORMAL);
+	defaultShader.SetAttribLocation("inColor",		MeshGL::ATTR_COLOR);
+	defaultShader.SetAttribLocation("inTexcoord",	MeshGL::ATTR_TEXCOORD);
+
 	defaultShader.Link();
 
 	glEnable(GL_DEPTH_TEST);

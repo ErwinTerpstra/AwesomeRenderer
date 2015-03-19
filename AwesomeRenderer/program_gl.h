@@ -33,6 +33,8 @@ namespace AwesomeRenderer
 
 		GLint GetUniformLocation(std::string name);
 		GLint GetAttribLocation(std::string name);
+
+		void SetAttribLocation(std::string name, GLuint location);
 	};
 }
 
