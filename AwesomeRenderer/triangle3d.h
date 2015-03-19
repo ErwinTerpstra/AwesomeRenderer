@@ -3,6 +3,7 @@
 
 #include "awesomerenderer.h"
 #include "triangle.h"
+#include "primitive.h"
 
 namespace AwesomeRenderer
 {

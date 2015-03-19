@@ -1,5 +1,7 @@
 #include "awesomerenderer.h"
 
+#include "timer.h"
+
 using namespace AwesomeRenderer;
 
 Timer::Timer(float minFrameTime, float maxFrameTime) : minFrameTime(minFrameTime), maxFrameTime(maxFrameTime)

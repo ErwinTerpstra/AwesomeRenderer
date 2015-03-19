@@ -7,7 +7,7 @@
 namespace AwesomeRenderer
 {
 	class Camera;
-	class TimingInfo;
+	struct TimingInfo;
 
 	class CameraController
 	{

@@ -15,7 +15,7 @@ namespace AwesomeRenderer
 	{
 
 	public:
-		static const int ID;
+		static const int id;
 
 		std::vector<Mesh*> meshes;
 

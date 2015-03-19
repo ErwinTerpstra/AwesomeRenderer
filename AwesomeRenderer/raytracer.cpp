@@ -1,8 +1,15 @@
 #include "awesomerenderer.h"
 
+#include "node.h"
 #include "raytracer.h"
 #include "ray.h"
+#include "raycasthit.h"
 #include "buffer.h"
+#include "camera.h"
+#include "gdibuffer.h"
+#include "window.h"
+#include "primitive.h"
+#include "model.h"
 
 using namespace AwesomeRenderer;
 
@@ -16,8 +23,20 @@ void RayTracer::Initialize()
 
 }
 
+void RayTracer::PreRender()
+{
+	renderContext->renderTarget->Clear(Color::BLACK, renderContext->clearFlags);
+}
+
+void RayTracer::PostRender()
+{
+
+}
+
 void RayTracer::Render()
 {
+	PreRender();
+
 	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
 
 	// Iterate through all pixels in the output buffer
@@ -33,6 +52,8 @@ void RayTracer::Render()
 		}
 
 	}
+
+	PostRender();
 }
 
 void RayTracer::Present(Window& window)
@@ -59,12 +80,13 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 	// Iterate through all nodes in the scene
 	for (it = renderContext->nodes.begin(); it != renderContext->nodes.end(); ++it)
 	{
-		const Node& node = **it;
-		const Primitive& shape = node.GetShape();
+		const Node* node = *it;
+		const Model* model = node->GetComponent<Model>();
+		const Primitive& shape = model->GetShape();
 
 		// Perform the ray-triangle intersection
 		RaycastHit hitInfo(ray);
-
+		
 		if (!shape.IntersectRay(ray, hitInfo))
 			continue;
 

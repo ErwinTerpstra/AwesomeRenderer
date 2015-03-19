@@ -1,5 +1,10 @@
 #include "awesomerenderer.h"
 
+#include "triangle3d.h"
+
+#include "plane.h"
+#include "aabb.h"
+
 using namespace AwesomeRenderer;
 
 Triangle3D::Triangle3D(const Vector3& a, const Vector3& b, const Vector3& c) :

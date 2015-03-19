@@ -11,8 +11,15 @@ namespace AwesomeRenderer
 
 	public:
 
-		Component();
-		~Component();
+		Component()
+		{
+
+		}
+
+		~Component()
+		{
+
+		}
 
 	};
 

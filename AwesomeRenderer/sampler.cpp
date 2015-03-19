@@ -1,5 +1,9 @@
 #include "awesomerenderer.h"
 
+#include "sampler.h"
+
+#include "texture.h"
+
 using namespace AwesomeRenderer;
 
 Sampler::Sampler() : texture(NULL), wrapMode(WM_DEFAULT), sampleMode(SM_DEFAULT)

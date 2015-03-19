@@ -80,8 +80,8 @@ bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 	// Find the shortest intersection between the ray and an axis of the box
 	for (int axis = 0; axis < 3; ++axis)
 	{
-		float cMin = (min[axis] - ray.origin[axis]) / ray.direction[axis];
-		float cMax = (max[axis] - ray.origin[axis]) / ray.direction[axis];
+		float cMin = (minTransformed[axis] - ray.origin[axis]) / ray.direction[axis];
+		float cMax = (maxTransformed[axis] - ray.origin[axis]) / ray.direction[axis];
 
 		if (cMin > cMax) 
 			std::swap(cMin, cMax);

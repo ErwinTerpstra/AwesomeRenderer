@@ -1,6 +1,11 @@
-#include <assert.h>
-
 #include "awesomerenderer.h"
+
+#include "window.h"
+
+#include "inputmanager.h"
+#include "gdibuffer.h"
+
+#include <assert.h>
 
 using namespace AwesomeRenderer;
 

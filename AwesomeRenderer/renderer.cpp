@@ -1,5 +1,7 @@
 #include "awesomerenderer.h"
 
+#include "renderer.h"
+
 using namespace AwesomeRenderer;
 
 

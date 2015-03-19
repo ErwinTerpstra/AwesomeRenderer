@@ -1,5 +1,8 @@
 #include "awesomerenderer.h"
 
+#include "rendertarget.h"
+#include "buffer.h"
+
 using namespace AwesomeRenderer;
 
 RenderTarget::RenderTarget() : frameBuffer(NULL), depthBuffer(NULL)

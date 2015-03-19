@@ -177,7 +177,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//renderer->drawMode = Renderer::DRAW_LINE;
 	}
 
-	Renderer* activeRenderer = &rayTracer;
+	Renderer* mainRenderer = &rayTracer;
+	Renderer* hudRenderer = &softwareRenderer;
 
 	// Shader
 	PhongShader phongShader;
@@ -296,8 +297,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		Transformation* transform = new Transformation();
 
-		textNode.AddComponent(model);
-		textNode.AddComponent(transform);
+		textNode.AddComponent<Model>(model);
+		textNode.AddComponent<Transformation>(transform);
 
 		renderContextHud.nodes.push_back(&textNode);
 	}
@@ -318,6 +319,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		mesh->texcoords[4] = Vector2(1.0f, 0.0f) * uvScale;
 		mesh->texcoords[5] = Vector2(1.0f, 1.0f) * uvScale;
 
+		mesh->CalculateBounds();
+
 		Texture* texture = NULL;
 		textureFactory.GetAsset("../Assets/tiles.bmp", &texture);
 
@@ -332,11 +335,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		Model* model = new Model();
 		model->AddMesh(mesh, material);
-		node.AddComponent(model);
+		model->CalculateBounds();
+		node.AddComponent<Model>(model);
 
 		Transformation* transform = new Transformation();
 		transform->SetScale(Vector3(10.0f, 10.0f, 10.0f));
-		node.AddComponent(transform);
+		node.AddComponent<Transformation>(transform);
 
 		renderContext.nodes.push_back(&node);
 	}
@@ -453,9 +457,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				for (uint32_t cMesh = 0; cMesh < model->meshes.size(); ++cMesh)
 				{
 					// Transform bounding shape of mesh according to world transformation
-					Mesh& mesh = *model->meshes[cMesh];
-					mesh.bounds.Transform(transform->WorldMtx());
+					Mesh* mesh = model->meshes[cMesh];
+					mesh->bounds.Transform(transform->WorldMtx());
 				}
+
+				model->bounds.Transform(transform->WorldMtx());
 			}
 		}
 		
@@ -471,21 +477,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		// Keyboard renderer switching
 		if (inputManager.GetKey('I'))
-			activeRenderer = renderers[0];
+			mainRenderer = renderers[0];
 
 		if (inputManager.GetKey('O'))
-			activeRenderer = renderers[1];
+			mainRenderer = renderers[1];
 
 		if (inputManager.GetKey('P'))
-			activeRenderer = renderers[2];
+			mainRenderer = renderers[2];
 
-		activeRenderer->SetRenderContext(&renderContext);
-		activeRenderer->Render();
+		mainRenderer->SetRenderContext(&renderContext);
+		mainRenderer->Render();
 
-		activeRenderer->SetRenderContext(&renderContextHud);
-		activeRenderer->Render();
+		hudRenderer->SetRenderContext(&renderContextHud);
+		hudRenderer->Render();
 
-		activeRenderer->Present(window);
+		mainRenderer->Present(window);
 		
 		// Present window
 		window.ProcessMessages();

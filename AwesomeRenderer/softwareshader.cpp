@@ -1,5 +1,7 @@
 #include "awesomerenderer.h"
 
+#include "softwareshader.h"
+
 using namespace AwesomeRenderer;
 
 SoftwareShader::SoftwareShader() : Shader()

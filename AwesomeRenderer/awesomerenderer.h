@@ -39,13 +39,14 @@
 #include "typedefs.h"
 #include "color.h"
 
+#include "util.h"
+
 /*
 // Memory
 #include "buffer.h"
 #include "memorybuffer.h"
 
 // Utility
-#include "util.h"
 #include "timer.h"
 #include "transformation.h"
 #include "ray.h"

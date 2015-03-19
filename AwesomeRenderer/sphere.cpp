@@ -1,5 +1,12 @@
 #include "awesomerenderer.h"
 
+#include "sphere.h"
+#include "ray.h"
+#include "raycasthit.h"
+#include "primitive.h"
+#include "plane.h"
+#include "aabb.h"
+
 using namespace AwesomeRenderer;
 
 Sphere::Sphere() : Primitive(), center(), centerTransformed()
@@ -85,4 +92,10 @@ int Sphere::SideOfPlane(const Plane& plane) const
 	// The plane intersects the sphere if the shortest distance from the center to the plane is smaller than the radius
 	// Otherwise the sphere is on the side the center is located
 	return plane.Distance(centerTransformed) < radiusTransformed ? 0 : plane.SideOfPlane(centerTransformed);
+}
+
+void Sphere::CalculateBounds(AABB& bounds) const
+{
+	Vector3 extents(radiusTransformed, radiusTransformed, radiusTransformed);
+	bounds.Initialize(centerTransformed - extents, centerTransformed + extents);
 }

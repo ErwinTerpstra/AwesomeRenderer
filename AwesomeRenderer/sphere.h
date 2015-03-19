@@ -1,8 +1,17 @@
 #ifndef _SPHERE_H_
 #define _SPHERE_H_
 
+#include "awesomerenderer.h"
+#include "primitive.h"
+
 namespace AwesomeRenderer
 {
+	class Ray;
+	struct RaycastHit;
+
+	class Plane;
+	class AABB;
+
 	class Sphere : public Primitive
 	{
 
@@ -25,11 +34,7 @@ namespace AwesomeRenderer
 
 		int SideOfPlane(const Plane& plane) const;
 
-		void CalculateBounds(AABB& bounds) const 
-		{
-			Vector3 extents(radiusTransformed, radiusTransformed, radiusTransformed);
-			bounds.Initialize(centerTransformed - extents, centerTransformed + extents);
-		}
+		void CalculateBounds(AABB& bounds) const;
 
 		const Vector3& Center() { return centerTransformed; }
 		const float& Radius() { return radiusTransformed; }

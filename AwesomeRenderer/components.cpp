@@ -5,5 +5,5 @@ using namespace AwesomeRenderer;
 
 int lastID = 0;
 
-const int Transformation::ID		= lastID++;
-const int Model::ID					= lastID++;
+const int Transformation::id		= lastID++;
+const int Model::id					= lastID++;

@@ -1,5 +1,8 @@
 #include "awesomerenderer.h"
 
+#include "texture_gl.h"
+#include "texture.h"
+
 using namespace AwesomeRenderer;
 
 TextureGL::TextureGL(Texture& texture) : Extension(texture)

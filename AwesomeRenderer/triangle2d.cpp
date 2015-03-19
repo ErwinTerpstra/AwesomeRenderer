@@ -1,5 +1,7 @@
 #include "awesomerenderer.h"
 
+#include "triangle2d.h"
+
 using namespace AwesomeRenderer;
 
 Triangle2D::Triangle2D(const Vector2& a, const Vector2& b, const Vector2& c)

@@ -1,5 +1,7 @@
 #include "awesomerenderer.h"
 
+#include "threading.h"
+
 using namespace AwesomeRenderer;
 
 Counter::Counter() : m(), count(0), maxCount(0)

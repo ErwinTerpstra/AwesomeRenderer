@@ -1,5 +1,22 @@
 #include "awesomerenderer.h"
 
+#include "softwarerenderer.h"
+
+#include "window.h"
+#include "buffer.h"
+#include "gdibuffer.h"
+
+#include "rendercontext.h"
+#include "camera.h"
+
+#include "node.h"
+#include "model.h"
+#include "mesh.h"
+#include "transformation.h"
+#include "material.h"
+
+#include "threading.h"
+
 using namespace AwesomeRenderer;
 
 SoftwareRenderer::SoftwareRenderer() : Renderer(), renderQueue(), tileIdx(0), tilesLeft(), workerSignal(0, WORKER_AMOUNT), mainThreadSignal(0, 1)
@@ -88,8 +105,8 @@ void SoftwareRenderer::Render()
 	// Iterate through all renderable nodes
 	for (it = renderContext->nodes.begin(); it != renderContext->nodes.end(); ++it)
 	{
-		const Model* model = (*it)->model;
-		const Transformation* trans = (*it)->transform;
+		const Model* model = (*it)->GetComponent<Model>();
+		const Transformation* trans = (*it)->GetComponent<Transformation>();
 
 		// Iterate through all meshes in the model
 		for (uint32_t cMesh = 0; cMesh < model->meshes.size(); ++cMesh)

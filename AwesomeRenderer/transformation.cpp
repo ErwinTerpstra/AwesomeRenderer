@@ -1,5 +1,7 @@
 #include "awesomerenderer.h"
 
+#include "transformation.h"
+
 using namespace AwesomeRenderer;
 
 Transformation::Transformation() : 

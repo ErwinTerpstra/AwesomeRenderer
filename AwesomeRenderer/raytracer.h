@@ -21,7 +21,10 @@ namespace AwesomeRenderer
 		void Present(Window& window);
 		void Cleanup();
 	private:
-		
+
+		void PreRender();
+		void PostRender();
+
 		void Trace(const Ray& ray, const Point2& screenPosition);
 	};
 

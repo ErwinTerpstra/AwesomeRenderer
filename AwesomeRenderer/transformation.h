@@ -10,7 +10,7 @@ namespace AwesomeRenderer
 	class Transformation : public Component
 	{
 	public:
-		static const int ID;
+		static const int id;
 
 	private:
 		Transformation* parent;

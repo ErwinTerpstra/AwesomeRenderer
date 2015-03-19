@@ -16,16 +16,39 @@ namespace AwesomeRenderer
 		Node();
 
 		template <class T>
-		void AddComponent(Component* component, bool replace = true);
+		void AddComponent(T* component, bool replace = true)
+		{
+			if (!replace && HasComponent<T>())
+				return;
+
+			components[T::id] = component;
+		}
 
 		template <class T>
-		bool RemoveComponent();
+		bool RemoveComponent()
+		{
+			bool present = HasComponent<T>();
+
+			components[T:id] = NULL;
+		}
 
 		template <class T>
-		bool HasComponent();
+		bool HasComponent()
+		{
+			return components[T::id] != NULL;
+		}
 
 		template <class T>
-		T* GetComponent();
+		T* GetComponent()
+		{
+			return static_cast<T*>(components[T::id]);
+		}
+
+		template <class T>
+		const T* GetComponent() const
+		{
+			return static_cast<const T*>(components[T::id]);
+		}
 
 	};
 
