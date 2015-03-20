@@ -242,9 +242,9 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 
 		// X and Y axis should be between -W and +W, Z should be between 0 and +W
 		// Otherwise vertex is outside the view frustum
-		bool inside = -v[3] < v[0] && v[0] < v[3] &&
-					  -v[3] < v[1] && v[1] < v[3] &&
-					      0 < v[2] && v[2] < v[3];
+		bool inside = -v[3] <= v[0] && v[0] <= v[3] &&
+					  -v[3] <= v[1] && v[1] <= v[3] &&
+					      0 <= v[2] && v[2] <= v[3];
 
 		if (!inside)
 			vertices[clippedVertices++] = cVertex;
@@ -512,7 +512,7 @@ void SoftwareRenderer::DrawTileFill(uint32_t tileX, uint32_t tileY)
 					// Write to depth buffer
 					if (depthBuffer != NULL)
 						depthBuffer->SetPixel(x, y, depth);
-
+					
 					// Write to color buffer
 					frameBuffer->SetPixel(x, y, pixelInfo.color);
 				}

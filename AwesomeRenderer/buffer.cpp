@@ -25,7 +25,7 @@ void Buffer::Clear(const Color& color)
 
 float Buffer::GetPixel(uint32_t x, uint32_t y) const
 {
-	assert(stride == 4);
+	assert(stride == sizeof(float));
 
 	return *reinterpret_cast<float*>(GetBase(x, y));
 }
@@ -40,7 +40,9 @@ void Buffer::GetPixel(uint32_t x, uint32_t y, Color& sample) const
 
 void Buffer::SetPixel(uint32_t x, uint32_t y, float f)
 {
-	memcpy(GetBase(x, y), reinterpret_cast<uchar*>(&f), stride);
+	assert(stride == sizeof(float));
+
+	memcpy(GetBase(x, y), reinterpret_cast<uchar*>(&f), sizeof(float));
 }
 
 void Buffer::SetPixel(uint32_t x, uint32_t y, const Color& color)

@@ -44,16 +44,36 @@ void Window::RegisterClass() const
 
 void Window::Create(const char* title, int width, int height)
 {
+	int borderWidth = GetSystemMetrics(SM_CXBORDER);
+	int borderHeight = GetSystemMetrics(SM_CYBORDER);
+	int frameWidth = GetSystemMetrics(SM_CXFRAME);
+	int frameHeight = GetSystemMetrics(SM_CYFRAME);
+	int captionHeight = GetSystemMetrics(SM_CYSIZE);
+
 	handle = CreateWindowEx(WS_EX_CLIENTEDGE, className, title, WS_OVERLAPPEDWINDOW,
-			 			    CW_USEDEFAULT, CW_USEDEFAULT, width, height, NULL, NULL, instance, NULL);
+			 			    CW_USEDEFAULT, CW_USEDEFAULT, width , height, NULL, NULL, instance, NULL);
 	assert(handle != NULL);
 
-    SetWindowLongPtrW(handle, GWLP_USERDATA, (long)this);
-	
+	SetWindowLongPtrW(handle, GWLP_USERDATA, (long)this);
+
+	closed = false;
+}
+
+void Window::SetClientSize(int width, int height)
+{
+	RECT clientRect, windowRect;
+	POINT delta;
+
+	GetClientRect(handle, &clientRect);
+	GetWindowRect(handle, &windowRect);
+
+	delta.x = (windowRect.right - windowRect.left) - (clientRect.right - clientRect.left);
+	delta.y = (windowRect.bottom - windowRect.top) - (clientRect.bottom - clientRect.top);
+
+	MoveWindow(handle, windowRect.left, windowRect.top, width + delta.x, height + delta.y, TRUE);
+
 	this->width = width;
 	this->height = height;
-	
-	closed = false;
 }
 
 void Window::Show(int command) const
@@ -107,7 +127,8 @@ void Window::DrawBuffer(const GdiBuffer& buffer) const
 	HDC bufferDC = CreateCompatibleDC(windowDC);
 	HGDIOBJ oldObj = SelectObject(bufferDC, buffer.bitmap);
 			
-	BitBlt(windowDC, 0, 0, buffer.width, buffer.height, bufferDC, 0, 0, SRCCOPY);
+	bool result = BitBlt(windowDC, 0, 0, buffer.width, buffer.height, bufferDC, 0, 0, SRCCOPY);
+	assert(result);
 			
 	SelectObject(bufferDC, oldObj);
 	DeleteDC(bufferDC);

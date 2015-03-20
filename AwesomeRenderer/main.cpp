@@ -112,7 +112,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// Open window
 	Window window(hInstance, "AwesomeRendererWindow");
-	window.Create("Awesome Renderer!", SCREEN_WIDTH, SCREEN_HEIGHT);
+	window.Create("Awesome Renderer!", 100, 100);
+	window.SetClientSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	
 	WindowGL windowGL(window);
 	windowGL.Setup();
@@ -121,7 +122,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// Setup frame and depth buffers
 	GdiBuffer frameBuffer(window.handle);
-	MemoryBuffer depthBuffer, depthBufferHud;
+	MemoryBuffer depthBuffer;
 	
 	frameBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, 3);
 	depthBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, 4);
@@ -175,7 +176,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//renderer->drawMode = Renderer::DRAW_LINE;
 	}
 
-	Renderer* mainRenderer = &rendererGL;
+	Renderer* mainRenderer = &softwareRenderer;
 
 	// Shader
 	PhongShader phongShader;
@@ -187,7 +188,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Vector3 zero(0.0f, 0.0f, 0.0f);
 
 	{
-
 		PhongShader::Light& light = phongShader.lightData.lights[0];
 		light.direction = Vector3(0.0f, -0.5f, -0.5f);
 		light.type = PhongShader::LightType::DIRECTIONAL;
@@ -255,16 +255,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	timer.Tick();
 
 
-	/*
+	//*
 	Node node;
 	{
-		node.model = new Model();
-		node.transform = new Transformation();
-		//node.transform->SetScale(Vector3(0.1f, 0.1f, 0.1f));
-		//node.transform->SetScale(Vector3(0.2f, 0.2f, 0.2f));
-		//objLoader.Load("../Assets/Town/town.obj", *node.model);
-		//objLoader.Load("../Assets/crytek-sponza/sponza.obj", *node.model);
-		//objLoader.Load("../Assets/Castle01/castle.obj", *node.model);
+		Model* model = new Model();
+
+		Transformation* transform = new Transformation();
+
+		node.AddComponent<Model>(model);
+		node.AddComponent<Transformation>(transform);
+
+		//transform->SetScale(Vector3(0.1f, 0.1f, 0.1f));
+		//transform->SetScale(Vector3(0.2f, 0.2f, 0.2f));
+		//objLoader.Load("../Assets/Town/town.obj", *model);
+		objLoader.Load("../Assets/crytek-sponza/sponza.obj", *model);
+		//objLoader.Load("../Assets/Castle01/castle.obj", *model);
 
 		mainContext.nodes.push_back(&node);
 	}
@@ -290,9 +295,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		Model* model = new Model();
 		model->AddMesh(mesh, material);
-
+		
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(0.0f, 0.0f, -5.0f));
+		transform->SetPosition(Vector3(1.0f, 0.0f, 5.0f));
 		transform->SetScale(Vector3(1.0f, 1.0f, 1.0f) * 0.4f);
 
 		textNode.AddComponent<Model>(model);
@@ -302,7 +307,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 
-	//*
+	/*
 	Node node;
 	{
 		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL | Mesh::VERTEX_TEXCOORD));
@@ -345,9 +350,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//*/
 
 	// Convert all meshes to OpenGL meshes
-	RenderContext* contexts[] = { &mainContext, &hudContext };
+	std::vector<RenderContext*> contexts = { &mainContext, &hudContext };
 	
-	for (uint32_t contextIdx = 0; contextIdx < 2; ++contextIdx)
+	for (uint32_t contextIdx = 0; contextIdx < contexts.size(); ++contextIdx)
 	{
 		RenderContext& renderContext = *contexts[contextIdx];
 
@@ -454,7 +459,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		if (inputManager.GetKey('P'))
 			mainRenderer = renderers[2];
 
-		for (int contextIdx = 0; contextIdx < 2; ++contextIdx)
+		for (int contextIdx = 0; contextIdx < contexts.size(); ++contextIdx)
 		{
 			RenderContext& renderContext = *contexts[contextIdx];
 

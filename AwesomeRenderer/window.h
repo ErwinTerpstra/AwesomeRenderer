@@ -28,6 +28,7 @@ namespace AwesomeRenderer
 		
 		void Create(const char* title, int width, int height);
 		void Show(int command) const;
+		void SetClientSize(int width, int height);
 		
 		void ProcessMessages() const;
 		
