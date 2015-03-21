@@ -191,55 +191,42 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	{
 		PhongShader::Light& light = phongShader.lightData.lights[0];
-		light.direction = Vector3(0.0f, -0.5f, -0.5f);
-		light.type = PhongShader::LightType::DIRECTIONAL;
-		light.color = Color::WHITE;
-		light.intensity = 0.2f;
-		light.enabled = true;
-
-		light.direction.normalize();
-	}
-
-	{
-		PhongShader::Light& light = phongShader.lightData.lights[1];
-		light.position = Vector3(40.0f, 30.0f, 40.0f);
-		light.type = PhongShader::LightType::POINT;
-		light.color = Color::WHITE;
-		light.constantAttenuation = 0.0f;
-		light.lineairAttenuation = 0.03f;
-		light.quadricAttenuation = 0.005f;
-		light.intensity = 10.0f;
-		light.enabled = true;
-	}
-
-	{
-		PhongShader::Light& light = phongShader.lightData.lights[2];
-		light.position = Vector3(40.0f, 30.0f, 40.0f);
-		light.type = PhongShader::LightType::POINT;
-		light.color = Color::YELLOW;
-		light.constantAttenuation = 0.0f;
-		light.lineairAttenuation = 0.03f;
-		light.quadricAttenuation = 0.005f;
-		light.intensity = 10.0f;
 		light.enabled = false;
 	}
 
 	{
+		PhongShader::Light& light = phongShader.lightData.lights[1];
+		light.enabled = false;
+	}
+
+	{
+		PhongShader::Light& light = phongShader.lightData.lights[2];
+		light.position = Vector3(5.0f, 3.0f, 5.0f);
+		light.type = PhongShader::LightType::POINT;
+		light.color = Color::BLUE;
+		light.constantAttenuation = 0.0f;
+		light.lineairAttenuation = 0.1f;
+		light.quadricAttenuation = 0.02f;
+		light.intensity = 1.0f;
+		light.enabled = true;
+	}
+
+	{
 		PhongShader::Light& light = (phongShader.lightData.lights[3] = phongShader.lightData.lights[2]);
-		light.position = Vector3(40.0f, 30.0f, -40.0f);
+		light.position = Vector3(5.0f, 3.0f, -5.0f);
 		light.color = Color::RED;
 	}
 
 	{
 		PhongShader::Light& light = (phongShader.lightData.lights[4] = phongShader.lightData.lights[2]);
-		light.position = Vector3(-40.0f, 30.0f, -40.0f);
+		light.position = Vector3(-5.0f, 3.0f, -5.0f);
 		light.color = Color::PURPLE;
 	}
 
 	{
 		PhongShader::Light& light = (phongShader.lightData.lights[5] = phongShader.lightData.lights[2]);
-		light.position = Vector3(-40.0f, 30.0f, 40.0f);
-		light.color = Color::CYAN;
+		light.position = Vector3(-5.0f, 3.0f, 5.0f);
+		light.color = Color::GREEN;
 	}
 
 	
@@ -335,10 +322,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		sampler->texture = texture;
 
 		Material* material = new Material();
-		material->shader = &unlitShader;
+		material->shader = &phongShader;
 		material->diffuseMap = sampler;
-		material->specularColor = Color::WHITE;
-		material->shininess = 50.0f;
+		material->specularColor = Color::WHITE * 0.1f;
+		material->shininess = 1.0f;
 
 		Model* model = new Model();
 		model->AddMesh(mesh, material);
@@ -347,7 +334,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		node->AddComponent(model);
 
 		Transformation* transform = new Transformation();
-		transform->SetScale(Vector3(10.0f, 10.0f, 10.0f));
+		transform->SetScale(Vector3(5.0f, 5.0f, 5.0f));
 		node->AddComponent(transform);
 
 		mainContext.nodes.push_back(node);
@@ -356,14 +343,31 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	{
 		Node* node = new Node();
-		
+
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(0.0f, 0.0f, 3.0f));
 		node->AddComponent(transform);
 
 		Renderable* renderable = new Renderable();
-		renderable->primitive = new AABB(Vector3(-1.0f, -1.0f, -1.0f), Vector3(1.0f, 1.0f, 1.0f));
-		//renderable->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 0.0f);
+		renderable->primitive = new Plane(0.0f, Vector3(0.0f, 1.0f, 0.0f));
+		renderable->material = new Material();
+		renderable->material->diffuseColor = Color::WHITE;
+
+		node->AddComponent(renderable);
+
+		mainContext.nodes.push_back(node);
+	}
+
+	{
+		Node* node = new Node();
+		
+		Transformation* transform = new Transformation();
+		transform->SetPosition(Vector3(0.0f, 0.0f, -1.0f));
+		node->AddComponent(transform);
+
+		Renderable* renderable = new Renderable();
+		renderable->primitive = new AABB(Vector3(-0.5f, 0.0f, -0.5f), Vector3(0.5f, 1.0f, 0.5f));
+		//renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
+
 		renderable->material = new Material();
 		renderable->material->diffuseColor = Color::BLUE;
 
@@ -376,15 +380,34 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Node* node = new Node();
 
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(0.0f, 0.0f, -3.0f));
+		transform->SetPosition(Vector3(1.0f, 0.0f, 0.5f));
 		node->AddComponent(transform);
 
 		Renderable* renderable = new Renderable();
-		renderable->primitive = new AABB(Vector3(-1.0f, -1.0f, -1.0f), Vector3(1.0f, 1.0f, 1.0f));
-		//renderable->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 0.0f);
-		renderable->material = new Material();
+		//renderable->primitive = new AABB(Vector3(-0.5f, 0.0f, -0.5f), Vector3(0.5f, 1.0f, 0.5f));
+		renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
 
+		renderable->material = new Material();
 		renderable->material->diffuseColor = Color::RED;
+
+		node->AddComponent(renderable);
+
+		mainContext.nodes.push_back(node);
+	}
+
+	{
+		Node* node = new Node();
+
+		Transformation* transform = new Transformation();
+		transform->SetPosition(Vector3(-1.0f, 0.0f, 0.5f));
+		node->AddComponent(transform);
+
+		Renderable* renderable = new Renderable();
+		//renderable->primitive = new AABB(Vector3(-0.5f, 0.0f, -0.5f), Vector3(0.5f, 1.0f, 0.5f));
+		renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
+
+		renderable->material = new Material();
+		renderable->material->diffuseColor = Color::GREEN;
 
 		node->AddComponent(renderable);
 
@@ -442,15 +465,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Frame counter variables
 	float timeSinceLastPrint = 0.0f;
 	uint32_t framesDrawn = 0;
-
-	// Animation
-	float animAngle = 0.0f;
-	float animSpeed = 0.1f;
-
-	float lightAngle = 0.0f;
-	float lightSpeed = 0.5f;
-	float lightDistance = 40.0f;
-
+	
 	while (!window.closed)
 	{
 		const TimingInfo& timingInfo = timer.Tick();
@@ -465,19 +480,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			framesDrawn = 0;
 			timeSinceLastPrint -= 1.0f;
 		}
-
-		// Animation
-		animAngle += timingInfo.elapsedSeconds * animSpeed;
-		lightAngle += timingInfo.elapsedSeconds * lightSpeed;
-
-		/*
-		Quaternion q;
-		cml::quaternion_rotation_world_axis(q, 1, animAngle);
-		Transformation* transform = node.GetComponent<Transformation>();
-		transform->SetRotation(q);
-		*/
-
-		phongShader.lightData.lights[1].position = Vector3(std::cos(lightAngle) * lightDistance, std::sin(lightAngle) * lightDistance, 0.0f);
 
 		// Updating logic
 		cameraController.Update(timingInfo);

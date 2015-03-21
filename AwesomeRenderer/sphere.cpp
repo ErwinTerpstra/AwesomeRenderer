@@ -40,15 +40,17 @@ void Sphere::Transform(const Matrix44& mtx)
 		
 bool Sphere::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 {
+	Vector3 relativeOrigin = ray.origin - centerTransformed;
+
 	// Compute A, B and C coefficients
 	float a = cml::dot(ray.direction, ray.direction);
-	float b = 2 * cml::dot(ray.direction, ray.origin);
-	float c = cml::dot(ray.origin, ray.origin) - (radiusTransformed * radiusTransformed);
+	float b = 2 * cml::dot(ray.direction, relativeOrigin);
+	float c = cml::dot(relativeOrigin, relativeOrigin) - (radiusTransformed * radiusTransformed);
 
     // Find discriminant
     float disc = b * b - 4 * a * c;
     
-    // If discriminant is negative there are no real roots, so the ray misses the spher
+    // If discriminant is negative there are no real roots, so the ray misses the sphere
     if (disc < 0)
         return false;
 
@@ -66,19 +68,13 @@ bool Sphere::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
     float t1 = c / q;
 
 	// Check if t0 is smaller than t1. Otherwise, swap them around
-    if (t0 > t1)
-    {
-        float temp = t0;
-        t0 = t1;
-        t1 = temp;
-    }
+	if (t0 > t1 && t1 >= 0.0f)
+		std::swap(t0, t1);
 
 	// If t0 is smaller than zero, both intersections are in negative distance. So the ray misses
 	if (t0 < 0.0f)
 		return false;
 
-	// TODO: If the origin of the ray is inside the sphere, this point where the ray leaves the sphere is returned
-	// Is this the desired behaviour?
 
 	// Fill RaycastHit struct
 	hitInfo.distance = t0;

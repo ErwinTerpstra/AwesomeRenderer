@@ -73,6 +73,13 @@ void RayTracer::Render()
 	const TimingInfo& start = timer.Tick();
 	int pixelsDrawn = 0;
 
+	// Check if the last frame was a complete one.
+	if (pixelIdx >= pixelList.size())
+	{
+		PreRender();
+		pixelIdx = 0;
+	}
+
 	while (timer.Poll() < MAX_FRAME_TIME)
 	{
 		// Get the next pixel
@@ -89,13 +96,11 @@ void RayTracer::Render()
 		if (++pixelIdx >= pixelList.size())
 		{
 			PostRender();
-			PreRender();
-
-			pixelIdx = 0;
+			break;
 		}
 	}
 
-	printf("[RayTracer]: %d pixels drawn.\n", pixelsDrawn);
+	//printf("[RayTracer]: %d pixels drawn.\n", pixelsDrawn);
 }
 
 void RayTracer::Present(Window& window)

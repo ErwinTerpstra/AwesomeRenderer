@@ -86,12 +86,12 @@ bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 		if (cMin > cMax) 
 			std::swap(cMin, cMax);
 
-		if ((tMin > cMax) || (tMax < cMin))
-			return false;
-
 		tMin = std::max(cMin, tMin);
 		tMax = std::min(cMax, tMax);
 	}
+
+	if (tMax < 0 || tMin > tMax)
+		return false;
 
 	hitInfo.distance = tMin;
 	hitInfo.point = ray.origin + ray.direction * tMin;
