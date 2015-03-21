@@ -54,6 +54,8 @@
 #include "meshex.h"
 #include "modelex.h"
 
+#include "renderable.h"
+
 // Renderer
 #include "shader.h"
 #include "softwareshader.h"
@@ -176,7 +178,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//renderer->drawMode = Renderer::DRAW_LINE;
 	}
 
-	Renderer* mainRenderer = &softwareRenderer;
+	Renderer* mainRenderer = &rendererGL;
 
 	// Shader
 	PhongShader phongShader;
@@ -255,15 +257,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	timer.Tick();
 
 
-	//*
-	Node node;
+	/*
 	{
+		Node* node = new Node();
 		Model* model = new Model();
 
 		Transformation* transform = new Transformation();
 
-		node.AddComponent<Model>(model);
-		node.AddComponent<Transformation>(transform);
+		node->AddComponent(model);
+		node->AddComponent(transform);
 
 		//transform->SetScale(Vector3(0.1f, 0.1f, 0.1f));
 		//transform->SetScale(Vector3(0.2f, 0.2f, 0.2f));
@@ -271,12 +273,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		objLoader.Load("../Assets/crytek-sponza/sponza.obj", *model);
 		//objLoader.Load("../Assets/Castle01/castle.obj", *model);
 
-		mainContext.nodes.push_back(&node);
+		mainContext.nodes.push_back(node);
 	}
 	//*/
 
-	Node textNode;
 	{
+		Node* node = new Node();
+
 		Texture* texture = NULL;
 		textureFactory.GetAsset("../Assets/font.bmp", &texture);
 
@@ -300,16 +303,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		transform->SetPosition(Vector3(1.0f, 0.0f, 5.0f));
 		transform->SetScale(Vector3(1.0f, 1.0f, 1.0f) * 0.4f);
 
-		textNode.AddComponent<Model>(model);
-		textNode.AddComponent<Transformation>(transform);
+		node->AddComponent(model);
+		node->AddComponent(transform);
 
-		hudContext.nodes.push_back(&textNode);
+		hudContext.nodes.push_back(node);
 	}
 
 
-	/*
-	Node node;
+	///*
 	{
+		Node* node = new Node();
+
 		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL | Mesh::VERTEX_TEXCOORD));
 		mesh->AddQuad(Vector3(1.0f, 0.0f, -1.0f), Vector3(1.0f, 0.0f, 1.0f), Vector3(-1.0f, 0.0f, 1.0f), Vector3(-1.0f, 0.0f, -1.0f));
 
@@ -339,18 +343,56 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Model* model = new Model();
 		model->AddMesh(mesh, material);
 		model->CalculateBounds();
-		node.AddComponent<Model>(model);
+		
+		node->AddComponent(model);
 
 		Transformation* transform = new Transformation();
 		transform->SetScale(Vector3(10.0f, 10.0f, 10.0f));
-		node.AddComponent<Transformation>(transform);
+		node->AddComponent(transform);
 
-		mainContext.nodes.push_back(&node);
+		mainContext.nodes.push_back(node);
 	}
 	//*/
 
+	{
+		Node* node = new Node();
+		
+		Transformation* transform = new Transformation();
+		transform->SetPosition(Vector3(0.0f, 0.0f, 3.0f));
+		node->AddComponent(transform);
+
+		Renderable* renderable = new Renderable();
+		renderable->primitive = new AABB(Vector3(-1.0f, -1.0f, -1.0f), Vector3(1.0f, 1.0f, 1.0f));
+		//renderable->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 0.0f);
+		renderable->material = new Material();
+		renderable->material->diffuseColor = Color::BLUE;
+
+		node->AddComponent(renderable);
+
+		mainContext.nodes.push_back(node);
+	}
+
+	{
+		Node* node = new Node();
+
+		Transformation* transform = new Transformation();
+		transform->SetPosition(Vector3(0.0f, 0.0f, -3.0f));
+		node->AddComponent(transform);
+
+		Renderable* renderable = new Renderable();
+		renderable->primitive = new AABB(Vector3(-1.0f, -1.0f, -1.0f), Vector3(1.0f, 1.0f, 1.0f));
+		//renderable->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 0.0f);
+		renderable->material = new Material();
+
+		renderable->material->diffuseColor = Color::RED;
+
+		node->AddComponent(renderable);
+
+		mainContext.nodes.push_back(node);
+	}
+
 	// Convert all meshes to OpenGL meshes
-	std::vector<RenderContext*> contexts = { &mainContext, &hudContext };
+	std::vector<RenderContext*> contexts = { &mainContext };
 	
 	for (uint32_t contextIdx = 0; contextIdx < contexts.size(); ++contextIdx)
 	{
@@ -428,10 +470,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		animAngle += timingInfo.elapsedSeconds * animSpeed;
 		lightAngle += timingInfo.elapsedSeconds * lightSpeed;
 
+		/*
 		Quaternion q;
 		cml::quaternion_rotation_world_axis(q, 1, animAngle);
 		Transformation* transform = node.GetComponent<Transformation>();
 		transform->SetRotation(q);
+		*/
 
 		phongShader.lightData.lights[1].position = Vector3(std::cos(lightAngle) * lightDistance, std::sin(lightAngle) * lightDistance, 0.0f);
 
@@ -474,8 +518,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				if (transform == NULL)
 					continue;
 
+				// Update global transformation matrix
 				transform->CalculateMtx();
 
+				// Update model
 				Model* model = node.GetComponent<Model>();
 
 				if (model != NULL)
@@ -489,6 +535,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					}
 
 					model->bounds.Transform(transform->WorldMtx());
+				}
+
+				// Update renderable object
+				Renderable* renderable = node.GetComponent<Renderable>();
+
+				if (renderable != NULL)
+				{
+					if (renderable->primitive != NULL)
+						renderable->primitive->Transform(transform->WorldMtx());
 				}
 			}
 

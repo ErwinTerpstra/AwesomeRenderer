@@ -7,6 +7,7 @@ namespace AwesomeRenderer
 	struct TimingInfo
 	{
 		float elapsedSeconds;
+		float totalSeconds;
 
 		int totalFrames;
 		int tickCount;
@@ -22,12 +23,12 @@ namespace AwesomeRenderer
 
 		float minFrameTime, maxFrameTime;
 
-		int framesThisSecond;
-
 	public:
 		Timer(float minFrameTime = 0.000001f, float maxFrameTime = 1.0f);
 
 		const TimingInfo& Tick();
+
+		float Poll();
 
 	};
 

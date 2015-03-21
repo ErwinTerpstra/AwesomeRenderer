@@ -10,17 +10,49 @@
 #include "window.h"
 #include "primitive.h"
 #include "model.h"
+#include "renderable.h"
+#include "material.h"
 
 using namespace AwesomeRenderer;
 
-RayTracer::RayTracer() : Renderer()
+const float RayTracer::MAX_FRAME_TIME = 1.0f;
+
+RayTracer::RayTracer() : Renderer(), pixelIdx(0), timer(0.0f, FLT_MAX)
 {
 
 }
 
 void RayTracer::Initialize()
 {
+	
+}
 
+void RayTracer::SetRenderContext(const RenderContext* context)
+{
+	Renderer::SetRenderContext(context);
+
+	Buffer* frameBuffer = context->renderTarget->frameBuffer;
+	int pixels = frameBuffer->width * frameBuffer->height;
+	
+	// Check if the pixel list needs to be updated
+	if (pixels != pixelList.size())
+	{
+		pixelList.clear();
+
+		// Reserve enough memory for all pixels
+		pixelList.reserve(pixels);
+
+		// Add all the pixel coordinates to the list
+		for (int x = 0; x < frameBuffer->width; ++x)
+		{
+			for (int y = 0; y < frameBuffer->height; ++y)
+				pixelList.push_back(Point2(x, y));
+		}
+
+		std::random_shuffle(pixelList.begin(), pixelList.end());
+
+		pixelIdx = 0;
+	}
 }
 
 void RayTracer::PreRender()
@@ -35,25 +67,35 @@ void RayTracer::PostRender()
 
 void RayTracer::Render()
 {
-	PreRender();
-
 	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
+	
+	// Measure the start time of our rendering process so we can limit the frame time
+	const TimingInfo& start = timer.Tick();
+	int pixelsDrawn = 0;
 
-	// Iterate through all pixels in the output buffer
-	for (uint32_t y = 0; y < frameBuffer->height; ++y)
+	while (timer.Poll() < MAX_FRAME_TIME)
 	{
-		for (uint32_t x = 0; x < frameBuffer->width; ++x)
-		{
-			// Create a ray from the camera near plane through this pixel
-			Ray primaryRay;
-			renderContext->camera->ViewportToRay(Vector2((float) x, (float) y), primaryRay);
-			
-			Trace(primaryRay, Point2(x, y));
-		}
+		// Get the next pixel
+		const Point2& pixel = pixelList[pixelIdx];
 
+		// Create a ray from the camera near plane through this pixel	
+		Ray primaryRay;
+		renderContext->camera->ViewportToRay(pixel, primaryRay);
+
+		Trace(primaryRay, pixel);
+		++pixelsDrawn;
+
+		// If we rendered the last pixel
+		if (++pixelIdx >= pixelList.size())
+		{
+			PostRender();
+			PreRender();
+
+			pixelIdx = 0;
+		}
 	}
 
-	PostRender();
+	printf("[RayTracer]: %d pixels drawn.\n", pixelsDrawn);
 }
 
 void RayTracer::Present(Window& window)
@@ -72,7 +114,7 @@ void RayTracer::Cleanup()
 void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 {
 	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
-	Buffer* depthBuffer = NULL;// renderContext->renderTarget->depthBuffer;
+	Buffer* depthBuffer = renderContext->renderTarget->depthBuffer;
 	float cameraDepth = renderContext->camera->farPlane - renderContext->camera->nearPlane;
 
 	std::vector<Node*>::const_iterator it;
@@ -81,13 +123,17 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 	for (it = renderContext->nodes.begin(); it != renderContext->nodes.end(); ++it)
 	{
 		const Node* node = *it;
-		const Model* model = node->GetComponent<Model>();
-		const Primitive& shape = model->GetShape();
+		const Renderable* renderable = node->GetComponent<Renderable>();
+
+		if (renderable == NULL)
+			continue;
+
+		const Primitive* shape = renderable->primitive;
 
 		// Perform the ray-triangle intersection
 		RaycastHit hitInfo(ray);
 		
-		if (!shape.IntersectRay(ray, hitInfo))
+		if (!shape->IntersectRay(ray, hitInfo))
 			continue;
 
 		// Only hits outside viewing frustum
@@ -107,7 +153,7 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 		}
 
 		// Write to color buffer
-		frameBuffer->SetPixel(screenPosition[0], screenPosition[1], Color::WHITE);
+		frameBuffer->SetPixel(screenPosition[0], screenPosition[1], renderable->material->diffuseColor);
 	}
 }
 

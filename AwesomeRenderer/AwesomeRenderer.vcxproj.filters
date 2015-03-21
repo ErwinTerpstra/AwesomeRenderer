@@ -225,6 +225,9 @@
     <ClCompile Include="mesh_gl.cpp">
       <Filter>Source Files\Model</Filter>
     </ClCompile>
+    <ClCompile Include="renderable.cpp">
+      <Filter>Source Files\Node</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h">
@@ -397,6 +400,9 @@
     </ClInclude>
     <ClInclude Include="softwareshader.h">
       <Filter>Header Files\Renderer\Shading\SoftwareShaders</Filter>
+    </ClInclude>
+    <ClInclude Include="renderable.h">
+      <Filter>Header Files\Primitives</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

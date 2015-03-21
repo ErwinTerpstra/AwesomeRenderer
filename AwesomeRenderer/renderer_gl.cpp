@@ -104,6 +104,9 @@ void RendererGL::Render()
 		Model* model = (*it)->GetComponent<Model>();
 		Transformation* transform = (*it)->GetComponent<Transformation>();
 
+		if (model == NULL)
+			continue;
+
 		DrawModel(*model, *transform);
 	}
 

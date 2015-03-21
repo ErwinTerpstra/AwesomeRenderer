@@ -108,6 +108,9 @@ void SoftwareRenderer::Render()
 		const Model* model = (*it)->GetComponent<Model>();
 		const Transformation* trans = (*it)->GetComponent<Transformation>();
 
+		if (model == NULL)
+			continue;
+
 		// Iterate through all meshes in the model
 		for (uint32_t cMesh = 0; cMesh < model->meshes.size(); ++cMesh)
 		{

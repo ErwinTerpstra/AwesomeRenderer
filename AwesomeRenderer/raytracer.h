@@ -3,6 +3,7 @@
 
 #include "awesomerenderer.h"
 #include "renderer.h"
+#include "timer.h"
 
 namespace AwesomeRenderer
 {
@@ -12,6 +13,14 @@ namespace AwesomeRenderer
 	class RayTracer : public Renderer
 	{
 
+	private:
+		static const float MAX_FRAME_TIME;
+
+		Timer timer;
+
+		int pixelIdx;
+		std::vector<Point2> pixelList;
+
 	public:
 
 		RayTracer();
@@ -20,6 +29,8 @@ namespace AwesomeRenderer
 		void Render();
 		void Present(Window& window);
 		void Cleanup();
+
+		void SetRenderContext(const RenderContext* context);
 	private:
 
 		void PreRender();
