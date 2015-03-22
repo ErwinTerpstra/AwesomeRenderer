@@ -228,6 +228,9 @@
     <ClCompile Include="renderable.cpp">
       <Filter>Source Files\Node</Filter>
     </ClCompile>
+    <ClCompile Include="lightdata.cpp">
+      <Filter>Source Files\Renderer\Shading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h">
@@ -403,6 +406,12 @@
     </ClInclude>
     <ClInclude Include="renderable.h">
       <Filter>Header Files\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="lightdata.h">
+      <Filter>Header Files\Renderer\Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="skybox.h">
+      <Filter>Header Files\Renderer\Shading</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

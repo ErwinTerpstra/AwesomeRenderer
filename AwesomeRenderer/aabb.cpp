@@ -77,6 +77,8 @@ bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 	float tMin = FLT_MIN;
 	float tMax = FLT_MAX;
 
+	Vector3 normal;
+
 	// Find the shortest intersection between the ray and an axis of the box
 	for (int axis = 0; axis < 3; ++axis)
 	{
@@ -85,6 +87,14 @@ bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 
 		if (cMin > cMax) 
 			std::swap(cMin, cMax);
+
+		if (cMin > tMin)
+		{
+			normal.set(0.0f, 0.0f, 0.0f);
+			normal[axis] = -1.0f * Util::Sign(ray.direction[axis]);
+
+			tMin = cMin;
+		}
 
 		tMin = std::max(cMin, tMin);
 		tMax = std::min(cMax, tMax);
@@ -95,6 +105,7 @@ bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 
 	hitInfo.distance = tMin;
 	hitInfo.point = ray.origin + ray.direction * tMin;
+	hitInfo.normal = normal;
 
 	return true;
 }

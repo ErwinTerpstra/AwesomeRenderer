@@ -3,6 +3,7 @@
 #include "phongshader.h"
 #include "sampler.h"
 #include "material.h"
+#include "lightdata.h"
 
 using namespace AwesomeRenderer;
 
@@ -55,9 +56,9 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 	Color specularLight = Color::BLACK;
 
 	// Iterate through all the lights
-	for (uint8_t i = 0; i < MAX_LIGHTS; ++i)
+	for (uint8_t i = 0; i < LightData::MAX_LIGHTS; ++i)
 	{
-		const Light& light = lightData.lights[i];
+		const LightData::Light& light = lightData->lights[i];
 
 		if (!light.enabled)
 			continue;
@@ -66,13 +67,13 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 		Vector3 toLight;
 		float intensity = light.intensity;
 
-		if (light.type != PhongShader::DIRECTIONAL)
+		if (light.type != LightData::DIRECTIONAL)
 		{
 			toLight = light.position - in.worldPosition.subvector(3);
 			float distanceToLight = toLight.length();
 			toLight.normalize();
 
-			if (light.type == PhongShader::SPOT)
+			if (light.type == LightData::SPOT)
 			{
 				float angleTerm = cml::dot(light.direction, -toLight);
 				float cosAngle = cos(light.angle);
@@ -105,8 +106,5 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 	}
 	//*/
 	
-	// Set alpha channel of specular to zero to prevent addition
-	specular[3] = 0.0f;
-
-	out.color = diffuse * (lightData.ambient + diffuseLight) + specular * specularLight;
+	out.color = diffuse * (lightData->ambient + diffuseLight) + specular * specularLight;
 }

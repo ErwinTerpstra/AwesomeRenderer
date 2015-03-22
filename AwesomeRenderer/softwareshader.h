@@ -6,6 +6,7 @@
 namespace AwesomeRenderer
 {
 	class Material;
+	class LightData;
 
 	class SoftwareShader : public Shader
 	{
@@ -49,6 +50,7 @@ namespace AwesomeRenderer
 		Vector4 viewPosition;
 
 		const Material* material;
+		const LightData* lightData;
 
 	public:
 		SoftwareShader();

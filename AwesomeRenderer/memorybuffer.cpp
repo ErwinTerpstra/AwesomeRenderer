@@ -13,9 +13,10 @@ MemoryBuffer::~MemoryBuffer()
 
 }
 
-void MemoryBuffer::Allocate(uint32_t preferredWidth, uint32_t preferredHeight, uint32_t stride)
-{
-	SetDimensions(preferredWidth, preferredHeight, stride);
+void MemoryBuffer::Allocate(uint32_t preferredWidth, uint32_t preferredHeight, Encoding encoding)
+{	
+	Buffer::Allocate(preferredWidth, preferredHeight, encoding);
+
 	data = new uchar[this->size];
 }
 

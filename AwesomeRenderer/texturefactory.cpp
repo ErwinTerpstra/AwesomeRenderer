@@ -57,8 +57,27 @@ bool TextureFactory::LoadBmp(const std::string& fileName, Texture** texture) con
 	assert(infoHeader.width > 0 && infoHeader.height > 0 && infoHeader.bitCount > 0);
 	assert(infoHeader.sizeImage > 0);
 
+	// Convert bit count to an encoding type
+	Buffer::Encoding encoding;
+
+	switch (infoHeader.bitCount)
+	{
+	case 24:
+		encoding = Buffer::RGB24;
+		break;
+
+	case 32:
+		encoding = Buffer::RGBA32;
+		break;
+
+	default:
+		printf("[Bitmap]: Unsupported bit depth: %d\n", infoHeader.bitCount);
+		return false;
+
+	}
+
 	// Allocate memory
-	(*texture)->Allocate(infoHeader.width, infoHeader.height, infoHeader.bitCount / 8);
+	(*texture)->Allocate(infoHeader.width, infoHeader.height, encoding);
 
 	// Read bitmap data	
 	fseek(filePtr, fileHeader.offBits, SEEK_SET);

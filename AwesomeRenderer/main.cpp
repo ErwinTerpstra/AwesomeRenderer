@@ -57,6 +57,9 @@
 #include "renderable.h"
 
 // Renderer
+#include "lightdata.h"
+#include "skybox.h"
+
 #include "shader.h"
 #include "softwareshader.h"
 #include "unlitshader.h"
@@ -126,8 +129,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	GdiBuffer frameBuffer(window.handle);
 	MemoryBuffer depthBuffer;
 	
-	frameBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, 3);
-	depthBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, 4);
+	frameBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, Buffer::BGR24);
+	depthBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, Buffer::FLOAT32);
 
 	// Render target
 	RenderTarget renderTarget;
@@ -135,7 +138,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// Setup camera
 	Camera camera(cml::left_handed);
-	camera.SetLookAt(Vector3(-5.0f, 5.0f, 5.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0));
+	camera.SetLookAt(Vector3(-3.3f, 2.0f, 3.3f), Vector3(-2.7f, 1.7f, 2.7f), Vector3(0.0f, 1.0f, 0.0));
 	camera.SetPerspective(45.0f, ((float) SCREEN_WIDTH) / SCREEN_HEIGHT, 0.1f, 5000.0f);
 	camera.SetViewport(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT);
 	
@@ -182,53 +185,68 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// Shader
 	PhongShader phongShader;
-	phongShader.lightData.numPixelLights = 8;
-	phongShader.lightData.ambient = Color(0.1f, 0.1f, 0.1f);
-
 	UnlitShader unlitShader;
+
+	// Lighting
+	LightData lightData;
+	lightData.numPixelLights = 8;
+	lightData.ambient = Color(0.1f, 0.1f, 0.1f);
+
+	mainContext.lightData = &lightData;
 
 	Vector3 zero(0.0f, 0.0f, 0.0f);
 
 	{
-		PhongShader::Light& light = phongShader.lightData.lights[0];
-		light.enabled = false;
+		LightData::Light& light = lightData.lights[0];
+		light.position = Vector3(1.0f, 3.0f, 1.0f);
+		light.type = LightData::LightType::POINT;
+		light.color = Color::WHITE;
+		light.constantAttenuation = 0.0f;
+		light.lineairAttenuation = 0.1f;
+		light.quadricAttenuation = 0.02f;
+		light.intensity = 0.4f;
+		light.enabled = true;
 	}
 
 	{
-		PhongShader::Light& light = phongShader.lightData.lights[1];
-		light.enabled = false;
+		LightData::Light& light = lightData.lights[1];
 	}
 
 	{
-		PhongShader::Light& light = phongShader.lightData.lights[2];
+		LightData::Light& light = lightData.lights[2];
 		light.position = Vector3(5.0f, 3.0f, 5.0f);
-		light.type = PhongShader::LightType::POINT;
+		light.type = LightData::LightType::POINT;
 		light.color = Color::BLUE;
 		light.constantAttenuation = 0.0f;
 		light.lineairAttenuation = 0.1f;
 		light.quadricAttenuation = 0.02f;
 		light.intensity = 1.0f;
-		light.enabled = true;
 	}
 
 	{
-		PhongShader::Light& light = (phongShader.lightData.lights[3] = phongShader.lightData.lights[2]);
+		LightData::Light& light = (lightData.lights[3] = lightData.lights[2]);
 		light.position = Vector3(5.0f, 3.0f, -5.0f);
 		light.color = Color::RED;
 	}
 
 	{
-		PhongShader::Light& light = (phongShader.lightData.lights[4] = phongShader.lightData.lights[2]);
+		LightData::Light& light = (lightData.lights[4] = lightData.lights[2]);
 		light.position = Vector3(-5.0f, 3.0f, -5.0f);
 		light.color = Color::PURPLE;
 	}
 
 	{
-		PhongShader::Light& light = (phongShader.lightData.lights[5] = phongShader.lightData.lights[2]);
+		LightData::Light& light = (lightData.lights[5] = lightData.lights[2]);
 		light.position = Vector3(-5.0f, 3.0f, 5.0f);
 		light.color = Color::GREEN;
 	}
 
+	// Skybox
+	Skybox skybox;
+	skybox.top = Color(35, 71, 189);
+	skybox.bottom = Color(107, 205, 209);
+
+	mainContext.skybox = &skybox;
 	
 	// Camera controller
 	CameraController cameraController(camera);
@@ -365,11 +383,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		node->AddComponent(transform);
 
 		Renderable* renderable = new Renderable();
-		renderable->primitive = new AABB(Vector3(-0.5f, 0.0f, -0.5f), Vector3(0.5f, 1.0f, 0.5f));
-		//renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
+		//renderable->primitive = new AABB(Vector3(-0.5f, 0.0f, -0.5f), Vector3(0.5f, 1.0f, 0.5f));
+		renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
 
 		renderable->material = new Material();
 		renderable->material->diffuseColor = Color::BLUE;
+		renderable->material->specularColor = Color(0.5f, 0.5f, 0.5f);
 
 		node->AddComponent(renderable);
 
@@ -389,6 +408,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		renderable->material = new Material();
 		renderable->material->diffuseColor = Color::RED;
+		renderable->material->specularColor = Color(0.5f, 0.5f, 0.5f);
 
 		node->AddComponent(renderable);
 
@@ -408,6 +428,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		renderable->material = new Material();
 		renderable->material->diffuseColor = Color::GREEN;
+		renderable->material->specularColor = Color(0.5f, 0.5f, 0.5f);
 
 		node->AddComponent(renderable);
 
@@ -486,11 +507,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		camera.UpdateViewMtx();
 		
 		// Keyboard light switching
-		for (uint32_t lightIdx = 0; lightIdx < PhongShader::MAX_LIGHTS; ++lightIdx)
+		for (uint32_t lightIdx = 0; lightIdx < LightData::MAX_LIGHTS; ++lightIdx)
 		{
 			if (inputManager.GetKeyDown(VK_NUMPAD0 + lightIdx))
 			{
-				PhongShader::Light& light = phongShader.lightData.lights[lightIdx];
+				LightData::Light& light = mainContext.lightData->lights[lightIdx];
 				light.enabled = !light.enabled;
 			}
 		}

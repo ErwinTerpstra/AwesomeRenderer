@@ -3,19 +3,24 @@
 
 namespace AwesomeRenderer
 {
+	class Node;
+
 	struct RaycastHit
 	{
-		const Ray& ray;
-
 		Vector3 point;
+		Vector3 normal;
+
 		float distance;
 
 		Vector3 barycentricCoords;
 
-		RaycastHit(const Ray& ray) : ray(ray)
+		const Node* node;
+
+		RaycastHit() : distance(FLT_MAX), node(NULL)
 		{
 
 		}
+
 	};
 
 }

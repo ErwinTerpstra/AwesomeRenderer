@@ -5,15 +5,22 @@
 
 namespace AwesomeRenderer
 {
-
+	// TODO: Make this a generic buffer (void*) and move the "byte" functionality to a ByteBufer subclass
+	// Also split the color functionality to a ColorBuffer class
 	class Buffer
 	{
 
 	public:
+		enum Encoding
+		{
+			RGB24, RGBA32, BGR24, FLOAT32
+		};
+
 		uint32_t width, height, size;
 		uint8_t stride, bpp;
 
-		// TODO: Make this a generic buffer (void*) and move the "byte" functionality to a ByteBufer subclass
+		Encoding encoding;
+
 		uchar* data;
 
 	public:
@@ -21,35 +28,29 @@ namespace AwesomeRenderer
 		Buffer();
 		virtual ~Buffer();
 
-		virtual void Allocate(uint32_t preferredWidth, uint32_t preferredHeight, uint32_t stride) = 0;
-		virtual void Destroy() = 0;
+		virtual void Allocate(uint32_t preferredWidth, uint32_t preferredHeight, Encoding encoding);
+		virtual uint8_t GetStrideForDepth(uint8_t bitDepth);
+		virtual void Destroy();
 		
 		__inline void Clear() { memset(data, 0, size); }
 		void Clear(const Color& color);
 		
 		float GetPixel(uint32_t x, uint32_t y) const;
-		void GetPixel(uint32_t x, uint32_t y, Color& sample) const;
+		void GetPixel(uint32_t x, uint32_t y, Color& color) const;
 
 		void SetPixel(uint32_t x, uint32_t y, const Color& color);
 		void SetPixel(uint32_t x, uint32_t y, const uchar* buffer);
-		void SetPixel(uint32_t x, uint32_t y, uchar value);
 		void SetPixel(uint32_t x, uint32_t y, float f);
 		
 		__inline uchar* GetBase(uint32_t x, uint32_t y) const
 		{ 
-			return data + (y * width + x) * (bpp / 8);
+			return data + (y * width + x) * stride;
 		}
 
-	protected:
+		static uint8_t GetEncodingDepth(Encoding encoding);
 
-		void SetDimensions(uint32_t width, uint32_t height, uint32_t stride)
-		{
-			this->width = width;
-			this->height = height;
-			this->stride = stride;
-			this->bpp = stride * 8;
-			this->size = width * height * stride;
-		}
+		static void EncodeColor(const Color& color, Encoding encoding, uchar* buffer);
+		static void DecodeColor(const uchar* buffer, Encoding encoding, Color& color);
 
 	};
 

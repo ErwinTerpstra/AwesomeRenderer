@@ -8,6 +8,8 @@
 namespace AwesomeRenderer
 {
 	class Ray;
+	struct RaycastHit;
+
 	class Window;
 
 	class RayTracer : public Renderer
@@ -15,6 +17,12 @@ namespace AwesomeRenderer
 
 	private:
 		static const float MAX_FRAME_TIME;
+		static const int MAX_DEPTH;
+
+		struct ShadingInfo
+		{
+			Color color;
+		};
 
 		Timer timer;
 
@@ -36,6 +44,10 @@ namespace AwesomeRenderer
 		void PreRender();
 		void PostRender();
 
+		void Render(const Point2& pixel);
+		void CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int depth = 0);
+
+		bool RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance = FLT_MAX);
 		void Trace(const Ray& ray, const Point2& screenPosition);
 	};
 

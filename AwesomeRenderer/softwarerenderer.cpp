@@ -215,6 +215,7 @@ void SoftwareRenderer::BeginDraw(const Matrix44& model, const Material& material
 
 	// Setup shader rendering parameters
 	shader->material = &material;
+	shader->lightData = renderContext->lightData;
 
 	shader->Prepare();
 }

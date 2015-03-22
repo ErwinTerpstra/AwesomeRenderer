@@ -81,6 +81,7 @@
     <ClCompile Include="aabb.cpp" />
     <ClCompile Include="cameracontroller.cpp" />
     <ClCompile Include="components.cpp" />
+    <ClCompile Include="lightdata.cpp" />
     <ClCompile Include="program_gl.cpp" />
     <ClCompile Include="renderable.cpp" />
     <ClCompile Include="shader_gl.cpp" />
@@ -136,6 +137,7 @@
     <ClInclude Include="extendee.h" />
     <ClInclude Include="extension.h" />
     <ClInclude Include="factory.h" />
+    <ClInclude Include="lightdata.h" />
     <ClInclude Include="program_gl.h" />
     <ClInclude Include="renderable.h" />
     <ClInclude Include="shader_gl.h" />
@@ -163,6 +165,7 @@
     <ClInclude Include="sampler.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="primitive.h" />
+    <ClInclude Include="skybox.h" />
     <ClInclude Include="sphere.h" />
     <ClInclude Include="textmesh.h" />
     <ClInclude Include="texture.h" />

@@ -9,6 +9,8 @@ namespace AwesomeRenderer
 	class Window;
 	class Camera;
 	class Node;
+	class LightData;
+	class Skybox;
 
 	class RenderContext
 	{
@@ -18,6 +20,10 @@ namespace AwesomeRenderer
 
 		Camera* camera;
 		RenderTarget* renderTarget;
+
+		LightData* lightData;
+
+		Skybox* skybox;
 
 		std::vector<Node*> nodes;
 

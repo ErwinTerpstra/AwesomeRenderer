@@ -9,6 +9,11 @@ namespace AwesomeRenderer
 	{
 		typedef cml::vector<float, cml::fixed<Size> > Vector;
 
+		static void Interpolate(const Vector& a, const Vector& b, float d, Vector& out)
+		{
+			out = a * (1.0f - d) + b * d;
+		}
+
 		static void Interpolate(const Vector& a, const Vector& b, const Vector& c, 
 								const Vector3& barycentricCoords, Vector& out)
 		{
@@ -18,6 +23,12 @@ namespace AwesomeRenderer
 						 (b[i] * barycentricCoords[1]) +
 						 (c[i] * barycentricCoords[2]);
 			}
+		}
+
+		static void Reflect(const Vector& v, const Vector& normal, Vector& out)
+		{
+			float d = 2 * cml::dot(v, -normal);
+			out = v + normal * d;
 		}
 
 	};

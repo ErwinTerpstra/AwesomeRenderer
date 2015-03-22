@@ -69,6 +69,7 @@ bool Triangle3D::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 	// Fill the hit info struct with gathered data
 	hitInfo.point = pointOnPlane;
 	hitInfo.distance = t;
+	hitInfo.normal = normal;
 
 	return true;
 }

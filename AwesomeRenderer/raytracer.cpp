@@ -12,10 +12,13 @@
 #include "model.h"
 #include "renderable.h"
 #include "material.h"
+#include "lightdata.h"
+#include "skybox.h"
 
 using namespace AwesomeRenderer;
 
-const float RayTracer::MAX_FRAME_TIME = 1.0f;
+const float RayTracer::MAX_FRAME_TIME = 0.1f;
+const int RayTracer::MAX_DEPTH = 2;
 
 RayTracer::RayTracer() : Renderer(), pixelIdx(0), timer(0.0f, FLT_MAX)
 {
@@ -39,13 +42,13 @@ void RayTracer::SetRenderContext(const RenderContext* context)
 	{
 		pixelList.clear();
 
-		// Reserve enough memory for all pixels
+		// Reserve enough memory for al lpixels
 		pixelList.reserve(pixels);
 
 		// Add all the pixel coordinates to the list
-		for (int x = 0; x < frameBuffer->width; ++x)
+		for (int y = 0; y < frameBuffer->height; ++y)
 		{
-			for (int y = 0; y < frameBuffer->height; ++y)
+			for (int x = 0; x < frameBuffer->width; ++x)
 				pixelList.push_back(Point2(x, y));
 		}
 
@@ -57,7 +60,7 @@ void RayTracer::SetRenderContext(const RenderContext* context)
 
 void RayTracer::PreRender()
 {
-	renderContext->renderTarget->Clear(Color::BLACK, renderContext->clearFlags);
+	//renderContext->renderTarget->Clear(Color::BLACK, renderContext->clearFlags);
 }
 
 void RayTracer::PostRender()
@@ -67,8 +70,6 @@ void RayTracer::PostRender()
 
 void RayTracer::Render()
 {
-	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
-	
 	// Measure the start time of our rendering process so we can limit the frame time
 	const TimingInfo& start = timer.Tick();
 	int pixelsDrawn = 0;
@@ -85,11 +86,8 @@ void RayTracer::Render()
 		// Get the next pixel
 		const Point2& pixel = pixelList[pixelIdx];
 
-		// Create a ray from the camera near plane through this pixel	
-		Ray primaryRay;
-		renderContext->camera->ViewportToRay(pixel, primaryRay);
+		Render(pixel);
 
-		Trace(primaryRay, pixel);
 		++pixelsDrawn;
 
 		// If we rendered the last pixel
@@ -116,13 +114,109 @@ void RayTracer::Cleanup()
 
 }
 
-void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
+void RayTracer::Render(const Point2& pixel)
 {
 	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
-	Buffer* depthBuffer = renderContext->renderTarget->depthBuffer;
-	float cameraDepth = renderContext->camera->farPlane - renderContext->camera->nearPlane;
 
+	// Create a ray from the camera near plane through this pixel	
+	Ray primaryRay;
+	renderContext->camera->ViewportToRay(pixel, primaryRay);
+
+	ShadingInfo shadingInfo;
+	CalculateShading(primaryRay, shadingInfo);
+
+	// Write to color buffer
+	frameBuffer->SetPixel(pixel[0], pixel[1], shadingInfo.color);
+}
+
+void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int depth)
+{
+	const LightData& lightData = *renderContext->lightData;
+
+	// Perform the raycast to find out which node we've hit
+	RaycastHit hitInfo;
+	if (!RayCast(ray, hitInfo))
+	{
+		if (renderContext->skybox != NULL)
+			renderContext->skybox->Sample(ray.direction, shadingInfo.color);
+
+		return;
+	}
+
+	const Renderable* renderable = hitInfo.node->GetComponent<Renderable>();
+
+	Color diffuse = renderable->material->diffuseColor;
+	Color specular = renderable->material->specularColor;
+
+	Color diffuseLight = Color::BLACK;
+	Color specularLight = Color::BLACK;
+
+	// Iterate through all the lights
+	for (uint8_t i = 0; i < LightData::MAX_LIGHTS; ++i)
+	{
+		const LightData::Light& light = lightData.lights[i];
+
+		if (!light.enabled)
+			continue;
+
+		// Calculate light intensity
+		Vector3 toLight;
+		float intensity = light.intensity;
+		
+		if (light.type != LightData::DIRECTIONAL)
+		{
+			toLight = light.position - hitInfo.point;
+			float distanceToLight = toLight.length();
+			toLight.normalize();
+
+			Ray ray(hitInfo.point + toLight * 0.0001f, toLight);
+			RaycastHit hitInfo;
+			if (RayCast(ray, hitInfo, distanceToLight))
+				continue;
+
+			if (light.type == LightData::SPOT)
+			{
+				float angleTerm = cml::dot(light.direction, -toLight);
+				float cosAngle = cos(light.angle);
+
+				if (angleTerm > cosAngle)
+					intensity *= (angleTerm - cosAngle) / (1.0f - cosAngle);
+				else
+					intensity = 0;
+			}
+
+			intensity *= 1.0f / (light.constantAttenuation + (light.lineairAttenuation * distanceToLight) + (light.quadricAttenuation * distanceToLight * distanceToLight));
+		}
+		else
+			toLight = -light.direction;
+
+
+		// Compute the diffuse term
+		float diffuseTerm = std::max(cml::dot(hitInfo.normal, toLight), 0.0f);
+		diffuseLight += light.color * diffuseTerm * intensity;
+	}
+
+	if (depth < MAX_DEPTH)
+	{
+		Vector3 reflectionDirection;
+		VectorUtil<3>::Reflect(ray.direction, hitInfo.normal, reflectionDirection);
+
+		Ray reflectionRay(hitInfo.point + reflectionDirection * 0.0001f, reflectionDirection);
+
+		ShadingInfo reflectionShading;
+		CalculateShading(reflectionRay, reflectionShading, ++depth);
+
+		specularLight = reflectionShading.color;
+	}
+
+	shadingInfo.color = diffuse * (lightData.ambient + diffuseLight) + specular * specularLight;
+}
+
+bool RayTracer::RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance)
+{
 	std::vector<Node*>::const_iterator it;
+	
+	nearestHit.distance = FLT_MAX;
 
 	// Iterate through all nodes in the scene
 	for (it = renderContext->nodes.begin(); it != renderContext->nodes.end(); ++it)
@@ -135,31 +229,20 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 
 		const Primitive* shape = renderable->primitive;
 
-		// Perform the ray-triangle intersection
-		RaycastHit hitInfo(ray);
-		
+		// Perform the ray intersection		
+		RaycastHit hitInfo;
 		if (!shape->IntersectRay(ray, hitInfo))
 			continue;
 
-		// Only hits outside viewing frustum
-		if (hitInfo.distance > cameraDepth)
+		// If the intersection is further away than a previous intersection, we're not interested
+		if (hitInfo.distance > nearestHit.distance || hitInfo.distance > maxDistance)
 			continue;
-
-		if (depthBuffer != NULL)
-		{
-			// Depth testing
-			float depth = 1.0f - hitInfo.distance / cameraDepth;
-
-			if (depthBuffer->GetPixel(screenPosition[0], screenPosition[1]) >= depth)
-				continue;
-
-			// Write to depth buffer
-			depthBuffer->SetPixel(screenPosition[0], screenPosition[1], depth);
-		}
-
-		// Write to color buffer
-		frameBuffer->SetPixel(screenPosition[0], screenPosition[1], renderable->material->diffuseColor);
+		
+		nearestHit = hitInfo;
+		nearestHit.node = node;
 	}
+
+	return nearestHit.distance < maxDistance;
 }
 
 #if FALSE

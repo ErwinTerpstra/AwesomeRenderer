@@ -22,7 +22,7 @@ namespace AwesomeRenderer
 		GdiBuffer(HWND windowHandle);
 		~GdiBuffer();
 		
-		virtual void Allocate(uint32_t preferredWidth, uint32_t preferredHeight, uint32_t stride);
+		virtual void Allocate(uint32_t preferredWidth, uint32_t preferredHeight, Encoding encoding);
 		virtual void Destroy();
 
 	};
