@@ -1,10 +1,10 @@
-#include "awesomerenderer.h"
 #include "renderer_gl.h"
 #include "filereader.h"
 #include "rendercontext.h"
 #include "window.h"
 #include "window_gl.h"
 #include "material.h"
+#include "phongmaterial.h"
 #include "sampler.h"
 #include "texture.h"
 #include "texture_gl.h"
@@ -142,12 +142,12 @@ void RendererGL::BeginDraw(const Matrix44& model, const Material& material)
 	currentMaterial = &material;
 
 	ProgramGL* shader = &defaultShader;
-	
+
 	// Setup geometry matrices for shader
 	glUniformMatrix4fv(shader->GetUniformLocation("modelMtx"), 1, GL_FALSE, model.data());
 	glUniformMatrix4fv(shader->GetUniformLocation("viewMtx"), 1, GL_FALSE, renderContext->camera->viewMtx.data());
 	glUniformMatrix4fv(shader->GetUniformLocation("projMtx"), 1, GL_FALSE, renderContext->camera->projMtx.data());
-	
+
 	// Load textures supplied by material
 	GLenum activeTexture = GL_TEXTURE0;
 	if (material.diffuseMap != NULL)

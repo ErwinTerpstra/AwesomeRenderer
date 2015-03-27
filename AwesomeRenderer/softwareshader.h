@@ -1,6 +1,7 @@
 #ifndef _SOFTWARE_SHADER_H_
 #define _SOFTWARE_SHADER_H_
 
+#include "awesomerenderer.h"
 #include "shader.h"
 
 namespace AwesomeRenderer

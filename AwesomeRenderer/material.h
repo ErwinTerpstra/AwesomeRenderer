@@ -5,7 +5,6 @@
 
 namespace AwesomeRenderer
 {
-	class Texture;
 	class Shader;
 	class Sampler;
 
@@ -14,14 +13,14 @@ namespace AwesomeRenderer
 	public:
 		bool translucent;
 
+		float shininess;
+
 		Sampler* diffuseMap;
 		Sampler* specularMap;
 		Sampler* normalMap;
-		
+
 		Color diffuseColor;
 		Color specularColor;
-
-		float shininess;
 
 		Shader* shader;
 

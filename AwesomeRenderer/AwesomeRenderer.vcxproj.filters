@@ -79,6 +79,12 @@
     <Filter Include="Source Files\Primitives">
       <UniqueIdentifier>{0c27a60f-c33b-4700-976d-6f5f32bbea68}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Renderer\Shading\Materials">
+      <UniqueIdentifier>{2737cc9e-dda9-4b2a-97ee-845fa7e455c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\Shading\Materials">
+      <UniqueIdentifier>{a5b903fc-e665-4d0d-9f54-12cf29e13a75}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -159,9 +165,6 @@
     <ClCompile Include="transformation.cpp">
       <Filter>Source Files\Node</Filter>
     </ClCompile>
-    <ClCompile Include="material.cpp">
-      <Filter>Source Files\Renderer\Shading</Filter>
-    </ClCompile>
     <ClCompile Include="octree.cpp">
       <Filter>Source Files\Node</Filter>
     </ClCompile>
@@ -230,6 +233,12 @@
     </ClCompile>
     <ClCompile Include="lightdata.cpp">
       <Filter>Source Files\Renderer\Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="material.cpp">
+      <Filter>Source Files\Renderer\Shading\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="phongmaterial.cpp">
+      <Filter>Source Files\Renderer\Shading\Materials</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -310,9 +319,6 @@
     </ClInclude>
     <ClInclude Include="transformation.h">
       <Filter>Header Files\Node</Filter>
-    </ClInclude>
-    <ClInclude Include="material.h">
-      <Filter>Header Files\Renderer\Shading</Filter>
     </ClInclude>
     <ClInclude Include="octree.h">
       <Filter>Header Files\Node</Filter>
@@ -412,6 +418,12 @@
     </ClInclude>
     <ClInclude Include="skybox.h">
       <Filter>Header Files\Renderer\Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="phongmaterial.h">
+      <Filter>Header Files\Renderer\Shading\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="material.h">
+      <Filter>Header Files\Renderer\Shading\Materials</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

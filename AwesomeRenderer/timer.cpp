@@ -1,5 +1,3 @@
-#include "awesomerenderer.h"
-
 #include "timer.h"
 
 using namespace AwesomeRenderer;

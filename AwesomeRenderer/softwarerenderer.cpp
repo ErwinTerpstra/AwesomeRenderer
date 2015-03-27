@@ -1,5 +1,3 @@
-#include "awesomerenderer.h"
-
 #include "softwarerenderer.h"
 
 #include "window.h"

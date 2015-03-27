@@ -1,5 +1,3 @@
-#include "awesomerenderer.h"
-
 #include "unlitshader.h"
 #include "material.h"
 #include "sampler.h"

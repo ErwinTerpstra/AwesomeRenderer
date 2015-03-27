@@ -1,5 +1,3 @@
-#include "awesomerenderer.h"
-
 #include "plane.h"
 
 using namespace AwesomeRenderer;

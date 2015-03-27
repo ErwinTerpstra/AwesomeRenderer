@@ -1,5 +1,3 @@
-#include "awesomerenderer.h"
-
 #include "node.h"
 #include "raytracer.h"
 #include "ray.h"

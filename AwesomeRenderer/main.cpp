@@ -44,7 +44,9 @@
 // Rendering
 #include "texture.h"
 #include "sampler.h"
+
 #include "material.h"
+#include "phongmaterial.h"
 
 #include "mesh.h"
 #include "model.h"
@@ -297,7 +299,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		sampler->wrapMode = Sampler::WM_REPEAT;
 		sampler->texture = texture;
 
-		Material* material = new Material();
+		PhongMaterial* material = new PhongMaterial();
 		material->shader = &unlitShader;
 		material->diffuseMap = sampler;
 
@@ -339,7 +341,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Sampler* sampler = new Sampler();
 		sampler->texture = texture;
 
-		Material* material = new Material();
+		PhongMaterial* material = new PhongMaterial();
 		material->shader = &phongShader;
 		material->diffuseMap = sampler;
 		material->specularColor = Color::WHITE * 0.1f;
@@ -367,8 +369,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		Renderable* renderable = new Renderable();
 		renderable->primitive = new Plane(0.0f, Vector3(0.0f, 1.0f, 0.0f));
-		renderable->material = new Material();
-		renderable->material->diffuseColor = Color::WHITE;
+		
+		PhongMaterial* material = new PhongMaterial();
+		material->diffuseColor = Color::WHITE;
+		renderable->material = material;
 
 		node->AddComponent(renderable);
 
@@ -386,9 +390,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//renderable->primitive = new AABB(Vector3(-0.5f, 0.0f, -0.5f), Vector3(0.5f, 1.0f, 0.5f));
 		renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
 
-		renderable->material = new Material();
-		renderable->material->diffuseColor = Color::BLUE;
-		renderable->material->specularColor = Color(0.5f, 0.5f, 0.5f);
+		PhongMaterial* material = new PhongMaterial();
+		material->diffuseColor = Color::BLUE;
+		material->specularColor = Color(0.5f, 0.5f, 0.5f);
+		renderable->material = material;
 
 		node->AddComponent(renderable);
 
@@ -406,9 +411,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//renderable->primitive = new AABB(Vector3(-0.5f, 0.0f, -0.5f), Vector3(0.5f, 1.0f, 0.5f));
 		renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
 
-		renderable->material = new Material();
-		renderable->material->diffuseColor = Color::RED;
-		renderable->material->specularColor = Color(0.5f, 0.5f, 0.5f);
+		PhongMaterial* material = new PhongMaterial();
+		material->diffuseColor = Color::RED;
+		material->specularColor = Color(0.5f, 0.5f, 0.5f);
+		renderable->material = material;
 
 		node->AddComponent(renderable);
 
@@ -426,9 +432,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//renderable->primitive = new AABB(Vector3(-0.5f, 0.0f, -0.5f), Vector3(0.5f, 1.0f, 0.5f));
 		renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
 
-		renderable->material = new Material();
-		renderable->material->diffuseColor = Color::GREEN;
-		renderable->material->specularColor = Color(0.5f, 0.5f, 0.5f);
+		PhongMaterial* material = new PhongMaterial();
+		material->diffuseColor = Color::GREEN;
+		material->specularColor = Color(0.5f, 0.5f, 0.5f);
+
+		renderable->material = material;
 
 		node->AddComponent(renderable);
 
@@ -457,7 +465,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 			for (auto materialIt = model->materials.begin(); materialIt != model->materials.end(); ++materialIt)
 			{
-				Material* material = (*materialIt);
+				Material* material = *materialIt;
+
+				if (material == NULL)
+					continue;
+
 				TextureGL* texture;
 
 				if (material->diffuseMap != NULL && !material->diffuseMap->texture->HasExtension())
