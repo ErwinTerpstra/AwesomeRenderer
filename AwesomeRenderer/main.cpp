@@ -200,7 +200,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	{
 		LightData::Light& light = lightData.lights[0];
-		light.position = Vector3(1.0f, 3.0f, 1.0f);
+		light.position = Vector3(3.0f, 3.0f, 3.0f);
 		light.type = LightData::LightType::POINT;
 		light.color = Color::WHITE;
 		light.constantAttenuation = 0.0f;
@@ -223,24 +223,28 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		light.lineairAttenuation = 0.1f;
 		light.quadricAttenuation = 0.02f;
 		light.intensity = 1.0f;
+		//light.enabled = true;
 	}
 
 	{
 		LightData::Light& light = (lightData.lights[3] = lightData.lights[2]);
 		light.position = Vector3(5.0f, 3.0f, -5.0f);
 		light.color = Color::RED;
+		//light.enabled = true;
 	}
 
 	{
 		LightData::Light& light = (lightData.lights[4] = lightData.lights[2]);
 		light.position = Vector3(-5.0f, 3.0f, -5.0f);
 		light.color = Color::PURPLE;
+		//light.enabled = true;
 	}
 
 	{
 		LightData::Light& light = (lightData.lights[5] = lightData.lights[2]);
 		light.position = Vector3(-5.0f, 3.0f, 5.0f);
 		light.color = Color::GREEN;
+		//light.enabled = true;
 	}
 
 	// Skybox
@@ -371,7 +375,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		renderable->primitive = new Plane(0.0f, Vector3(0.0f, 1.0f, 0.0f));
 		
 		PhongMaterial* material = new PhongMaterial();
-		material->diffuseColor = Color::WHITE;
+		material->diffuseColor = Color::GRAY;
+		material->specularColor = Color::GRAY;
+		material->shininess = 5.0f;
 		renderable->material = material;
 
 		node->AddComponent(renderable);
@@ -383,7 +389,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Node* node = new Node();
 		
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(0.0f, 0.0f, -1.0f));
+		transform->SetPosition(Vector3(0.0f, 0.0f, -1.5f));
 		node->AddComponent(transform);
 
 		Renderable* renderable = new Renderable();
@@ -391,8 +397,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
 
 		PhongMaterial* material = new PhongMaterial();
-		material->diffuseColor = Color::BLUE;
-		material->specularColor = Color(0.5f, 0.5f, 0.5f);
+		material->diffuseColor = Color::WHITE;
+		material->specularColor = Color::GRAY;
+		material->shininess = 5.0f;
 		renderable->material = material;
 
 		node->AddComponent(renderable);
@@ -412,8 +419,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
 
 		PhongMaterial* material = new PhongMaterial();
-		material->diffuseColor = Color::RED;
-		material->specularColor = Color(0.5f, 0.5f, 0.5f);
+		material->diffuseColor = Color::WHITE;
+		material->specularColor = Color::GRAY;
+		material->shininess = 5.0f;
 		renderable->material = material;
 
 		node->AddComponent(renderable);
@@ -433,8 +441,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
 
 		PhongMaterial* material = new PhongMaterial();
-		material->diffuseColor = Color::GREEN;
-		material->specularColor = Color(0.5f, 0.5f, 0.5f);
+		material->diffuseColor = Color::WHITE;
+		material->specularColor = Color::GRAY;
+		material->shininess = 5.0f;
 
 		renderable->material = material;
 

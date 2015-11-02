@@ -27,8 +27,10 @@ namespace AwesomeRenderer
 
 		static void Reflect(const Vector& v, const Vector& normal, Vector& out)
 		{
-			float d = 2 * cml::dot(v, -normal);
-			out = v + normal * d;
+			out = v - 2 * cml::dot(v, normal) * normal;
+			
+			//float d = 2 * cml::dot(v, -normal);
+			//out = v + normal * d;
 		}
 
 	};

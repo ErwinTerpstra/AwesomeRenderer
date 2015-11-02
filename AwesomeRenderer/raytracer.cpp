@@ -15,8 +15,8 @@
 
 using namespace AwesomeRenderer;
 
-const float RayTracer::MAX_FRAME_TIME = 0.1f;
-const int RayTracer::MAX_DEPTH = 2;
+const float RayTracer::MAX_FRAME_TIME = 0.05f;
+const int RayTracer::MAX_DEPTH = 1;
 
 RayTracer::RayTracer() : Renderer(), pixelIdx(0), timer(0.0f, FLT_MAX)
 {
@@ -140,7 +140,7 @@ void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int d
 
 		return;
 	}
-
+	
 	const Renderable* renderable = hitInfo.node->GetComponent<Renderable>();
 
 	Color diffuse = renderable->material->diffuseColor;
@@ -148,6 +148,8 @@ void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int d
 
 	Color diffuseLight = Color::BLACK;
 	Color specularLight = Color::BLACK;
+
+	float shininess = renderable->material->shininess;
 
 	// Iterate through all the lights
 	for (uint8_t i = 0; i < LightData::MAX_LIGHTS; ++i)
@@ -187,15 +189,25 @@ void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int d
 		}
 		else
 			toLight = -light.direction;
-
-
+		
 		// Compute the diffuse term
 		float diffuseTerm = std::max(cml::dot(hitInfo.normal, toLight), 0.0f);
 		diffuseLight += light.color * diffuseTerm * intensity;
+
+		// Compute the specular term
+		if (diffuseTerm > 0.0f)
+		{
+			Vector3 toEye = cml::normalize(renderContext->camera->position - hitInfo.point);
+			Vector3 halfVector = cml::normalize(toLight + toEye);
+
+			float specularTerm = std::pow(std::max(cml::dot(hitInfo.normal, halfVector), 0.0f), shininess);
+			specularLight += light.color * specularTerm * intensity;
+		}
 	}
 
 	if (depth < MAX_DEPTH)
 	{
+		// Reflection
 		Vector3 reflectionDirection;
 		VectorUtil<3>::Reflect(ray.direction, hitInfo.normal, reflectionDirection);
 
@@ -204,7 +216,18 @@ void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int d
 		ShadingInfo reflectionShading;
 		CalculateShading(reflectionRay, reflectionShading, ++depth);
 
-		specularLight = reflectionShading.color;
+		specularLight += reflectionShading.color;
+
+		// Refraction
+		/*
+		Vector3 refractionDirection = ray.direction;
+		Ray refractionRay(hitInfo.point + refractionDirection * 0.0001f, refractionDirection);
+
+		ShadingInfo refractionShading;
+		CalculateShading(refractionRay, refractionShading, ++depth);
+
+		specularLight += refractionShading.color;
+		*/
 	}
 
 	shadingInfo.color = diffuse * (lightData.ambient + diffuseLight) + specular * specularLight;

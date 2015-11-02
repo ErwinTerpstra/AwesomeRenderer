@@ -93,11 +93,11 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 		diffuseLight += light.color * diffuseTerm * intensity;
 
 		// Compute the specular term
-		Vector3 toEye = cml::normalize(viewPosition - in.worldPosition).subvector(3);
-		Vector3 halfVector = cml::normalize(toLight + toEye);
-
 		if (diffuseTerm > 0.0f)
 		{
+			Vector3 toEye = cml::normalize(viewPosition - in.worldPosition).subvector(3);
+			Vector3 halfVector = cml::normalize(toLight + toEye);
+
 			float specularTerm = std::pow(std::max(cml::dot(in.normal, halfVector), 0.0f), shininess);
 			specularLight += light.color * specularTerm * intensity;
 		}
