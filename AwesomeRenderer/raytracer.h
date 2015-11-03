@@ -12,6 +12,9 @@ namespace AwesomeRenderer
 
 	class Window;
 
+	class PhongMaterial;
+	class PbrMaterial;
+
 	class RayTracer : public Renderer
 	{
 
@@ -25,6 +28,7 @@ namespace AwesomeRenderer
 		};
 
 		Timer timer;
+		Timer frameTimer;
 
 		int pixelIdx;
 		std::vector<Point2> pixelList;
@@ -47,8 +51,17 @@ namespace AwesomeRenderer
 		void Render(const Point2& pixel);
 		void CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int depth = 0);
 
+		void CalculateShading(const Ray& ray, const RaycastHit& hitInfo, const PhongMaterial& material, ShadingInfo& shadingInfo, int depth);
+		void CalculateShading(const Ray& ray, const RaycastHit& hitInfo, const PbrMaterial& material, ShadingInfo& shadingInfo, int depth);
+
 		bool RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance = FLT_MAX);
 		void Trace(const Ray& ray, const Point2& screenPosition);
+
+		float chiGGX(float v);
+		float GGX_Distribution(Vector3 n, Vector3 h, float alpha);
+		float GGX_PartialGeometryTerm(Vector3 v, Vector3 n, Vector3 h, float alpha);
+		Vector3 Fresnel_Schlick(float cosT, Vector3 F0);
+
 	};
 
 }

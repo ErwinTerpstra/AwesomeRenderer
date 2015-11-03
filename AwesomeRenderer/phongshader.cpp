@@ -1,6 +1,7 @@
 #include "phongshader.h"
 #include "sampler.h"
 #include "material.h"
+#include "phongmaterial.h"
 #include "lightdata.h"
 
 using namespace AwesomeRenderer;
@@ -28,6 +29,8 @@ void PhongShader::ProcessVertex(const VertexInfo& in, VertexToPixel& out) const
 
 void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 {
+	const PhongMaterial* material = static_cast<const PhongMaterial*>(this->material);
+
 	Color diffuse = material->diffuseColor;
 	Color specular = material->specularColor;
 	

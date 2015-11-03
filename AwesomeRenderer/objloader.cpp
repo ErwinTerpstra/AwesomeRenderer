@@ -4,7 +4,7 @@
 #include "model.h"
 #include "filereader.h"
 #include "mesh.h"
-#include "material.h"
+#include "phongmaterial.h"
 #include "sampler.h"
 
 using namespace AwesomeRenderer;
@@ -245,7 +245,7 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 		return;
 	}
 
-	Material* material = NULL;
+	PhongMaterial* material = NULL;
 	
 	int32_t lineLength;
 	char* lineBuffer;
@@ -353,7 +353,7 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 					std::string name = line.substr(7);
 					
 					// TODO: Move memory allocation to somewhere else
-					material = new Material();
+					material = new PhongMaterial();
 					material->shader = defaultShader;
 
 					materialLib[name] = material;

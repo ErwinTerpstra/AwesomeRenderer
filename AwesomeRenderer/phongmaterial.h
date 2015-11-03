@@ -11,6 +11,15 @@ namespace AwesomeRenderer
 	{
 	public:
 
+		Sampler* diffuseMap;
+		Sampler* specularMap;
+		Sampler* normalMap;
+
+		Color diffuseColor;
+		Color specularColor;
+
+		float shininess;
+
 	public:
 		PhongMaterial();
 

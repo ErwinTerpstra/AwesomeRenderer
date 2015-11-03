@@ -1,5 +1,6 @@
 #include "awesomerenderer.h"
 #include "mesh_gl.h"
+#include "util_gl.h"
 
 using namespace AwesomeRenderer;
 
@@ -10,10 +11,16 @@ MeshGL::MeshGL(Mesh& mesh) : Extension(mesh)
 
 void MeshGL::CreateBuffers()
 {
-	// Create and bind Vertex Array Object
-	glGenVertexArrays(1, &vertexArray);
-	glBindVertexArray(vertexArray);
+	if (glGenVertexArrays == NULL || glBindVertexArray == NULL)
+	{
+		printf("[MeshGL]: No support for vertex arrays!\n");
+		return;
+	}
 
+	// Create and bind Vertex Array Object
+	GL_CHECK_ERROR(glGenVertexArrays(1, &vertexArray));
+	glBindVertexArray(vertexArray);
+	
 	if (base.HasAttribute(Mesh::VERTEX_POSITION) && base.vertices.size() > 0)
 	{
 		AddAttributeBuffer(ATTR_POSITION, &vertexBuffers[ATTR_POSITION]);
@@ -43,7 +50,7 @@ void MeshGL::CreateBuffers()
 	}
 
 	// Indices
-	glGenBuffers(1, &indexBuffer);
+	GL_CHECK_ERROR(glGenBuffers(1, &indexBuffer));
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 
 	if (base.indices.size() > 0)
@@ -54,7 +61,7 @@ void MeshGL::CreateBuffers()
 
 void MeshGL::AddAttributeBuffer(uint32_t idx, GLuint* buffer)
 {
-	glGenBuffers(1, buffer);
+	GL_CHECK_ERROR(glGenBuffers(1, buffer));
 	glBindBuffer(GL_ARRAY_BUFFER, *buffer);
 
 	glEnableVertexAttribArray(idx);

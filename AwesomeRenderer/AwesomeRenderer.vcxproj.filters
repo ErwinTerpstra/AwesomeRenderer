@@ -85,6 +85,9 @@
     <Filter Include="Source Files\Renderer\Shading\Materials">
       <UniqueIdentifier>{a5b903fc-e665-4d0d-9f54-12cf29e13a75}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Util">
+      <UniqueIdentifier>{84ce63ce-1c3b-4ff6-bbf4-894e52d4d873}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -240,6 +243,9 @@
     <ClCompile Include="phongmaterial.cpp">
       <Filter>Source Files\Renderer\Shading\Materials</Filter>
     </ClCompile>
+    <ClCompile Include="pbrmaterial.cpp">
+      <Filter>Source Files\Renderer\Shading\Materials</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h">
@@ -347,9 +353,6 @@
     <ClInclude Include="typedefs.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="util.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
     <ClInclude Include="extension.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
@@ -423,6 +426,15 @@
       <Filter>Header Files\Renderer\Shading\Materials</Filter>
     </ClInclude>
     <ClInclude Include="material.h">
+      <Filter>Header Files\Renderer\Shading\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="util_gl.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="util.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="pbrmaterial.h">
       <Filter>Header Files\Renderer\Shading\Materials</Filter>
     </ClInclude>
   </ItemGroup>

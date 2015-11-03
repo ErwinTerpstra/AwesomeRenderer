@@ -43,7 +43,7 @@ bool WindowGL::Setup()
 	// Create and activate a temporary context to create the final one
 	HGLRC tempContext = wglCreateContext(deviceContext); 
 	wglMakeCurrent(deviceContext, tempContext);
-
+	
 	// Initialize GLEW
 	GLenum error = glewInit();
 	if (error != GLEW_OK)

@@ -94,40 +94,32 @@
 
 using namespace AwesomeRenderer;
 
-void SetupConsole()
+int main() 
 {
-	AllocConsole();
-
-	// Magic!
-	// (Opens a console window)
-    HANDLE handle_out = GetStdHandle(STD_OUTPUT_HANDLE);
-    int hCrt = _open_osfhandle((long) handle_out, _O_TEXT);
-    FILE* hf_out = _fdopen(hCrt, "w");
-    setvbuf(hf_out, NULL, _IONBF, 1);
-    *stdout = *hf_out;
-
-    HANDLE handle_in = GetStdHandle(STD_INPUT_HANDLE);
-    hCrt = _open_osfhandle((long) handle_in, _O_TEXT);
-    FILE* hf_in = _fdopen(hCrt, "r");
-    setvbuf(hf_in, NULL, _IONBF, 128);
-    *stdin = *hf_in;
+	return WinMain(GetModuleHandle(NULL), NULL, GetCommandLine(), SW_SHOW);
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	SetupConsole();
-
 	// Open window
+	printf("[AwesomeRenderer]: Creating Win32 window...\n");
+	
 	Window window(hInstance, "AwesomeRendererWindow");
 	window.Create("Awesome Renderer!", 100, 100);
 	window.SetClientSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-	
+
+	printf("[AwesomeRenderer]: Creating OpenGL window...\n");
+
 	WindowGL windowGL(window);
-	windowGL.Setup();
+	
+	if (!windowGL.Setup())
+		printf("[AwesomeRenderer]: Failed to create OpenGL window!\n");
 
 	InputManager& inputManager = InputManager::Instance();
 
 	// Setup frame and depth buffers
+	printf("[AwesomeRenderer]: Initializing frame buffer...\n");
+
 	GdiBuffer frameBuffer(window.handle);
 	MemoryBuffer depthBuffer;
 	
@@ -135,6 +127,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	depthBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, Buffer::FLOAT32);
 
 	// Render target
+	printf("[AwesomeRenderer]: Setting up render context...\n");
+
 	RenderTarget renderTarget;
 	renderTarget.SetupBuffers(&frameBuffer, &depthBuffer);
 
@@ -169,6 +163,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	RayTracer rayTracer;
 	
 	const uint32_t NUM_RENDERERS = 3;
+	const char* RENDERER_NAMES[] = { "Software renderer", "OpenGL renderer", "Raytracer" };
+
 	Renderer* renderers[NUM_RENDERERS];
 	renderers[0] = &softwareRenderer;
 	renderers[1] = &rendererGL;
@@ -176,6 +172,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	for (uint32_t rendererIdx = 0; rendererIdx < NUM_RENDERERS; ++rendererIdx)
 	{
+		printf("[AwesomeRenderer]: Initializing %s...\n", RENDERER_NAMES[rendererIdx]);
+
 		Renderer* renderer = renderers[rendererIdx];
 		renderer->Initialize();
 				
@@ -268,7 +266,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	timer.Tick();
 
 
-	/*
+	if (FALSE)
 	{
 		Node* node = new Node();
 		Model* model = new Model();
@@ -286,8 +284,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		mainContext.nodes.push_back(node);
 	}
-	//*/
-
+	
+	if (FALSE)
 	{
 		Node* node = new Node();
 
@@ -319,9 +317,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		hudContext.nodes.push_back(node);
 	}
-
-
-	///*
+	
+	if (FALSE)
 	{
 		Node* node = new Node();
 
@@ -363,7 +360,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		mainContext.nodes.push_back(node);
 	}
-	//*/
 
 	{
 		Node* node = new Node();
@@ -474,7 +470,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 			for (auto materialIt = model->materials.begin(); materialIt != model->materials.end(); ++materialIt)
 			{
-				Material* material = *materialIt;
+				// TODO: create texture map in base Material class so that this can work on the base class
+				PhongMaterial* material = static_cast<PhongMaterial*>(*materialIt);
 
 				if (material == NULL)
 					continue;
@@ -501,8 +498,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 		}
 	}
-	
+
 	window.Show(nCmdShow);
+
+	printf("[AwesomeRenderer]: Initialization done!\n");
 
 	// Frame counter variables
 	float timeSinceLastPrint = 0.0f;
@@ -518,7 +517,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		if (timeSinceLastPrint >= 1.0f)
 		{
-			printf("FPS: %d; Last frame time: %dms;\n", framesDrawn, (uint32_t)(timingInfo.elapsedSeconds * 1000.0f));
+			printf("[AwesomeRenderer]: FPS: %d; Last frame time: %dms;\n", framesDrawn, (uint32_t)(timingInfo.elapsedSeconds * 1000.0f));
 			framesDrawn = 0;
 			timeSinceLastPrint -= 1.0f;
 		}

@@ -13,15 +13,6 @@ namespace AwesomeRenderer
 	public:
 		bool translucent;
 
-		float shininess;
-
-		Sampler* diffuseMap;
-		Sampler* specularMap;
-		Sampler* normalMap;
-
-		Color diffuseColor;
-		Color specularColor;
-
 		Shader* shader;
 
 	public:

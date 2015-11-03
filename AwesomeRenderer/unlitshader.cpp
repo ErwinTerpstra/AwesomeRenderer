@@ -1,5 +1,6 @@
 #include "unlitshader.h"
 #include "material.h"
+#include "phongmaterial.h"
 #include "sampler.h"
 
 using namespace AwesomeRenderer;
@@ -27,6 +28,8 @@ void UnlitShader::ProcessVertex(const VertexInfo& in, VertexToPixel& out) const
 
 void UnlitShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 {
+	const PhongMaterial* material = static_cast<const PhongMaterial*>(this->material);
+
 	Color diffuse = material->diffuseColor;
 
 	// Sample diffuse map if it is present

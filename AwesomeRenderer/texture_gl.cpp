@@ -1,5 +1,7 @@
 #include "awesomerenderer.h"
 
+#include "util_gl.h"
+
 #include "texture_gl.h"
 #include "texture.h"
 
@@ -17,7 +19,7 @@ TextureGL::~TextureGL()
 
 void TextureGL::Load()
 {
-	glGenTextures(1, &id);
+	GL_CHECK_ERROR(glGenTextures(1, &id));
 
 	Bind();
 
