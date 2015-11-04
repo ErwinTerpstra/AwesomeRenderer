@@ -47,6 +47,7 @@
 
 #include "material.h"
 #include "phongmaterial.h"
+#include "pbrmaterial.h"
 
 #include "mesh.h"
 #include "model.h"
@@ -190,7 +191,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Lighting
 	LightData lightData;
 	lightData.numPixelLights = 8;
-	lightData.ambient = Color(0.1f, 0.1f, 0.1f);
+	lightData.ambient = Color::BLACK;// Color(0.1f, 0.1f, 0.1f);
 
 	mainContext.lightData = &lightData;
 
@@ -361,6 +362,35 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		mainContext.nodes.push_back(node);
 	}
 
+	/*
+	
+	PbrMaterial* sphereMaterial = new PbrMaterial();
+	sphereMaterial->albedo = Color::WHITE;
+	sphereMaterial->specular = Color::WHITE * 0.5f;
+	sphereMaterial->metallic = 1.0f;
+	sphereMaterial->roughness = 0.0f;
+
+	PbrMaterial* floorMaterial = new PbrMaterial();
+	floorMaterial->albedo = Color::WHITE;
+	floorMaterial->specular = Color::WHITE * 0.5f;
+	floorMaterial->metallic = 1.0f;
+	floorMaterial->roughness = 0.5f;
+	
+	/*/
+	
+	PhongMaterial* sphereMaterial = new PhongMaterial();
+	sphereMaterial->diffuseColor = Color::WHITE;
+	sphereMaterial->specularColor = Color::WHITE * 0.8f;
+	sphereMaterial->shininess = 5.0f;
+
+	PhongMaterial* floorMaterial = new PhongMaterial();
+	floorMaterial->diffuseColor = Color::WHITE * 0.8f;
+	floorMaterial->specularColor = Color::BLACK;
+
+	//*/
+
+
+	
 	{
 		Node* node = new Node();
 
@@ -370,11 +400,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Renderable* renderable = new Renderable();
 		renderable->primitive = new Plane(0.0f, Vector3(0.0f, 1.0f, 0.0f));
 		
-		PhongMaterial* material = new PhongMaterial();
-		material->diffuseColor = Color::GRAY;
-		material->specularColor = Color::GRAY;
-		material->shininess = 5.0f;
-		renderable->material = material;
+		renderable->material = floorMaterial;
 
 		node->AddComponent(renderable);
 
@@ -392,11 +418,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//renderable->primitive = new AABB(Vector3(-0.5f, 0.0f, -0.5f), Vector3(0.5f, 1.0f, 0.5f));
 		renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
 
-		PhongMaterial* material = new PhongMaterial();
-		material->diffuseColor = Color::WHITE;
-		material->specularColor = Color::GRAY;
-		material->shininess = 5.0f;
-		renderable->material = material;
+		renderable->material = sphereMaterial;
 
 		node->AddComponent(renderable);
 
@@ -414,11 +436,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//renderable->primitive = new AABB(Vector3(-0.5f, 0.0f, -0.5f), Vector3(0.5f, 1.0f, 0.5f));
 		renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
 
-		PhongMaterial* material = new PhongMaterial();
-		material->diffuseColor = Color::WHITE;
-		material->specularColor = Color::GRAY;
-		material->shininess = 5.0f;
-		renderable->material = material;
+		renderable->material = sphereMaterial;
 
 		node->AddComponent(renderable);
 
@@ -436,12 +454,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//renderable->primitive = new AABB(Vector3(-0.5f, 0.0f, -0.5f), Vector3(0.5f, 1.0f, 0.5f));
 		renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
 
-		PhongMaterial* material = new PhongMaterial();
-		material->diffuseColor = Color::WHITE;
-		material->specularColor = Color::GRAY;
-		material->shininess = 5.0f;
-
-		renderable->material = material;
+		renderable->material = sphereMaterial;
 
 		node->AddComponent(renderable);
 
@@ -546,7 +559,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		if (inputManager.GetKey('P'))
 			mainRenderer = renderers[2];
 
-		for (int contextIdx = 0; contextIdx < contexts.size(); ++contextIdx)
+		for (uint32_t contextIdx = 0; contextIdx < contexts.size(); ++contextIdx)
 		{
 			RenderContext& renderContext = *contexts[contextIdx];
 

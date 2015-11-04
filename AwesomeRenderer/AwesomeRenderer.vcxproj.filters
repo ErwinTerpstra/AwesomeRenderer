@@ -246,6 +246,9 @@
     <ClCompile Include="pbrmaterial.cpp">
       <Filter>Source Files\Renderer\Shading\Materials</Filter>
     </ClCompile>
+    <ClCompile Include="typedefs.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h">

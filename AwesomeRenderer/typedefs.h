@@ -31,6 +31,9 @@ namespace AwesomeRenderer
 
 	typedef cml::matrix22i_r IntMatrix22;
 	typedef cml::matrix32i_r IntMatrix23;
+
+	Vector3 operator-(const float& lhs, const Vector3& rhs);
+	Vector3 operator*(const Vector3& lhs, const Vector3& rhs);
 }
 
 #endif

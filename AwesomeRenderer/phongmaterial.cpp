@@ -8,3 +8,8 @@ shininess(0.0f)
 {
 
 }
+
+PhongMaterial::~PhongMaterial()
+{
+
+}

@@ -21,6 +21,7 @@ namespace AwesomeRenderer
 
 	public:
 		PbrMaterial();
+		~PbrMaterial();
 
 	};
 

@@ -94,6 +94,7 @@
     <ClCompile Include="kdtree.cpp" />
     <ClCompile Include="renderer_gl.cpp" />
     <ClCompile Include="textmesh.cpp" />
+    <ClCompile Include="typedefs.cpp" />
     <ClCompile Include="unlitshader.cpp" />
     <ClCompile Include="window_gl.cpp" />
     <ClCompile Include="mesh_gl.cpp" />

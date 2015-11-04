@@ -33,6 +33,11 @@ namespace AwesomeRenderer
 
 		}
 
+		Color(const Vector3& v, float alpha = 1.0f) : Color(v[0], v[1], v[2], alpha)
+		{
+
+		}
+
 		
 		Color(float r, float g, float b, float a = 1.0f) : Vector4(cml::clamp(r, 0.0f, 1.0f), cml::clamp(g, 0.0f, 1.0f), cml::clamp(b, 0.0f, 1.0f), cml::clamp(a, 0.0f, 1.0f))
 		{

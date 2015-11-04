@@ -33,6 +33,28 @@ namespace AwesomeRenderer
 			//out = v + normal * d;
 		}
 
+		static void Refract(const Vector& v, const Vector& normal, float ior, Vector3& out)
+		{
+			float cosi = cml::dot(v, normal);
+			float etai = 1, etat = ior;
+			Vector n = normal;
+
+			if (cosi < 0)
+			{
+				cosi = -cosi;
+			}
+			else
+			{
+				std::swap(etai, etat); 
+				n = -normal; 
+			}
+
+			float eta = etai / etat;
+			float k = 1 - eta * eta * (1 - cosi * cosi);
+			
+			out = k < 0 ? Vector3(0.0f, 0.0f, 0.0f) : eta * v + (eta * cosi - sqrtf(k)) * n;
+		}
+
 	};
 
 

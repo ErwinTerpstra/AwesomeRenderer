@@ -32,7 +32,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 	std::vector<Vector2> texcoordBuffer;
 
 	Mesh* mesh = NULL;
-	Material* material = NULL;
+	PhongMaterial* material = NULL;
 
 	while (char* lineBuffer = reader.ReadLine())
 	{		
@@ -71,7 +71,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 				// TODO: Manage memory registered by factory
 				mesh = new Mesh(defaultAttributes);
 				
-				material = new Material();
+				material = new PhongMaterial();
 				material->shader = defaultShader;
 
 				model.AddMesh(mesh, material);

@@ -30,7 +30,7 @@ namespace AwesomeRenderer
 		Timer timer;
 		Timer frameTimer;
 
-		int pixelIdx;
+		uint32_t pixelIdx;
 		std::vector<Point2> pixelList;
 
 	public:
@@ -57,10 +57,12 @@ namespace AwesomeRenderer
 		bool RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance = FLT_MAX);
 		void Trace(const Ray& ray, const Point2& screenPosition);
 
+
+		Vector3 SpecularCookTorrance(const Vector3& radiance, const Vector3& v, const Vector3& n, const Vector3& l, const Vector3& F0, float roughness, Vector3& ks);
 		float chiGGX(float v);
-		float GGX_Distribution(Vector3 n, Vector3 h, float alpha);
-		float GGX_PartialGeometryTerm(Vector3 v, Vector3 n, Vector3 h, float alpha);
-		Vector3 Fresnel_Schlick(float cosT, Vector3 F0);
+		float DistributionGGX(Vector3 n, Vector3 h, float alpha);
+		float GeometryGGX(Vector3 v, Vector3 n, Vector3 h, float alpha);
+		Vector3 FresnelSchlick(float cosT, Vector3 F0);
 
 	};
 

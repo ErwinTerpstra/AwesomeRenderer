@@ -22,7 +22,7 @@ namespace AwesomeRenderer
 
 	public:
 		PhongMaterial();
-
+		~PhongMaterial();
 	};
 
 }

@@ -6,3 +6,8 @@ PbrMaterial::PbrMaterial() : albedo(Color::WHITE), roughness(0.5f), metallic(0.0
 {
 
 }
+
+PbrMaterial::~PbrMaterial()
+{
+
+}
