@@ -30,7 +30,7 @@ void AABB::Transform(const Matrix44& mtx)
 
 	// Initialize transformed boundaries to extreme values
 	minTransformed.set(FLT_MAX, FLT_MAX, FLT_MAX);
-	maxTransformed.set(FLT_MIN, FLT_MIN, FLT_MIN);
+	maxTransformed.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
 	// Iterate through all corners to find the bounding values
 	for (int cCorner = 0; cCorner < 8; ++cCorner)
@@ -74,7 +74,7 @@ void AABB::GetCorners(Vector3* corners, const Vector3& min, const Vector3& max)
 
 bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 {
-	float tMin = FLT_MIN;
+	float tMin = -FLT_MAX;
 	float tMax = FLT_MAX;
 
 	Vector3 normal;
@@ -105,7 +105,8 @@ bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 
 	hitInfo.distance = tMin;
 	hitInfo.point = ray.origin + ray.direction * tMin;
-	hitInfo.normal = normal;
+	hitInfo.inside = FALSE;
+	hitInfo.normal = hitInfo.inside ? -normal : normal;
 
 	return true;
 }

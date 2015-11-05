@@ -199,57 +199,61 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	{
 		LightData::Light& light = lightData.lights[0];
-		light.position = Vector3(3.0f, 3.0f, 3.0f);
-		light.type = LightData::LightType::POINT;
-		light.color = Color::WHITE;
-		light.constantAttenuation = 0.0f;
-		light.lineairAttenuation = 0.1f;
-		light.quadricAttenuation = 0.02f;
+		light.direction = Vector3(-0.5f, -0.8f, -0.5f);
+		light.direction.normalize();
+
+		light.type = LightData::LightType::DIRECTIONAL;
+		light.color = Color(254, 253, 189);
 		light.intensity = 0.4f;
 		light.enabled = true;
 	}
 
 	{
 		LightData::Light& light = lightData.lights[1];
-	}
-
-	{
-		LightData::Light& light = lightData.lights[2];
 		light.position = Vector3(5.0f, 3.0f, 5.0f);
 		light.type = LightData::LightType::POINT;
-		light.color = Color::BLUE;
+		light.color = Color::WHITE;// Color::BLUE;
 		light.constantAttenuation = 0.0f;
 		light.lineairAttenuation = 0.1f;
 		light.quadricAttenuation = 0.02f;
-		light.intensity = 1.0f;
-		//light.enabled = true;
+		light.intensity = 0.2f;
+		light.enabled = false;
 	}
 
 	{
-		LightData::Light& light = (lightData.lights[3] = lightData.lights[2]);
+		LightData::Light& light = (lightData.lights[2] = lightData.lights[1]);
 		light.position = Vector3(5.0f, 3.0f, -5.0f);
-		light.color = Color::RED;
-		//light.enabled = true;
+		light.color = Color::WHITE;//Color::RED;
 	}
 
 	{
-		LightData::Light& light = (lightData.lights[4] = lightData.lights[2]);
+		LightData::Light& light = (lightData.lights[3] = lightData.lights[1]);
 		light.position = Vector3(-5.0f, 3.0f, -5.0f);
-		light.color = Color::PURPLE;
-		//light.enabled = true;
+		light.color = Color::WHITE;//Color::PURPLE;
 	}
 
 	{
-		LightData::Light& light = (lightData.lights[5] = lightData.lights[2]);
+		LightData::Light& light = (lightData.lights[4] = lightData.lights[1]);
 		light.position = Vector3(-5.0f, 3.0f, 5.0f);
-		light.color = Color::GREEN;
-		//light.enabled = true;
+		light.color = Color::WHITE;//Color::GREEN;
+	}
+
+	{
+		LightData::Light& light = lightData.lights[5];
+		light.position = Vector3(0.0f, 2.0f, 0.0f);
+		light.type = LightData::LightType::POINT;
+		light.color = Color(165, 250, 255);
+		light.constantAttenuation = 0.0f;
+		light.lineairAttenuation = 0.1f;
+		light.quadricAttenuation = 0.02f;
+		light.intensity = 0.02f;
+		light.enabled = true;
 	}
 
 	// Skybox
 	Skybox skybox;
-	skybox.top = Color(35, 71, 189);
-	skybox.bottom = Color(107, 205, 209);
+	skybox.top = Color(35, 71, 189) * 0.5f;
+	skybox.bottom = Color(107, 205, 209) * 0.5f;
 
 	mainContext.skybox = &skybox;
 	
@@ -265,8 +269,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Game loop timer
 	Timer timer(0.00001f, 100.0f);
 	timer.Tick();
-
-
+	
 	if (FALSE)
 	{
 		Node* node = new Node();
@@ -362,13 +365,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		mainContext.nodes.push_back(node);
 	}
 
-	/*
+	//*
 	
 	PbrMaterial* sphereMaterial = new PbrMaterial();
 	sphereMaterial->albedo = Color::WHITE;
 	sphereMaterial->specular = Color::WHITE * 0.5f;
 	sphereMaterial->metallic = 1.0f;
-	sphereMaterial->roughness = 0.0f;
+	sphereMaterial->roughness = 0.5f;
+
+	PbrMaterial* redSphereMaterial = sphereMaterial;
+	PbrMaterial* greenSphereMaterial = sphereMaterial;
+	PbrMaterial* blueSphereMaterial = sphereMaterial;
+
+	PbrMaterial* boxMaterial = sphereMaterial;
 
 	PbrMaterial* floorMaterial = new PbrMaterial();
 	floorMaterial->albedo = Color::WHITE;
@@ -380,17 +389,29 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	
 	PhongMaterial* sphereMaterial = new PhongMaterial();
 	sphereMaterial->diffuseColor = Color::WHITE;
-	sphereMaterial->specularColor = Color::WHITE * 0.8f;
+	sphereMaterial->specularColor = Color::WHITE * 0.5f;
 	sphereMaterial->shininess = 5.0f;
+
+	PhongMaterial* boxMaterial = new PhongMaterial();
+	boxMaterial->diffuseColor = Color::YELLOW;
+	boxMaterial->specularColor = Color::WHITE * 0.5f;
+	boxMaterial->shininess = 5.0f;
+
+	PhongMaterial* redSphereMaterial = new PhongMaterial(*sphereMaterial);
+	redSphereMaterial->diffuseColor = Color::RED;
+
+	PhongMaterial* greenSphereMaterial = new PhongMaterial(*sphereMaterial);
+	greenSphereMaterial->diffuseColor = Color::GREEN;
+
+	PhongMaterial* blueSphereMaterial = new PhongMaterial(*sphereMaterial);
+	blueSphereMaterial->diffuseColor = Color::BLUE;
 
 	PhongMaterial* floorMaterial = new PhongMaterial();
 	floorMaterial->diffuseColor = Color::WHITE * 0.8f;
-	floorMaterial->specularColor = Color::BLACK;
+	floorMaterial->specularColor = Color::WHITE * 0.5f;
 
 	//*/
-
-
-	
+	int a = 0;
 	{
 		Node* node = new Node();
 
@@ -411,14 +432,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Node* node = new Node();
 		
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(0.0f, 0.0f, -1.5f));
+		transform->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
+		transform->SetScale(Vector3(2.0f, 0.5f, 2.0f) * 2.0f);
 		node->AddComponent(transform);
 
 		Renderable* renderable = new Renderable();
-		//renderable->primitive = new AABB(Vector3(-0.5f, 0.0f, -0.5f), Vector3(0.5f, 1.0f, 0.5f));
-		renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
+		renderable->primitive = new AABB(Vector3(-0.5f, 0.0f, -0.5f), Vector3(0.5f, 1.0f, 0.5f));
+		//renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
 
-		renderable->material = sphereMaterial;
+		renderable->material = boxMaterial;
 
 		node->AddComponent(renderable);
 
@@ -429,14 +451,31 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Node* node = new Node();
 
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(1.0f, 0.0f, 0.5f));
+		transform->SetPosition(Vector3(-1.0f, 1.0f, -1.0f));
 		node->AddComponent(transform);
 
 		Renderable* renderable = new Renderable();
-		//renderable->primitive = new AABB(Vector3(-0.5f, 0.0f, -0.5f), Vector3(0.5f, 1.0f, 0.5f));
-		renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
+		renderable->primitive = new Sphere(Vector3(0.0f, 0.6f, 0.0f), 0.6f);
 
-		renderable->material = sphereMaterial;
+		renderable->material = redSphereMaterial;
+
+		node->AddComponent(renderable);
+
+		mainContext.nodes.push_back(node);
+	}
+
+
+	{
+		Node* node = new Node();
+
+		Transformation* transform = new Transformation();
+		transform->SetPosition(Vector3(1.0f, 1.0f, -1.0f));
+		node->AddComponent(transform);
+
+		Renderable* renderable = new Renderable();
+		renderable->primitive = new Sphere(Vector3(0.0f, 0.6f, 0.0f), 0.6f);
+
+		renderable->material = greenSphereMaterial;
 
 		node->AddComponent(renderable);
 
@@ -447,14 +486,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Node* node = new Node();
 
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(-1.0f, 0.0f, 0.5f));
+		transform->SetPosition(Vector3(0.0f, 1.0f, 1.0f));
 		node->AddComponent(transform);
 
 		Renderable* renderable = new Renderable();
-		//renderable->primitive = new AABB(Vector3(-0.5f, 0.0f, -0.5f), Vector3(0.5f, 1.0f, 0.5f));
-		renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
+		renderable->primitive = new Sphere(Vector3(0.0f, 0.6f, 0.0f), 0.6f);
 
-		renderable->material = sphereMaterial;
+		renderable->material = blueSphereMaterial;
 
 		node->AddComponent(renderable);
 

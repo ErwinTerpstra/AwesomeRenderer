@@ -141,7 +141,7 @@ void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int d
 	RaycastHit hitInfo;
 	if (!RayCast(ray, hitInfo))
 	{
-		if (renderContext->skybox != NULL && depth == 0)
+		if (renderContext->skybox != NULL)
 			renderContext->skybox->Sample(ray.direction, shadingInfo.color);
 
 		return;
@@ -149,21 +149,27 @@ void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int d
 
 	const Renderable* renderable = hitInfo.node->GetComponent<Renderable>();
 
+	//*
+	
 	// Check if this node has a PBR material
-	const PbrMaterial* pbrMaterial = dynamic_cast<PbrMaterial*>(renderable->material);
+	const PbrMaterial* pbrMaterial = static_cast<PbrMaterial*>(renderable->material);
 	if (pbrMaterial != NULL)
 	{
 		CalculateShading(ray, hitInfo, *pbrMaterial, shadingInfo, depth);
 		return;
 	}
 
+	/*/
+
 	// Check if this node has a phong material
-	const PhongMaterial* phongMaterial = dynamic_cast<PhongMaterial*>(renderable->material);
+	const PhongMaterial* phongMaterial = static_cast<PhongMaterial*>(renderable->material);
 	if (phongMaterial != NULL)
 	{
 		CalculateShading(ray, hitInfo, *phongMaterial, shadingInfo, depth);
 		return;
 	}
+
+	//*/
 }
 
 void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, const PhongMaterial& material, ShadingInfo& shadingInfo, int depth)
@@ -174,7 +180,7 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 	Color diffuse = material.diffuseColor;
 	Color specular = material.specularColor;
 
-	Color diffuseLight = Color::BLACK;
+	Color diffuseLight = lightData.ambient;
 	Color specularLight = Color::BLACK;
 
 	float shininess = material.shininess;
@@ -189,19 +195,17 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 
 		// Calculate light intensity
 		Vector3 toLight;
+		float distanceToLight;
+
 		float intensity = light.intensity;
 		
 		if (light.type != LightData::DIRECTIONAL)
 		{
 			toLight = light.position - hitInfo.point;
-			float distanceToLight = toLight.length();
+
+			distanceToLight = toLight.length();
 			toLight.normalize();
-
-			Ray shadowRay(hitInfo.point + toLight * 0.001f, toLight);
-			RaycastHit shadowHitInfo;
-			if (RayCast(shadowRay, shadowHitInfo, distanceToLight))
-				continue;
-
+			
 			if (light.type == LightData::SPOT)
 			{
 				float angleTerm = cml::dot(light.direction, -toLight);
@@ -216,7 +220,15 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 			intensity *= 1.0f / (light.constantAttenuation + (light.lineairAttenuation * distanceToLight) + (light.quadricAttenuation * distanceToLight * distanceToLight));
 		}
 		else
+		{
 			toLight = -light.direction;
+			distanceToLight = 1000.0f; // TODO: shadow distance render context parameter?
+		}
+
+		Ray shadowRay(hitInfo.point + toLight * 0.001f, toLight);
+		RaycastHit shadowHitInfo;
+		if (RayCast(shadowRay, shadowHitInfo, distanceToLight))
+			continue;
 		
 		// Compute the diffuse term
 		float diffuseTerm = std::max(cml::dot(hitInfo.normal, toLight), 0.0f);
@@ -225,53 +237,97 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 		// Compute the specular term
 		if (diffuseTerm > 0.0f)
 		{
-			Vector3 toEye = cml::normalize(renderContext->camera->position - hitInfo.point);
-			Vector3 halfVector = cml::normalize(toLight + toEye);
+			Vector3 halfVector = cml::normalize(-ray.direction + toLight);
 
 			float specularTerm = std::pow(std::max(cml::dot(hitInfo.normal, halfVector), 0.0f), shininess);
-			specularLight += light.color * specularTerm * intensity;
+			specularLight += (light.color * specularTerm * intensity) * diffuseTerm;
 		}
 	}
 
 	if (depth < MAX_DEPTH)
 	{
+		Color reflection;
+		Color refraction;
+		float ior = 0.75f;
+		
 		{
 			// Reflection
 			Vector3 reflectionDirection;
 			VectorUtil<3>::Reflect(ray.direction, hitInfo.normal, reflectionDirection);
 
-			Ray reflectionRay(hitInfo.point + reflectionDirection * 0.001f, reflectionDirection);
+			Ray reflectionRay(hitInfo.point + hitInfo.normal * 0.01f, reflectionDirection);
 
 			ShadingInfo reflectionShading;
 			CalculateShading(reflectionRay, reflectionShading, depth + 1);
 
-			// Compute the diffuse term
-			float diffuseTerm = std::max(cml::dot(hitInfo.normal, reflectionDirection), 0.0f);
-
-			Vector3 toEye = cml::normalize(renderContext->camera->position - hitInfo.point);
-			Vector3 halfVector = cml::normalize(reflectionDirection + toEye);
-
-			float specularTerm = std::pow(std::max(cml::dot(hitInfo.normal, halfVector), 0.0f), shininess);
-			specularLight += reflectionShading.color * specularTerm;
+			reflection = reflectionShading.color;
 		}
 
 		if (FALSE)
 		{
 			// Refraction
-			Vector3 refractionDirection;
-			VectorUtil<3>::Refract(ray.direction, hitInfo.normal, 1.02f, refractionDirection);
+			Vector3 innerRefractionDirection;
+			VectorUtil<3>::Refract(ray.direction, hitInfo.normal, ior, innerRefractionDirection);
+			
+			Ray innerRefractionRay(hitInfo.point - hitInfo.normal * 0.01f, innerRefractionDirection);
 
-			Ray refractionRay(hitInfo.point + refractionDirection * 0.001f, refractionDirection);
+			Ray refractionRay;
+
+			RaycastHit refractionHit;
+			if (RayCast(innerRefractionRay, refractionHit))
+			{
+				if (refractionHit.inside)
+				{
+					ior = 1.0f / ior;
+
+					Vector3 outerRefractionDirection;
+					VectorUtil<3>::Refract(innerRefractionDirection, refractionHit.normal, ior, outerRefractionDirection);
+
+					refractionRay = Ray(refractionHit.point + hitInfo.normal * 0.01f, outerRefractionDirection);
+				}
+				else
+				{
+					refractionRay = innerRefractionRay;
+				}
+
+			}
 
 			ShadingInfo refractionShading;
 			CalculateShading(refractionRay, refractionShading, depth + 1);
 
-			diffuseLight += refractionShading.color;
+			refraction = refractionShading.color;
 		}
 
+		float fresnel = 1.0f;// Fresnel(ray.direction, hitInfo.normal, ior);
+
+		Color transmittedLight = reflection * fresnel + refraction * (1.0f - fresnel);
+		specularLight += transmittedLight;
 	}
 
-	shadingInfo.color = diffuse * (lightData.ambient + diffuseLight) + specular * specularLight;
+	shadingInfo.color = diffuse * diffuseLight + specular * specularLight;
+}
+
+float RayTracer::Fresnel(const Vector3& v, const Vector3& normal, float ior)
+{
+	float cosi = cml::dot(v, normal);
+	float etai = 1, etat = ior;
+	
+	if (cosi > 0)
+		std::swap(etai, etat);
+
+	// Compute sini using Snell's law
+	float sint = etai / etat * sqrtf(std::max(0.f, 1 - cosi * cosi));
+	
+	// Total internal reflection
+	if (sint >= 1)
+		return 1.0f;
+	
+	float cost = sqrtf(std::max(0.f, 1 - sint * sint));
+	cosi = fabsf(cosi);
+	float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
+	float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
+
+	return (Rs * Rs + Rp * Rp) / 2;
 }
 
 void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, const PbrMaterial& material, ShadingInfo& shadingInfo, int depth)
@@ -343,7 +399,7 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 		VectorUtil<3>::Reflect(ray.direction, hitInfo.normal, reflectionDirection);
 
 		// Reflection
-		Ray reflectionRay(hitInfo.point + reflectionDirection * 0.0001f, reflectionDirection);
+		Ray reflectionRay(hitInfo.point - hitInfo.normal * 0.01f, reflectionDirection);
 
 		ShadingInfo reflectionShading;
 		CalculateShading(reflectionRay, reflectionShading, depth + 1);

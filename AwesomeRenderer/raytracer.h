@@ -56,7 +56,8 @@ namespace AwesomeRenderer
 
 		bool RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance = FLT_MAX);
 		void Trace(const Ray& ray, const Point2& screenPosition);
-
+		
+		float Fresnel(const Vector3& v, const Vector3& normal, float ior);
 
 		Vector3 SpecularCookTorrance(const Vector3& radiance, const Vector3& v, const Vector3& n, const Vector3& l, const Vector3& F0, float roughness, Vector3& ks);
 		float chiGGX(float v);

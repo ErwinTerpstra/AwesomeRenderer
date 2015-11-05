@@ -35,7 +35,7 @@ void Mesh::Clear()
 void Mesh::CalculateBounds()
 {
 	Vector3 min(FLT_MAX, FLT_MAX, FLT_MAX);
-	Vector3 max(FLT_MIN, FLT_MIN, FLT_MIN);
+	Vector3 max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
 	std::vector<Vector3>::iterator it;
 

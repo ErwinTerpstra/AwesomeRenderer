@@ -75,11 +75,11 @@ bool Sphere::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 	if (t0 < 0.0f)
 		return false;
 
-
 	// Fill RaycastHit struct
 	hitInfo.distance = t0;
 	hitInfo.point = ray.origin + ray.direction * t0;
-	hitInfo.normal = cml::normalize(hitInfo.point - centerTransformed);
+	hitInfo.inside = t1 < 0.0f;
+	hitInfo.normal = hitInfo.inside ? cml::normalize(centerTransformed - hitInfo.point) : cml::normalize(hitInfo.point - centerTransformed);
 
 	return true;
 }

@@ -14,9 +14,11 @@ namespace AwesomeRenderer
 
 		Vector3 barycentricCoords;
 
+		bool inside;
+
 		const Node* node;
 
-		RaycastHit() : distance(FLT_MAX), node(NULL)
+		RaycastHit() : distance(FLT_MAX), node(NULL), inside(FALSE)
 		{
 
 		}

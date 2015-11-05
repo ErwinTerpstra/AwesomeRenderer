@@ -105,7 +105,7 @@ namespace AwesomeRenderer
 			for (int i = 0; i < VectorType::dimension; ++i)
 			{
 				lower[i] = FLT_MAX;
-				upper[i] = FLT_MIN;
+				upper[i] = -FLT_MAX;
 
 				for (int cVertex = 0; cVertex < 3; ++cVertex)
 				{
