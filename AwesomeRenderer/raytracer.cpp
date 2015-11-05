@@ -18,7 +18,7 @@
 using namespace AwesomeRenderer;
 
 const float RayTracer::MAX_FRAME_TIME = 0.05f;
-const int RayTracer::MAX_DEPTH = 2;
+const int RayTracer::MAX_DEPTH = 5;
 
 RayTracer::RayTracer() : Renderer(), pixelIdx(0), timer(0.0f, FLT_MAX), frameTimer(0.0f, FLT_MAX)
 {
@@ -344,6 +344,8 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 	Vector3 F0 = material.specular.subvector(3);
 	Vector3 ks(0.0f, 0.0f, 0.0f);
 
+	uint32_t specularSampleCount = 0;
+
 	// Iterate through all the lights
 	for (uint8_t i = 0; i < LightData::MAX_LIGHTS; ++i)
 	{
@@ -354,19 +356,16 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 
 		// Calculate light intensity
 		Vector3 toLight;
+		float distanceToLight;
+
 		float intensity = light.intensity;
 
 		if (light.type != LightData::DIRECTIONAL)
 		{
 			toLight = light.position - hitInfo.point;
 
-			float distanceToLight = toLight.length();
+			distanceToLight = toLight.length();
 			toLight.normalize();
-
-			Ray shadowRay(hitInfo.point + toLight * 0.001f, toLight);	// TODO: this bias needs to be based on something
-			RaycastHit shadowHitInfo;
-			if (RayCast(shadowRay, shadowHitInfo, distanceToLight))
-				continue;
 
 			if (light.type == LightData::SPOT)
 			{
@@ -382,15 +381,27 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 			intensity *= 1.0f / (light.constantAttenuation + (light.lineairAttenuation * distanceToLight) + (light.quadricAttenuation * distanceToLight * distanceToLight));
 		}
 		else
+		{
 			toLight = -light.direction;
+			distanceToLight = 1000.0f; // TODO: shadow distance render context parameter?
+		}
+
+		Ray shadowRay(hitInfo.point + toLight * 0.001f, toLight);
+		RaycastHit shadowHitInfo;
+		if (RayCast(shadowRay, shadowHitInfo, distanceToLight))
+			continue;
 
 		Vector3 lightRadiance = light.color.subvector(3) * intensity;
 		Vector3 specularContribution;
 
-		diffuseRadiance += lightRadiance;
+		// Compute the diffuse term
+		float diffuseTerm = std::max(cml::dot(hitInfo.normal, toLight), 0.0f);
+
+		diffuseRadiance += lightRadiance * diffuseTerm;
 		specularRadiance += SpecularCookTorrance(lightRadiance, viewVector, normal, toLight, F0, material.roughness, specularContribution);
 
 		ks += specularContribution;
+		++specularSampleCount;
 	}
 
 	if (depth < MAX_DEPTH)
@@ -399,7 +410,7 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 		VectorUtil<3>::Reflect(ray.direction, hitInfo.normal, reflectionDirection);
 
 		// Reflection
-		Ray reflectionRay(hitInfo.point - hitInfo.normal * 0.01f, reflectionDirection);
+		Ray reflectionRay(hitInfo.point + hitInfo.normal * 0.01f, reflectionDirection);
 
 		ShadingInfo reflectionShading;
 		CalculateShading(reflectionRay, reflectionShading, depth + 1);
@@ -411,7 +422,10 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 		specularRadiance += SpecularCookTorrance(lightRadiance, viewVector, normal, reflectionDirection, F0, material.roughness, specularContribution);
 
 		ks += specularContribution;
+		++specularSampleCount;
 	}
+
+	ks /= specularSampleCount;
 	
 	Vector3 kd = (1.0f - ks) * (1.0f - material.metallic);
 	
@@ -439,7 +453,7 @@ Vector3 RayTracer::SpecularCookTorrance(const Vector3& radiance, const Vector3& 
 	float geometry = GeometryGGX(v, n, halfVector, roughness) * GeometryGGX(l, n, halfVector, roughness);
 
 	// Calculate the Cook-Torrance denominator
-	float denominator = Util::Clamp(4 * Util::Clamp(cml::dot(v, n), 0.0f, 1.0f) * Util::Clamp(cml::dot(l, n), 0.0f, 1.0f), 0.001f, 1.0f);
+	float denominator = 1;// Util::Clamp(4 * Util::Clamp(cml::dot(v, n), 0.0f, 1.0f) * Util::Clamp(cml::dot(l, n), 0.0f, 1.0f), 0.001f, 1.0f);
 	
 	// Apply light radiance with BRDF
 	return radiance * (Vector3)((fresnel * geometry * distribution) / denominator);
@@ -452,7 +466,7 @@ float RayTracer::chiGGX(float v)
 
 float RayTracer::DistributionGGX(Vector3 n, Vector3 h, float alpha)
 {
-	/*
+	//*
 	float alpha2 = alpha * alpha;
 	float NoH = Util::Clamp(cml::dot(n, h), 0.0f, 1.0f);
 	float denom = NoH * NoH * (alpha2 - 1.0f) + 1.0f;
@@ -470,7 +484,7 @@ float RayTracer::DistributionGGX(Vector3 n, Vector3 h, float alpha)
 
 float RayTracer::GeometryGGX(Vector3 v, Vector3 n, Vector3 h, float alpha)
 {
-	/*
+	//*
 	float NoV = Util::Clamp(cml::dot(v, n), 0.0f, 1.0f);
 
 	return 1.0f / (NoV * (1.0f - alpha) + alpha);

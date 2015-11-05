@@ -1,5 +1,5 @@
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
+#define SCREEN_WIDTH 1440
+#define SCREEN_HEIGHT 900
 
 #include <Windows.h>
 #include <stdio.h>
@@ -216,7 +216,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		light.constantAttenuation = 0.0f;
 		light.lineairAttenuation = 0.1f;
 		light.quadricAttenuation = 0.02f;
-		light.intensity = 0.2f;
+		light.intensity = 0.1f;
 		light.enabled = false;
 	}
 
@@ -246,7 +246,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		light.constantAttenuation = 0.0f;
 		light.lineairAttenuation = 0.1f;
 		light.quadricAttenuation = 0.02f;
-		light.intensity = 0.02f;
+		light.intensity = 0.05f;
 		light.enabled = true;
 	}
 
@@ -369,20 +369,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	
 	PbrMaterial* sphereMaterial = new PbrMaterial();
 	sphereMaterial->albedo = Color::WHITE;
-	sphereMaterial->specular = Color::WHITE * 0.5f;
-	sphereMaterial->metallic = 1.0f;
+	sphereMaterial->specular = Color::WHITE * 0.1f;
+	sphereMaterial->metallic = 0.0f;
 	sphereMaterial->roughness = 0.5f;
 
-	PbrMaterial* redSphereMaterial = sphereMaterial;
-	PbrMaterial* greenSphereMaterial = sphereMaterial;
-	PbrMaterial* blueSphereMaterial = sphereMaterial;
+	PbrMaterial* redSphereMaterial = new PbrMaterial(*sphereMaterial);
+	redSphereMaterial->albedo = Color::RED;
 
-	PbrMaterial* boxMaterial = sphereMaterial;
+	PbrMaterial* greenSphereMaterial = new PbrMaterial(*sphereMaterial);
+	greenSphereMaterial->albedo = Color::GREEN;
+
+	PbrMaterial* blueSphereMaterial = new PbrMaterial(*sphereMaterial);
+	blueSphereMaterial->albedo = Color::BLUE;
+	
+	PbrMaterial* boxMaterial = new PbrMaterial(*sphereMaterial);
+	boxMaterial->albedo = Color::YELLOW;
 
 	PbrMaterial* floorMaterial = new PbrMaterial();
 	floorMaterial->albedo = Color::WHITE;
-	floorMaterial->specular = Color::WHITE * 0.5f;
-	floorMaterial->metallic = 1.0f;
+	floorMaterial->specular = Color::WHITE * 0.01f;
+	floorMaterial->metallic = 0.0f;
 	floorMaterial->roughness = 0.5f;
 	
 	/*/
@@ -411,7 +417,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	floorMaterial->specularColor = Color::WHITE * 0.5f;
 
 	//*/
-	int a = 0;
+	int h = 0;
+
 	{
 		Node* node = new Node();
 
