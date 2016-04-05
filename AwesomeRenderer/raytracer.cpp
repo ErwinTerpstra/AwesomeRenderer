@@ -298,36 +298,13 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 			refraction = refractionShading.color;
 		}
 
-		float fresnel = 1.0f;// Fresnel(ray.direction, hitInfo.normal, ior);
+		float fresnel = Fresnel(ray.direction, hitInfo.normal, ior);
 
 		Color transmittedLight = reflection * fresnel + refraction * (1.0f - fresnel);
 		specularLight += transmittedLight;
 	}
 
 	shadingInfo.color = diffuse * diffuseLight + specular * specularLight;
-}
-
-float RayTracer::Fresnel(const Vector3& v, const Vector3& normal, float ior)
-{
-	float cosi = cml::dot(v, normal);
-	float etai = 1, etat = ior;
-	
-	if (cosi > 0)
-		std::swap(etai, etat);
-
-	// Compute sini using Snell's law
-	float sint = etai / etat * sqrtf(std::max(0.f, 1 - cosi * cosi));
-	
-	// Total internal reflection
-	if (sint >= 1)
-		return 1.0f;
-	
-	float cost = sqrtf(std::max(0.f, 1 - sint * sint));
-	cosi = fabsf(cosi);
-	float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
-	float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
-
-	return (Rs * Rs + Rp * Rp) / 2;
 }
 
 void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, const PbrMaterial& material, ShadingInfo& shadingInfo, int depth)
@@ -338,14 +315,12 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 	Vector3 viewVector = -ray.direction;
 	Vector3 normal = hitInfo.normal;
 
+	Vector3 radiance(0.0f, 0.0f, 0.0f);
 	Vector3 diffuseRadiance(0.0f, 0.0f, 0.0f);
 	Vector3 specularRadiance(0.0f, 0.0f, 0.0f);
 
 	Vector3 F0 = material.specular.subvector(3);
-	Vector3 ks(0.0f, 0.0f, 0.0f);
-
-	uint32_t specularSampleCount = 0;
-
+	
 	// Iterate through all the lights
 	for (uint8_t i = 0; i < LightData::MAX_LIGHTS; ++i)
 	{
@@ -391,17 +366,14 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 		if (RayCast(shadowRay, shadowHitInfo, distanceToLight))
 			continue;
 
-		Vector3 lightRadiance = light.color.subvector(3) * intensity;
-		Vector3 specularContribution;
+		float NoL = std::max(cml::dot(normal, toLight), 0.0f);
+		Vector3 lightRadiance = light.color.subvector(3) * intensity * NoL;
 
-		// Compute the diffuse term
-		float diffuseTerm = std::max(cml::dot(hitInfo.normal, toLight), 0.0f);
+		Vector3 ks;
+		specularRadiance += SpecularCookTorrance(lightRadiance, viewVector, normal, toLight, F0, material.roughness, ks);
 
-		diffuseRadiance += lightRadiance * diffuseTerm;
-		specularRadiance += SpecularCookTorrance(lightRadiance, viewVector, normal, toLight, F0, material.roughness, specularContribution);
-
-		ks += specularContribution;
-		++specularSampleCount;
+		Vector3 kd = (1.0f - ks) * (1.0f - material.metallic);
+		diffuseRadiance += DiffuseLambert(lightRadiance, hitInfo.normal, toLight);
 	}
 
 	if (depth < MAX_DEPTH)
@@ -415,95 +387,126 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 		ShadingInfo reflectionShading;
 		CalculateShading(reflectionRay, reflectionShading, depth + 1);
 
-		Vector3 lightRadiance = reflectionShading.color.subvector(3);
-		Vector3 specularContribution;
+		float NoL = std::max(cml::dot(normal, reflectionDirection), 0.0f);
+		Vector3 lightRadiance = reflectionShading.color.subvector(3) * NoL;
 
-		diffuseRadiance += lightRadiance;
-		specularRadiance += SpecularCookTorrance(lightRadiance, viewVector, normal, reflectionDirection, F0, material.roughness, specularContribution);
+		Vector3 ks;
+		specularRadiance += SpecularCookTorrance(lightRadiance, viewVector, normal, reflectionDirection, F0, material.roughness, ks);
 
-		ks += specularContribution;
-		++specularSampleCount;
+		Vector3 kd = (1.0f - ks) * (1.0f - material.metallic);
+		diffuseRadiance += DiffuseLambert(lightRadiance, hitInfo.normal, reflectionDirection);
 	}
-
-	ks /= specularSampleCount;
 	
-	Vector3 kd = (1.0f - ks) * (1.0f - material.metallic);
-	
-	Color diffuse = material.albedo * Color(diffuseRadiance * kd, 1.0f);
+	Color diffuse = material.albedo * Color(diffuseRadiance, 1.0f);
 	Color specular = Color(specularRadiance, 1.0f);
 	
 	shadingInfo.color = diffuse + specular;
 }
 
+Vector3 RayTracer::DiffuseLambert(const Vector3& radiance, const Vector3& n, const Vector3& l)
+{
+	return radiance;
+}
+
 Vector3 RayTracer::SpecularCookTorrance(const Vector3& radiance, const Vector3& v, const Vector3& n, const Vector3& l, const Vector3& F0, float roughness, Vector3& ks)
 {
 	// Calculate the half vector
-	Vector3 halfVector = cml::normalize(l + v);
-	float cosT = Util::Clamp(cml::dot(l, n), 0.0f, 1.0f);
-	float sinT = sqrt(1 - cosT * cosT);
+	Vector3 h = cml::normalize(l + v);
 
-	// Fresnel term
-	Vector3 fresnel = FresnelSchlick(Util::Clamp(cml::dot(halfVector, v), 0.0f, 1.0f), F0);
-	ks = fresnel;
+	float cosT = Util::Clamp01(cml::dot(l, n));
+	float sinT = sqrt(1 - cosT * cosT);
+	
+	/*
+	// GGX D and G term
 
 	// Normal distribution term
 	float distribution = DistributionGGX(n, halfVector, roughness);
 
 	// Geometry term (once for shadowing and once for masking)
 	float geometry = GeometryGGX(v, n, halfVector, roughness) * GeometryGGX(l, n, halfVector, roughness);
+	*/
+
+	// Fresnel term
+	Vector3 fresnel = FresnelSchlick(Util::Clamp01(cml::dot(h, v)), F0);
+
+	// Normal distribution term
+	float distribution = DistributionBlinn(n, h, 1.0f);
+	
+	// Geometry term
+	float geometry = Geometry(v, l, n, h);
 
 	// Calculate the Cook-Torrance denominator
-	float denominator = 1;// Util::Clamp(4 * Util::Clamp(cml::dot(v, n), 0.0f, 1.0f) * Util::Clamp(cml::dot(l, n), 0.0f, 1.0f), 0.001f, 1.0f);
-	
+	float denominator = Util::Clamp01(4 * abs(cml::dot(v, n)) * abs(cml::dot(l, n)));
+
+	ks = fresnel;
+
 	// Apply light radiance with BRDF
 	return radiance * (Vector3)((fresnel * geometry * distribution) / denominator);
 }
 
-float RayTracer::chiGGX(float v)
+float RayTracer::DistributionBlinn(const Vector3 & n, const Vector3& h, float e)
 {
-	return v > 0.0f ? 1.0f : 0.0f;
+	float NoH = abs(cml::dot(n, h));
+
+	return (e + 2) * INV_TWO_PI * std::pow(NoH, e);
 }
 
-float RayTracer::DistributionGGX(Vector3 n, Vector3 h, float alpha)
+float RayTracer::DistributionGGX(const Vector3& n, const Vector3& h, float alpha)
 {
-	//*
 	float alpha2 = alpha * alpha;
-	float NoH = Util::Clamp(cml::dot(n, h), 0.0f, 1.0f);
+	float NoH = Util::Clamp01(cml::dot(n, h));
 	float denom = NoH * NoH * (alpha2 - 1.0f) + 1.0f;
 	return alpha2 / ((float)PI * denom * denom);
-
-	/*/
-	float alpha2 = alpha * alpha;
-	float NoH = Util::Clamp(cml::dot(n, h), 0.0f, 1.0f);
-	float NoH2 = NoH * NoH;
-	float den = NoH2 * alpha2 + (1 - NoH2);
-
-	return (chiGGX(NoH) * alpha2) / ((float) PI * den * den);
-	//*/
 }
 
-float RayTracer::GeometryGGX(Vector3 v, Vector3 n, Vector3 h, float alpha)
+float RayTracer::Geometry(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h)
 {
-	//*
+	float NoH = abs(cml::dot(n, h));
+	float NoV = abs(cml::dot(n, v));
+	float NoL = abs(cml::dot(n, l));
+	float VoH = abs(cml::dot(v, h));
+
+	return std::min(1.0f, std::min(2.0f * NoH * NoV / VoH,
+								   2.0f * NoH * NoL / VoH));
+}
+
+
+float RayTracer::GeometryGGX(const Vector3& v, const Vector3& n, const Vector3& h, float alpha)
+{
 	float NoV = Util::Clamp(cml::dot(v, n), 0.0f, 1.0f);
 
 	return 1.0f / (NoV * (1.0f - alpha) + alpha);
-
-	/*/
-	float VoH2 = Util::Clamp(cml::dot(v, h), 0.0f, 1.0f);
-	float chi = chiGGX(VoH2 / Util::Clamp(cml::dot(v, n), 0.0f, 1.0f));
-	VoH2 = VoH2 * VoH2;
-	
-	float tan2 = (1 - VoH2) / VoH2;
-
-	return (chi * 2) / (1 + sqrt(1 + alpha * alpha * tan2));
-	//*/
 }
 
 Vector3 RayTracer::FresnelSchlick(float cosT, Vector3 F0)
 {
-	return F0 + (1.0f - F0) * pow(1 - cosT, 5);
+	return F0 + pow(1 - cosT, 5) * (1.0f - F0);
 }
+
+float RayTracer::Fresnel(const Vector3& v, const Vector3& normal, float ior)
+{
+	float cosi = cml::dot(v, normal);
+	float etai = 1, etat = ior;
+
+	if (cosi > 0)
+		std::swap(etai, etat);
+
+	// Compute sini using Snell's law
+	float sint = etai / etat * sqrtf(std::max(0.f, 1 - cosi * cosi));
+
+	// Total internal reflection
+	if (sint >= 1)
+		return 1.0f;
+
+	float cost = sqrtf(std::max(0.f, 1 - sint * sint));
+	cosi = fabsf(cosi);
+
+	float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
+	float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
+
+	return (Rs * Rs + Rp * Rp) / 2;
+}
+
 
 bool RayTracer::RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance)
 {

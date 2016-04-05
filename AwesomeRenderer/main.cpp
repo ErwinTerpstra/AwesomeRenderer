@@ -1,7 +1,6 @@
 #define SCREEN_WIDTH 1440
 #define SCREEN_HEIGHT 900
 
-#include <Windows.h>
 #include <stdio.h>
 #include <io.h>
 #include <fcntl.h>
@@ -203,8 +202,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		light.direction.normalize();
 
 		light.type = LightData::LightType::DIRECTIONAL;
-		light.color = Color(254, 253, 189);
-		light.intensity = 0.4f;
+		light.color = Color::WHITE;// Color(254, 253, 189);
+		light.intensity = 1.0f;
 		light.enabled = true;
 	}
 
@@ -247,7 +246,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		light.lineairAttenuation = 0.1f;
 		light.quadricAttenuation = 0.02f;
 		light.intensity = 0.05f;
-		light.enabled = true;
+		light.enabled = false;
 	}
 
 	// Skybox
@@ -369,7 +368,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	
 	PbrMaterial* sphereMaterial = new PbrMaterial();
 	sphereMaterial->albedo = Color::WHITE;
-	sphereMaterial->specular = Color::WHITE * 0.1f;
+	sphereMaterial->specular = Color::WHITE * 0.5f;
 	sphereMaterial->metallic = 0.0f;
 	sphereMaterial->roughness = 0.5f;
 
@@ -387,7 +386,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	PbrMaterial* floorMaterial = new PbrMaterial();
 	floorMaterial->albedo = Color::WHITE;
-	floorMaterial->specular = Color::WHITE * 0.01f;
+	floorMaterial->specular = Color::WHITE * 0.5f;
 	floorMaterial->metallic = 0.0f;
 	floorMaterial->roughness = 0.5f;
 	
@@ -417,7 +416,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	floorMaterial->specularColor = Color::WHITE * 0.5f;
 
 	//*/
-	int h = 0;
 
 	{
 		Node* node = new Node();

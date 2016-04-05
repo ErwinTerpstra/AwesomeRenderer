@@ -59,10 +59,15 @@ namespace AwesomeRenderer
 		
 		float Fresnel(const Vector3& v, const Vector3& normal, float ior);
 
+		Vector3 DiffuseLambert(const Vector3& radiance, const Vector3& n, const Vector3& l);
 		Vector3 SpecularCookTorrance(const Vector3& radiance, const Vector3& v, const Vector3& n, const Vector3& l, const Vector3& F0, float roughness, Vector3& ks);
-		float chiGGX(float v);
-		float DistributionGGX(Vector3 n, Vector3 h, float alpha);
-		float GeometryGGX(Vector3 v, Vector3 n, Vector3 h, float alpha);
+		
+		float DistributionBlinn(const Vector3& n, const Vector3& h, float e);
+		float DistributionGGX(const Vector3& n, const Vector3& h, float alpha);
+		
+		float Geometry(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h);
+		float GeometryGGX(const Vector3& v, const Vector3& n, const Vector3& h, float alpha);
+
 		Vector3 FresnelSchlick(float cosT, Vector3 F0);
 
 	};

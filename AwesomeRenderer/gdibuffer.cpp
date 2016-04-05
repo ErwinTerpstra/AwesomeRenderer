@@ -1,5 +1,3 @@
-#include <Windows.h>
-
 #include "awesomerenderer.h"
 #include "gdibuffer.h"
 

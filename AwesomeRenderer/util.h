@@ -98,6 +98,11 @@ namespace AwesomeRenderer
 		{
 			return std::min(std::max(val, min), max);
 		}
+
+		__inline static float Clamp01(float val)
+		{
+			return Clamp(val, 0.0f, 1.0f);
+		}
 	};
 
 }
