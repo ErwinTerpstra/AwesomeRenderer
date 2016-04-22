@@ -9,6 +9,11 @@ namespace AwesomeRenderer
 	{
 		typedef cml::vector<float, cml::fixed<Size> > Vector;
 
+		static bool IsNormalized(const Vector& v)
+		{
+			return abs(v.length_squared() - 1.0f) < 0.001f;
+		}
+
 		static void Interpolate(const Vector& a, const Vector& b, float d, Vector& out)
 		{
 			out = a * (1.0f - d) + b * d;

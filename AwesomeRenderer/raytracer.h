@@ -59,14 +59,19 @@ namespace AwesomeRenderer
 		
 		float Fresnel(const Vector3& v, const Vector3& normal, float ior);
 
-		Vector3 DiffuseLambert(const Vector3& radiance, const Vector3& n, const Vector3& l);
-		Vector3 SpecularCookTorrance(const Vector3& radiance, const Vector3& v, const Vector3& n, const Vector3& l, const Vector3& F0, float roughness, Vector3& ks);
-		
+		Vector3 DiffuseLambert(const Vector3& albedo);
+		Vector3 SpecularCookTorrance(const Vector3& v, const Vector3& n, const Vector3& l, const Vector3& F0, float roughness, Vector3& ks);
+
+		float RoughnessToShininess(float a);
+
 		float DistributionBlinn(const Vector3& n, const Vector3& h, float e);
 		float DistributionGGX(const Vector3& n, const Vector3& h, float alpha);
 		
-		float Geometry(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h);
-		float GeometryGGX(const Vector3& v, const Vector3& n, const Vector3& h, float alpha);
+		float GeometryImplicit(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h);
+		float GeometryCookTorrance(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h);
+		float GeometrySmith(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float roughness);
+
+		float G1Schlick(const Vector3& v, const Vector3& n, float roughness);
 
 		Vector3 FresnelSchlick(float cosT, Vector3 F0);
 

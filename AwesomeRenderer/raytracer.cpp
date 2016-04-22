@@ -15,10 +15,12 @@
 #include "lightdata.h"
 #include "skybox.h"
 
+#include "inputmanager.h"
+
 using namespace AwesomeRenderer;
 
 const float RayTracer::MAX_FRAME_TIME = 0.05f;
-const int RayTracer::MAX_DEPTH = 5;
+const int RayTracer::MAX_DEPTH = 0;
 
 RayTracer::RayTracer() : Renderer(), pixelIdx(0), timer(0.0f, FLT_MAX), frameTimer(0.0f, FLT_MAX)
 {
@@ -367,15 +369,16 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 			continue;
 
 		float NoL = std::max(cml::dot(normal, toLight), 0.0f);
-		Vector3 lightRadiance = light.color.subvector(3) * intensity * NoL;
+		Vector3 lightRadiance = light.color.subvector(3) * intensity;
 
 		Vector3 ks;
-		specularRadiance += SpecularCookTorrance(lightRadiance, viewVector, normal, toLight, F0, material.roughness, ks);
+		specularRadiance += SpecularCookTorrance(viewVector, normal, toLight, F0, material.roughness, ks) * lightRadiance * NoL;
 
 		Vector3 kd = (1.0f - ks) * (1.0f - material.metallic);
-		diffuseRadiance += DiffuseLambert(lightRadiance, hitInfo.normal, toLight);
+		diffuseRadiance += DiffuseLambert(material.albedo.subvector(3)) * lightRadiance * kd * NoL;
 	}
 
+	//if (FALSE)
 	if (depth < MAX_DEPTH)
 	{
 		Vector3 reflectionDirection;
@@ -388,67 +391,63 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 		CalculateShading(reflectionRay, reflectionShading, depth + 1);
 
 		float NoL = std::max(cml::dot(normal, reflectionDirection), 0.0f);
-		Vector3 lightRadiance = reflectionShading.color.subvector(3) * NoL;
+		Vector3 lightRadiance = reflectionShading.color.subvector(3);
 
 		Vector3 ks;
-		specularRadiance += SpecularCookTorrance(lightRadiance, viewVector, normal, reflectionDirection, F0, material.roughness, ks);
+		specularRadiance += SpecularCookTorrance(viewVector, normal, reflectionDirection, F0, material.roughness, ks) * lightRadiance * NoL;
 
 		Vector3 kd = (1.0f - ks) * (1.0f - material.metallic);
-		diffuseRadiance += DiffuseLambert(lightRadiance, hitInfo.normal, reflectionDirection);
+		diffuseRadiance += DiffuseLambert(material.albedo.subvector(3)) * lightRadiance * kd * NoL;
 	}
 	
-	Color diffuse = material.albedo * Color(diffuseRadiance, 1.0f);
-	Color specular = Color(specularRadiance, 1.0f);
+	Color diffuse = InputManager::Instance().GetKey('R') ? Color::BLACK : Color(diffuseRadiance, 1.0f);
+	Color specular = InputManager::Instance().GetKey('T') ? Color::BLACK : Color(specularRadiance, 1.0f);
 	
 	shadingInfo.color = diffuse + specular;
 }
 
-Vector3 RayTracer::DiffuseLambert(const Vector3& radiance, const Vector3& n, const Vector3& l)
+Vector3 RayTracer::DiffuseLambert(const Vector3& albedo)
 {
-	return radiance;
+	return albedo / PI;
 }
 
-Vector3 RayTracer::SpecularCookTorrance(const Vector3& radiance, const Vector3& v, const Vector3& n, const Vector3& l, const Vector3& F0, float roughness, Vector3& ks)
+Vector3 RayTracer::SpecularCookTorrance(const Vector3& v, const Vector3& n, const Vector3& l, const Vector3& F0, float roughness, Vector3& ks)
 {
+	assert(VectorUtil<3>::IsNormalized(v));
+	assert(VectorUtil<3>::IsNormalized(n));
+	assert(VectorUtil<3>::IsNormalized(l));
+
 	// Calculate the half vector
-	Vector3 h = cml::normalize(l + v);
-
-	float cosT = Util::Clamp01(cml::dot(l, n));
-	float sinT = sqrt(1 - cosT * cosT);
-	
-	/*
-	// GGX D and G term
-
-	// Normal distribution term
-	float distribution = DistributionGGX(n, halfVector, roughness);
-
-	// Geometry term (once for shadowing and once for masking)
-	float geometry = GeometryGGX(v, n, halfVector, roughness) * GeometryGGX(l, n, halfVector, roughness);
-	*/
-
+	Vector3 h = (l + v) * 0.5f;
+		
 	// Fresnel term
-	Vector3 fresnel = FresnelSchlick(Util::Clamp01(cml::dot(h, v)), F0);
-
-	// Normal distribution term
-	float distribution = DistributionBlinn(n, h, 1.0f);
-	
-	// Geometry term
-	float geometry = Geometry(v, l, n, h);
-
-	// Calculate the Cook-Torrance denominator
-	float denominator = Util::Clamp01(4 * abs(cml::dot(v, n)) * abs(cml::dot(l, n)));
-
+	Vector3 fresnel = InputManager::Instance().GetKey('Z') ? F0 : FresnelSchlick(Util::Clamp01(cml::dot(h, l)), F0);
 	ks = fresnel;
 
-	// Apply light radiance with BRDF
-	return radiance * (Vector3)((fresnel * geometry * distribution) / denominator);
+	// Normal distribution term
+	float distribution = InputManager::Instance().GetKey('X') ? cml::dot(n, h) : DistributionGGX(n, h, roughness);
+	//float distribution = DistributionBlinn(n, h, RoughnessToShininess(roughness));
+	
+	// Geometry term
+	float geometry = InputManager::Instance().GetKey('C') ? GeometryImplicit(v, l, n, h) : GeometrySmith(v, l, n, h, roughness);
+
+	// Calculate the Cook-Torrance denominator
+	float denominator = Util::Clamp01(4 * cml::dot(n, v) * cml::dot(n, l));
+
+	// Return the evaluated BRDF
+	return (Vector3)((fresnel * geometry * distribution) / denominator);
+}
+
+float RayTracer::RoughnessToShininess(float a)
+{
+	return sqrt(2.0f / (a + 2.0f));
 }
 
 float RayTracer::DistributionBlinn(const Vector3 & n, const Vector3& h, float e)
 {
 	float NoH = abs(cml::dot(n, h));
 
-	return (e + 2) * INV_TWO_PI * std::pow(NoH, e);
+	return ((e + 2) * INV_TWO_PI) * std::pow(NoH, e);
 }
 
 float RayTracer::DistributionGGX(const Vector3& n, const Vector3& h, float alpha)
@@ -459,28 +458,41 @@ float RayTracer::DistributionGGX(const Vector3& n, const Vector3& h, float alpha
 	return alpha2 / ((float)PI * denom * denom);
 }
 
-float RayTracer::Geometry(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h)
+float RayTracer::GeometryImplicit(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h)
+{
+	float NoV = cml::dot(n, v);
+	float NoL = cml::dot(n, l);
+
+	return NoL * NoV;
+}
+
+float RayTracer::GeometryCookTorrance(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h)
 {
 	float NoH = abs(cml::dot(n, h));
 	float NoV = abs(cml::dot(n, v));
 	float NoL = abs(cml::dot(n, l));
 	float VoH = abs(cml::dot(v, h));
 
-	return std::min(1.0f, std::min(2.0f * NoH * NoV / VoH,
-								   2.0f * NoH * NoL / VoH));
+	return std::min(1.0f, std::min((2.0f * NoH * NoV) / VoH,
+								   (2.0f * NoH * NoL) / VoH));
 }
 
-
-float RayTracer::GeometryGGX(const Vector3& v, const Vector3& n, const Vector3& h, float alpha)
+float RayTracer::GeometrySmith(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float roughness)
 {
-	float NoV = Util::Clamp(cml::dot(v, n), 0.0f, 1.0f);
+	return G1Schlick(l, h, roughness) * G1Schlick(v, h, roughness);
+}
 
-	return 1.0f / (NoV * (1.0f - alpha) + alpha);
+float RayTracer::G1Schlick(const Vector3& v, const Vector3& n, float roughness)
+{
+	float NoV = Util::Clamp01(cml::dot(v, n));
+
+	float k = roughness * sqrt(2.0f / PI);
+	return NoV / (NoV * (1.0f - k) + k);
 }
 
 Vector3 RayTracer::FresnelSchlick(float cosT, Vector3 F0)
 {
-	return F0 + pow(1 - cosT, 5) * (1.0f - F0);
+	return F0 + (1.0f - F0) * pow(1 - cosT, 5);
 }
 
 float RayTracer::Fresnel(const Vector3& v, const Vector3& normal, float ior)

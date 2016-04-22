@@ -1,5 +1,5 @@
-#define SCREEN_WIDTH 1440
-#define SCREEN_HEIGHT 900
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 720
 
 #include <stdio.h>
 #include <io.h>
@@ -198,12 +198,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	{
 		LightData::Light& light = lightData.lights[0];
+		/*
+		light.type = LightData::LightType::POINT;
+		light.position = Vector3(5.0f, 3.0f, 5.0f);
+		light.constantAttenuation = 0.0f;
+		light.lineairAttenuation = 0.1f;
+		light.quadricAttenuation = 0.02f;
+		light.intensity = 5.0f;
+		/*/
+		light.type = LightData::LightType::DIRECTIONAL;
 		light.direction = Vector3(-0.5f, -0.8f, -0.5f);
 		light.direction.normalize();
-
-		light.type = LightData::LightType::DIRECTIONAL;
-		light.color = Color::WHITE;// Color(254, 253, 189);
 		light.intensity = 1.0f;
+		//*/
+
+		light.color = Color::WHITE;// Color(254, 253, 189);
 		light.enabled = true;
 	}
 
@@ -367,28 +376,30 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//*
 	
 	PbrMaterial* sphereMaterial = new PbrMaterial();
-	sphereMaterial->albedo = Color::WHITE;
-	sphereMaterial->specular = Color::WHITE * 0.5f;
-	sphereMaterial->metallic = 0.0f;
-	sphereMaterial->roughness = 0.5f;
+	sphereMaterial->albedo = Color::BLACK;
+	sphereMaterial->metallic = 1.0f;
+	sphereMaterial->roughness = 0.0f;
 
 	PbrMaterial* redSphereMaterial = new PbrMaterial(*sphereMaterial);
-	redSphereMaterial->albedo = Color::RED;
+	redSphereMaterial->specular = Color::WHITE;// *0.5f;
 
 	PbrMaterial* greenSphereMaterial = new PbrMaterial(*sphereMaterial);
-	greenSphereMaterial->albedo = Color::GREEN;
+	greenSphereMaterial->specular = Color::GREEN * 0.9f;
 
 	PbrMaterial* blueSphereMaterial = new PbrMaterial(*sphereMaterial);
-	blueSphereMaterial->albedo = Color::BLUE;
+	blueSphereMaterial->specular = Color::BLUE * 0.9f;
 	
-	PbrMaterial* boxMaterial = new PbrMaterial(*sphereMaterial);
+	PbrMaterial* boxMaterial = new PbrMaterial();
 	boxMaterial->albedo = Color::YELLOW;
+	boxMaterial->specular = Color::WHITE * 0.1f;
+	boxMaterial->metallic = 0.0f;
+	boxMaterial->roughness = 0.0f;
 
 	PbrMaterial* floorMaterial = new PbrMaterial();
-	floorMaterial->albedo = Color::WHITE;
+	floorMaterial->albedo = Color::BLACK;
 	floorMaterial->specular = Color::WHITE * 0.5f;
-	floorMaterial->metallic = 0.0f;
-	floorMaterial->roughness = 0.5f;
+	floorMaterial->metallic = 1.0f;
+	floorMaterial->roughness = 0.1f;
 	
 	/*/
 	
