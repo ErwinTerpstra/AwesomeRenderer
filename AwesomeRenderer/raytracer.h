@@ -20,7 +20,6 @@ namespace AwesomeRenderer
 
 	private:
 		static const float MAX_FRAME_TIME;
-		static const int MAX_DEPTH;
 
 		struct ShadingInfo
 		{
@@ -32,6 +31,10 @@ namespace AwesomeRenderer
 
 		uint32_t pixelIdx;
 		std::vector<Point2> pixelList;
+
+	public:
+
+		uint32_t maxDepth;
 
 	public:
 
@@ -70,8 +73,10 @@ namespace AwesomeRenderer
 		float GeometryImplicit(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h);
 		float GeometryCookTorrance(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h);
 		float GeometrySmith(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float roughness);
+		float GeometryGGX(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float roughness);
 
 		float G1Schlick(const Vector3& v, const Vector3& n, float roughness);
+		float G1GGX(const Vector3& v, const Vector3& n, const Vector3& h, float roughness);
 
 		Vector3 FresnelSchlick(float cosT, Vector3 F0);
 

@@ -133,8 +133,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	renderTarget.SetupBuffers(&frameBuffer, &depthBuffer);
 
 	// Setup camera
+	const Vector3 cameraPosition = Vector3(3.2f, 4.16f, 7.1f);
 	Camera camera(cml::left_handed);
-	camera.SetLookAt(Vector3(-3.3f, 2.0f, 3.3f), Vector3(-2.7f, 1.7f, 2.7f), Vector3(0.0f, 1.0f, 0.0));
+	camera.SetLookAt(cameraPosition, cameraPosition - Vector3(0.0f, 0.5f, 1.0f), Vector3(0.0f, 1.0f, 0.0));
 	camera.SetPerspective(45.0f, ((float) SCREEN_WIDTH) / SCREEN_HEIGHT, 0.1f, 5000.0f);
 	camera.SetViewport(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT);
 	
@@ -209,7 +210,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		light.type = LightData::LightType::DIRECTIONAL;
 		light.direction = Vector3(-0.5f, -0.8f, -0.5f);
 		light.direction.normalize();
-		light.intensity = 1.0f;
+		light.intensity = 10.0f;
 		//*/
 
 		light.color = Color::WHITE;// Color(254, 253, 189);
@@ -372,61 +373,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		mainContext.nodes.push_back(node);
 	}
-
-	//*
 	
-	PbrMaterial* sphereMaterial = new PbrMaterial();
-	sphereMaterial->albedo = Color::BLACK;
-	sphereMaterial->metallic = 1.0f;
-	sphereMaterial->roughness = 0.0f;
-
-	PbrMaterial* redSphereMaterial = new PbrMaterial(*sphereMaterial);
-	redSphereMaterial->specular = Color::WHITE;// *0.5f;
-
-	PbrMaterial* greenSphereMaterial = new PbrMaterial(*sphereMaterial);
-	greenSphereMaterial->specular = Color::GREEN * 0.9f;
-
-	PbrMaterial* blueSphereMaterial = new PbrMaterial(*sphereMaterial);
-	blueSphereMaterial->specular = Color::BLUE * 0.9f;
-	
-	PbrMaterial* boxMaterial = new PbrMaterial();
-	boxMaterial->albedo = Color::YELLOW;
-	boxMaterial->specular = Color::WHITE * 0.1f;
-	boxMaterial->metallic = 0.0f;
-	boxMaterial->roughness = 0.0f;
-
 	PbrMaterial* floorMaterial = new PbrMaterial();
 	floorMaterial->albedo = Color::BLACK;
 	floorMaterial->specular = Color::WHITE * 0.5f;
 	floorMaterial->metallic = 1.0f;
 	floorMaterial->roughness = 0.1f;
-	
-	/*/
-	
-	PhongMaterial* sphereMaterial = new PhongMaterial();
-	sphereMaterial->diffuseColor = Color::WHITE;
-	sphereMaterial->specularColor = Color::WHITE * 0.5f;
-	sphereMaterial->shininess = 5.0f;
-
-	PhongMaterial* boxMaterial = new PhongMaterial();
-	boxMaterial->diffuseColor = Color::YELLOW;
-	boxMaterial->specularColor = Color::WHITE * 0.5f;
-	boxMaterial->shininess = 5.0f;
-
-	PhongMaterial* redSphereMaterial = new PhongMaterial(*sphereMaterial);
-	redSphereMaterial->diffuseColor = Color::RED;
-
-	PhongMaterial* greenSphereMaterial = new PhongMaterial(*sphereMaterial);
-	greenSphereMaterial->diffuseColor = Color::GREEN;
-
-	PhongMaterial* blueSphereMaterial = new PhongMaterial(*sphereMaterial);
-	blueSphereMaterial->diffuseColor = Color::BLUE;
-
-	PhongMaterial* floorMaterial = new PhongMaterial();
-	floorMaterial->diffuseColor = Color::WHITE * 0.8f;
-	floorMaterial->specularColor = Color::WHITE * 0.5f;
-
-	//*/
 
 	{
 		Node* node = new Node();
@@ -444,71 +396,32 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		mainContext.nodes.push_back(node);
 	}
 
-	{
-		Node* node = new Node();
-		
-		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
-		transform->SetScale(Vector3(2.0f, 0.5f, 2.0f) * 2.0f);
-		node->AddComponent(transform);
+	const float SPHERE_RADIUS = 0.6f;
+	const float SPHERE_SPACING = 0.4f;
+	const uint32_t ROUGHNESS_SPHERES = 5;
+	const Vector3 origin(0.0f, SPHERE_RADIUS + 0.5f, 0.0f);
 
-		Renderable* renderable = new Renderable();
-		renderable->primitive = new AABB(Vector3(-0.5f, 0.0f, -0.5f), Vector3(0.5f, 1.0f, 0.5f));
-		//renderable->primitive = new Sphere(Vector3(0.0f, 0.5f, 0.0f), 0.5f);
-
-		renderable->material = boxMaterial;
-
-		node->AddComponent(renderable);
-
-		mainContext.nodes.push_back(node);
-	}
-
+	for (uint32_t sphereIdx = 0; sphereIdx < ROUGHNESS_SPHERES; ++sphereIdx)
 	{
 		Node* node = new Node();
 
-		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(-1.0f, 1.0f, -1.0f));
-		node->AddComponent(transform);
-
-		Renderable* renderable = new Renderable();
-		renderable->primitive = new Sphere(Vector3(0.0f, 0.6f, 0.0f), 0.6f);
-
-		renderable->material = redSphereMaterial;
-
-		node->AddComponent(renderable);
-
-		mainContext.nodes.push_back(node);
-	}
-
-
-	{
-		Node* node = new Node();
+		Vector3 position = origin;
+		position[0] += sphereIdx * (SPHERE_RADIUS * 2 + SPHERE_SPACING);
 
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(1.0f, 1.0f, -1.0f));
+		transform->SetPosition(position);
 		node->AddComponent(transform);
 
-		Renderable* renderable = new Renderable();
-		renderable->primitive = new Sphere(Vector3(0.0f, 0.6f, 0.0f), 0.6f);
-
-		renderable->material = greenSphereMaterial;
-
-		node->AddComponent(renderable);
-
-		mainContext.nodes.push_back(node);
-	}
-
-	{
-		Node* node = new Node();
-
-		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(0.0f, 1.0f, 1.0f));
-		node->AddComponent(transform);
+		PbrMaterial* material = new PbrMaterial();
+		material->albedo = Color::BLACK;
+		material->specular = Color::WHITE * 0.6f;
+		material->metallic = 1.0f;
+		material->roughness = (sphereIdx / (float) (ROUGHNESS_SPHERES - 1.0f));
 
 		Renderable* renderable = new Renderable();
-		renderable->primitive = new Sphere(Vector3(0.0f, 0.6f, 0.0f), 0.6f);
+		renderable->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), SPHERE_RADIUS);
 
-		renderable->material = blueSphereMaterial;
+		renderable->material = material;
 
 		node->AddComponent(renderable);
 
@@ -612,6 +525,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		if (inputManager.GetKey('P'))
 			mainRenderer = renderers[2];
+
+		if (inputManager.GetKeyDown(VK_OEM_PLUS))
+			++rayTracer.maxDepth;
+
+		if (inputManager.GetKeyDown(VK_OEM_MINUS) && rayTracer.maxDepth > 0)
+			--rayTracer.maxDepth;
+		
 
 		for (uint32_t contextIdx = 0; contextIdx < contexts.size(); ++contextIdx)
 		{
