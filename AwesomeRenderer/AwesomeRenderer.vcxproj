@@ -139,6 +139,7 @@
   <ItemGroup>
     <ClInclude Include="aabb.h" />
     <ClInclude Include="buffer.h" />
+    <ClInclude Include="coloredskybox.h" />
     <ClInclude Include="component.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="extendee.h" />
@@ -174,6 +175,7 @@
     <ClInclude Include="sampler.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="primitive.h" />
+    <ClInclude Include="sixsidedskybox.h" />
     <ClInclude Include="skybox.h" />
     <ClInclude Include="sphere.h" />
     <ClInclude Include="textmesh.h" />

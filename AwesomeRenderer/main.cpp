@@ -61,6 +61,8 @@
 // Renderer
 #include "lightdata.h"
 #include "skybox.h"
+#include "coloredskybox.h"
+#include "sixsidedskybox.h"
 
 #include "shader.h"
 #include "softwareshader.h"
@@ -133,7 +135,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	renderTarget.SetupBuffers(&frameBuffer, &depthBuffer);
 
 	// Setup camera
-	const Vector3 cameraPosition = Vector3(3.2f, 4.16f, 7.1f);
+	const Vector3 cameraPosition = Vector3(3.2f, 5.5f, 7.1f);
 	Camera camera(cml::left_handed);
 	camera.SetLookAt(cameraPosition, cameraPosition - Vector3(0.0f, 0.5f, 1.0f), Vector3(0.0f, 1.0f, 0.0));
 	camera.SetPerspective(45.0f, ((float) SCREEN_WIDTH) / SCREEN_HEIGHT, 0.1f, 5000.0f);
@@ -182,7 +184,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//renderer->drawMode = Renderer::DRAW_LINE;
 	}
 
-	Renderer* mainRenderer = &rendererGL;
+	Renderer* mainRenderer = &rayTracer;
 
 	// Shader
 	PhongShader phongShader;
@@ -210,7 +212,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		light.type = LightData::LightType::DIRECTIONAL;
 		light.direction = Vector3(-0.5f, -0.8f, -0.5f);
 		light.direction.normalize();
-		light.intensity = 10.0f;
+		light.intensity = 5.0f;
 		//*/
 
 		light.color = Color::WHITE;// Color(254, 253, 189);
@@ -258,14 +260,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		light.intensity = 0.05f;
 		light.enabled = false;
 	}
-
-	// Skybox
-	Skybox skybox;
-	skybox.top = Color(35, 71, 189) * 0.5f;
-	skybox.bottom = Color(107, 205, 209) * 0.5f;
-
-	mainContext.skybox = &skybox;
-	
+		
 	// Camera controller
 	CameraController cameraController(camera);
 	cameraController.CopyFromCamera();
@@ -278,6 +273,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Game loop timer
 	Timer timer(0.00001f, 100.0f);
 	timer.Tick();
+
+	// Skybox
+
+	/*
+	ColoredSkybox skybox;
+	skybox.top = Color(35, 71, 189) * 0.5f;
+	skybox.bottom = Color(107, 205, 209) * 0.5f;
+	*/
+
+	SixSidedSkybox skybox;
+	skybox.left = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0001.bmp");
+	skybox.front = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0002.bmp");
+	skybox.top = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0003.bmp");
+	skybox.right = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0004.bmp");
+	skybox.back = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0005.bmp");
+	skybox.bottom = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0006.bmp");
+
+	mainContext.skybox = &skybox;
 	
 	if (FALSE)
 	{
@@ -373,18 +386,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		mainContext.nodes.push_back(node);
 	}
-	
-	PbrMaterial* floorMaterial = new PbrMaterial();
-	floorMaterial->albedo = Color::BLACK;
-	floorMaterial->specular = Color::WHITE * 0.5f;
-	floorMaterial->metallic = 1.0f;
-	floorMaterial->roughness = 0.1f;
 
 	{
 		Node* node = new Node();
 
 		Transformation* transform = new Transformation();
 		node->AddComponent(transform);
+
+		PbrMaterial* floorMaterial = new PbrMaterial();
+		floorMaterial->albedo = Color::BLACK;
+		floorMaterial->specular = Color::WHITE * 0.8f;
+		floorMaterial->metallic = 1.0f;
+		floorMaterial->roughness = 0.7f;
 
 		Renderable* renderable = new Renderable();
 		renderable->primitive = new Plane(0.0f, Vector3(0.0f, 1.0f, 0.0f));
@@ -393,39 +406,43 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		node->AddComponent(renderable);
 
-		mainContext.nodes.push_back(node);
+		//mainContext.nodes.push_back(node);
 	}
 
 	const float SPHERE_RADIUS = 0.6f;
 	const float SPHERE_SPACING = 0.4f;
-	const uint32_t ROUGHNESS_SPHERES = 5;
+	const uint32_t SPHERES_PER_ROW = 5;
 	const Vector3 origin(0.0f, SPHERE_RADIUS + 0.5f, 0.0f);
 
-	for (uint32_t sphereIdx = 0; sphereIdx < ROUGHNESS_SPHERES; ++sphereIdx)
+	for (uint32_t row = 0; row < 2; ++row)
 	{
-		Node* node = new Node();
+		for (uint32_t sphereIdx = 0; sphereIdx < SPHERES_PER_ROW; ++sphereIdx)
+		{
+			Node* node = new Node();
 
-		Vector3 position = origin;
-		position[0] += sphereIdx * (SPHERE_RADIUS * 2 + SPHERE_SPACING);
+			Vector3 position = origin;
+			position[0] += sphereIdx * (SPHERE_RADIUS * 2 + SPHERE_SPACING);
+			position[1] += row * (SPHERE_RADIUS * 2 + SPHERE_SPACING);
 
-		Transformation* transform = new Transformation();
-		transform->SetPosition(position);
-		node->AddComponent(transform);
+			Transformation* transform = new Transformation();
+			transform->SetPosition(position);
+			node->AddComponent(transform);
 
-		PbrMaterial* material = new PbrMaterial();
-		material->albedo = Color::BLACK;
-		material->specular = Color::WHITE * 0.6f;
-		material->metallic = 1.0f;
-		material->roughness = (sphereIdx / (float) (ROUGHNESS_SPHERES - 1.0f));
+			PbrMaterial* material = new PbrMaterial();
+			material->albedo = Color::WHITE * 0.9f;
+			material->specular = Color::WHITE;// *0.6f;
+			material->metallic = row;
+			material->roughness = (sphereIdx / (float)(SPHERES_PER_ROW - 1.0f));
 
-		Renderable* renderable = new Renderable();
-		renderable->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), SPHERE_RADIUS);
+			Renderable* renderable = new Renderable();
+			renderable->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), SPHERE_RADIUS);
 
-		renderable->material = material;
+			renderable->material = material;
 
-		node->AddComponent(renderable);
+			node->AddComponent(renderable);
 
-		mainContext.nodes.push_back(node);
+			mainContext.nodes.push_back(node);
+		}
 	}
 
 	// Convert all meshes to OpenGL meshes

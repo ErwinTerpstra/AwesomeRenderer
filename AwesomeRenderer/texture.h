@@ -13,10 +13,7 @@ namespace AwesomeRenderer
 
 	public:
 		Texture();
-
-		Color Sample(const Vector2& uv) const;
-		void Sample(const Vector2& uv, Color& sample) const;
-
+		
 	};
 
 }

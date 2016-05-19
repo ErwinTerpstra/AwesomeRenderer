@@ -72,11 +72,11 @@ namespace AwesomeRenderer
 		
 		float GeometryImplicit(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h);
 		float GeometryCookTorrance(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h);
-		float GeometrySmith(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float roughness);
-		float GeometryGGX(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float roughness);
+		float GeometrySmith(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float a);
+		float GeometryGGX(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float a);
 
-		float G1Schlick(const Vector3& v, const Vector3& n, float roughness);
-		float G1GGX(const Vector3& v, const Vector3& n, const Vector3& h, float roughness);
+		float G1Schlick(const Vector3& v, const Vector3& n, float a);
+		float G1GGX(const Vector3& v, const Vector3& n, float a);
 
 		Vector3 FresnelSchlick(float cosT, Vector3 F0);
 

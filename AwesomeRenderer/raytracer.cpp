@@ -393,7 +393,7 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 		Vector3 lightRadiance = reflectionShading.color.subvector(3);
 
 		Vector3 ks;
-		specularRadiance += SpecularCookTorrance(viewVector, normal, reflectionDirection, F0, material.roughness, ks) * lightRadiance * NoL;
+		specularRadiance += SpecularCookTorrance(viewVector, normal, reflectionDirection, F0, material.roughness, ks) * lightRadiance;
 
 		Vector3 kd = (1.0f - ks) * (1.0f - material.metallic);
 		diffuseRadiance += DiffuseLambert(material.albedo.subvector(3)) * lightRadiance * kd * NoL;
@@ -417,30 +417,43 @@ Vector3 RayTracer::SpecularCookTorrance(const Vector3& v, const Vector3& n, cons
 	assert(VectorUtil<3>::IsNormalized(l));
 
 	roughness = roughness * roughness;
-
+	
 	// Calculate the half vector
 	Vector3 h = (l + v) * 0.5f;
-		
+	
 	// Fresnel term
-	Vector3 fresnel = InputManager::Instance().GetKey('Z') ? Vector3(1.0f, 1.0f, 1.0f) : FresnelSchlick(Util::Clamp01(cml::dot(h, l)), F0);
+	Vector3 fresnel = InputManager::Instance().GetKey('Z') ? F0 : FresnelSchlick(Util::Clamp01(cml::dot(h, l)), F0);
 	ks = fresnel;
 
-	// Normal distribution term
-	float distribution = InputManager::Instance().GetKey('X') ? DistributionBlinn(n, h, RoughnessToShininess(roughness)) : DistributionGGX(n, h, roughness);
+	float distribution, geometry;
 
-	// Geometry term
-	float geometry = InputManager::Instance().GetKey('C') ? GeometryImplicit(v, l, n, h) : GeometryGGX(v, l, n, h, roughness);
-	
+	// Normal distribution & geometry term
+	if (InputManager::Instance().GetKey('X'))
+	{
+		distribution = DistributionBlinn(n, h, RoughnessToShininess(roughness));
+		geometry = GeometrySmith(v, l, n, h, roughness);
+	}
+	else
+	{
+		distribution = DistributionGGX(n, h, roughness);
+		geometry = GeometryGGX(v, l, n, h, roughness);
+	}
+
+	distribution = std::max(distribution, 0.0f);
+	geometry = std::max(geometry, 0.0f);
+
 	// Calculate the Cook-Torrance denominator
 	float denominator = std::max(4 * Util::Clamp01(cml::dot(n, v)) * Util::Clamp01(cml::dot(n, l)), 1e-7f);
-
+	
 	// Return the evaluated BRDF
-	return (Vector3)((fresnel * geometry * distribution) / denominator);
+	Vector3 result = ((fresnel * geometry * distribution) / denominator);
+
+	return result;
 }
 
 float RayTracer::RoughnessToShininess(float a)
 {
-	return sqrt(2.0f / (a + 2.0f));
+	return std::max((2.0f / (a * a)) - 2.0f, 1e-7f);
 }
 
 float RayTracer::DistributionBlinn(const Vector3 & n, const Vector3& h, float e)
@@ -477,35 +490,43 @@ float RayTracer::GeometryCookTorrance(const Vector3& v, const Vector3& l, const 
 								   (2.0f * NoH * NoL) / VoH));
 }
 
-float RayTracer::GeometrySmith(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float roughness)
+float RayTracer::GeometrySmith(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float a)
 {
-	roughness += 1;
+	a += 1;
 
-	return G1Schlick(l, h, roughness) * G1Schlick(v, h, roughness);
+	return G1Schlick(l, n, a) * G1Schlick(v, n, a);
 }
 
-float RayTracer::G1Schlick(const Vector3& v, const Vector3& n, float roughness)
+float RayTracer::G1Schlick(const Vector3& v, const Vector3& n, float a)
 {
 	float NoV = Util::Clamp01(cml::dot(v, n));
-	float k = (roughness * roughness) / 8;
+	float k = (a * a) / 8;
 	return NoV / (NoV * (1.0f - k) + k);
 }
 
-float RayTracer::GeometryGGX(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float roughness)
+float RayTracer::GeometryGGX(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float a)
 {
-	return G1GGX(v, n, h, roughness) * G1GGX(l, n, h, roughness);
+	return G1GGX(v, n, a) * G1GGX(l, n, a);
 }
 
-float RayTracer::G1GGX(const Vector3& v, const Vector3& n, const Vector3& h, float roughness)
+float RayTracer::G1GGX(const Vector3& v, const Vector3& n, float a)
 {
+	float NoV = Util::Clamp01(cml::dot(v, n));
+	float a2 = a * a;
+
+	return (2.0f * NoV) / std::max(NoV + sqrt(a2 + (1.0f - a2) * NoV * NoV), 1e-7f);
+
+	/*
+
 	float VoH = Util::Clamp01(cml::dot(v, h));
 	float chi = VoH / Util::Clamp01(cml::dot(v, n));
-	chi = chi > 0 ? 1 : 0;
-
+	chi = chi > 0;
+	
 	float VoH2 = VoH * VoH;
 	float tan2 = (1.0f - VoH2) / VoH2;
 
-	return (chi * 2.0f) / (1.0f + sqrt(1.0f + roughness * roughness * tan2));
+	return (chi * 2.0f) / (1.0f + sqrt(1.0f + a * a * tan2));
+	*/
 }
 
 Vector3 RayTracer::FresnelSchlick(float cosT, Vector3 F0)

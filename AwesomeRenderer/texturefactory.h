@@ -8,6 +8,7 @@
 namespace AwesomeRenderer
 {
 	class Texture;
+	class Sampler;
 
 	class TextureFactory : public Factory<TextureFactory, Texture>
 	{
@@ -46,6 +47,8 @@ namespace AwesomeRenderer
 	public:
 
 		TextureFactory();
+
+		Sampler* GetTexture(const std::string& fileName);
 		
 	protected:
 

@@ -1,5 +1,6 @@
 #include "awesomerenderer.h"
 #include "texturefactory.h"
+#include "sampler.h"
 
 using namespace AwesomeRenderer;
 
@@ -63,13 +64,9 @@ bool TextureFactory::LoadBmp(const std::string& fileName, Texture** texture) con
 	switch (infoHeader.bitCount)
 	{
 	case 24:
-		encoding = Buffer::RGB24;
+		encoding = Buffer::BGR24;
 		break;
-
-	case 32:
-		encoding = Buffer::RGBA32;
-		break;
-
+	
 	default:
 		printf("[Bitmap]: Unsupported bit depth: %d\n", infoHeader.bitCount);
 		return false;
@@ -90,4 +87,19 @@ bool TextureFactory::LoadBmp(const std::string& fileName, Texture** texture) con
 	fclose(filePtr);
 	
 	return true;
+}
+
+Sampler* TextureFactory::GetTexture(const std::string& fileName)
+{
+	Texture* texture = NULL;
+	
+	if (!GetAsset(fileName, &texture))
+		return NULL;
+
+	Sampler* sampler = new Sampler();
+	sampler->sampleMode = Sampler::SM_POINT;
+	sampler->wrapMode = Sampler::WM_REPEAT;
+	sampler->texture = texture;
+
+	return sampler;
 }
