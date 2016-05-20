@@ -135,9 +135,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	renderTarget.SetupBuffers(&frameBuffer, &depthBuffer);
 
 	// Setup camera
-	const Vector3 cameraPosition = Vector3(3.2f, 5.5f, 7.1f);
+	const Vector3 cameraPosition = Vector3(3.2f, 1.8f, 7.5f);
 	Camera camera(cml::left_handed);
-	camera.SetLookAt(cameraPosition, cameraPosition - Vector3(0.0f, 0.5f, 1.0f), Vector3(0.0f, 1.0f, 0.0));
+	camera.SetLookAt(cameraPosition, cameraPosition - Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0));
 	camera.SetPerspective(45.0f, ((float) SCREEN_WIDTH) / SCREEN_HEIGHT, 0.1f, 5000.0f);
 	camera.SetViewport(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT);
 	
@@ -283,10 +283,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	*/
 
 	SixSidedSkybox skybox;
-	skybox.left = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0001.bmp");
+	skybox.right = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0001.bmp");
 	skybox.front = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0002.bmp");
 	skybox.top = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0003.bmp");
-	skybox.right = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0004.bmp");
+	skybox.left = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0004.bmp");
 	skybox.back = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0005.bmp");
 	skybox.bottom = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0006.bmp");
 
@@ -412,7 +412,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	const float SPHERE_RADIUS = 0.6f;
 	const float SPHERE_SPACING = 0.4f;
 	const uint32_t SPHERES_PER_ROW = 5;
-	const Vector3 origin(0.0f, SPHERE_RADIUS + 0.5f, 0.0f);
+	const Vector3 origin(0.0f, 0.5f + SPHERE_RADIUS, 0.0f);
 
 	for (uint32_t row = 0; row < 2; ++row)
 	{

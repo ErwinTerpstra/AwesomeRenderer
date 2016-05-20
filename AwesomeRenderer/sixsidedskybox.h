@@ -30,6 +30,7 @@ namespace AwesomeRenderer
 		{
 			Sampler* side = NULL;
 			Vector2 uv;
+			Vector3 n;
 			
 			if (abs(direction[0]) > abs(direction[1]))
 			{
@@ -47,21 +48,25 @@ namespace AwesomeRenderer
 						uv[0] = -direction[2];
 						uv[1] = direction[1];
 					}
+
+					n = Vector3(Util::Sign(direction[0]), 0, 0);
 				}
 				else
 				{
 					if (direction[2] > 0)
 					{
 						side = front;
-						uv[0] = direction[0];
+						uv[0] = -direction[0];
 						uv[1] = direction[1];
 					}
 					else
 					{
 						side = back;
-						uv[0] = -direction[0];
+						uv[0] = direction[0];
 						uv[1] = direction[1];
 					}
+						
+					n = Vector3(0, 0, Util::Sign(direction[2]));
 				}
 			}
 			else
@@ -72,31 +77,37 @@ namespace AwesomeRenderer
 					{
 						side = top;
 						uv[0] = direction[0];
-						uv[1] = -direction[2];
+						uv[1] = direction[2];
 					}
 					else
 					{
 						side = bottom;
-						uv[0] = direction[0];
+						uv[0] = -direction[0];
 						uv[1] = direction[2];
 					}
+
+					n = Vector3(0, Util::Sign(direction[1]), 0);
 				}
 				else
 				{
 					if (direction[2] > 0)
 					{
 						side = front;
-						uv[0] = direction[0];
+						uv[0] = -direction[0];
 						uv[1] = direction[1];
 					}
 					else
 					{
 						side = back;
-						uv[0] = -direction[0];
+						uv[0] = direction[0];
 						uv[1] = direction[1];
 					}
+
+					n = Vector3(0, 0, Util::Sign(direction[2]));
 				}
 			}
+
+			uv /= cml::dot(direction, n);
 
 			uv[0] = (uv[0] + 1.0f) * 0.5f;
 			uv[1] = (uv[1] + 1.0f) * 0.5f;
