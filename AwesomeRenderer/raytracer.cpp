@@ -393,7 +393,7 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 		Vector3 lightRadiance = reflectionShading.color.subvector(3);
 
 		Vector3 ks;
-		specularRadiance += SpecularCookTorrance(viewVector, normal, reflectionDirection, F0, material.roughness, ks) * lightRadiance;
+		specularRadiance += SpecularCookTorrance(viewVector, normal, reflectionDirection, F0, material.roughness, ks) * lightRadiance * NoL;
 
 		Vector3 kd = (1.0f - ks) * (1.0f - material.metallic);
 		diffuseRadiance += DiffuseLambert(material.albedo.subvector(3)) * lightRadiance * kd * NoL;
@@ -419,7 +419,10 @@ Vector3 RayTracer::SpecularCookTorrance(const Vector3& v, const Vector3& n, cons
 	roughness = roughness * roughness;
 	
 	// Calculate the half vector
-	Vector3 h = (l + v) * 0.5f;
+	Vector3 h = Util::Sign(cml::dot(l, v)) * (l + v);
+	h = cml::normalize(h);
+
+	assert(VectorUtil<3>::IsNormalized(h));
 	
 	// Fresnel term
 	Vector3 fresnel = InputManager::Instance().GetKey('Z') ? F0 : FresnelSchlick(Util::Clamp01(cml::dot(h, l)), F0);
@@ -438,6 +441,9 @@ Vector3 RayTracer::SpecularCookTorrance(const Vector3& v, const Vector3& n, cons
 		distribution = DistributionGGX(n, h, roughness);
 		geometry = GeometryGGX(v, l, n, h, roughness);
 	}
+
+	if (InputManager::Instance().GetKey('C'))
+		geometry = GeometryImplicit(v, l, n, h);
 
 	distribution = std::max(distribution, 0.0f);
 	geometry = std::max(geometry, 0.0f);
@@ -494,39 +500,27 @@ float RayTracer::GeometrySmith(const Vector3& v, const Vector3& l, const Vector3
 {
 	a += 1;
 
-	return G1Schlick(l, n, a) * G1Schlick(v, n, a);
+	return G1Schlick(l, h, a) * G1Schlick(v, h, a);
 }
 
-float RayTracer::G1Schlick(const Vector3& v, const Vector3& n, float a)
+float RayTracer::G1Schlick(const Vector3& v, const Vector3& h, float a)
 {
-	float NoV = Util::Clamp01(cml::dot(v, n));
+	float NoV = Util::Clamp01(cml::dot(v, h));
 	float k = (a * a) / 8;
 	return NoV / (NoV * (1.0f - k) + k);
 }
 
 float RayTracer::GeometryGGX(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float a)
 {
-	return G1GGX(v, n, a) * G1GGX(l, n, a);
+	return G1GGX(v, h, a) * G1GGX(l, h, a);
 }
 
-float RayTracer::G1GGX(const Vector3& v, const Vector3& n, float a)
+float RayTracer::G1GGX(const Vector3& v, const Vector3& h, float a)
 {
-	float NoV = Util::Clamp01(cml::dot(v, n));
+	float NoV = Util::Clamp01(cml::dot(v, h));
 	float a2 = a * a;
 
 	return (2.0f * NoV) / std::max(NoV + sqrt(a2 + (1.0f - a2) * NoV * NoV), 1e-7f);
-
-	/*
-
-	float VoH = Util::Clamp01(cml::dot(v, h));
-	float chi = VoH / Util::Clamp01(cml::dot(v, n));
-	chi = chi > 0;
-	
-	float VoH2 = VoH * VoH;
-	float tan2 = (1.0f - VoH2) / VoH2;
-
-	return (chi * 2.0f) / (1.0f + sqrt(1.0f + a * a * tan2));
-	*/
 }
 
 Vector3 RayTracer::FresnelSchlick(float cosT, Vector3 F0)

@@ -212,7 +212,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		light.type = LightData::LightType::DIRECTIONAL;
 		light.direction = Vector3(-0.5f, -0.8f, -0.5f);
 		light.direction.normalize();
-		light.intensity = 5.0f;
+		light.intensity = 2.0f;
 		//*/
 
 		light.color = Color::WHITE;// Color(254, 253, 189);
@@ -429,10 +429,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			node->AddComponent(transform);
 
 			PbrMaterial* material = new PbrMaterial();
-			material->albedo = Color::WHITE * 0.9f;
-			material->specular = Color::WHITE;// *0.6f;
-			material->metallic = row;
 			material->roughness = (sphereIdx / (float)(SPHERES_PER_ROW - 1.0f));
+
+			if (row == 0)
+			{
+				material->albedo = Color::WHITE * 0.8f;
+				material->specular = Color::WHITE * 0.2f;
+				material->metallic = 0;
+			}
+			else if (row == 1)
+			{
+				material->albedo = Color::BLACK;
+				material->specular = Color::WHITE * 0.9f;
+				material->metallic = 1;
+			}
 
 			Renderable* renderable = new Renderable();
 			renderable->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), SPHERE_RADIUS);
