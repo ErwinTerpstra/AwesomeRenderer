@@ -500,27 +500,33 @@ float RayTracer::GeometrySmith(const Vector3& v, const Vector3& l, const Vector3
 {
 	a += 1;
 
-	return G1Schlick(l, h, a) * G1Schlick(v, h, a);
+	return G1Schlick(l, n, a) * G1Schlick(v, n, a);
 }
 
-float RayTracer::G1Schlick(const Vector3& v, const Vector3& h, float a)
+float RayTracer::G1Schlick(const Vector3& v, const Vector3& n, float a)
 {
-	float NoV = Util::Clamp01(cml::dot(v, h));
+	float NoV = Util::Clamp01(cml::dot(v, n));
 	float k = (a * a) / 8;
 	return NoV / (NoV * (1.0f - k) + k);
 }
 
 float RayTracer::GeometryGGX(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float a)
 {
-	return G1GGX(v, h, a) * G1GGX(l, h, a);
+	return G1GGX(v, n, a) * G1GGX(l, n, a);
 }
 
-float RayTracer::G1GGX(const Vector3& v, const Vector3& h, float a)
+float RayTracer::G1GGX(const Vector3& v, const Vector3& n, float a)
 {
-	float NoV = Util::Clamp01(cml::dot(v, h));
-	float a2 = a * a;
+	float NoV = cml::dot(n, v);
+	
+	if (NoV < 0.0f)
+		return 0.0f;
 
-	return (2.0f * NoV) / std::max(NoV + sqrt(a2 + (1.0f - a2) * NoV * NoV), 1e-7f);
+	float a2 = a * a;
+	float NoV2 = NoV * NoV;
+	float tan2 = (1.0f - NoV2) / NoV2;
+	
+	return (2.0f / std::max(1.0f + sqrt(1.0f + a2 * tan2), 1e-7f));
 }
 
 Vector3 RayTracer::FresnelSchlick(float cosT, Vector3 F0)
