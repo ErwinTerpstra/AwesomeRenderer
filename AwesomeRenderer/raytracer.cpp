@@ -321,7 +321,7 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 	Vector3 specularRadiance(0.0f, 0.0f, 0.0f);
 
 	Vector3 F0 = material.specular.subvector(3);
-	
+		
 	// Iterate through all the lights
 	for (uint8_t i = 0; i < LightData::MAX_LIGHTS; ++i)
 	{
@@ -419,11 +419,8 @@ Vector3 RayTracer::SpecularCookTorrance(const Vector3& v, const Vector3& n, cons
 	roughness = roughness * roughness;
 	
 	// Calculate the half vector
-	Vector3 h = Util::Sign(cml::dot(l, v)) * (l + v);
-	h = cml::normalize(h);
-
-	assert(VectorUtil<3>::IsNormalized(h));
-	
+	Vector3 h = cml::normalize(Util::Sign(cml::dot(l, v)) * (l + v));
+		
 	// Fresnel term
 	Vector3 fresnel = InputManager::Instance().GetKey('Z') ? F0 : FresnelSchlick(Util::Clamp01(cml::dot(h, l)), F0);
 	ks = fresnel;
