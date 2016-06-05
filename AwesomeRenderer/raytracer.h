@@ -76,7 +76,7 @@ namespace AwesomeRenderer
 		float GeometryGGX(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float a);
 
 		float G1Schlick(const Vector3& v, const Vector3& n, float a);
-		float G1GGX(const Vector3& v, const Vector3& n, float a);
+		float G1GGX(const Vector3& v, const Vector3& n, const Vector3& h, float a);
 
 		Vector3 FresnelSchlick(float cosT, Vector3 F0);
 

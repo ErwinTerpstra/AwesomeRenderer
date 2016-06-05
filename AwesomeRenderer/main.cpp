@@ -409,6 +409,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//mainContext.nodes.push_back(node);
 	}
 
+	const float MIN_ROUGHNESS = 0.1f;
 	const float SPHERE_RADIUS = 0.6f;
 	const float SPHERE_SPACING = 0.4f;
 	const uint32_t SPHERES_PER_ROW = 5;
@@ -429,7 +430,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			node->AddComponent(transform);
 
 			PbrMaterial* material = new PbrMaterial();
-			material->roughness = (sphereIdx / (float)(SPHERES_PER_ROW - 1.0f));
+			material->roughness = MIN_ROUGHNESS + (sphereIdx / (float)(SPHERES_PER_ROW - 1.0f)) * (1.0f - MIN_ROUGHNESS);
 
 			if (row == 0)
 			{

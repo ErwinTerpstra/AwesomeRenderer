@@ -321,6 +321,18 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 	Vector3 specularRadiance(0.0f, 0.0f, 0.0f);
 
 	Vector3 F0 = material.specular.subvector(3);
+
+	if (InputManager::Instance().GetKey('B'))
+	{
+		Vector3 reflectionDirection;
+		VectorUtil<3>::Reflect(ray.direction, hitInfo.normal, reflectionDirection);
+
+		float NoL = std::max(cml::dot(normal, reflectionDirection), 0.0f);
+
+		Vector3 ks;
+		shadingInfo.color = Color(SpecularCookTorrance(viewVector, normal, reflectionDirection, F0, material.roughness, ks) * NoL, 1.0f);
+		return;
+	}
 		
 	// Iterate through all the lights
 	for (uint8_t i = 0; i < LightData::MAX_LIGHTS; ++i)
@@ -419,12 +431,12 @@ Vector3 RayTracer::SpecularCookTorrance(const Vector3& v, const Vector3& n, cons
 	roughness = roughness * roughness;
 	
 	// Calculate the half vector
-	Vector3 h = cml::normalize(Util::Sign(cml::dot(l, v)) * (l + v));
+	Vector3 h = cml::normalize(l + v);
 		
 	// Fresnel term
 	Vector3 fresnel = InputManager::Instance().GetKey('Z') ? F0 : FresnelSchlick(Util::Clamp01(cml::dot(h, l)), F0);
 	ks = fresnel;
-
+		
 	float distribution, geometry;
 
 	// Normal distribution & geometry term
@@ -509,18 +521,21 @@ float RayTracer::G1Schlick(const Vector3& v, const Vector3& n, float a)
 
 float RayTracer::GeometryGGX(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float a)
 {
-	return G1GGX(v, n, a) * G1GGX(l, n, a);
+	return G1GGX(v, n, h, a) * G1GGX(l, n, h, a);
 }
 
-float RayTracer::G1GGX(const Vector3& v, const Vector3& n, float a)
+float RayTracer::G1GGX(const Vector3& v, const Vector3& n, const Vector3& h, float a)
 {
-	float NoV = cml::dot(n, v);
+	float HoV = cml::dot(h, v);
 	
-	if (NoV < 0.0f)
+	if (HoV < 0.0f)
 		return 0.0f;
 
 	float a2 = a * a;
-	float NoV2 = NoV * NoV;
+
+	float NoV2 = cml::dot(n, v);
+	NoV2 = NoV2 * NoV2;
+
 	float tan2 = (1.0f - NoV2) / NoV2;
 	
 	return (2.0f / std::max(1.0f + sqrt(1.0f + a2 * tan2), 1e-7f));
