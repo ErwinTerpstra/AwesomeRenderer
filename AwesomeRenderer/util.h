@@ -3,9 +3,9 @@
 
 namespace AwesomeRenderer
 {
-	
+
 	template<int Size>
-	struct VectorUtil
+	struct VectorUtilBase
 	{
 		typedef cml::vector<float, cml::fixed<Size> > Vector;
 
@@ -19,23 +19,21 @@ namespace AwesomeRenderer
 			out = a * (1.0f - d) + b * d;
 		}
 
-		static void Interpolate(const Vector& a, const Vector& b, const Vector& c, 
-								const Vector3& barycentricCoords, Vector& out)
+		static void Interpolate(const Vector& a, const Vector& b, const Vector& c,
+			const Vector3& barycentricCoords, Vector& out)
 		{
 			for (int i = 0; i < Size; ++i)
 			{
 				out[i] = (a[i] * barycentricCoords[0]) +
-						 (b[i] * barycentricCoords[1]) +
-						 (c[i] * barycentricCoords[2]);
+					(b[i] * barycentricCoords[1]) +
+					(c[i] * barycentricCoords[2]);
 			}
 		}
+
 
 		static void Reflect(const Vector& v, const Vector& normal, Vector& out)
 		{
 			out = v - 2 * cml::dot(v, normal) * normal;
-			
-			//float d = 2 * cml::dot(v, -normal);
-			//out = v + normal * d;
 		}
 
 		static void Refract(const Vector& v, const Vector& normal, float ior, Vector3& out)
@@ -50,19 +48,35 @@ namespace AwesomeRenderer
 			}
 			else
 			{
-				std::swap(etai, etat); 
-				n = -normal; 
+				std::swap(etai, etat);
+				n = -normal;
 			}
 
 			float eta = etai / etat;
 			float k = 1 - eta * eta * (1 - cosi * cosi);
-			
+
 			out = k < 0 ? Vector3(0.0f, 0.0f, 0.0f) : (eta * v + (eta * cosi - sqrtf(k)) * n);
 		}
 
 	};
 
+	template<int Size>
+	struct VectorUtil : public VectorUtilBase<Size> { };
 
+	template<>
+	struct VectorUtil<3> : public VectorUtilBase<3>
+	{
+		static void OrthoNormalize(const Vector3& up, Vector3& right, Vector3& forward)
+		{
+			if (std::fabs(up[0]) > std::fabs(up[1]))
+				right = Vector3(up[2], 0, -up[0]) / sqrtf(up[0] * up[0] + up[2] * up[2]);
+			else
+				right = Vector3(0, -up[2], up[1]) / sqrtf(up[1] * up[1] + up[2] * up[2]);
+
+			forward = cml::cross(up, right);
+		};
+	};
+	
 	class Util
 	{
 

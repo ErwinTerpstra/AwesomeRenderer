@@ -96,6 +96,7 @@
     <ClCompile Include="textmesh.cpp" />
     <ClCompile Include="typedefs.cpp" />
     <ClCompile Include="unlitshader.cpp" />
+    <ClCompile Include="random.cpp" />
     <ClCompile Include="window_gl.cpp" />
     <ClCompile Include="mesh_gl.cpp" />
     <ClCompile Include="phongshader.cpp" />
@@ -149,6 +150,7 @@
     <ClInclude Include="pbrmaterial.h" />
     <ClInclude Include="phongmaterial.h" />
     <ClInclude Include="program_gl.h" />
+    <ClInclude Include="random.h" />
     <ClInclude Include="renderable.h" />
     <ClInclude Include="shader_gl.h" />
     <ClInclude Include="kdtree.h" />

@@ -523,9 +523,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		++framesDrawn;
 		timeSinceLastPrint += timingInfo.elapsedSeconds;
 
-		if (timeSinceLastPrint >= 1.0f)
+		if (timeSinceLastPrint >= 0.5f)
 		{
-			printf("[AwesomeRenderer]: FPS: %d; Last frame time: %dms;\n", framesDrawn, (uint32_t)(timingInfo.elapsedSeconds * 1000.0f));
+			if (mainRenderer == &rayTracer)
+				printf("[RayTracer]: Frame progress: %.0f%%\n", rayTracer.GetProgress() * 100);
+			else
+				printf("[AwesomeRenderer]: FPS: %d; Last frame time: %dms;\n", framesDrawn, (uint32_t)(timingInfo.elapsedSeconds * 1000.0f));
+
 			framesDrawn = 0;
 			timeSinceLastPrint -= 1.0f;
 		}
@@ -533,7 +537,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		// Updating logic
 		cameraController.Update(timingInfo);
 		camera.UpdateViewMtx();
-		
+
 		// Keyboard light switching
 		for (uint32_t lightIdx = 0; lightIdx < LightData::MAX_LIGHTS; ++lightIdx)
 		{
@@ -554,12 +558,32 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		if (inputManager.GetKey('P'))
 			mainRenderer = renderers[2];
 
-		if (inputManager.GetKeyDown(VK_OEM_PLUS))
-			++rayTracer.maxDepth;
+		bool plus = inputManager.GetKeyDown(VK_OEM_PLUS);
+		bool minus = inputManager.GetKeyDown(VK_OEM_MINUS);
+		bool shift = inputManager.GetKey(VK_SHIFT);
 
-		if (inputManager.GetKeyDown(VK_OEM_MINUS) && rayTracer.maxDepth > 0)
-			--rayTracer.maxDepth;
-		
+		if (plus || minus)
+		{
+			if (shift)
+			{
+				if (plus)
+					rayTracer.sampleCount <<= 1;
+				else if (rayTracer.sampleCount > 1)
+					rayTracer.sampleCount >>= 1;
+
+				printf("[AwesomeRenderer]: Settings raytracer sample count to %d\n", rayTracer.sampleCount);
+			}
+			else
+			{
+				if (plus)
+					++rayTracer.maxDepth;
+				else if (rayTracer.maxDepth > 0)
+					--rayTracer.maxDepth;
+
+				printf("[AwesomeRenderer]: Settings raytracer max depth to %d\n", rayTracer.maxDepth);
+			}
+		}
+
 
 		for (uint32_t contextIdx = 0; contextIdx < contexts.size(); ++contextIdx)
 		{
@@ -610,7 +634,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 
 		mainRenderer->Present(window);
-		
+
 		// Present window
 		window.ProcessMessages();
 	}

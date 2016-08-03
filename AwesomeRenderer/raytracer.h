@@ -11,6 +11,7 @@ namespace AwesomeRenderer
 	struct RaycastHit;
 
 	class Window;
+	class Random;
 
 	class PhongMaterial;
 	class PbrMaterial;
@@ -29,12 +30,15 @@ namespace AwesomeRenderer
 		Timer timer;
 		Timer frameTimer;
 
+		Random& random;
+
 		uint32_t pixelIdx;
 		std::vector<Point2> pixelList;
 
 	public:
 
 		uint32_t maxDepth;
+		uint32_t sampleCount;
 
 	public:
 
@@ -46,6 +50,8 @@ namespace AwesomeRenderer
 		void Cleanup();
 
 		void SetRenderContext(const RenderContext* context);
+
+		float GetProgress() const { return pixelIdx / (float)pixelList.size(); }
 	private:
 
 		void PreRender();
@@ -61,6 +67,8 @@ namespace AwesomeRenderer
 		void Trace(const Ray& ray, const Point2& screenPosition);
 		
 		float Fresnel(const Vector3& v, const Vector3& normal, float ior);
+
+		Vector3 GenerateSampleVector(const Vector3& v, const Vector3& n, float roughness);
 
 		Vector3 DiffuseLambert(const Vector3& albedo);
 		Vector3 SpecularCookTorrance(const Vector3& v, const Vector3& n, const Vector3& l, const Vector3& F0, float roughness, Vector3& ks);
