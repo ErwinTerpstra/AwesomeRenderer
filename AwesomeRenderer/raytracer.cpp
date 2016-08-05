@@ -22,7 +22,7 @@ using namespace AwesomeRenderer;
 
 const float RayTracer::MAX_FRAME_TIME = 0.05f;
 
-RayTracer::RayTracer() : Renderer(), random(Random::instance), pixelIdx(0), maxDepth(0), sampleCount(16), timer(0.0f, FLT_MAX), frameTimer(0.0f, FLT_MAX)
+RayTracer::RayTracer() : Renderer(), random(Random::instance), pixelIdx(0), maxDepth(1), sampleCount(16), timer(0.0f, FLT_MAX), frameTimer(0.0f, FLT_MAX)
 {
 
 }
@@ -424,27 +424,29 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 			for (int sampleIdx = 0; sampleIdx < sampleCount; ++sampleIdx)
 			{
 				Vector3 reflectionDirection = GenerateSampleVector(viewVector, normal, material.roughness);
+				float pdf = 1.0f / (2.0f * PI);
 
 				// Reflection
 				Ray reflectionRay(hitInfo.point + normal * 0.01f, reflectionDirection);
-
+				
 				ShadingInfo reflectionShading;
 				CalculateShading(reflectionRay, reflectionShading, depth + 1);
 
-				float NoL = Util::Clamp01(cml::dot(normal, reflectionDirection));
+				float NoL = cml::dot(normal, reflectionDirection);
+				assert(NoL + 1e-5f >= 0.0f && NoL - 1e-5f <= 1.0f);
+
 				Vector3 lightRadiance = reflectionShading.color.subvector(3);
 
 				Vector3 ks;
-				specularReflection += SpecularCookTorrance(viewVector, normal, reflectionDirection, F0, material.roughness, ks) * lightRadiance * NoL;
+				specularReflection += SpecularCookTorrance(viewVector, normal, reflectionDirection, F0, material.roughness, ks) * lightRadiance * NoL * pdf;
 				
 				Vector3 kd = (1.0f - ks) * (1.0f - material.metallic);
-				diffuseReflection += DiffuseLambert(material.albedo.subvector(3)) * lightRadiance * kd * NoL;
+				diffuseReflection += DiffuseLambert(material.albedo.subvector(3)) * lightRadiance * kd * NoL * pdf;
 			}
 
-			float pdf = 1.0f / (2.0f * PI);
 
-			diffuseRadiance += (diffuseReflection * pdf) / sampleCount;
-			specularRadiance += (specularReflection * pdf) / sampleCount;
+			diffuseRadiance += diffuseReflection / sampleCount;
+			specularRadiance += specularReflection / sampleCount;
 		}
 	}
 	
@@ -470,11 +472,17 @@ Vector3 RayTracer::GenerateSampleVector(const Vector3& v, const Vector3& n, floa
 	Vector3 right, forward;
 	VectorUtil<3>::OrthoNormalize(n, right, forward);
 
+	assert(fabs(cml::dot(n, forward)) < 1e-5f);
+	assert(fabs(cml::dot(n, right)) < 1e-5f);
+	assert(fabs(cml::dot(right, forward)) < 1e-5f);
+
 	Matrix33 transform(
 		right[0],	right[1],	right[2],
 		n[0],		n[1],		n[2],
 		forward[0],	forward[1],	forward[2]
 	);
+
+	assert(cml::dot(sample, Vector3(0.0f, 1.0f, 0.0f)) >= 0.0f);
 
 	sample = transform_vector(transform, sample);
 	

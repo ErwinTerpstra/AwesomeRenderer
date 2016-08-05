@@ -11,7 +11,7 @@ namespace AwesomeRenderer
 
 		static bool IsNormalized(const Vector& v)
 		{
-			return abs(v.length_squared() - 1.0f) < 0.001f;
+			return abs(v.length_squared() - 1.0f) < 1e-5f;
 		}
 
 		static void Interpolate(const Vector& a, const Vector& b, float d, Vector& out)
