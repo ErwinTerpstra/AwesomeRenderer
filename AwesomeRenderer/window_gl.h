@@ -2,12 +2,11 @@
 #define _WINDOW_GL_H_
 
 #include "awesomerenderer.h"
+#include "window.h"
 
 namespace AwesomeRenderer
 {
-	class Window;
-
-	class WindowGL : public Extension<Window>
+	class WindowGL : public Extension<Window, WindowGL>
 	{
 
 	public:
@@ -21,6 +20,8 @@ namespace AwesomeRenderer
 
 		bool Setup();
 		void Draw();
+
+		static uint32_t ExtensionID() { return Window::WINDOW_GL; }
 	};
 
 }

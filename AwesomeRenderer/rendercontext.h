@@ -31,6 +31,8 @@ namespace AwesomeRenderer
 
 		RenderContext();
 
+		void Update();
+
 	};
 }
 

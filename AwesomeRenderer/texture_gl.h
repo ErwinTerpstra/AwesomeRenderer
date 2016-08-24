@@ -2,12 +2,11 @@
 #define _TEXTURE_GL_H_
 
 #include "awesomerenderer.h"
+#include "texture.h"
 
 namespace AwesomeRenderer
 {
-	class Texture;
-
-	class TextureGL : public Extension<Texture>
+	class TextureGL : public Extension<Texture, TextureGL>
 	{
 
 	public:
@@ -21,6 +20,8 @@ namespace AwesomeRenderer
 
 		void Load();
 		void Bind();
+
+		static uint32_t ExtensionID() { return Texture::TEXTURE_GL; }
 	};
 }
 

@@ -7,9 +7,14 @@
 namespace AwesomeRenderer
 {
 
-	class Texture : public MemoryBuffer, public Extendee<Texture>
+	class Texture : public MemoryBuffer, public ExtensionProvider<Texture>
 	{
 	public:
+
+		enum Extensions
+		{
+			TEXTURE_GL
+		};
 
 	public:
 		Texture();

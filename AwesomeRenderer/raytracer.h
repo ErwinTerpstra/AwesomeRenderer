@@ -68,7 +68,7 @@ namespace AwesomeRenderer
 		
 		float Fresnel(const Vector3& v, const Vector3& normal, float ior);
 
-		Vector3 GenerateSampleVector(const Vector3& v, const Vector3& n, float roughness);
+		Vector3 GenerateSampleVector(const Vector3& v, const Vector3& n, float roughness, float& pdf);
 
 		Vector3 DiffuseLambert(const Vector3& albedo);
 		Vector3 SpecularCookTorrance(const Vector3& v, const Vector3& n, const Vector3& l, const Vector3& F0, float roughness, Vector3& ks);

@@ -5,10 +5,16 @@ namespace AwesomeRenderer
 {
 	class GdiBuffer;
 
-	class Window : public Extendee<Window>
+	class Window : public ExtensionProvider<Window>
 	{
 
 	public:
+		
+		enum Extensions
+		{
+			WINDOW_GL
+		};
+
 		HWND handle;
 		
 		bool closed;

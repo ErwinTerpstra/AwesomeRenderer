@@ -48,3 +48,16 @@ void Model::CalculateBounds()
 
 	bounds.Initialize(min, max);
 }
+
+void Model::TransformBounds(const Matrix44& mtx) 
+{
+	// Iterate through submeshes in a node
+	for (uint32_t cMesh = 0; cMesh < meshes.size(); ++cMesh)
+	{
+		// Transform bounding shape of mesh according to world transformation
+		Mesh* mesh = meshes[cMesh];
+		mesh->bounds.Transform(mtx);
+	}
+
+	bounds.Transform(mtx);
+}

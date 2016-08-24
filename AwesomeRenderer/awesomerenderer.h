@@ -38,7 +38,7 @@
 
 // Data types
 #include "extension.h"
-#include "extendee.h"
+#include "extensionprovider.h"
 #include "typedefs.h"
 #include "color.h"
 

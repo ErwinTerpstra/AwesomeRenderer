@@ -6,7 +6,7 @@
 
 namespace AwesomeRenderer
 {
-	class Object;
+	class Shape;
 
 	class KDTree
 	{
@@ -20,7 +20,7 @@ namespace AwesomeRenderer
 
 		KDTree *upperNode, *lowerNode;
 
-		std::vector<const Object*> objects;
+		std::vector<const Shape*> objects;
 
 	private:
 		KDTree *parent;

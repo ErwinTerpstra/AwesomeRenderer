@@ -151,27 +151,22 @@ void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int d
 
 	const Renderable* renderable = hitInfo.node->GetComponent<Renderable>();
 
-	//*
-	
 	// Check if this node has a PBR material
-	const PbrMaterial* pbrMaterial = static_cast<PbrMaterial*>(renderable->material);
+	const PbrMaterial* pbrMaterial = renderable->material->As<PbrMaterial>();
 	if (pbrMaterial != NULL)
 	{
 		CalculateShading(ray, hitInfo, *pbrMaterial, shadingInfo, depth);
 		return;
 	}
-
-	/*/
-
+	
 	// Check if this node has a phong material
-	const PhongMaterial* phongMaterial = static_cast<PhongMaterial*>(renderable->material);
+	const PhongMaterial* phongMaterial = renderable->material->As<PhongMaterial>();
 	if (phongMaterial != NULL)
 	{
 		CalculateShading(ray, hitInfo, *phongMaterial, shadingInfo, depth);
 		return;
 	}
 
-	//*/
 }
 
 void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, const PhongMaterial& material, ShadingInfo& shadingInfo, int depth)
@@ -423,8 +418,8 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 			
 			for (int sampleIdx = 0; sampleIdx < sampleCount; ++sampleIdx)
 			{
-				Vector3 reflectionDirection = GenerateSampleVector(viewVector, normal, material.roughness);
-				float pdf = 1.0f / (2.0f * PI);
+				float pdf;
+				Vector3 reflectionDirection = GenerateSampleVector(viewVector, normal, material.roughness, pdf);
 
 				// Reflection
 				Ray reflectionRay(hitInfo.point + normal * 0.01f, reflectionDirection);
@@ -437,13 +432,15 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 
 				Vector3 lightRadiance = reflectionShading.color.subvector(3);
 
+				if (lightRadiance.length_squared() <= 1e-5)
+					continue;
+					
 				Vector3 ks;
-				specularReflection += SpecularCookTorrance(viewVector, normal, reflectionDirection, F0, material.roughness, ks) * lightRadiance * NoL * pdf;
+				specularReflection += SpecularCookTorrance(viewVector, normal, reflectionDirection, F0, material.roughness, ks) * lightRadiance * NoL / pdf;
 				
 				Vector3 kd = (1.0f - ks) * (1.0f - material.metallic);
-				diffuseReflection += DiffuseLambert(material.albedo.subvector(3)) * lightRadiance * kd * NoL * pdf;
+				diffuseReflection += DiffuseLambert(material.albedo.subvector(3)) * lightRadiance * kd * NoL / pdf;
 			}
-
 
 			diffuseRadiance += diffuseReflection / sampleCount;
 			specularRadiance += specularReflection / sampleCount;
@@ -456,7 +453,7 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 	shadingInfo.color = diffuse + specular;
 }
 
-Vector3 RayTracer::GenerateSampleVector(const Vector3& v, const Vector3& n, float roughness)
+Vector3 RayTracer::GenerateSampleVector(const Vector3& v, const Vector3& n, float roughness, float& pdf)
 {
 	float r1 = random.NextFloat();
 	float r2 = random.NextFloat();
@@ -489,6 +486,8 @@ Vector3 RayTracer::GenerateSampleVector(const Vector3& v, const Vector3& n, floa
 	//VectorUtil<3>::Reflect(-v, n, sample);
 	
 	assert(VectorUtil<3>::IsNormalized(sample));
+
+	pdf = 1.0f / (2.0f * PI);
 
 	return sample;
 }
@@ -665,7 +664,7 @@ bool RayTracer::RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistanc
 		if (renderable == NULL)
 			continue;
 
-		const Primitive* shape = renderable->primitive;
+		const Shape* shape = renderable->shape;
 
 		// Perform the ray intersection		
 		RaycastHit hitInfo;
@@ -731,7 +730,7 @@ void RayTracer::Trace(const Ray& ray, const Point2& screenPosition)
 				// The current node is a leaf node, this means we can check its contents
 				if (tree->IsLeaf())
 				{
-					std::vector<const Object*>::const_iterator objectIt;
+					std::vector<const Shape*>::const_iterator objectIt;
 
 					for (objectIt = tree->objects.begin(); objectIt != tree->objects.end(); ++objectIt)
 					{

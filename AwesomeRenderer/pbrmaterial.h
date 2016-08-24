@@ -7,7 +7,7 @@
 namespace AwesomeRenderer
 {
 
-	class PbrMaterial : public Material
+	class PbrMaterial : public Extension<Material, PbrMaterial>
 	{
 	public:
 
@@ -22,8 +22,10 @@ namespace AwesomeRenderer
 		Color specular;
 
 	public:
-		PbrMaterial();
+		PbrMaterial(Material& material);
 		~PbrMaterial();
+
+		static uint32_t ExtensionID() { return Material::MATERIAL_PBR; }
 
 	};
 

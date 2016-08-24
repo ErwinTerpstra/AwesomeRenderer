@@ -9,7 +9,7 @@ namespace AwesomeRenderer
 {
 	class Mesh;
 
-	class MeshGL : public Extension<Mesh>
+	class MeshGL : public Extension<Mesh, MeshGL>
 	{
 	public:
 		enum VertexAttributeIndex
@@ -30,6 +30,8 @@ namespace AwesomeRenderer
 		MeshGL(Mesh& mesh);
 
 		void CreateBuffers();
+
+		static uint32_t ExtensionID() { return Mesh::MESH_GL; }
 
 	private:
 		void AddAttributeBuffer(uint32_t idx, GLuint* buffer);

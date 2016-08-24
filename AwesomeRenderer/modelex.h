@@ -3,13 +3,13 @@
 
 #include "awesomerenderer.h"
 
+#include "model.h"
+
 namespace AwesomeRenderer
 {
-	class Model;
-
 	class MeshEx;
 
-	class ModelEx : public Extension<Model>
+	class ModelEx : public Extension<Model, ModelEx>
 	{
 	public:
 
@@ -18,6 +18,8 @@ namespace AwesomeRenderer
 	public:
 		ModelEx(Model& model);
 		~ModelEx();
+
+		static uint32_t ExtensionID() { return Model::MODEL_EX; }
 
 	};
 }

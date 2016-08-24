@@ -3,29 +3,26 @@
 
 #include "awesomerenderer.h"
 #include "primitive.h"
-#include "object.h"
+#include "shape.h"
 #include "component.h"
 
 namespace AwesomeRenderer
 {
-	class Primitive;
+	class Shape;
 	class Material;
 
-	class Renderable : public Component, public Object
+	class Renderable : public Component
 	{
 	public:
 		static const int id;
 
-		Primitive* primitive;
+		Shape* shape;
 
 		Material* material;
 
 	public:
 		Renderable();
 		~Renderable();
-
-		const Primitive& GetShape() const;
-
 	};
 
 }

@@ -11,8 +11,3 @@ Renderable::~Renderable()
 {
 
 }
-
-const Primitive& Renderable::GetShape() const
-{
-	return *primitive;
-}

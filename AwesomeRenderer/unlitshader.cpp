@@ -28,7 +28,7 @@ void UnlitShader::ProcessVertex(const VertexInfo& in, VertexToPixel& out) const
 
 void UnlitShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 {
-	const PhongMaterial* material = static_cast<const PhongMaterial*>(this->material);
+	const PhongMaterial* material = this->material->As<PhongMaterial>();
 
 	Color diffuse = material->diffuseColor;
 

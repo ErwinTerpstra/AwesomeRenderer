@@ -20,27 +20,30 @@ void InputManager::Update()
 		prevKeys[i] = keys[i];
 }
 
-bool InputManager::GetKey(char key)
+bool InputManager::GetKey(uint8_t key)
 {
+	assert(key >= 0 && key < MAX_KEYS);
 	return keys[key];
 }
 
-bool InputManager::GetKeyDown(char key)
+bool InputManager::GetKeyDown(uint8_t key)
 {
+	assert(key >= 0 && key < MAX_KEYS);
 	return keys[key] && !prevKeys[key];
 }
 
-bool InputManager::GetKeyUp(char key)
+bool InputManager::GetKeyUp(uint8_t key)
 {
+	assert(key >= 0 && key < MAX_KEYS);
 	return !keys[key] && prevKeys[key];
 }
 
-void InputManager::KeyDown(char key)
+void InputManager::KeyDown(uint8_t key)
 {
 	keys[key] = true;
 }
 
-void InputManager::KeyUp(char key)
+void InputManager::KeyUp(uint8_t key)
 {
 	keys[key] = false;
 }

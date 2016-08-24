@@ -2,7 +2,7 @@
 #define _MODEL_H_
 
 #include "awesomerenderer.h"
-#include "object.h"
+#include "shape.h"
 #include "aabb.h"
 #include "component.h"
 
@@ -11,10 +11,15 @@ namespace AwesomeRenderer
 	class Mesh;
 	class Material;
 
-	class Model : public Object, public Component, public Extendee<Model>
+	class Model : public Component, public ExtensionProvider<Model>
 	{
 
 	public:
+		enum Extensions
+		{
+			MODEL_EX
+		};
+
 		static const int id;
 
 		std::vector<Mesh*> meshes;
@@ -31,7 +36,7 @@ namespace AwesomeRenderer
 		void AddMesh(Mesh* mesh, Material* material);
 		void CalculateBounds();
 
-		virtual const Primitive& GetShape() const { return bounds; }
+		void TransformBounds(const Matrix44& mtx);
 	};
 
 }

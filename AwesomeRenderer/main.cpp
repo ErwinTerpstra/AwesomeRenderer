@@ -1,5 +1,5 @@
-#define SCREEN_WIDTH 1280
-#define SCREEN_HEIGHT 720
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
 
 #include <stdio.h>
 #include <io.h>
@@ -22,7 +22,7 @@
 #include "threading.h"
 
 // Primitives
-#include "object.h"
+#include "shape.h"
 #include "primitive.h"
 #include "plane.h"
 #include "aabb.h"
@@ -193,7 +193,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Lighting
 	LightData lightData;
 	lightData.numPixelLights = 8;
-	lightData.ambient = Color::BLACK;// Color(0.1f, 0.1f, 0.1f);
+	lightData.ambient = Color::BLACK;
 
 	mainContext.lightData = &lightData;
 
@@ -311,7 +311,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		mainContext.nodes.push_back(node);
 	}
 	
-	if (FALSE)
 	{
 		Node* node = new Node();
 
@@ -327,12 +326,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		sampler->wrapMode = Sampler::WM_REPEAT;
 		sampler->texture = texture;
 
-		PhongMaterial* material = new PhongMaterial();
-		material->shader = &unlitShader;
+		PhongMaterial* material = new PhongMaterial(*(new Material()));
+		material->provider.shader = &unlitShader;
 		material->diffuseMap = sampler;
 
 		Model* model = new Model();
-		model->AddMesh(mesh, material);
+		model->AddMesh(mesh, &material->provider);
 		
 		Transformation* transform = new Transformation();
 		transform->SetPosition(Vector3(1.0f, 0.0f, 5.0f));
@@ -368,14 +367,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Sampler* sampler = new Sampler();
 		sampler->texture = texture;
 
-		PhongMaterial* material = new PhongMaterial();
-		material->shader = &phongShader;
+		PhongMaterial* material = new PhongMaterial(*(new Material()));
+		material->provider.shader = &phongShader;
 		material->diffuseMap = sampler;
 		material->specularColor = Color::WHITE * 0.1f;
 		material->shininess = 1.0f;
 
 		Model* model = new Model();
-		model->AddMesh(mesh, material);
+		model->AddMesh(mesh, &material->provider);
 		model->CalculateBounds();
 		
 		node->AddComponent(model);
@@ -387,26 +386,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		mainContext.nodes.push_back(node);
 	}
 
+	if (FALSE)
 	{
 		Node* node = new Node();
 
 		Transformation* transform = new Transformation();
 		node->AddComponent(transform);
 
-		PbrMaterial* floorMaterial = new PbrMaterial();
+		PbrMaterial* floorMaterial = new PbrMaterial(*(new Material()));
 		floorMaterial->albedo = Color::BLACK;
 		floorMaterial->specular = Color::WHITE * 0.8f;
 		floorMaterial->metallic = 1.0f;
 		floorMaterial->roughness = 0.7f;
 
 		Renderable* renderable = new Renderable();
-		renderable->primitive = new Plane(0.0f, Vector3(0.0f, 1.0f, 0.0f));
+		renderable->shape = new Plane(0.0f, Vector3(0.0f, 1.0f, 0.0f));
 		
-		renderable->material = floorMaterial;
+		renderable->material = &floorMaterial->provider;
 
 		node->AddComponent(renderable);
 
-		//mainContext.nodes.push_back(node);
+		mainContext.nodes.push_back(node);
 	}
 
 	const float MIN_ROUGHNESS = 0.1f;
@@ -429,7 +429,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			transform->SetPosition(position);
 			node->AddComponent(transform);
 
-			PbrMaterial* material = new PbrMaterial();
+			PbrMaterial* material = new PbrMaterial(*(new Material()));
 			material->roughness = MIN_ROUGHNESS + (sphereIdx / (float)(SPHERES_PER_ROW - 1.0f)) * (1.0f - MIN_ROUGHNESS);
 
 			if (row == 0)
@@ -446,9 +446,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 
 			Renderable* renderable = new Renderable();
-			renderable->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), SPHERE_RADIUS);
+			renderable->shape = new Sphere(Vector3(0.0f, 0.0f, 0.0f), SPHERE_RADIUS);
 
-			renderable->material = material;
+			renderable->material = &material->provider;
 
 			node->AddComponent(renderable);
 
@@ -479,26 +479,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			for (auto materialIt = model->materials.begin(); materialIt != model->materials.end(); ++materialIt)
 			{
 				// TODO: create texture map in base Material class so that this can work on the base class
-				PhongMaterial* material = static_cast<PhongMaterial*>(*materialIt);
+				PhongMaterial* material = (*materialIt)->As<PhongMaterial>();
 
 				if (material == NULL)
 					continue;
 
 				TextureGL* texture;
 
-				if (material->diffuseMap != NULL && !material->diffuseMap->texture->HasExtension())
+				if (material->diffuseMap != NULL)
 				{
 					texture = new TextureGL(*material->diffuseMap->texture);
 					texture->Load();
 				}
 
-				if (material->normalMap != NULL && !material->normalMap->texture->HasExtension())
+				if (material->normalMap != NULL)
 				{
 					texture = new TextureGL(*material->normalMap->texture);
 					texture->Load();
 				}
 
-				if (material->specularMap != NULL && !material->specularMap->texture->HasExtension())
+				if (material->specularMap != NULL)
 				{
 					texture = new TextureGL(*material->specularMap->texture);
 					texture->Load();
@@ -585,57 +585,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 
 
-		for (uint32_t contextIdx = 0; contextIdx < contexts.size(); ++contextIdx)
-		{
-			RenderContext& renderContext = *contexts[contextIdx];
+		mainContext.Update();
+		mainRenderer->SetRenderContext(&mainContext);
+		mainRenderer->Render();
+		
+		hudContext.Update();
+		softwareRenderer.SetRenderContext(&hudContext);
+		softwareRenderer.Render();
 
-			// Prepare models in scene
-			std::vector<Node*>::iterator it;
+		window.DrawBuffer(frameBuffer);
+		//windowGL.Draw();
 
-			for (it = renderContext.nodes.begin(); it != renderContext.nodes.end(); ++it)
-			{
-				Node& node = **it;
-				Transformation* transform = node.GetComponent<Transformation>();
-
-				if (transform == NULL)
-					continue;
-
-				// Update global transformation matrix
-				transform->CalculateMtx();
-
-				// Update model
-				Model* model = node.GetComponent<Model>();
-
-				if (model != NULL)
-				{
-					// Iterate through submeshes in a node
-					for (uint32_t cMesh = 0; cMesh < model->meshes.size(); ++cMesh)
-					{
-						// Transform bounding shape of mesh according to world transformation
-						Mesh* mesh = model->meshes[cMesh];
-						mesh->bounds.Transform(transform->WorldMtx());
-					}
-
-					model->bounds.Transform(transform->WorldMtx());
-				}
-
-				// Update renderable object
-				Renderable* renderable = node.GetComponent<Renderable>();
-
-				if (renderable != NULL)
-				{
-					if (renderable->primitive != NULL)
-						renderable->primitive->Transform(transform->WorldMtx());
-				}
-			}
-
-			mainRenderer->SetRenderContext(&renderContext);
-			mainRenderer->Render();
-		}
-
-		mainRenderer->Present(window);
-
-		// Present window
+		// Process Win32 messages
 		window.ProcessMessages();
 	}
 

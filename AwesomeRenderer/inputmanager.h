@@ -21,12 +21,12 @@ namespace AwesomeRenderer
 	public:
 		void Update();
 
-		bool GetKey(char key);
-		bool GetKeyDown(char key);
-		bool GetKeyUp(char key);
+		bool GetKey(uint8_t key);
+		bool GetKeyDown(uint8_t key);
+		bool GetKeyUp(uint8_t key);
 
-		void KeyUp(char key);
-		void KeyDown(char key);
+		void KeyUp(uint8_t key);
+		void KeyDown(uint8_t key);
 
 		static InputManager& Instance();
 

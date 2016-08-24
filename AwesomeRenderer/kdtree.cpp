@@ -43,10 +43,10 @@ void KDTree::Optimize(const AABB& bounds, int depth)
 	Plane splitPlane(splitPoint, normal);
 
 	// Relocate all objects in this leaf to the child nodes they intersect
-	std::vector<const Object*>::const_iterator it;
+	std::vector<const Shape*>::const_iterator it;
 	for (it = objects.begin(); it != objects.end(); ++it)
 	{
-		const Object* object = *it;
+		const Shape* object = *it;
 		const Primitive& shape = object->GetShape();
 
 		// Determine which side of the plane this object is
@@ -81,7 +81,7 @@ void KDTree::Split(const AABB& bounds)
 	// Initialize a potentional position list with two positions per object
 	std::vector<float> splitPositions(objects.size() * 2);
 	std::vector<float>::iterator positionIterator;
-	std::vector<const Object*>::iterator objectIterator;
+	std::vector<const Shape*>::iterator objectIterator;
 
 	// Iterate through all objects in this leaf
 	for (objectIterator = objects.begin(); objectIterator != objects.end(); ++objectIterator)
@@ -106,7 +106,7 @@ void KDTree::Split(const AABB& bounds)
 	normal[axis] = 1.0f;
 
 	// Copy the object list to keep count of which objects are potentionally above the current split plane
-	std::vector<const Object*> objectsAbove(objects.begin(), objects.end());
+	std::vector<const Shape*> objectsAbove(objects.begin(), objects.end());
 
 	// Iterate through the selected split positions
 	for (positionIterator = splitPositions.begin(); positionIterator != splitPositions.end(); ++positionIterator)

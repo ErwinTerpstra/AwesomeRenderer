@@ -32,7 +32,7 @@ void TextureGL::Load()
 	GLenum interalFormat;
 	GLenum dataFormat;
 	GLint alignment;
-	if (base.bpp >= 32)
+	if (provider.bpp >= 32)
 	{
 		interalFormat = GL_RGBA;
 		dataFormat = GL_BGRA;
@@ -46,7 +46,7 @@ void TextureGL::Load()
 	}
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
-	glTexImage2D(GL_TEXTURE_2D, 0, interalFormat, base.width, base.height, 0, dataFormat, GL_UNSIGNED_BYTE, base.data);
+	glTexImage2D(GL_TEXTURE_2D, 0, interalFormat, provider.width, provider.height, 0, dataFormat, GL_UNSIGNED_BYTE, provider.data);
 }
 
 void TextureGL::Bind()

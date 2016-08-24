@@ -7,7 +7,7 @@
 namespace AwesomeRenderer
 {
 
-	class PhongMaterial : public Material
+	class PhongMaterial : public Extension<Material, PhongMaterial>
 	{
 	public:
 
@@ -21,8 +21,10 @@ namespace AwesomeRenderer
 		float shininess;
 
 	public:
-		PhongMaterial();
+		PhongMaterial(Material& material);
 		~PhongMaterial();
+
+		static uint32_t ExtensionID() { return Material::MATERIAL_PHONG; }
 	};
 
 }

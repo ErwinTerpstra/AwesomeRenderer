@@ -71,10 +71,10 @@ void ObjLoader::Load(const char* fileName, Model& model)
 				// TODO: Manage memory registered by factory
 				mesh = new Mesh(defaultAttributes);
 				
-				material = new PhongMaterial();
-				material->shader = defaultShader;
+				material = new PhongMaterial(*(new Material()));
+				material->provider.shader = defaultShader;
 
-				model.AddMesh(mesh, material);
+				model.AddMesh(mesh, &material->provider);
 				
 				break;
 			}
@@ -340,7 +340,7 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 				material->diffuseColor[3] = alpha;
 
 				if (alpha < 1.0f)
-					material->translucent = TRUE;
+					material->provider.translucent = TRUE;
 
 				break;
 			}
@@ -353,10 +353,10 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 					std::string name = line.substr(7);
 					
 					// TODO: Move memory allocation to somewhere else
-					material = new PhongMaterial();
-					material->shader = defaultShader;
+					material = new PhongMaterial(*(new Material()));
+					material->provider.shader = defaultShader;
 
-					materialLib[name] = material;
+					materialLib[name] = &material->provider;
 					break;
 				}
 

@@ -151,7 +151,7 @@ void RendererGL::BeginDraw(const Matrix44& model, const Material& material)
 	// Load textures supplied by material
 	GLenum activeTexture = GL_TEXTURE0;
 
-	const PhongMaterial* phongMaterial = static_cast<const PhongMaterial*>(&material);
+	const PhongMaterial* phongMaterial = material.As<PhongMaterial>();
 
 	if (phongMaterial->diffuseMap != NULL)
 		shader->BindTexture(phongMaterial->diffuseMap->texture->As<TextureGL>(), "diffuseMap", activeTexture++);

@@ -1,23 +1,36 @@
 #ifndef _EXTENSION_H_
 #define _EXTENSION_H_
-
+	
 
 namespace AwesomeRenderer
 {
 
-	template<class ExtendeeType>
-	class Extension
+	template<class ProviderType>
+	class BaseExtension
+	{
+	public:
+		ProviderType& provider;
+
+	public:
+		BaseExtension(ProviderType& provider, uint32_t extensionID) : provider(provider)
+		{
+			provider.Extend(this, extensionID);
+		}
+
+		virtual uint32_t GetExtensionID() = 0;
+	};
+
+	template<class ProviderType, class ExtensionType>
+	class Extension : public BaseExtension<ProviderType>
 	{
 
 	public:
-		ExtendeeType& base;
-
-	public:
-		Extension(ExtendeeType& base) : base(base)
+		Extension(ProviderType& provider) : BaseExtension(provider, GetExtensionID())
 		{
-			base.Extend(this);
+
 		}
 
+		uint32_t GetExtensionID() { return ExtensionType::ExtensionID(); }
 	};
 
 

@@ -2,17 +2,22 @@
 #define _MESH_H_
 
 #include "awesomerenderer.h"
-#include "object.h"
+#include "shape.h"
 #include "component.h"
 #include "aabb.h"
 
 namespace AwesomeRenderer
 {
-	class Mesh : public Object, public Component, public Extendee<Mesh>
+	class Mesh : public ExtensionProvider<Mesh>
 	{
 	
 	public:
-		static const int ID;
+
+		enum Extensions
+		{
+			MESH_GL,
+			MESH_EX,
+		};
 
 		enum VertexAttributes
 		{
@@ -54,8 +59,6 @@ namespace AwesomeRenderer
 
 		void AddTri(const Vector3& a, const Vector3& b, const Vector3& c);
 		void AddQuad(const Vector3& a, const Vector3& b, const Vector3& c, const Vector3& d);
-
-		virtual const Primitive& GetShape() const { return bounds; }
 
 	};
 
