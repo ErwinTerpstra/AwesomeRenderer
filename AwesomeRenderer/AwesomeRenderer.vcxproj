@@ -90,6 +90,7 @@
     <ClCompile Include="phongmaterial.cpp" />
     <ClCompile Include="program_gl.cpp" />
     <ClCompile Include="renderable.cpp" />
+    <ClCompile Include="setup.cpp" />
     <ClCompile Include="shader_gl.cpp" />
     <ClCompile Include="kdtree.cpp" />
     <ClCompile Include="renderer_gl.cpp" />
@@ -152,6 +153,7 @@
     <ClInclude Include="program_gl.h" />
     <ClInclude Include="random.h" />
     <ClInclude Include="renderable.h" />
+    <ClInclude Include="setup.h" />
     <ClInclude Include="shader_gl.h" />
     <ClInclude Include="kdtree.h" />
     <ClInclude Include="mesh_gl.h" />

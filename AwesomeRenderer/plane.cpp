@@ -9,7 +9,7 @@ Plane::Plane(float d, const Vector3& normal) : Primitive(), d(d), normal(normal)
 
 void Plane::Transform(const Matrix44& mtx)
 {
-	Vector3 transformedPoint = cml::transform_point(mtx, PointOnPlane());
+	Vector3 transformedPoint = cml::transform_point(mtx, (d * normal));
 
 	normalTransformed = cml::transform_vector(mtx, normal);
 	normalTransformed.normalize();

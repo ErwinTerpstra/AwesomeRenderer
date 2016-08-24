@@ -26,11 +26,12 @@ bool TextureFactory::LoadBmp(const std::string& fileName, Texture** texture) con
 	// TODO: Move binary reading of file to FileReader class
 	FILE* filePtr;
 	
-	// Open filename in read binary mode
-	filePtr = fopen(fileName.c_str(), "rb");
-	if (filePtr == NULL)
+	// Open filename in read binary mode 
+	errno_t result = fopen_s(&filePtr, fileName.c_str(), "rb");
+
+	if (result != 0)
 	{
-		printf("[Bitmap]: Failed to open file \"%s\"\n", fileName);
+		printf("[TextureFactory]: Failed to open file \"%s\". Error code: %d\n", fileName.c_str(), result);
 		return false;
 	}
 
@@ -42,7 +43,7 @@ bool TextureFactory::LoadBmp(const std::string& fileName, Texture** texture) con
 	// Verify that this is a bmp file by check bitmap id
 	if (fileHeader.type != 0x4D42)
 	{
-		printf("[Bitmap]: Invalid bitmap format\n");
+		printf("[TextureFactory]: Invalid bitmap format\n");
 		fclose(filePtr);
 
 		return false;
@@ -68,24 +69,24 @@ bool TextureFactory::LoadBmp(const std::string& fileName, Texture** texture) con
 		break;
 	
 	default:
-		printf("[Bitmap]: Unsupported bit depth: %d\n", infoHeader.bitCount);
+		printf("[TextureFactory]: Unsupported bit depth: %d\n", infoHeader.bitCount);
 		return false;
 
 	}
-
+	
 	// Allocate memory
 	(*texture)->Allocate(infoHeader.width, infoHeader.height, encoding);
-
+	
 	// Read bitmap data	
 	fseek(filePtr, fileHeader.offBits, SEEK_SET);
-	int bytesRead = fread((*texture)->data, sizeof(uchar), infoHeader.sizeImage, filePtr);
+	int bytesRead = fread((*texture)->data, sizeof(uchar), (*texture)->size, filePtr);
 	
-	assert(bytesRead == infoHeader.sizeImage);
+	assert(bytesRead == (*texture)->size);
 
-	printf("[Bitmap]: Loaded \"%s\" with %d bytes\n", fileName.c_str(), bytesRead);
+	printf("[TextureFactory]: Loaded \"%s\" with %d bytes\n", fileName.c_str(), bytesRead);
 
 	fclose(filePtr);
-	
+		
 	return true;
 }
 

@@ -314,24 +314,11 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 	const Vector3 viewVector = -ray.direction;
 	const Vector3& normal = hitInfo.normal;
 
-	Vector3 radiance(0.0f, 0.0f, 0.0f);
-	Vector3 diffuseRadiance(0.0f, 0.0f, 0.0f);
+	Vector3 diffuseRadiance = (lightData.ambient * material.albedo).subvector(3);
 	Vector3 specularRadiance(0.0f, 0.0f, 0.0f);
 
 	Vector3 F0 = material.specular.subvector(3);
-
-	if (InputManager::Instance().GetKey('B'))
-	{
-		Vector3 reflectionDirection;
-		VectorUtil<3>::Reflect(ray.direction, normal, reflectionDirection);
-
-		float NoL = std::max(cml::dot(normal, reflectionDirection), 0.0f);
-
-		Vector3 ks;
-		shadingInfo.color = Color(SpecularCookTorrance(viewVector, normal, reflectionDirection, F0, material.roughness, ks) * NoL, 1.0f);
-		return;
-	}
-		
+			
 	// Iterate through all the lights
 	for (uint8_t i = 0; i < LightData::MAX_LIGHTS; ++i)
 	{
@@ -387,7 +374,6 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 		diffuseRadiance += DiffuseLambert(material.albedo.subvector(3)) * lightRadiance * kd * NoL;
 	}
 
-	//if (FALSE)
 	if (depth < maxDepth)
 	{
 		if (InputManager::Instance().GetKey('G'))
@@ -447,8 +433,8 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 		}
 	}
 	
-	Color diffuse = InputManager::Instance().GetKey('R') ? Color::BLACK : Color(diffuseRadiance, 1.0f);
-	Color specular = InputManager::Instance().GetKey('T') ? Color::BLACK : Color(specularRadiance, 1.0f);
+	Color diffuse = Color(diffuseRadiance, 1.0f);
+	Color specular = Color(specularRadiance, 1.0f);
 	
 	shadingInfo.color = diffuse + specular;
 }

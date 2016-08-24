@@ -258,6 +258,9 @@
     <ClCompile Include="random.cpp">
       <Filter>Source Files\Util</Filter>
     </ClCompile>
+    <ClCompile Include="setup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h">
@@ -457,6 +460,9 @@
     </ClInclude>
     <ClInclude Include="shape.h">
       <Filter>Header Files\Node</Filter>
+    </ClInclude>
+    <ClInclude Include="setup.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
