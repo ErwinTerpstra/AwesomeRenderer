@@ -351,7 +351,7 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 					intensity = 0;
 			}
 
-			intensity *= 1.0f / (light.constantAttenuation + (light.lineairAttenuation * distanceToLight) + (light.quadricAttenuation * distanceToLight * distanceToLight));
+			intensity *= 1.0f / (distanceToLight * distanceToLight);
 		}
 		else
 		{

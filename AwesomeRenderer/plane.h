@@ -29,7 +29,13 @@ namespace AwesomeRenderer
 		void CalculateBounds(AABB& bounds) const { }
 
 		__inline Vector3 PointOnPlane() const { return dTransformed * normalTransformed; }
-		__inline float Distance(const Vector3& point) const { return -(cml::dot(normalTransformed, point) + dTransformed); }
+		__inline float Distance(const Vector3& point) const 
+		{
+			Vector3 delta = point - PointOnPlane();
+			return cml::dot(normalTransformed, delta);
+
+			return -(cml::dot(normalTransformed, point) + dTransformed); 
+		}
 
 	};
 }

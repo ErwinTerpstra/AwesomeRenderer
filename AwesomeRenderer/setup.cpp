@@ -165,19 +165,17 @@ void AwesomeRenderer::SetupLighting(LightData& lightData)
 		LightData::Light& light = lightData.lights[0];
 		//*
 		light.type = LightData::LightType::POINT;
-		light.position = Vector3(0.5f, 0.5f, 0.5f);
-		light.constantAttenuation = 0.0f;
-		light.lineairAttenuation = 0.1f;
-		light.quadricAttenuation = 0.02f;
-		light.intensity = 5.0f;
+		light.position = Vector3(0.0f, 0.9f, 0.5f);
+		light.color = Color(0.78f, 0.78f, 0.78f);
+		light.intensity = 0.5f;
 		/*/
 		light.type = LightData::LightType::DIRECTIONAL;
 		light.direction = Vector3(-0.5f, -0.8f, -0.5f);
+		light.color = Color::WHITE;
 		light.direction.normalize();
 		light.intensity = 2.0f;
 		//*/
 
-		light.color = Color::WHITE;// Color(254, 253, 189);
 		light.enabled = true;
 	}
 
@@ -227,7 +225,7 @@ void AwesomeRenderer::SetupLighting(LightData& lightData)
 
 void AwesomeRenderer::SetupCornellBox(RenderContext& context, Camera& camera)
 {
-	const Vector3 cameraPosition = Vector3(0.0f, 0.5f, 0.0f);
+	const Vector3 cameraPosition = Vector3(0.0f, 0.5f, -1.5f);
 	camera.SetLookAt(cameraPosition, cameraPosition + Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0));
 	
 	const Color wallWhite = Color(0.725f, 0.71f, 0.68f);
@@ -253,7 +251,7 @@ void AwesomeRenderer::SetupCornellBox(RenderContext& context, Camera& camera)
 
 		node->AddComponent(renderable);
 
-		//context.nodes.push_back(node);
+		context.nodes.push_back(node);
 	}
 
 	{
@@ -276,7 +274,7 @@ void AwesomeRenderer::SetupCornellBox(RenderContext& context, Camera& camera)
 
 		node->AddComponent(renderable);
 
-		//context.nodes.push_back(node);
+		context.nodes.push_back(node);
 	}
 
 	{
@@ -299,7 +297,7 @@ void AwesomeRenderer::SetupCornellBox(RenderContext& context, Camera& camera)
 
 		node->AddComponent(renderable);
 
-		//context.nodes.push_back(node);
+		context.nodes.push_back(node);
 	}
 
 	{
@@ -322,7 +320,7 @@ void AwesomeRenderer::SetupCornellBox(RenderContext& context, Camera& camera)
 
 		node->AddComponent(renderable);
 
-		//context.nodes.push_back(node);
+		context.nodes.push_back(node);
 	}
 
 	{
@@ -341,6 +339,55 @@ void AwesomeRenderer::SetupCornellBox(RenderContext& context, Camera& camera)
 
 		Renderable* renderable = new Renderable();
 		renderable->shape = new Plane(0.0f, Vector3(0.0f, 0.0f, -1.0f));
+		renderable->material = &material->provider;
+
+		node->AddComponent(renderable);
+
+		context.nodes.push_back(node);
+	}
+
+	const Color sphereSpecular(0.6f, 0.6f, 0.6f);
+	const float sphereRoughness = 0.2f;
+
+	{
+		// Left sphere
+		Node* node = new Node();
+
+		Transformation* transform = new Transformation();
+		transform->SetPosition(Vector3(-0.25f, 0.0f, 0.65f));
+		node->AddComponent(transform);
+
+		PbrMaterial* material = new PbrMaterial(*(new Material()));
+		material->albedo = Color::BLACK;
+		material->specular = sphereSpecular;
+		material->metallic = 1;
+		material->roughness = sphereRoughness;
+
+		Renderable* renderable = new Renderable();
+		renderable->shape = new Sphere(Vector3(0.0f, 0.15f, 0.0f), 0.15f);
+		renderable->material = &material->provider;
+
+		node->AddComponent(renderable);
+
+		context.nodes.push_back(node);
+	}
+
+	{
+		// right sphere
+		Node* node = new Node();
+
+		Transformation* transform = new Transformation();
+		transform->SetPosition(Vector3(0.15f, 0.0f, 0.25f));
+		node->AddComponent(transform);
+		
+		PbrMaterial* material = new PbrMaterial(*(new Material()));
+		material->albedo = Color::BLACK;
+		material->specular = sphereSpecular;
+		material->metallic = 1;
+		material->roughness = sphereRoughness;
+
+		Renderable* renderable = new Renderable();
+		renderable->shape = new Sphere(Vector3(0.0f, 0.18f, 0.0f), 0.18f);
 		renderable->material = &material->provider;
 
 		node->AddComponent(renderable);

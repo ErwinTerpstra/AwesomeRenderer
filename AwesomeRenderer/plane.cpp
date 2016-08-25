@@ -20,12 +20,12 @@ void Plane::Transform(const Matrix44& mtx)
 
 bool Plane::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 {
-	float dot = cml::dot(normalTransformed, ray.direction);
+	float dot = -cml::dot(normalTransformed, ray.direction);
 
-	// Ray is parallel to triangle plane
+	// Ray is parallel to plane
 	if (dot == 0.0f)
 		return false;
-
+	
 	float t = Distance(ray.origin) / dot;
 
 	// Intersection point is behind the ray
