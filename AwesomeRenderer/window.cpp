@@ -84,6 +84,8 @@ void Window::Show(int command) const
 
 void Window::ProcessMessages() const
 {
+	InputManager::Instance().Update();
+
 	MSG msg;
 
 	while (PeekMessage(&msg, handle, 0, 0, PM_REMOVE) > 0)

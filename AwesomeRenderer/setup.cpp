@@ -230,6 +230,10 @@ void AwesomeRenderer::SetupCornellBox(RenderContext& context, Camera& camera)
 	
 	const Color wallWhite = Color(0.725f, 0.71f, 0.68f);
 	const Color wallSpecular = Color::WHITE * 0.2f;
+	const float wallRoughness = 0.8f;
+
+	const Color sphereSpecular(0.6f, 0.6f, 0.6f);
+	const float sphereRoughness = 0.2f;
 
 	{
 		// Left wall
@@ -243,7 +247,7 @@ void AwesomeRenderer::SetupCornellBox(RenderContext& context, Camera& camera)
 		material->albedo = Color(0.63f, 0.0065f, 0.05f);
 		material->specular = wallSpecular;
 		material->metallic = 0;
-		material->roughness = 0.1f;
+		material->roughness = wallRoughness;
 
 		Renderable* renderable = new Renderable();
 		renderable->shape = new Plane(0.0f, Vector3(1.0f, 0.0f, 0.0f));
@@ -266,7 +270,7 @@ void AwesomeRenderer::SetupCornellBox(RenderContext& context, Camera& camera)
 		material->albedo = Color(0.14f, 0.45f, 0.091f);
 		material->specular = wallSpecular;
 		material->metallic = 0;
-		material->roughness = 0.1f;
+		material->roughness = wallRoughness;
 
 		Renderable* renderable = new Renderable();
 		renderable->shape = new Plane(0.0f, Vector3(-1.0f, 0.0f, 0.0f));
@@ -289,7 +293,7 @@ void AwesomeRenderer::SetupCornellBox(RenderContext& context, Camera& camera)
 		material->albedo = wallWhite;
 		material->specular = wallSpecular;
 		material->metallic = 0;
-		material->roughness = 0.1f;
+		material->roughness = wallRoughness;
 
 		Renderable* renderable = new Renderable();
 		renderable->shape = new Plane(0.0f, Vector3(0.0f, 1.0f, 0.0f));
@@ -312,7 +316,7 @@ void AwesomeRenderer::SetupCornellBox(RenderContext& context, Camera& camera)
 		material->albedo = wallWhite;
 		material->specular = wallSpecular;
 		material->metallic = 0;
-		material->roughness = 0.1f;
+		material->roughness = wallRoughness;
 
 		Renderable* renderable = new Renderable();
 		renderable->shape = new Plane(0.0f, Vector3(0.0f, -1.0f, 0.0f));
@@ -335,7 +339,7 @@ void AwesomeRenderer::SetupCornellBox(RenderContext& context, Camera& camera)
 		material->albedo = wallWhite;
 		material->specular = wallSpecular;
 		material->metallic = 0;
-		material->roughness = 0.1f;
+		material->roughness = wallRoughness;
 
 		Renderable* renderable = new Renderable();
 		renderable->shape = new Plane(0.0f, Vector3(0.0f, 0.0f, -1.0f));
@@ -345,9 +349,6 @@ void AwesomeRenderer::SetupCornellBox(RenderContext& context, Camera& camera)
 
 		context.nodes.push_back(node);
 	}
-
-	const Color sphereSpecular(0.6f, 0.6f, 0.6f);
-	const float sphereRoughness = 0.2f;
 
 	{
 		// Left sphere

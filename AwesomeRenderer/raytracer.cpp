@@ -439,18 +439,23 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 	shadingInfo.color = diffuse + specular;
 }
 
+
 Vector3 RayTracer::GenerateSampleVector(const Vector3& v, const Vector3& n, float roughness, float& pdf)
 {
 	float r1 = random.NextFloat();
 	float r2 = random.NextFloat();
 
-	float sinTheta = sqrtf(1.0f - r1 * r1);
-	float phi = 2.0f * PI * r2;
-
+	float phi, theta;
+	ImportanceSampleGGX(Vector2(r1, r2), roughness, phi, theta);
+	pdf = PDFGGX(phi, theta, roughness);
+	
+	float sinTheta = sinf(theta);
 	float x = sinTheta * cosf(phi);
 	float z = sinTheta * sinf(phi);
 
-	Vector3 sample = Vector3(x, r1, z);
+	Vector3 sample = Vector3(x, cosf(theta), z);
+
+	assert(VectorUtil<3>::IsNormalized(sample));
 
 	Vector3 right, forward;
 	VectorUtil<3>::OrthoNormalize(n, right, forward);
@@ -465,17 +470,28 @@ Vector3 RayTracer::GenerateSampleVector(const Vector3& v, const Vector3& n, floa
 		forward[0],	forward[1],	forward[2]
 	);
 
-	assert(cml::dot(sample, Vector3(0.0f, 1.0f, 0.0f)) >= 0.0f);
+	assert(cml::dot(sample, Vector3(0.0f, 1.0f, 0.0f)) >= 0.0f - 1e-5f);
 
 	sample = transform_vector(transform, sample);
-	
-	//VectorUtil<3>::Reflect(-v, n, sample);
-	
+		
 	assert(VectorUtil<3>::IsNormalized(sample));
 
-	pdf = 1.0f / (2.0f * PI);
-
 	return sample;
+}
+
+void RayTracer::ImportanceSampleGGX(const Vector2& r, float alpha, float& phi, float& theta)
+{
+	phi = 2.0f * PI * r[0];
+	theta = acos(sqrt((1.0f - r[1]) / ((alpha * alpha - 1.0f) * r[1] + 1.0f)));
+}
+
+float RayTracer::PDFGGX(float phi, float theta, float alpha)
+{
+	float alpha2 = alpha * alpha;
+	float cosTheta = cosf(theta);
+	float denom = (cosTheta * cosTheta * (alpha2 - 1.0f)) + 1.0f;
+
+	return (alpha2 / std::max((float)PI * denom * denom, 1e-7f)) * cosTheta * sinf(theta);
 }
 
 Vector3 RayTracer::DiffuseLambert(const Vector3& albedo)
@@ -497,7 +513,7 @@ Vector3 RayTracer::SpecularCookTorrance(const Vector3& v, const Vector3& n, cons
 	// Fresnel term
 	Vector3 fresnel = InputManager::Instance().GetKey('Z') ? F0 : FresnelSchlick(Util::Clamp01(cml::dot(h, l)), F0);
 	ks = fresnel;
-		
+
 	float distribution, geometry;
 
 	// Normal distribution & geometry term
