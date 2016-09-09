@@ -159,7 +159,7 @@ void AwesomeRenderer::SetupScene(RenderContext& mainContext, RenderContext& hudC
 void AwesomeRenderer::SetupLighting(LightData& lightData)
 {
 	lightData.numPixelLights = 8;
-	lightData.ambient = Color::WHITE;
+	lightData.ambient = Color::BLACK;
 
 	{
 		LightData::Light& light = lightData.lights[0];
@@ -167,7 +167,7 @@ void AwesomeRenderer::SetupLighting(LightData& lightData)
 		light.type = LightData::LightType::POINT;
 		light.position = Vector3(0.0f, 0.9f, 0.5f);
 		light.color = Color(0.78f, 0.78f, 0.78f);
-		light.intensity = 0.5f;
+		light.intensity = 1.0f;
 		/*/
 		light.type = LightData::LightType::DIRECTIONAL;
 		light.direction = Vector3(-0.5f, -0.8f, -0.5f);
@@ -232,8 +232,17 @@ void AwesomeRenderer::SetupCornellBox(RenderContext& context, Camera& camera)
 	const Color wallSpecular = Color::WHITE * 0.2f;
 	const float wallRoughness = 0.8f;
 
+	/*
+	const Color sphereDiffuse = Color::BLACK;
 	const Color sphereSpecular(0.6f, 0.6f, 0.6f);
-	const float sphereRoughness = 0.2f;
+	const float sphereRoughness = 0.4f;
+	const float sphereMetallic = 1;
+	/*/
+	const Color sphereDiffuse(0.5f, 0.5f, 0.5f);
+	const Color sphereSpecular(0.1f, 0.1f, 0.1f);
+	const float sphereRoughness = 0.4f;
+	const float sphereMetallic = 0;
+	//*/
 
 	{
 		// Left wall
@@ -359,9 +368,9 @@ void AwesomeRenderer::SetupCornellBox(RenderContext& context, Camera& camera)
 		node->AddComponent(transform);
 
 		PbrMaterial* material = new PbrMaterial(*(new Material()));
-		material->albedo = Color::BLACK;
+		material->albedo = sphereDiffuse;
 		material->specular = sphereSpecular;
-		material->metallic = 1;
+		material->metallic = sphereMetallic;
 		material->roughness = sphereRoughness;
 
 		Renderable* renderable = new Renderable();
@@ -382,9 +391,9 @@ void AwesomeRenderer::SetupCornellBox(RenderContext& context, Camera& camera)
 		node->AddComponent(transform);
 		
 		PbrMaterial* material = new PbrMaterial(*(new Material()));
-		material->albedo = Color::BLACK;
+		material->albedo = sphereDiffuse;
 		material->specular = sphereSpecular;
-		material->metallic = 1;
+		material->metallic = sphereMetallic;
 		material->roughness = sphereRoughness;
 
 		Renderable* renderable = new Renderable();

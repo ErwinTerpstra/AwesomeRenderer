@@ -314,11 +314,12 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 	const Vector3 viewVector = -ray.direction;
 	const Vector3& normal = hitInfo.normal;
 
+	// TODO: Evaluate ambient with diffuse BRDF
 	Vector3 diffuseRadiance = (lightData.ambient * material.albedo).subvector(3);
 	Vector3 specularRadiance(0.0f, 0.0f, 0.0f);
 
 	Vector3 F0 = material.specular.subvector(3);
-			
+						
 	// Iterate through all the lights
 	for (uint8_t i = 0; i < LightData::MAX_LIGHTS; ++i)
 	{
@@ -351,7 +352,7 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 					intensity = 0;
 			}
 
-			intensity *= 1.0f / (distanceToLight * distanceToLight);
+			intensity /= (distanceToLight * distanceToLight);
 		}
 		else
 		{
@@ -387,12 +388,14 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 			ShadingInfo reflectionShading;
 			CalculateShading(reflectionRay, reflectionShading, depth + 1);
 
+			assert(fabs(cml::dot(normal, reflectionDirection) - cml::dot(normal, viewVector)) < 1e-5f);
+
 			float NoL = Util::Clamp01(cml::dot(normal, reflectionDirection));
 			Vector3 lightRadiance = reflectionShading.color.subvector(3);
 
 			Vector3 ks;
 			specularRadiance += SpecularCookTorrance(viewVector, normal, reflectionDirection, F0, material.roughness, ks) * lightRadiance * NoL;
-
+			
 			Vector3 kd = (1.0f - ks) * (1.0f - material.metallic);
 			diffuseRadiance += DiffuseLambert(material.albedo.subvector(3)) * lightRadiance * kd * NoL;
 
@@ -433,8 +436,8 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 		}
 	}
 	
-	Color diffuse = Color(diffuseRadiance, 1.0f);
-	Color specular = Color(specularRadiance, 1.0f);
+	Color diffuse = InputManager::Instance().GetKey('T') ? Color::BLACK : Color(diffuseRadiance, 1.0f);
+	Color specular = InputManager::Instance().GetKey('Y') ? Color::BLACK : Color(specularRadiance, 1.0f);
 	
 	shadingInfo.color = diffuse + specular;
 }
