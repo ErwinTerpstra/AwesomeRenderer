@@ -224,6 +224,43 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	SetupCornellBox(mainContext, camera);
 	//SetupSpheres(mainContext, camera);
 
+	/**/
+	UnlitShader unlitShader;
+	TextMesh* debugText;
+
+	{
+		Node* node = new Node();
+
+		Texture* texture = NULL;
+		textureFactory.GetAsset("../Assets/font.bmp", &texture);
+
+		debugText = new TextMesh();
+		debugText->Configure(texture, 32, 32, 1);
+		debugText->SetText("Initializing...");
+
+		Sampler* sampler = new Sampler();
+		sampler->sampleMode = Sampler::SM_POINT;
+		sampler->wrapMode = Sampler::WM_REPEAT;
+		sampler->texture = texture;
+
+		PhongMaterial* material = new PhongMaterial(*(new Material()));
+		material->provider.shader = &unlitShader;
+		material->diffuseMap = sampler;
+
+		Model* model = new Model();
+		model->AddMesh(debugText, &material->provider);
+
+		Transformation* transform = new Transformation();
+		transform->SetPosition(Vector3(1.0f, 0.0f, 5.0f));
+		transform->SetScale(Vector3(1.0f, 1.0f, 1.0f) * 0.4f);
+
+		node->AddComponent(model);
+		node->AddComponent(transform);
+
+		hudContext.nodes.push_back(node);
+	}
+	/**/
+
 	// Camera controller
 	CameraController cameraController(camera);
 	cameraController.CopyFromCamera();
@@ -286,6 +323,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Frame counter variables
 	float timeSinceLastPrint = 0.0f;
 	uint32_t framesDrawn = 0;
+	char textBuffer[512];
 	
 	while (!window.closed)
 	{
@@ -354,6 +392,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 				printf("[AwesomeRenderer]: Settings raytracer max depth to %d\n", rayTracer.maxDepth);
 			}
+
+			rayTracer.ResetFrame();
+
+			sprintf(textBuffer, "Bounces: %u; SPP: %u", rayTracer.maxDepth, rayTracer.sampleCount);
+			debugText->SetText(textBuffer);
 		}
 
 

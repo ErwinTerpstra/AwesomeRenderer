@@ -120,6 +120,14 @@ void RayTracer::Cleanup()
 
 }
 
+void RayTracer::ResetFrame()
+{
+	PostRender();
+	pixelIdx = pixelList.size(); 
+	
+	renderContext->renderTarget->Clear(Color::BLACK, renderContext->clearFlags);
+}
+
 void RayTracer::Render(const Point2& pixel)
 {
 	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
@@ -360,7 +368,8 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 			distanceToLight = 1000.0f; // TODO: shadow distance render context parameter?
 		}
 
-		Ray shadowRay(hitInfo.point + toLight * 0.001f, toLight);
+		Ray shadowRay(hitInfo.point + toLight * 1e-5f, toLight);
+
 		RaycastHit shadowHitInfo;
 		if (RayCast(shadowRay, shadowHitInfo, distanceToLight))
 			continue;
@@ -383,7 +392,7 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 			VectorUtil<3>::Reflect(ray.direction, normal, reflectionDirection);
 
 			// Reflection
-			Ray reflectionRay(hitInfo.point + normal * 0.01f, reflectionDirection);
+			Ray reflectionRay(hitInfo.point + normal * 1e-5f, reflectionDirection);
 
 			ShadingInfo reflectionShading;
 			CalculateShading(reflectionRay, reflectionShading, depth + 1);
@@ -410,8 +419,11 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 				float pdf;
 				Vector3 reflectionDirection = GenerateSampleVector(viewVector, normal, material.roughness, pdf);
 
+				if (pdf < 1e-5f)
+					continue;
+
 				// Reflection
-				Ray reflectionRay(hitInfo.point + normal * 0.01f, reflectionDirection);
+				Ray reflectionRay(hitInfo.point + normal * 1e-5f, reflectionDirection);
 				
 				ShadingInfo reflectionShading;
 				CalculateShading(reflectionRay, reflectionShading, depth + 1);

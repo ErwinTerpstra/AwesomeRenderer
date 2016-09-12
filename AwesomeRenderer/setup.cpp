@@ -122,38 +122,6 @@ void AwesomeRenderer::SetupScene(RenderContext& mainContext, RenderContext& hudC
 
 		mainContext.nodes.push_back(node);
 	}
-
-	{
-		Node* node = new Node();
-
-		Texture* texture = NULL;
-		textureFactory.GetAsset("../Assets/font.bmp", &texture);
-
-		TextMesh* mesh = new TextMesh();
-		mesh->Configure(texture, 32, 32, 1);
-		mesh->SetText("Lorem ipsum dolor sit amet.");
-
-		Sampler* sampler = new Sampler();
-		sampler->sampleMode = Sampler::SM_POINT;
-		sampler->wrapMode = Sampler::WM_REPEAT;
-		sampler->texture = texture;
-
-		PhongMaterial* material = new PhongMaterial(*(new Material()));
-		material->provider.shader = unlitShader;
-		material->diffuseMap = sampler;
-
-		Model* model = new Model();
-		model->AddMesh(mesh, &material->provider);
-
-		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(1.0f, 0.0f, 5.0f));
-		transform->SetScale(Vector3(1.0f, 1.0f, 1.0f) * 0.4f);
-
-		node->AddComponent(model);
-		node->AddComponent(transform);
-
-		hudContext.nodes.push_back(node);
-	}
 }
 
 void AwesomeRenderer::SetupLighting(LightData& lightData)
