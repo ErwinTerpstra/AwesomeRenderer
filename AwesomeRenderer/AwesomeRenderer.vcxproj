@@ -138,6 +138,7 @@
     <ClCompile Include="triangle3d.cpp" />
     <ClCompile Include="triangle2d.cpp" />
     <ClCompile Include="window.cpp" />
+    <ClCompile Include="workerjob.cpp" />
     <ClCompile Include="workerthread.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -210,6 +211,7 @@
     <ClInclude Include="util_gl.h" />
     <ClInclude Include="window.h" />
     <ClInclude Include="window_gl.h" />
+    <ClInclude Include="workerjob.h" />
     <ClInclude Include="workerthread.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
