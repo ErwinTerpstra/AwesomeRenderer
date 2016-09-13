@@ -58,6 +58,9 @@
     <Filter Include="Source\Renderer\SoftwareRendering\SoftwareShaders">
       <UniqueIdentifier>{dfcbf972-dfb7-4c5b-9611-67dc430773f0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Core\Threading">
+      <UniqueIdentifier>{f61f260f-b9d5-4fca-8eee-beaea3782b4b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -156,9 +159,6 @@
     <ClCompile Include="timer.cpp">
       <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="threading.cpp">
-      <Filter>Source\Core</Filter>
-    </ClCompile>
     <ClCompile Include="program_gl.cpp">
       <Filter>Source\Renderer\Shading</Filter>
     </ClCompile>
@@ -224,6 +224,15 @@
     </ClCompile>
     <ClCompile Include="renderer_gl.cpp">
       <Filter>Source\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="threading.cpp">
+      <Filter>Source\Core\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="scheduler.cpp">
+      <Filter>Source\Core\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="workerthread.cpp">
+      <Filter>Source\Core\Threading</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -335,9 +344,6 @@
     <ClInclude Include="sampler.h">
       <Filter>Source\Renderer\Shading</Filter>
     </ClInclude>
-    <ClInclude Include="threading.h">
-      <Filter>Source\Core</Filter>
-    </ClInclude>
     <ClInclude Include="timer.h">
       <Filter>Source\Core</Filter>
     </ClInclude>
@@ -430,6 +436,15 @@
     </ClInclude>
     <ClInclude Include="renderer_gl.h">
       <Filter>Source\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="threading.h">
+      <Filter>Source\Core\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="scheduler.h">
+      <Filter>Source\Core\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="workerthread.h">
+      <Filter>Source\Core\Threading</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

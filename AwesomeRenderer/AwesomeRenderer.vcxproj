@@ -90,6 +90,7 @@
     <ClCompile Include="phongmaterial.cpp" />
     <ClCompile Include="program_gl.cpp" />
     <ClCompile Include="renderable.cpp" />
+    <ClCompile Include="scheduler.cpp" />
     <ClCompile Include="setup.cpp" />
     <ClCompile Include="shader_gl.cpp" />
     <ClCompile Include="kdtree.cpp" />
@@ -137,6 +138,7 @@
     <ClCompile Include="triangle3d.cpp" />
     <ClCompile Include="triangle2d.cpp" />
     <ClCompile Include="window.cpp" />
+    <ClCompile Include="workerthread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aabb.h" />
@@ -153,6 +155,7 @@
     <ClInclude Include="program_gl.h" />
     <ClInclude Include="random.h" />
     <ClInclude Include="renderable.h" />
+    <ClInclude Include="scheduler.h" />
     <ClInclude Include="setup.h" />
     <ClInclude Include="shader_gl.h" />
     <ClInclude Include="kdtree.h" />
@@ -207,6 +210,7 @@
     <ClInclude Include="util_gl.h" />
     <ClInclude Include="window.h" />
     <ClInclude Include="window_gl.h" />
+    <ClInclude Include="workerthread.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

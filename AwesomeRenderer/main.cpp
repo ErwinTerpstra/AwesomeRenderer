@@ -10,6 +10,8 @@
 #include "buffer.h"
 #include "memorybuffer.h"
 
+#include "scheduler.h"
+
 // Utility
 #include "util.h"
 #include "timer.h"
@@ -121,6 +123,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		printf("[AwesomeRenderer]: Failed to create OpenGL window!\n");
 
 	InputManager& inputManager = InputManager::Instance();
+
+	// Job scheduler
+	printf("[AwesomeRenderer]: Setting up scheduler...\n");
+	Scheduler scheduler(4);
+	scheduler.Start();
 
 	// Setup frame and depth buffers
 	printf("[AwesomeRenderer]: Initializing frame buffer...\n");
@@ -424,6 +431,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	frameBuffer.Destroy();
 	depthBuffer.Destroy();
+
+	scheduler.Stop();
 
 	return 0;
 }
