@@ -163,6 +163,7 @@
     <ClInclude Include="filereader.h" />
     <ClInclude Include="inputmanager.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="model.h" />
     <ClInclude Include="modelex.h" />
     <ClInclude Include="node.h" />
     <ClInclude Include="objloader.h" />
@@ -206,9 +207,6 @@
     <ClInclude Include="util_gl.h" />
     <ClInclude Include="window.h" />
     <ClInclude Include="window_gl.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="model.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

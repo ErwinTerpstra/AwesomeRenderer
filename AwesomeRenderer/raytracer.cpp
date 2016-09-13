@@ -19,6 +19,7 @@
 #include "inputmanager.h"
 
 using namespace AwesomeRenderer;
+using namespace AwesomeRenderer::RayTracing;
 
 const float RayTracer::MAX_FRAME_TIME = 0.05f;
 

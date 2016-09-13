@@ -97,6 +97,7 @@
 #include "setup.h"
 
 using namespace AwesomeRenderer;
+using namespace AwesomeRenderer::RayTracing;
 
 int main() 
 {
