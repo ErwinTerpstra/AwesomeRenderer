@@ -54,6 +54,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PreprocessorDefinitions>_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -72,6 +73,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -83,9 +85,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="aabb.cpp" />
+    <ClCompile Include="blinnphong.cpp" />
     <ClCompile Include="cameracontroller.cpp" />
     <ClCompile Include="components.cpp" />
     <ClCompile Include="lightdata.cpp" />
+    <ClCompile Include="microfacetspecular.cpp" />
+    <ClCompile Include="montecarlointegrator.cpp" />
     <ClCompile Include="pbrmaterial.cpp" />
     <ClCompile Include="phongmaterial.cpp" />
     <ClCompile Include="program_gl.cpp" />
@@ -95,10 +100,12 @@
     <ClCompile Include="shader_gl.cpp" />
     <ClCompile Include="kdtree.cpp" />
     <ClCompile Include="renderer_gl.cpp" />
+    <ClCompile Include="surfaceintegrator.cpp" />
     <ClCompile Include="textmesh.cpp" />
     <ClCompile Include="typedefs.cpp" />
     <ClCompile Include="unlitshader.cpp" />
     <ClCompile Include="random.cpp" />
+    <ClCompile Include="whittedintegrator.cpp" />
     <ClCompile Include="window_gl.cpp" />
     <ClCompile Include="mesh_gl.cpp" />
     <ClCompile Include="phongshader.cpp" />
@@ -125,7 +132,9 @@
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="color.cpp" />
     <ClCompile Include="gdibuffer.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="main.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="material.cpp" />
     <ClCompile Include="memorybuffer.cpp" />
     <ClCompile Include="softwarerenderer.cpp" />
@@ -145,6 +154,7 @@
   <ItemGroup>
     <ClInclude Include="aabb.h" />
     <ClInclude Include="buffer.h" />
+    <ClInclude Include="bsdf.h" />
     <ClInclude Include="coloredskybox.h" />
     <ClInclude Include="component.h" />
     <ClInclude Include="debug.h" />
@@ -152,7 +162,10 @@
     <ClInclude Include="extension.h" />
     <ClInclude Include="factory.h" />
     <ClInclude Include="lightdata.h" />
+    <ClInclude Include="microfacetspecular.h" />
+    <ClInclude Include="montecarlointegrator.h" />
     <ClInclude Include="pbrmaterial.h" />
+    <ClInclude Include="blinnphong.h" />
     <ClInclude Include="phongmaterial.h" />
     <ClInclude Include="program_gl.h" />
     <ClInclude Include="random.h" />
@@ -162,6 +175,7 @@
     <ClInclude Include="shader_gl.h" />
     <ClInclude Include="kdtree.h" />
     <ClInclude Include="mesh_gl.h" />
+    <ClInclude Include="shadinginfo.h" />
     <ClInclude Include="shape.h" />
     <ClInclude Include="renderer_gl.h" />
     <ClInclude Include="phongshader.h" />
@@ -188,6 +202,8 @@
     <ClInclude Include="sixsidedskybox.h" />
     <ClInclude Include="skybox.h" />
     <ClInclude Include="sphere.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="surfaceintegrator.h" />
     <ClInclude Include="textmesh.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="camera.h" />
@@ -210,6 +226,7 @@
     <ClInclude Include="unlitshader.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="util_gl.h" />
+    <ClInclude Include="whittedintegrator.h" />
     <ClInclude Include="window.h" />
     <ClInclude Include="window_gl.h" />
     <ClInclude Include="workergroup.h" />

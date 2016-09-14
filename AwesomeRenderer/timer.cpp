@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "timer.h"
 
 using namespace AwesomeRenderer;

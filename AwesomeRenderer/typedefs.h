@@ -1,8 +1,6 @@
 #ifndef _TYPEDEFS_H_
 #define _TYPEDEFS_H_
 
-#include <cml/cml.h>
-
 namespace AwesomeRenderer
 {
 	// Atomic types

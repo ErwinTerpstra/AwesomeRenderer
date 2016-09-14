@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "node.h"
 #include "raytracer.h"
 #include "ray.h"
@@ -15,6 +16,7 @@
 #include "lightdata.h"
 #include "skybox.h"
 #include "random.h"
+#include "shadinginfo.h"
 
 #include "inputmanager.h"
 
@@ -23,7 +25,7 @@ using namespace AwesomeRenderer::RayTracing;
 
 const float RayTracer::MAX_FRAME_TIME = 0.05f;
 
-RayTracer::RayTracer() : Renderer(), random(Random::instance), pixelIdx(0), maxDepth(1), sampleCount(16), timer(0.0f, FLT_MAX), frameTimer(0.0f, FLT_MAX)
+RayTracer::RayTracer() : Renderer(), whittedIntegrator(*this), monteCarloIntegrator(*this), pixelIdx(0), maxDepth(1), timer(0.0f, FLT_MAX), frameTimer(0.0f, FLT_MAX)
 {
 
 }
@@ -159,163 +161,10 @@ void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int d
 	}
 
 	const Renderable* renderable = hitInfo.node->GetComponent<Renderable>();
-
-	// Check if this node has a PBR material
-	const PbrMaterial* pbrMaterial = renderable->material->As<PbrMaterial>();
-	if (pbrMaterial != NULL)
-	{
-		CalculateShading(ray, hitInfo, *pbrMaterial, shadingInfo, depth);
-		return;
-	}
-	
-	// Check if this node has a phong material
-	const PhongMaterial* phongMaterial = renderable->material->As<PhongMaterial>();
-	if (phongMaterial != NULL)
-	{
-		CalculateShading(ray, hitInfo, *phongMaterial, shadingInfo, depth);
-		return;
-	}
-
+	CalculateShading(ray, hitInfo, *renderable->material, shadingInfo, depth);
 }
 
-void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, const PhongMaterial& material, ShadingInfo& shadingInfo, int depth)
-{
-	const LightData& lightData = *renderContext->lightData;
-	const Renderable* renderable = hitInfo.node->GetComponent<Renderable>();
-
-	const Vector3& normal = hitInfo.normal;
-
-	Color diffuse = material.diffuseColor;
-	Color specular = material.specularColor;
-
-	Color diffuseLight = lightData.ambient;
-	Color specularLight = Color::BLACK;
-
-	float shininess = material.shininess;
-
-	// Iterate through all the lights
-	for (uint8_t i = 0; i < LightData::MAX_LIGHTS; ++i)
-	{
-		const LightData::Light& light = lightData.lights[i];
-
-		if (!light.enabled)
-			continue;
-
-		// Calculate light intensity
-		Vector3 toLight;
-		float distanceToLight;
-
-		float intensity = light.intensity;
-		
-		if (light.type != LightData::DIRECTIONAL)
-		{
-			toLight = light.position - hitInfo.point;
-
-			distanceToLight = toLight.length();
-			toLight.normalize();
-			
-			if (light.type == LightData::SPOT)
-			{
-				float angleTerm = cml::dot(light.direction, -toLight);
-				float cosAngle = cos(light.angle);
-
-				if (angleTerm > cosAngle)
-					intensity *= (angleTerm - cosAngle) / (1.0f - cosAngle);
-				else
-					intensity = 0;
-			}
-
-			intensity *= 1.0f / (light.constantAttenuation + (light.lineairAttenuation * distanceToLight) + (light.quadricAttenuation * distanceToLight * distanceToLight));
-		}
-		else
-		{
-			toLight = -light.direction;
-			distanceToLight = 1000.0f; // TODO: shadow distance render context parameter?
-		}
-
-		Ray shadowRay(hitInfo.point + toLight * 0.001f, toLight);
-		RaycastHit shadowHitInfo;
-		if (RayCast(shadowRay, shadowHitInfo, distanceToLight))
-			continue;
-		
-		// Compute the diffuse term
-		float diffuseTerm = std::max(cml::dot(normal, toLight), 0.0f);
-		diffuseLight += light.color * diffuseTerm * intensity;
-
-		// Compute the specular term
-		if (diffuseTerm > 0.0f)
-		{
-			Vector3 halfVector = cml::normalize(-ray.direction + toLight);
-
-			float specularTerm = std::pow(std::max(cml::dot(normal, halfVector), 0.0f), shininess);
-			specularLight += (light.color * specularTerm * intensity) * diffuseTerm;
-		}
-	}
-
-	if (depth < maxDepth)
-	{
-		Color reflection;
-		Color refraction;
-		float ior = 0.75f;
-		
-		{
-			// Reflection
-			Vector3 reflectionDirection;
-			VectorUtil<3>::Reflect(ray.direction, normal, reflectionDirection);
-
-			Ray reflectionRay(hitInfo.point + normal * 0.01f, reflectionDirection);
-
-			ShadingInfo reflectionShading;
-			CalculateShading(reflectionRay, reflectionShading, depth + 1);
-
-			reflection = reflectionShading.color;
-		}
-
-		if (FALSE)
-		{
-			// Refraction
-			Vector3 innerRefractionDirection;
-			VectorUtil<3>::Refract(ray.direction, normal, ior, innerRefractionDirection);
-			
-			Ray innerRefractionRay(hitInfo.point - normal * 0.01f, innerRefractionDirection);
-
-			Ray refractionRay;
-
-			RaycastHit refractionHit;
-			if (RayCast(innerRefractionRay, refractionHit))
-			{
-				if (refractionHit.inside)
-				{
-					ior = 1.0f / ior;
-
-					Vector3 outerRefractionDirection;
-					VectorUtil<3>::Refract(innerRefractionDirection, refractionHit.normal, ior, outerRefractionDirection);
-
-					refractionRay = Ray(refractionHit.point + normal * 0.01f, outerRefractionDirection);
-				}
-				else
-				{
-					refractionRay = innerRefractionRay;
-				}
-
-			}
-
-			ShadingInfo refractionShading;
-			CalculateShading(refractionRay, refractionShading, depth + 1);
-
-			refraction = refractionShading.color;
-		}
-
-		float fresnel = Fresnel(ray.direction, normal, ior);
-
-		Color transmittedLight = reflection * fresnel + refraction * (1.0f - fresnel);
-		specularLight += transmittedLight;
-	}
-
-	shadingInfo.color = diffuse * diffuseLight + specular * specularLight;
-}
-
-void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, const PbrMaterial& material, ShadingInfo& shadingInfo, int depth)
+void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, const Material& material, ShadingInfo& shadingInfo, int depth)
 {
 	const LightData& lightData = *renderContext->lightData;
 	const Renderable* renderable = hitInfo.node->GetComponent<Renderable>();
@@ -323,12 +172,10 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 	const Vector3 viewVector = -ray.direction;
 	const Vector3& normal = hitInfo.normal;
 
-	// TODO: Evaluate ambient with diffuse BRDF
-	Vector3 diffuseRadiance = (lightData.ambient * material.albedo).subvector(3);
-	Vector3 specularRadiance(0.0f, 0.0f, 0.0f);
+	Vector3 radiance(0.0f, 0.0f, 0.0f);
 
-	Vector3 F0 = material.specular.subvector(3);
-						
+	assert(material.bsdf != NULL);
+
 	// Iterate through all the lights
 	for (uint8_t i = 0; i < LightData::MAX_LIGHTS; ++i)
 	{
@@ -378,269 +225,59 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 		float NoL = std::max(cml::dot(normal, toLight), 0.0f);
 		Vector3 lightRadiance = light.color.subvector(3) * intensity;
 
-		Vector3 ks;
-		specularRadiance += SpecularCookTorrance(viewVector, normal, toLight, F0, material.roughness, ks) * lightRadiance * NoL;
-
-		Vector3 kd = (1.0f - ks) * (1.0f - material.metallic);
-		diffuseRadiance += DiffuseLambert(material.albedo.subvector(3)) * lightRadiance * kd * NoL;
+		radiance += material.bsdf->Sample(viewVector, toLight, normal, material) * lightRadiance * NoL;
 	}
 
 	if (depth < maxDepth)
 	{
 		if (InputManager::Instance().GetKey('G'))
-		{
-			Vector3 reflectionDirection;
-			VectorUtil<3>::Reflect(ray.direction, normal, reflectionDirection);
-
-			// Reflection
-			Ray reflectionRay(hitInfo.point + normal * 1e-5f, reflectionDirection);
-
-			ShadingInfo reflectionShading;
-			CalculateShading(reflectionRay, reflectionShading, depth + 1);
-
-			assert(fabs(cml::dot(normal, reflectionDirection) - cml::dot(normal, viewVector)) < 1e-5f);
-
-			float NoL = Util::Clamp01(cml::dot(normal, reflectionDirection));
-			Vector3 lightRadiance = reflectionShading.color.subvector(3);
-
-			Vector3 ks;
-			specularRadiance += SpecularCookTorrance(viewVector, normal, reflectionDirection, F0, material.roughness, ks) * lightRadiance * NoL;
-			
-			Vector3 kd = (1.0f - ks) * (1.0f - material.metallic);
-			diffuseRadiance += DiffuseLambert(material.albedo.subvector(3)) * lightRadiance * kd * NoL;
-
-		}
+			radiance += whittedIntegrator.Li(ray, hitInfo, material, depth);
 		else
+			radiance += monteCarloIntegrator.Li(ray, hitInfo, material, depth);
+		
+		/**/
+		if (FALSE)
 		{
-			Vector3 diffuseReflection(0.0f, 0.0f, 0.0f);
-			Vector3 specularReflection(0.0f, 0.0f, 0.0f);
-			
-			for (int sampleIdx = 0; sampleIdx < sampleCount; ++sampleIdx)
+			float ior = 0.75f;
+
+			// Refraction
+			Vector3 innerRefractionDirection;
+			VectorUtil<3>::Refract(ray.direction, normal, ior, innerRefractionDirection);
+
+			Ray innerRefractionRay(hitInfo.point - normal * 0.01f, innerRefractionDirection);
+
+			Ray refractionRay;
+
+			RaycastHit refractionHit;
+			if (RayCast(innerRefractionRay, refractionHit))
 			{
-				float pdf;
-				Vector3 reflectionDirection = GenerateSampleVector(viewVector, normal, material.roughness, pdf);
+				if (refractionHit.inside)
+				{
+					ior = 1.0f / ior;
 
-				if (pdf < 1e-5f)
-					continue;
+					Vector3 outerRefractionDirection;
+					VectorUtil<3>::Refract(innerRefractionDirection, refractionHit.normal, ior, outerRefractionDirection);
 
-				// Reflection
-				Ray reflectionRay(hitInfo.point + normal * 1e-5f, reflectionDirection);
-				
-				ShadingInfo reflectionShading;
-				CalculateShading(reflectionRay, reflectionShading, depth + 1);
+					refractionRay = Ray(refractionHit.point + normal * 0.01f, outerRefractionDirection);
+				}
+				else
+				{
+					refractionRay = innerRefractionRay;
+				}
 
-				float NoL = cml::dot(normal, reflectionDirection);
-				assert(NoL + 1e-5f >= 0.0f && NoL - 1e-5f <= 1.0f);
-
-				Vector3 lightRadiance = reflectionShading.color.subvector(3);
-
-				if (lightRadiance.length_squared() <= 1e-5)
-					continue;
-					
-				Vector3 ks;
-				specularReflection += SpecularCookTorrance(viewVector, normal, reflectionDirection, F0, material.roughness, ks) * lightRadiance * NoL / pdf;
-				
-				Vector3 kd = (1.0f - ks) * (1.0f - material.metallic);
-				diffuseReflection += DiffuseLambert(material.albedo.subvector(3)) * lightRadiance * kd * NoL / pdf;
 			}
 
-			diffuseRadiance += diffuseReflection / sampleCount;
-			specularRadiance += specularReflection / sampleCount;
+			ShadingInfo refractionShading;
+			CalculateShading(refractionRay, refractionShading, depth + 1);
+
+			radiance += refractionShading.color.subvector(3);
 		}
+		/**/
 	}
 	
-	Color diffuse = InputManager::Instance().GetKey('T') ? Color::BLACK : Color(diffuseRadiance, 1.0f);
-	Color specular = InputManager::Instance().GetKey('Y') ? Color::BLACK : Color(specularRadiance, 1.0f);
-	
-	shadingInfo.color = diffuse + specular;
+	shadingInfo.color = Color(radiance, 1.0);
 }
 
-
-Vector3 RayTracer::GenerateSampleVector(const Vector3& v, const Vector3& n, float roughness, float& pdf)
-{
-	float r1 = random.NextFloat();
-	float r2 = random.NextFloat();
-
-	float phi, theta;
-	ImportanceSampleGGX(Vector2(r1, r2), roughness, phi, theta);
-	pdf = PDFGGX(phi, theta, roughness);
-	
-	float sinTheta = sinf(theta);
-	float x = sinTheta * cosf(phi);
-	float z = sinTheta * sinf(phi);
-
-	Vector3 sample = Vector3(x, cosf(theta), z);
-
-	assert(VectorUtil<3>::IsNormalized(sample));
-
-	Vector3 right, forward;
-	VectorUtil<3>::OrthoNormalize(n, right, forward);
-
-	assert(fabs(cml::dot(n, forward)) < 1e-5f);
-	assert(fabs(cml::dot(n, right)) < 1e-5f);
-	assert(fabs(cml::dot(right, forward)) < 1e-5f);
-
-	Matrix33 transform(
-		right[0],	right[1],	right[2],
-		n[0],		n[1],		n[2],
-		forward[0],	forward[1],	forward[2]
-	);
-
-	assert(cml::dot(sample, Vector3(0.0f, 1.0f, 0.0f)) >= 0.0f - 1e-5f);
-
-	sample = transform_vector(transform, sample);
-		
-	assert(VectorUtil<3>::IsNormalized(sample));
-
-	return sample;
-}
-
-void RayTracer::ImportanceSampleGGX(const Vector2& r, float alpha, float& phi, float& theta)
-{
-	phi = 2.0f * PI * r[0];
-	theta = acos(sqrt((1.0f - r[1]) / ((alpha * alpha - 1.0f) * r[1] + 1.0f)));
-}
-
-float RayTracer::PDFGGX(float phi, float theta, float alpha)
-{
-	float alpha2 = alpha * alpha;
-	float cosTheta = cosf(theta);
-	float denom = (cosTheta * cosTheta * (alpha2 - 1.0f)) + 1.0f;
-
-	return (alpha2 / std::max((float)PI * denom * denom, 1e-7f)) * cosTheta * sinf(theta);
-}
-
-Vector3 RayTracer::DiffuseLambert(const Vector3& albedo)
-{
-	return albedo / PI;
-}
-
-Vector3 RayTracer::SpecularCookTorrance(const Vector3& v, const Vector3& n, const Vector3& l, const Vector3& F0, float roughness, Vector3& ks)
-{
-	assert(VectorUtil<3>::IsNormalized(v));
-	assert(VectorUtil<3>::IsNormalized(n));
-	assert(VectorUtil<3>::IsNormalized(l));
-
-	roughness = roughness * roughness;
-	
-	// Calculate the half vector
-	Vector3 h = cml::normalize(l + v);
-		
-	// Fresnel term
-	Vector3 fresnel = InputManager::Instance().GetKey('Z') ? F0 : FresnelSchlick(Util::Clamp01(cml::dot(h, l)), F0);
-	ks = fresnel;
-
-	float distribution, geometry;
-
-	// Normal distribution & geometry term
-	if (InputManager::Instance().GetKey('X'))
-	{
-		distribution = DistributionBlinn(n, h, RoughnessToShininess(roughness));
-		geometry = GeometrySmith(v, l, n, h, roughness);
-	}
-	else
-	{
-		distribution = DistributionGGX(n, h, roughness);
-		geometry = GeometryGGX(v, l, n, h, roughness);
-	}
-
-	if (InputManager::Instance().GetKey('C'))
-		geometry = GeometryImplicit(v, l, n, h);
-
-	distribution = std::max(distribution, 0.0f);
-	geometry = std::max(geometry, 0.0f);
-
-	// Calculate the Cook-Torrance denominator
-	float denominator = std::max(4 * Util::Clamp01(cml::dot(n, v)) * Util::Clamp01(cml::dot(n, l)), 1e-7f);
-	
-	// Return the evaluated BRDF
-	Vector3 result = ((fresnel * geometry * distribution) / denominator);
-	result[0] = Util::Clamp01(result[0]);
-	result[1] = Util::Clamp01(result[1]);
-	result[2] = Util::Clamp01(result[2]);
-
-	return result;
-}
-
-float RayTracer::RoughnessToShininess(float a)
-{
-	return std::max((2.0f / (a * a)) - 2.0f, 1e-7f);
-}
-
-float RayTracer::DistributionBlinn(const Vector3 & n, const Vector3& h, float e)
-{
-	float NoH = Util::Clamp01(cml::dot(n, h));
-
-	return ((e + 2) * INV_TWO_PI) * std::pow(NoH, e);
-}
-
-float RayTracer::DistributionGGX(const Vector3& n, const Vector3& h, float alpha)
-{
-	float alpha2 = alpha * alpha;
-	float NoH = Util::Clamp01(cml::dot(n, h));
-	float denom = (NoH * NoH * (alpha2 - 1.0f)) + 1.0f;
-	return alpha2 / std::max((float)PI * denom * denom, 1e-7f);
-}
-
-float RayTracer::GeometryImplicit(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h)
-{
-	float NoV = Util::Clamp01(cml::dot(n, v));
-	float NoL = Util::Clamp01(cml::dot(n, l));
-
-	return NoL * NoV;
-}
-
-float RayTracer::GeometryCookTorrance(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h)
-{
-	float NoH = Util::Clamp01(cml::dot(n, h));
-	float NoV = Util::Clamp01(cml::dot(n, v));
-	float NoL = Util::Clamp01(cml::dot(n, l));
-	float VoH = Util::Clamp(cml::dot(v, h), 1e-7f, 1.0f);
-
-	return std::min(1.0f, std::min((2.0f * NoH * NoV) / VoH,
-								   (2.0f * NoH * NoL) / VoH));
-}
-
-float RayTracer::GeometrySmith(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float a)
-{
-	a += 1;
-
-	return G1Schlick(l, n, a) * G1Schlick(v, n, a);
-}
-
-float RayTracer::G1Schlick(const Vector3& v, const Vector3& n, float a)
-{
-	float NoV = Util::Clamp01(cml::dot(v, n));
-	float k = (a * a) / 8;
-	return NoV / (NoV * (1.0f - k) + k);
-}
-
-float RayTracer::GeometryGGX(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float a)
-{
-	return G1GGX(v, n, h, a) * G1GGX(l, n, h, a);
-}
-
-float RayTracer::G1GGX(const Vector3& v, const Vector3& n, const Vector3& h, float a)
-{
-	float HoV = cml::dot(h, v);
-	
-	if (HoV < 0.0f)
-		return 0.0f;
-
-	float a2 = a * a;
-
-	float NoV2 = cml::dot(n, v);
-	NoV2 = NoV2 * NoV2;
-
-	float tan2 = (1.0f - NoV2) / NoV2;
-	
-	return (2.0f / std::max(1.0f + sqrt(1.0f + a2 * tan2), 1e-7f));
-}
-
-Vector3 RayTracer::FresnelSchlick(float cosT, Vector3 F0)
-{
-	return F0 + (1.0f - F0) * pow(1 - cosT, 5);
-}
 
 float RayTracer::Fresnel(const Vector3& v, const Vector3& normal, float ior)
 {

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "renderable.h"
 
 using namespace AwesomeRenderer;

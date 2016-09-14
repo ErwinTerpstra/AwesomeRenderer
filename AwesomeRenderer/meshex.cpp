@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "awesomerenderer.h"
 #include "meshex.h"
 #include "mesh.h"

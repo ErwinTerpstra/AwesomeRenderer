@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "softwarerenderer.h"
 
 #include "window.h"

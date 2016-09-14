@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "workergroup.h"
 
 using namespace AwesomeRenderer;

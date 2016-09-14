@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
 
@@ -385,11 +386,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			if (shift)
 			{
 				if (plus)
-					rayTracer.sampleCount <<= 1;
-				else if (rayTracer.sampleCount > 1)
-					rayTracer.sampleCount >>= 1;
+					rayTracer.monteCarloIntegrator.sampleCount <<= 1;
+				else if (rayTracer.monteCarloIntegrator.sampleCount > 1)
+					rayTracer.monteCarloIntegrator.sampleCount >>= 1;
 
-				printf("[AwesomeRenderer]: Settings raytracer sample count to %d\n", rayTracer.sampleCount);
+				printf("[AwesomeRenderer]: Settings raytracer sample count to %d\n", rayTracer.monteCarloIntegrator.sampleCount);
 			}
 			else
 			{
@@ -403,7 +404,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 			rayTracer.ResetFrame();
 
-			sprintf(textBuffer, "Bounces: %u; SPP: %u", rayTracer.maxDepth, rayTracer.sampleCount);
+			sprintf(textBuffer, "Bounces: %u; SPP: %u", rayTracer.maxDepth, rayTracer.monteCarloIntegrator.sampleCount);
 			debugText->SetText(textBuffer);
 		}
 

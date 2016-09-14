@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "workerthread.h"
 #include "workergroup.h"
 #include "workerjob.h"

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include <stdio.h>
 #include <io.h>
 #include <fcntl.h>
@@ -200,10 +201,10 @@ void AwesomeRenderer::SetupCornellBox(RenderContext& context, Camera& camera)
 	const Color wallSpecular = Color::WHITE * 0.2f;
 	const float wallRoughness = 0.8f;
 
-	/*
+	//*
 	const Color sphereDiffuse = Color::BLACK;
 	const Color sphereSpecular(0.6f, 0.6f, 0.6f);
-	const float sphereRoughness = 0.4f;
+	const float sphereRoughness = 0.8f;
 	const float sphereMetallic = 1;
 	/*/
 	const Color sphereDiffuse(0.5f, 0.5f, 0.5f);

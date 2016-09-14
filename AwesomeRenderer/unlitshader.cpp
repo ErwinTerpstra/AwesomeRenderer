@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "unlitshader.h"
 #include "material.h"
 #include "phongmaterial.h"

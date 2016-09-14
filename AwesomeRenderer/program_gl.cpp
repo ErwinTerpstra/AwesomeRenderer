@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "awesomerenderer.h"
 #include "program_gl.h"
 #include "texture_gl.h"

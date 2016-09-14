@@ -61,6 +61,12 @@
     <Filter Include="Source\Core\Threading">
       <UniqueIdentifier>{f61f260f-b9d5-4fca-8eee-beaea3782b4b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Renderer\RayTracing\Integrators">
+      <UniqueIdentifier>{f7c912bd-0cc0-4e3c-ae90-3a6624f99abf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Renderer\RayTracing\BSDF">
+      <UniqueIdentifier>{d60e87e1-de7e-49f6-bf45-0b8ffdb31975}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -239,6 +245,21 @@
     </ClCompile>
     <ClCompile Include="workergroup.cpp">
       <Filter>Source\Core\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="montecarlointegrator.cpp">
+      <Filter>Source\Renderer\RayTracing\Integrators</Filter>
+    </ClCompile>
+    <ClCompile Include="surfaceintegrator.cpp">
+      <Filter>Source\Renderer\RayTracing\Integrators</Filter>
+    </ClCompile>
+    <ClCompile Include="whittedintegrator.cpp">
+      <Filter>Source\Renderer\RayTracing\Integrators</Filter>
+    </ClCompile>
+    <ClCompile Include="microfacetspecular.cpp">
+      <Filter>Source\Renderer\RayTracing\BSDF</Filter>
+    </ClCompile>
+    <ClCompile Include="blinnphong.cpp">
+      <Filter>Source\Renderer\RayTracing\BSDF</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -457,6 +478,30 @@
     </ClInclude>
     <ClInclude Include="workergroup.h">
       <Filter>Source\Core\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="montecarlointegrator.h">
+      <Filter>Source\Renderer\RayTracing\Integrators</Filter>
+    </ClInclude>
+    <ClInclude Include="surfaceintegrator.h">
+      <Filter>Source\Renderer\RayTracing\Integrators</Filter>
+    </ClInclude>
+    <ClInclude Include="whittedintegrator.h">
+      <Filter>Source\Renderer\RayTracing\Integrators</Filter>
+    </ClInclude>
+    <ClInclude Include="shadinginfo.h">
+      <Filter>Source\Renderer\RayTracing</Filter>
+    </ClInclude>
+    <ClInclude Include="microfacetspecular.h">
+      <Filter>Source\Renderer\RayTracing\BSDF</Filter>
+    </ClInclude>
+    <ClInclude Include="bsdf.h">
+      <Filter>Source\Renderer\RayTracing\BSDF</Filter>
+    </ClInclude>
+    <ClInclude Include="blinnphong.h">
+      <Filter>Source\Renderer\RayTracing\BSDF</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

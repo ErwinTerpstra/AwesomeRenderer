@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "renderer_gl.h"
 #include "filereader.h"
 #include "rendercontext.h"

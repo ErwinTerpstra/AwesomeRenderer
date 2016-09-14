@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "awesomerenderer.h"
 #include "mesh_gl.h"
 #include "util_gl.h"

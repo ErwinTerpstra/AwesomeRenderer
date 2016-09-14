@@ -3,6 +3,8 @@
 
 #include "awesomerenderer.h"
 
+#include "bsdf.h"
+
 namespace AwesomeRenderer
 {
 	class Shader;
@@ -19,7 +21,11 @@ namespace AwesomeRenderer
 
 		bool translucent;
 
+		// TODO: Move shader to SoftwareRenderer/OpenGL renderer specific material
 		Shader* shader;
+
+		// TODO: Move BSDF to Raytracer specific material
+		RayTracing::BSDF* bsdf;
 
 	public:
 		Material();

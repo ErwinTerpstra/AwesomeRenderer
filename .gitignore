@@ -5,3 +5,4 @@ AwesomeRenderer/Release/
 Debug/
 Release/
 *.sdf
+ipch/

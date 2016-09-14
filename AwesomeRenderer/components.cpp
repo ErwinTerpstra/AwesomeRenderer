@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "transformation.h"
 #include "model.h"
 #include "renderable.h"
