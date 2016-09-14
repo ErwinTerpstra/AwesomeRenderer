@@ -11,10 +11,8 @@ Scheduler::Scheduler(int workerThreads) : workerCount(workerThreads)
 
 Scheduler::~Scheduler()
 {
-	std::vector<WorkerThread*>::iterator it;
-
 	for (workerIterator = workers.begin(); workerIterator != workers.end(); ++workerIterator)
-		delete *it;
+		delete *workerIterator;
 
 	workers.clear();
 }
@@ -23,7 +21,7 @@ void Scheduler::SetupWorkers()
 {
 	while (workers.size() < workerCount)
 	{
-		WorkerThread* thread = new WorkerThread();
+		WorkerThread* thread = new WorkerThread(mainGroup);
 		workers.push_back(thread);
 	}
 }
@@ -38,4 +36,11 @@ void Scheduler::Stop()
 {
 	for (workerIterator = workers.begin(); workerIterator != workers.end(); ++workerIterator)
 		(*workerIterator)->Stop();
+
+	mainGroup.jobSignal.Signal(workers.size());
+}
+
+void Scheduler::ScheduleJob(WorkerJob* job)
+{
+	mainGroup.EnqueueJob(job);
 }

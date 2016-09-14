@@ -1,8 +1,10 @@
 #include "workerthread.h"
+#include "workergroup.h"
+#include "workerjob.h"
 
 using namespace AwesomeRenderer;
 
-WorkerThread::WorkerThread() : running(false)
+WorkerThread::WorkerThread(WorkerGroup& group) : group(group), running(false)
 {
 
 }
@@ -25,7 +27,12 @@ DWORD WorkerThread::Run()
 {
 	while (IsRunning())
 	{
-		Sleep(1000);
+		group.jobSignal.Wait();
+
+		WorkerJob* job = group.DequeueJob();
+
+		if (job != NULL)
+			job->Execute();
 	}
 
 	return 0;

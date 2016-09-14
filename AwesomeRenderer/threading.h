@@ -12,6 +12,11 @@ namespace AwesomeRenderer
 		std::mutex mtx;
 
 	public:
+		LockedVariable() : value()
+		{
+
+		}
+
 		LockedVariable(const T& initialValue) : value(initialValue)
 		{
 

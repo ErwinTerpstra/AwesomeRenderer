@@ -17,7 +17,7 @@
 
 using namespace AwesomeRenderer;
 
-SoftwareRenderer::SoftwareRenderer() : Renderer(), renderQueue(), tileIdx(0), tilesLeft(), workerSignal(0, WORKER_AMOUNT), mainThreadSignal(0, 1)
+SoftwareRenderer::SoftwareRenderer() : Renderer(), renderQueue(), tileIdx(0), tilesLeft(), workerSignal(0, WORKER_AMOUNT), mainThreadSignal(0, WORKER_AMOUNT)
 {
 
 }
@@ -47,15 +47,23 @@ void SoftwareRenderer::Initialize()
 
 void SoftwareRenderer::Cleanup()
 {
-	// Close all created threads
+	// Reset the tile index to break workers out of their inner loops
+	tileIdx.Lock();
+	*tileIdx = 0;
+	tileIdx.Unlock();
+	
+	// Tell all threads to shut down
 	for (uint32_t workerIdx = 0; workerIdx < WORKER_AMOUNT; ++workerIdx)
 	{
 		WorkerThread& thread = workers[workerIdx];
 		thread.Stop();
-
-		// Wait for the thread to signal it has been shut down
-		mainThreadSignal.Wait();
 	}
+
+	// Wake-up the worker threads
+	workerSignal.Signal(WORKER_AMOUNT);
+	
+	for (uint32_t workerIdx = 0; workerIdx < WORKER_AMOUNT; ++workerIdx)
+		mainThreadSignal.Wait(); // Wait for the thread to signal it has been shut down
 }
 
 void SoftwareRenderer::SetRenderContext(const RenderContext* context)

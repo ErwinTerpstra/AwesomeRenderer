@@ -59,9 +59,13 @@ Semaphore::Semaphore(uint32_t count, uint32_t maxCount) : count(count), maxCount
 void Semaphore::Signal(uint32_t increment)
 {
 	m.lock();
+
+	// Increase the count
 	count = std::min(count + increment, maxCount);
 
+	// Notify all waiting threads
 	signal.notify_all();
+
 	m.unlock();
 }
 
@@ -69,7 +73,8 @@ void Semaphore::Wait()
 {
 	m.lock();
 
-	if (count == 0)
+	// Wait until the count increases
+	while (count == 0)
 		signal.wait(m);
 
 	--count;

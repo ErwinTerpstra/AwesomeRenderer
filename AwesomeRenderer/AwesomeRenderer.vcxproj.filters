@@ -237,6 +237,9 @@
     <ClCompile Include="workerjob.cpp">
       <Filter>Source\Core\Threading</Filter>
     </ClCompile>
+    <ClCompile Include="workergroup.cpp">
+      <Filter>Source\Core\Threading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h">
@@ -450,6 +453,9 @@
       <Filter>Source\Core\Threading</Filter>
     </ClInclude>
     <ClInclude Include="workerjob.h">
+      <Filter>Source\Core\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="workergroup.h">
       <Filter>Source\Core\Threading</Filter>
     </ClInclude>
   </ItemGroup>

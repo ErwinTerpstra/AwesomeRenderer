@@ -7,6 +7,7 @@ namespace AwesomeRenderer
 {
 
 	class Scheduler;
+	class WorkerGroup;
 
 	class WorkerThread
 	{
@@ -16,10 +17,12 @@ namespace AwesomeRenderer
 
 		DWORD id;
 
+		WorkerGroup& group;
+
 		bool running;
 
 	public:
-		WorkerThread();
+		WorkerThread(WorkerGroup& group);
 
 		void Start();
 		void Stop();
