@@ -1,15 +1,15 @@
 #include "stdafx.h"
-#include "workergroup.h"
+#include "jobgroup.h"
 
 using namespace AwesomeRenderer;
 
 
-WorkerGroup::WorkerGroup() : jobSignal(0, UINT32_MAX), jobQueue()
+JobGroup::JobGroup() : jobSignal(0, UINT32_MAX), jobQueue()
 {
 
 }
 
-void WorkerGroup::EnqueueJob(WorkerJob* job)
+void JobGroup::EnqueueJob(WorkerJob* job)
 {
 	jobQueue.Lock();
 	
@@ -20,7 +20,7 @@ void WorkerGroup::EnqueueJob(WorkerJob* job)
 	jobSignal.Signal();
 }
 
-WorkerJob* WorkerGroup::DequeueJob()
+WorkerJob* JobGroup::DequeueJob()
 {
 	jobQueue.Lock();
 
@@ -34,4 +34,14 @@ WorkerJob* WorkerGroup::DequeueJob()
 	jobQueue.Unlock();
 
 	return job;
+}
+
+
+void JobGroup::ClearQueue()
+{
+	jobQueue.Lock();
+	
+	jobQueue->clear();
+
+	jobQueue.Unlock();
 }

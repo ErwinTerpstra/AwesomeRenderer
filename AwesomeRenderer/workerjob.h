@@ -16,6 +16,8 @@ namespace AwesomeRenderer
 		std::mutex m;
 		std::condition_variable_any signal;
 
+		// TODO: merge to State enum?
+		bool running;
 		bool completed;
 		bool interrupted;
 
@@ -30,6 +32,7 @@ namespace AwesomeRenderer
 
 		void WaitForCompletion();
 
+		bool IsRunning() const { return running; }
 		bool IsCompleted() const { return completed; }
 		bool IsInterrupted() const { return interrupted; }
 

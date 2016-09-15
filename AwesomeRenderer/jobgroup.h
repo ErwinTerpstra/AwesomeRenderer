@@ -10,7 +10,7 @@ namespace AwesomeRenderer
 
 	class WorkerJob;
 
-	class WorkerGroup
+	class JobGroup
 	{
 	public:
 		Semaphore jobSignal;
@@ -19,10 +19,12 @@ namespace AwesomeRenderer
 		LockedVariable<std::deque<WorkerJob*>> jobQueue;
 
 	public:
-		WorkerGroup();
+		JobGroup();
 
 		void EnqueueJob(WorkerJob* job);
 		WorkerJob* DequeueJob();
+
+		void ClearQueue();
 	};
 
 }

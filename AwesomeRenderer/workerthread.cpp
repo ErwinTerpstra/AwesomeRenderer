@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "workerthread.h"
-#include "workergroup.h"
+#include "jobgroup.h"
 #include "workerjob.h"
 
 using namespace AwesomeRenderer;
 
-WorkerThread::WorkerThread(WorkerGroup& group) : group(group), running(false)
+WorkerThread::WorkerThread(JobGroup* group) : group(group), running(false)
 {
 
 }
@@ -28,9 +28,9 @@ DWORD WorkerThread::Run()
 {
 	while (IsRunning())
 	{
-		group.jobSignal.Wait();
+		group->jobSignal.Wait();
 
-		WorkerJob* job = group.DequeueJob();
+		WorkerJob* job = group->DequeueJob();
 
 		if (job != NULL)
 			job->Execute();

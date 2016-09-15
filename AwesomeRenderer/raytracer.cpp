@@ -19,6 +19,7 @@
 #include "shadinginfo.h"
 #include "renderjob.h"
 #include "scheduler.h"
+#include "jobgroup.h"
 
 #include "inputmanager.h"
 
@@ -26,11 +27,11 @@ using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
 
 const float RayTracer::MAX_FRAME_TIME = 0.05f;
-const uint32_t RayTracer::PIXELS_PER_JOB = 256;
+const uint32_t RayTracer::PIXELS_PER_JOB = 512;
 
-RayTracer::RayTracer(Scheduler& scheduler) : Renderer(), scheduler(scheduler), whittedIntegrator(*this), monteCarloIntegrator(*this), renderingFrame(false), maxDepth(1), frameTimer(0.0f, FLT_MAX)
+RayTracer::RayTracer(Scheduler& scheduler) : Renderer(), whittedIntegrator(*this), monteCarloIntegrator(*this), renderingFrame(false), maxDepth(1), frameTimer(0.0f, FLT_MAX)
 {
-
+	jobGroup = scheduler.CreateJobGroup(8);
 }
 
 void RayTracer::Initialize()
@@ -43,7 +44,7 @@ void RayTracer::SetRenderContext(const RenderContext* context)
 	if (context == renderContext)
 		return;
 
-	assert(renderContext != NULL && "RayTracer can't switch render contexts!"); // TODO: Handle this more gracefully
+	assert(renderContext == NULL && "RayTracer can't switch render contexts!"); // TODO: Handle this more gracefully
 
 	Renderer::SetRenderContext(context);
 
@@ -79,7 +80,7 @@ void RayTracer::PreRender()
 
 	// Schedule all render jobs
 	for (auto it = renderJobs.begin(); it != renderJobs.end(); ++it)
-		scheduler.ScheduleJob(*it);
+		jobGroup->EnqueueJob(*it);
 
 	renderingFrame = true;
 }
@@ -87,6 +88,13 @@ void RayTracer::PreRender()
 void RayTracer::PostRender()
 {
 	float time = frameTimer.Poll();
+	
+	// Prevent new jobs from starting
+	jobGroup->ClearQueue();
+
+	// Resetting also waits for interrupts, but it's better to interrupt all jobs at once. This way running jobs can finish at the same time instead of one by one.
+	for (auto it = renderJobs.begin(); it != renderJobs.end(); ++it)
+		(*it)->Interrupt();
 
 	for (auto it = renderJobs.begin(); it != renderJobs.end(); ++it)
 		(*it)->Reset();

@@ -148,7 +148,7 @@
     <ClCompile Include="triangle3d.cpp" />
     <ClCompile Include="triangle2d.cpp" />
     <ClCompile Include="window.cpp" />
-    <ClCompile Include="workergroup.cpp" />
+    <ClCompile Include="jobgroup.cpp" />
     <ClCompile Include="workerjob.cpp" />
     <ClCompile Include="workerthread.cpp" />
   </ItemGroup>
@@ -231,7 +231,7 @@
     <ClInclude Include="whittedintegrator.h" />
     <ClInclude Include="window.h" />
     <ClInclude Include="window_gl.h" />
-    <ClInclude Include="workergroup.h" />
+    <ClInclude Include="jobgroup.h" />
     <ClInclude Include="workerjob.h" />
     <ClInclude Include="workerthread.h" />
   </ItemGroup>

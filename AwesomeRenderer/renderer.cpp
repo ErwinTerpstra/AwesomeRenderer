@@ -6,7 +6,7 @@
 using namespace AwesomeRenderer;
 
 
-Renderer::Renderer() : cullMode(CULL_BACK)
+Renderer::Renderer() : cullMode(CULL_BACK), renderContext(NULL)
 {
 
 }

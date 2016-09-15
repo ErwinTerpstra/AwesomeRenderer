@@ -22,6 +22,7 @@ namespace AwesomeRenderer
 	class PbrMaterial;
 
 	class Scheduler;
+	class JobGroup;
 
 	namespace RayTracing
 	{
@@ -37,7 +38,7 @@ namespace AwesomeRenderer
 
 			Timer frameTimer;
 
-			Scheduler& scheduler;
+			JobGroup* jobGroup;
 
 			std::vector<Point2> pixelList;
 			std::vector<RenderJob*> renderJobs;

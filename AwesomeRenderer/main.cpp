@@ -127,7 +127,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// Job scheduler
 	printf("[AwesomeRenderer]: Setting up scheduler...\n");
-	Scheduler scheduler(4);
+	Scheduler scheduler(0);
 	scheduler.Start();
 
 	// Setup frame and depth buffers

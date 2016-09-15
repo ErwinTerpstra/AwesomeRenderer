@@ -5,27 +5,26 @@
 
 #include "threading.h"
 
-#include "workergroup.h"
+#include "jobgroup.h"
 
 namespace AwesomeRenderer
 {
 	class WorkerThread;
-	class WorkerJob;
 
 	class Scheduler
 	{
 	public:
 
 	private:
-		int workerCount;
-
 		std::vector<WorkerThread*> workers;
-		std::vector<WorkerThread*>::iterator workerIterator;
 
-		WorkerGroup mainGroup;
+		JobGroup mainGroup;
+		std::vector<JobGroup*> jobGroups;
+
+		bool running;
 
 	public:
-		Scheduler(int workerCount);
+		Scheduler(int sharedThreads);
 		~Scheduler();
 
 		void Start();
@@ -33,9 +32,10 @@ namespace AwesomeRenderer
 
 		void ScheduleJob(WorkerJob* job);
 
+		JobGroup* CreateJobGroup(uint32_t dedicatedThreads = 0);
 
 	private:
-		void SetupWorkers();
+		void SetupWorkers(uint32_t threadCount, JobGroup* group = NULL);
 
 	};
 

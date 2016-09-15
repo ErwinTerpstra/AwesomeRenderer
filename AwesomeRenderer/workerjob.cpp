@@ -12,9 +12,13 @@ void WorkerJob::Execute()
 {
 	assert(!completed && "Completed jobs have to be reset first!");
 
+	running = true;
+
 	Run();
 
+	running = false;
 	completed = true;
+
 	signal.notify_all();
 }
 
@@ -34,6 +38,9 @@ void WorkerJob::Reset()
 
 void WorkerJob::WaitForCompletion()
 {
+	if (!running)
+		return;
+
 	m.lock();
 
 	while (!completed)

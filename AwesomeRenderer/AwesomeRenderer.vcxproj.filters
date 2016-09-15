@@ -243,9 +243,6 @@
     <ClCompile Include="workerjob.cpp">
       <Filter>Source\Core\Threading</Filter>
     </ClCompile>
-    <ClCompile Include="workergroup.cpp">
-      <Filter>Source\Core\Threading</Filter>
-    </ClCompile>
     <ClCompile Include="montecarlointegrator.cpp">
       <Filter>Source\Renderer\RayTracing\Integrators</Filter>
     </ClCompile>
@@ -263,6 +260,9 @@
     </ClCompile>
     <ClCompile Include="renderjob.cpp">
       <Filter>Source\Renderer\RayTracing</Filter>
+    </ClCompile>
+    <ClCompile Include="jobgroup.cpp">
+      <Filter>Source\Core\Threading</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -479,9 +479,6 @@
     <ClInclude Include="workerjob.h">
       <Filter>Source\Core\Threading</Filter>
     </ClInclude>
-    <ClInclude Include="workergroup.h">
-      <Filter>Source\Core\Threading</Filter>
-    </ClInclude>
     <ClInclude Include="montecarlointegrator.h">
       <Filter>Source\Renderer\RayTracing\Integrators</Filter>
     </ClInclude>
@@ -508,6 +505,9 @@
     </ClInclude>
     <ClInclude Include="renderjob.h">
       <Filter>Source\Renderer\RayTracing</Filter>
+    </ClInclude>
+    <ClInclude Include="jobgroup.h">
+      <Filter>Source\Core\Threading</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
