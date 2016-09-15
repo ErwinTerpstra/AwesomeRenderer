@@ -28,7 +28,7 @@ void Counter::Decrement()
 	m.lock();
 	--count;
 
-	signal.notify_all();
+	condition.notify_all();
 	m.unlock();
 }
 
@@ -44,7 +44,7 @@ void Counter::WaitZero()
 			break;
 
 		// Release the lock and wait for an other thread to signal change in the count
-		signal.wait(m);
+		condition.wait(m);
 	}
 
 	// Release the lock since our wait condition is finished
@@ -65,7 +65,7 @@ void Semaphore::Signal(uint32_t increment)
 	count = std::min(count + increment, maxCount);
 
 	// Notify all waiting threads
-	signal.notify_all();
+	condition.notify_all();
 
 	m.unlock();
 }
@@ -76,7 +76,7 @@ void Semaphore::Wait()
 
 	// Wait until the count increases
 	while (count == 0)
-		signal.wait(m);
+		condition.wait(m);
 
 	--count;
 

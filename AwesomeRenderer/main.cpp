@@ -172,7 +172,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Initialize renderers
 	SoftwareRenderer softwareRenderer;
 	RendererGL rendererGL;
-	RayTracer rayTracer;
+	RayTracer rayTracer(scheduler);
 	
 	const uint32_t NUM_RENDERERS = 3;
 	const char* RENDERER_NAMES[] = { "Software renderer", "OpenGL renderer", "Raytracer" };

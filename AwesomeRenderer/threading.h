@@ -3,6 +3,7 @@
 
 namespace AwesomeRenderer
 {
+	// TODO: Find a better name for this class (Lockable? SingleAccess?)
 	template<typename T>
 	class LockedVariable
 	{
@@ -26,14 +27,18 @@ namespace AwesomeRenderer
 		void Unlock() { mtx.unlock(); }
 
 		T& operator*() { return value; }
+		const T& operator*() const { return value; }
+
 		T* operator->() { return &value; }
+		const T* operator->() const { return &value; }
 	};
 
+	// TODO: Find a better name for this class (standardized names?)
 	class Counter
 	{
 	private:
 		std::mutex m;
-		std::condition_variable_any signal;
+		std::condition_variable_any condition;
 
 		uint32_t count, maxCount;
 	public:
@@ -50,7 +55,7 @@ namespace AwesomeRenderer
 	{
 	private:
 		std::mutex m;
-		std::condition_variable_any signal;
+		std::condition_variable_any condition;
 
 		uint32_t count;
 		const uint32_t maxCount;
@@ -59,7 +64,6 @@ namespace AwesomeRenderer
 		void Signal(uint32_t increment = 1);
 		void Wait();
 	};
-
 }
 
 #endif

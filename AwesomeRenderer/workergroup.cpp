@@ -16,6 +16,8 @@ void WorkerGroup::EnqueueJob(WorkerJob* job)
 	jobQueue->push_back(job);
 
 	jobQueue.Unlock();
+
+	jobSignal.Signal();
 }
 
 WorkerJob* WorkerGroup::DequeueJob()

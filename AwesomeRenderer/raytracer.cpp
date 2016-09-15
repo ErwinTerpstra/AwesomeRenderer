@@ -17,6 +17,8 @@
 #include "skybox.h"
 #include "random.h"
 #include "shadinginfo.h"
+#include "renderjob.h"
+#include "scheduler.h"
 
 #include "inputmanager.h"
 
@@ -24,8 +26,9 @@ using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
 
 const float RayTracer::MAX_FRAME_TIME = 0.05f;
+const uint32_t RayTracer::PIXELS_PER_JOB = 256;
 
-RayTracer::RayTracer() : Renderer(), whittedIntegrator(*this), monteCarloIntegrator(*this), pixelIdx(0), maxDepth(1), timer(0.0f, FLT_MAX), frameTimer(0.0f, FLT_MAX)
+RayTracer::RayTracer(Scheduler& scheduler) : Renderer(), scheduler(scheduler), whittedIntegrator(*this), monteCarloIntegrator(*this), renderingFrame(false), maxDepth(1), frameTimer(0.0f, FLT_MAX)
 {
 
 }
@@ -37,77 +40,81 @@ void RayTracer::Initialize()
 
 void RayTracer::SetRenderContext(const RenderContext* context)
 {
+	if (context == renderContext)
+		return;
+
+	assert(renderContext != NULL && "RayTracer can't switch render contexts!"); // TODO: Handle this more gracefully
+
 	Renderer::SetRenderContext(context);
 
 	Buffer* frameBuffer = context->renderTarget->frameBuffer;
-	int pixels = frameBuffer->width * frameBuffer->height;
-	
-	// Check if the pixel list needs to be updated
-	if (pixels != pixelList.size())
+	uint32_t pixels = frameBuffer->width * frameBuffer->height;
+
+	// Reserve enough memory for all pixels
+	pixelList.reserve(pixels);
+
+	// Add all the pixel coordinates to the list
+	for (uint32_t y = 0; y < frameBuffer->height; ++y)
 	{
-		pixelList.clear();
+		for (uint32_t x = 0; x < frameBuffer->width; ++x)
+			pixelList.push_back(Point2(x, y));
+	}
 
-		// Reserve enough memory for all pixels
-		pixelList.reserve(pixels);
+	std::random_shuffle(pixelList.begin(), pixelList.end());
 
-		// Add all the pixel coordinates to the list
-		for (uint32_t y = 0; y < frameBuffer->height; ++y)
-		{
-			for (uint32_t x = 0; x < frameBuffer->width; ++x)
-				pixelList.push_back(Point2(x, y));
-		}
+	// Create render jobs to hold all pixels
+	uint32_t renderJobCount = ceil(pixels / (float)PIXELS_PER_JOB);
 
-		std::random_shuffle(pixelList.begin(), pixelList.end());
-
-		pixelIdx = 0;
+	std::vector<Point2>::iterator it = pixelList.begin();
+	for (uint32_t renderJobIdx = 0; renderJobIdx < renderJobCount; ++renderJobIdx)
+	{
+		RenderJob* job = new RenderJob(*this, it + renderJobIdx * PIXELS_PER_JOB, it + std::min((renderJobIdx + 1) * PIXELS_PER_JOB, pixels));
+		renderJobs.push_back(job);
 	}
 }
 
 void RayTracer::PreRender()
 {
-	//renderContext->renderTarget->Clear(Color::BLACK, renderContext->clearFlags);
-
 	frameTimer.Tick();
+
+	// Schedule all render jobs
+	for (auto it = renderJobs.begin(); it != renderJobs.end(); ++it)
+		scheduler.ScheduleJob(*it);
+
+	renderingFrame = true;
 }
 
 void RayTracer::PostRender()
 {
 	float time = frameTimer.Poll();
 
+	for (auto it = renderJobs.begin(); it != renderJobs.end(); ++it)
+		(*it)->Reset();
+
+	renderingFrame = false;
+
 	printf("[RayTracer]: Rendered frame in %.0fms.\n", time * 1000);
 }
 
 void RayTracer::Render()
 {
-	// Measure the start time of our rendering process so we can limit the frame time
-	const TimingInfo& start = timer.Tick();
-	int pixelsDrawn = 0;
-
-	// Check if the last frame was a complete one.
-	if (pixelIdx >= pixelList.size())
-	{
+	if (!renderingFrame)
 		PreRender();
-		pixelIdx = 0;
-	}
 
-	while (timer.Poll() < MAX_FRAME_TIME)
+	Sleep(MAX_FRAME_TIME);
+
+	bool allCompleted = true;
+	for (auto it = renderJobs.begin(); it != renderJobs.end(); ++it)
 	{
-		// Get the next pixel
-		const Point2& pixel = pixelList[pixelIdx];
-
-		Render(pixel);
-
-		++pixelsDrawn;
-
-		// If we rendered the last pixel
-		if (++pixelIdx >= pixelList.size())
+		if (!(*it)->IsCompleted())
 		{
-			PostRender();
+			allCompleted = false;
 			break;
 		}
 	}
 
-	//printf("[RayTracer]: %d pixels drawn.\n", pixelsDrawn);
+	if (allCompleted)
+		PostRender();
 }
 
 void RayTracer::Present(Window& window)
@@ -120,15 +127,35 @@ void RayTracer::Present(Window& window)
 
 void RayTracer::Cleanup()
 {
+	for (auto it = renderJobs.begin(); it != renderJobs.end(); ++it)
+	{
+		RenderJob* job = *it;
+		job->Interrupt();
+		job->WaitForCompletion();
 
+		delete job;
+	}
+
+	renderJobs.clear();
 }
 
 void RayTracer::ResetFrame()
 {
 	PostRender();
-	pixelIdx = pixelList.size(); 
-	
+
 	renderContext->renderTarget->Clear(Color::BLACK, renderContext->clearFlags);
+
+	PreRender();
+}
+
+float RayTracer::GetProgress() const
+{
+	float progress = 0.0f;
+
+	for (auto it = renderJobs.begin(); it != renderJobs.end(); ++it)
+		progress += (*it)->GetProgress();
+
+	return progress / renderJobs.size();
 }
 
 void RayTracer::Render(const Point2& pixel)
@@ -177,6 +204,7 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 	assert(material.bsdf != NULL);
 
 	// Iterate through all the lights
+	// TODO: make this functionality of the base class SurfaceIntegrator. Then each integrator can decide whether it wants direct lighting or not
 	for (uint8_t i = 0; i < LightData::MAX_LIGHTS; ++i)
 	{
 		const LightData::Light& light = lightData.lights[i];
@@ -235,7 +263,7 @@ void RayTracer::CalculateShading(const Ray& ray, const RaycastHit& hitInfo, cons
 		else
 			radiance += monteCarloIntegrator.Li(ray, hitInfo, material, depth);
 		
-		/**/
+		/*/
 		if (FALSE)
 		{
 			float ior = 0.75f;

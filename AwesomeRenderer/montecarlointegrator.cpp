@@ -31,10 +31,11 @@ Vector3 MonteCarloIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, cons
 		float pdf;
 		Vector3 reflectionDirection = GenerateSampleVector(-ray.direction, hitInfo.normal, pbrMaterial->roughness, pdf);
 
+		// TODO: Is it correct to skip a sample when it's PDF is zero?
 		if (pdf < 1e-5f)
 			continue;
 
-		// Reflection
+		// Calculate incoming light along this sample vector
 		Ray reflectionRay(hitInfo.point + hitInfo.normal * 1e-5f, reflectionDirection);
 
 		ShadingInfo reflectionShading;
@@ -56,13 +57,18 @@ Vector3 MonteCarloIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, cons
 
 Vector3 MonteCarloIntegrator::GenerateSampleVector(const Vector3& v, const Vector3& n, float roughness, float& pdf)
 {
+	// Generate random numbers which will decide our spherical coordinates
 	float r1 = random.NextFloat();
 	float r2 = random.NextFloat();
 
+	// Calculate the sample vector in spherical coordinates
 	float phi, theta;
+
+	// TODO: Move generation of sample vector to BSDF?
 	ImportanceSampleGGX(Vector2(r1, r2), roughness, phi, theta);
 	pdf = PDFGGX(phi, theta, roughness);
 
+	// Convert to carthesian coordinates
 	float sinTheta = sinf(theta);
 	float x = sinTheta * cosf(phi);
 	float z = sinTheta * sinf(phi);
@@ -71,6 +77,7 @@ Vector3 MonteCarloIntegrator::GenerateSampleVector(const Vector3& v, const Vecto
 
 	assert(VectorUtil<3>::IsNormalized(sample));
 
+	// Create an orientation matrix that aligns with the surface normal
 	Vector3 right, forward;
 	VectorUtil<3>::OrthoNormalize(n, right, forward);
 
@@ -86,6 +93,7 @@ Vector3 MonteCarloIntegrator::GenerateSampleVector(const Vector3& v, const Vecto
 
 	assert(cml::dot(sample, Vector3(0.0f, 1.0f, 0.0f)) >= 0.0f - 1e-5f);
 
+	// Transform the sample to world space
 	sample = transform_vector(transform, sample);
 
 	assert(VectorUtil<3>::IsNormalized(sample));

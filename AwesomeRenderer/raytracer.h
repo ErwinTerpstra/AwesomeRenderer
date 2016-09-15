@@ -21,18 +21,28 @@ namespace AwesomeRenderer
 	class PhongMaterial;
 	class PbrMaterial;
 
+	class Scheduler;
+
 	namespace RayTracing
 	{
+		class RenderJob;
+
 		class RayTracer : public Renderer
 		{
+			friend class RenderJob;
+
 		private:
 			static const float MAX_FRAME_TIME;
+			static const uint32_t PIXELS_PER_JOB;
 
-			Timer timer;
 			Timer frameTimer;
 
-			uint32_t pixelIdx;
+			Scheduler& scheduler;
+
 			std::vector<Point2> pixelList;
+			std::vector<RenderJob*> renderJobs;
+
+			bool renderingFrame;
 
 		public:
 
@@ -43,7 +53,7 @@ namespace AwesomeRenderer
 
 		public:
 
-			RayTracer();
+			RayTracer(Scheduler& scheduler);
 
 			void Initialize();
 			void Render();
@@ -55,7 +65,7 @@ namespace AwesomeRenderer
 
 			void CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int depth = 0);
 
-			float GetProgress() const { return pixelIdx / (float)pixelList.size(); }
+			float GetProgress() const;
 		private:
 
 			void PreRender();
