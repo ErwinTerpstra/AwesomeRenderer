@@ -22,7 +22,7 @@ namespace AwesomeRenderer
 		public:
 			MonteCarloIntegrator(RayTracer& rayTracer);
 
-			Vector3 Li(const Ray& ray, const RaycastHit& hitInfo, const Material& material, int depth);
+			Vector3 Li(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& renderContext, int depth);
 
 		private:
 			Vector3 GenerateSampleVector(const Vector3& v, const Vector3& n, float roughness, float& pdf);

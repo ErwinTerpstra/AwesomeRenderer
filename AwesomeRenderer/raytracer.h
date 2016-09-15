@@ -65,6 +65,7 @@ namespace AwesomeRenderer
 			void SetRenderContext(const RenderContext* context);
 
 			void CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int depth = 0);
+			bool RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance = FLT_MAX);
 
 			float GetProgress() const;
 		private:
@@ -74,9 +75,6 @@ namespace AwesomeRenderer
 
 			void Render(const Point2& pixel);
 
-			void CalculateShading(const Ray& ray, const RaycastHit& hitInfo, const Material& material, ShadingInfo& shadingInfo, int depth);
-
-			bool RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance = FLT_MAX);
 			void Trace(const Ray& ray, const Point2& screenPosition);
 
 			float Fresnel(const Vector3& v, const Vector3& normal, float ior);

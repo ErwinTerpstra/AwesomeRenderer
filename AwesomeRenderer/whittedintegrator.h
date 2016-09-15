@@ -13,7 +13,7 @@ namespace AwesomeRenderer
 		public:
 			WhittedIntegrator(RayTracer& rayTracer);
 
-			Vector3 Li(const Ray& ray, const RaycastHit& hitInfo, const Material& material, int depth);
+			Vector3 Li(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& context, int depth);
 		};
 	}
 }

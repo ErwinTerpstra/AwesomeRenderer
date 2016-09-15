@@ -10,6 +10,8 @@ namespace AwesomeRenderer
 
 	class Material;
 
+	class RenderContext;
+
 	namespace RayTracing
 	{
 		class RayTracer;
@@ -21,11 +23,13 @@ namespace AwesomeRenderer
 			
 		protected:
 			RayTracer& rayTracer;
-
+			
 		public:
 			SurfaceIntegrator(RayTracer& rayTracer);
 
-			virtual Vector3 Li(const Ray& ray, const RaycastHit& hitInfo, const Material& material, int depth) = 0;
+			Vector3 SampleDirectLight(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& context);
+
+			virtual Vector3 Li(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& context, int depth) = 0;
 
 		};
 	}
