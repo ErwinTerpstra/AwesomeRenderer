@@ -5,6 +5,7 @@ namespace AwesomeRenderer
 {
 	class Primitive;
 	class Ray;
+
 	struct RaycastHit;
 
 	class Shape

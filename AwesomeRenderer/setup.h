@@ -3,17 +3,22 @@
 
 namespace AwesomeRenderer
 {
-	class LightData;
-	class RenderContext;
-	class ObjLoader;
-	class TextureFactory;
-	class Camera;
+	class Context;
 
-	void SetupScene(RenderContext& mainContext, RenderContext& hudContext, ObjLoader& objLoader, TextureFactory& textureFactory);
-	void SetupLighting(LightData& lightData);
+	class Setup
+	{
+	private:
+		Context& context;
 
-	void SetupCornellBox(RenderContext& context, Camera& camera);
-	void SetupSpheres(RenderContext& context, Camera& camera);
+	public:
+		Setup(Context& context);
+
+		void SetupScene();
+		void SetupLighting();
+
+		void SetupCornellBox();
+		void SetupSpheres();
+	};
 }
 
 #endif

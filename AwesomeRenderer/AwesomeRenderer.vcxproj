@@ -159,6 +159,7 @@
     <ClInclude Include="coloredskybox.h" />
     <ClInclude Include="component.h" />
     <ClInclude Include="debug.h" />
+    <ClInclude Include="context.h" />
     <ClInclude Include="extensionprovider.h" />
     <ClInclude Include="extension.h" />
     <ClInclude Include="factory.h" />

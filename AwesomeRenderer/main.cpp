@@ -97,6 +97,7 @@
 #include "program_gl.h"
 #include "renderer_gl.h"
 
+#include "context.h"
 #include "setup.h"
 
 using namespace AwesomeRenderer;
@@ -197,7 +198,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	
 	// Lighting
 	LightData lightData;
-	SetupLighting(lightData);
 	mainContext.lightData = &lightData;
 
 	Vector3 zero(0.0f, 0.0f, 0.0f);
@@ -229,9 +229,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	mainContext.skybox = &skybox;
 	
-	SetupScene(mainContext, hudContext, objLoader, textureFactory);
-	SetupCornellBox(mainContext, camera);
-	//SetupSpheres(mainContext, camera);
+	Context context;
+	context.mainCamera = &camera;
+	context.mainContext = &mainContext;
+
+	context.hudCamera = &cameraHud;
+	context.hudContext = &hudContext;
+
+	context.objLoader = &objLoader;
+	context.textureFactory = &textureFactory;
+
+	Setup setup(context);
+	setup.SetupLighting();
+	setup.SetupScene();
+	setup.SetupCornellBox();
+	//setup.SetupSpheres();
 
 	/**/
 	UnlitShader unlitShader;
