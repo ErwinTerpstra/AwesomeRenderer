@@ -33,8 +33,6 @@ namespace AwesomeRenderer
 		{
 			Vector3 delta = point - PointOnPlane();
 			return cml::dot(normalTransformed, delta);
-
-			return -(cml::dot(normalTransformed, point) + dTransformed); 
 		}
 
 	};

@@ -29,9 +29,12 @@ namespace AwesomeRenderer
 
 		float splitPoint;
 
+		AABB bounds;
+
 	public:
 
 		KDTree(KDTree* parent = NULL);
+
 		~KDTree();
 
 		void Optimize(const AABB& bounds, int depth = 0);

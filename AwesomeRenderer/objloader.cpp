@@ -116,6 +116,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 
 			case 'f':
 			{
+				assert(mesh != NULL && "Face definition found before group definition!");
 
 				IndexReader reader;
 				uint32_t vertices = reader.Parse(lineBuffer, 2, line.length() - 2);
@@ -155,7 +156,8 @@ void ObjLoader::Load(const char* fileName, Model& model)
 					// Iterate through all vertices of the face
 					for (uint32_t triIdx = 0; triIdx < (vertices - 2); ++triIdx)
 					{
-						for (uint32_t vertexIdx = 0; vertexIdx < 3; ++vertexIdx)
+						//for (uint32_t vertexIdx = 0; vertexIdx < 3; ++vertexIdx)
+						for (int32_t vertexIdx = 2; vertexIdx >= 0; --vertexIdx)
 						{
 							IndexReader::VertexIndices& vi = reader.vertexIndices[triangles[triIdx * 3 + vertexIdx]];
 							
@@ -229,7 +231,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 	normalBuffer.clear();
 	texcoordBuffer.clear();
 
-	printf("[ObjLoader]: Loaded \"%s\" with %d vertices and %d triangles\n", fileName, verts, tris);
+	printf("[ObjLoader]: Loaded \"%s\" with %d vertices and %d triangles in %d meshes.\n", fileName, verts, tris, meshes.size());
 }
 
 

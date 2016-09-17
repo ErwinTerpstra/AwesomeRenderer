@@ -5,6 +5,7 @@
 #include "renderer.h"
 #include "timer.h"
 
+#include "debugintegrator.h"
 #include "whittedintegrator.h"
 #include "montecarlointegrator.h"
 
@@ -47,8 +48,10 @@ namespace AwesomeRenderer
 
 		public:
 
+			DebugIntegrator debugIntegrator;
 			WhittedIntegrator whittedIntegrator;
 			MonteCarloIntegrator monteCarloIntegrator;
+			SurfaceIntegrator* currentIntegrator;
 
 			uint32_t maxDepth;
 

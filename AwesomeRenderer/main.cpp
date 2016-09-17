@@ -2,6 +2,9 @@
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
 
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 1024
+
 #include <stdio.h>
 #include <io.h>
 #include <fcntl.h>
@@ -344,8 +347,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Frame counter variables
 	float timeSinceLastPrint = 0.0f;
 	uint32_t framesDrawn = 0;
+	
+	// Debug display
 	char textBuffer[512];
 	
+	// Integrator switching
+	uint32_t currentIntegrator = 0;
+	const uint32_t integratorCount = 3;
+	SurfaceIntegrator* integrators[integratorCount] =
+	{
+		&rayTracer.debugIntegrator,
+		&rayTracer.whittedIntegrator,
+		&rayTracer.monteCarloIntegrator 
+	};
+
 	while (!window.closed)
 	{
 		const TimingInfo& timingInfo = timer.Tick();
@@ -419,7 +434,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			sprintf(textBuffer, "Bounces: %u; SPP: %u", rayTracer.maxDepth, rayTracer.monteCarloIntegrator.sampleCount);
 			debugText->SetText(textBuffer);
 		}
-
+		
+		if (inputManager.GetKeyDown('G'))
+		{
+			currentIntegrator = (currentIntegrator + 1) % integratorCount;
+			rayTracer.currentIntegrator = integrators[currentIntegrator];
+		}
 
 		mainContext.Update();
 		mainRenderer->SetRenderContext(&mainContext);

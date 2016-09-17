@@ -93,12 +93,11 @@ namespace AwesomeRenderer
 
 			float denom = dot00 * dot11 - dot01 * dot01;
 
-			if (denom < FLT_EPSILON)
+			if (denom < 1e-5f)
 				invDenom = 1.0;
 			else
 				invDenom = 1.0f / denom;
 		}
-
 
 		void CalculateBounds(VectorType& lower, VectorType& upper) const
 		{

@@ -17,7 +17,7 @@ namespace AwesomeRenderer
 		using Primitive::CalculateBounds;
 
 	public:
-		// Normal vector for this triangle (word space)
+		// Normal vector for this triangle (world space)
 		Vector3 normal;
 
 		// Vertices in object space

@@ -6,7 +6,7 @@
 
 using namespace AwesomeRenderer;
 
-MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(NULL), worldMtx()
+MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(NULL), worldMtx(), world2object()
 {
 
 	for (unsigned int cIndex = 0; cIndex < mesh.indices.size(); cIndex += 3)
@@ -44,26 +44,35 @@ void MeshEx::OptimizeTree()
 
 void MeshEx::Transform(const Matrix44& mtx)
 {
-	worldMtx = mtx;
+	worldMtx = mtx; 
+
+	// Create an inversed transformation matrix to transform to object space
+	world2object = worldMtx;
+	world2object.inverse();
 }
 
 bool MeshEx::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 {
-	// Check if some part of the mesh is hit by the ray
-	RaycastHit boundsHitInfo;
-	if (!provider.bounds.IntersectRay(ray, boundsHitInfo))
-		return false;
-
-	// Create an inversed transformation matrix to transform to object space
-	Matrix44 world2object = worldMtx;
-	world2object.inverse();
+	//return provider.bounds.IntersectRay(ray, hitInfo);
 
 	// Transform ray to object space to use for intersection
 	Ray objectSpaceRay(cml::transform_point(world2object, ray.origin), cml::transform_vector(world2object, ray.direction));
 	objectSpaceRay.direction.normalize();
 
 	// Perform intersection on the KD-tree
-	return tree.IntersectRay(ray, hitInfo);
+	if (tree.IntersectRay(objectSpaceRay, hitInfo))
+	{
+		hitInfo.point = cml::transform_point(worldMtx, hitInfo.point);
+		hitInfo.normal = cml::transform_vector(worldMtx, hitInfo.normal);
+		hitInfo.normal.normalize();
+
+		// TODO: transform provided distance back to world space instead of recalculating?
+		hitInfo.distance = (hitInfo.point - ray.origin).length();
+
+		return true;
+	}
+
+	return false;
 }
 
 const Primitive& MeshEx::GetShape() const

@@ -20,6 +20,7 @@ namespace AwesomeRenderer
 		KDTree tree;
 
 		Matrix44 worldMtx;
+		Matrix44 world2object;
 
 	public:
 		MeshEx(Mesh& mesh);

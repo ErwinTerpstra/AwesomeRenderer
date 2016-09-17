@@ -5,7 +5,7 @@
 using namespace AwesomeRenderer;
 
 const int KDTree::MAX_NODES_PER_LEAF = 5;
-const int KDTree::MAX_DEPTH = 16;
+const int KDTree::MAX_DEPTH = 32;
 
 const float KDTree::TRAVERSAL_COST = 1.0f;
 const float KDTree::INTERSECTION_COST = 1.0f;
@@ -32,6 +32,8 @@ KDTree::~KDTree()
 
 void KDTree::Optimize(const AABB& bounds, int depth)
 {
+	this->bounds = bounds;
+
 	// If we are within the maximum number of objects per leaf we can leave this node as is
 	if (objects.size() <= MAX_NODES_PER_LEAF)
 		return;
@@ -162,8 +164,14 @@ void KDTree::Split(const AABB& bounds)
 
 	splitPoint = lowestSplitPoint;
 
+	AABB upperBounds, lowerBounds;
+	CalculateBounds(bounds, splitPoint, upperBounds, lowerBounds);
+
 	upperNode = new KDTree(this);
+	upperNode->bounds = upperBounds;
+
 	lowerNode = new KDTree(this);
+	lowerNode->bounds = lowerBounds;
 }
 
 void KDTree::CalculateBounds(const AABB& bounds, float splitPoint, AABB& upper, AABB& lower)
@@ -184,75 +192,49 @@ void KDTree::CalculateBounds(const AABB& bounds, float splitPoint, AABB& upper, 
 
 bool KDTree::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 {
-	// Stack for nodes we still have to traverse
-	std::stack<const KDTree*> nodesLeft;
-
-	// Start with the root node of the mesh
-	nodesLeft.push(this);
+	RaycastHit boundsHitInfo;
+	if (!bounds.IntersectRay(ray, boundsHitInfo))
+		return false;
 
 	float closestDistance = FLT_MAX;
 	bool hit = false;
 
-	while (!nodesLeft.empty())
+	// The current node is a leaf node, this means we can check its contents
+	if (IsLeaf())
 	{
-		// Get the top node from the stack
-		const KDTree* tree = nodesLeft.top();
-		nodesLeft.pop();
-
-		// The current node is a leaf node, this means we can check its contents
-		if (tree->IsLeaf())
+		for (auto objectIt = objects.begin(); objectIt != objects.end(); ++objectIt)
 		{
-			std::vector<const Shape*>::const_iterator objectIt;
+			const Primitive& shape = (*objectIt)->GetShape();
 
-			for (objectIt = tree->objects.begin(); objectIt != tree->objects.end(); ++objectIt)
-			{
-				const Primitive& shape = (*objectIt)->GetShape();
+			// Perform the ray-triangle intersection
+			RaycastHit shapeHitInfo;
+			if (!shape.IntersectRay(ray, shapeHitInfo))
+				continue;
 
-				// Perform the ray-triangle intersection
-				RaycastHit shapeHitInfo;
-				if (!shape.IntersectRay(ray, shapeHitInfo))
-					continue;
+			if (shapeHitInfo.distance > closestDistance)
+				continue;
 
-				// Only hits outside viewing frustum
-				//if (hitInfo.distance > cameraDepth)
-				//continue;
-
-				if (shapeHitInfo.distance > closestDistance)
-					continue;
-
-				closestDistance = shapeHitInfo.distance;
-				hitInfo = shapeHitInfo;
-				hit = true;
-			}
+			closestDistance = shapeHitInfo.distance;
+			hitInfo = shapeHitInfo;
+			hit = true;
 		}
-		else
+	}
+	else
+	{
+		RaycastHit upperHit;
+		if (upperNode->IntersectRay(ray, upperHit) && upperHit.distance < closestDistance)
 		{
-			// Construct the plane along which this tree node is split
-			Vector3 planeNormal(0.0f, 0.0f, 0.0f); planeNormal[tree->Axis()] = 1.0f;
-			Plane splitPlane(tree->SplitPoint(), planeNormal);
+			closestDistance = upperHit.distance;
+			hitInfo = upperHit;
+			hit = true;
+		}
 
-			// Determine which side of the plane the origin of the ray is, this side should always be visited
-			int side = splitPlane.SideOfPlane(ray.origin);
-			const KDTree *near, *far;
-
-			if (side > 0)
-			{
-				near = tree->upperNode;
-				far = tree->lowerNode;
-			}
-			else
-			{
-				near = tree->lowerNode;
-				far = tree->upperNode;
-			}
-
-			// If the ray intersects the split plane, we need to visit the far node
-			RaycastHit planeHitInfo;
-			if (splitPlane.IntersectRay(ray, planeHitInfo))
-				nodesLeft.push(far);
-
-			// Push the near node last so that we visit it first
-			nodesLeft.push(near);
+		RaycastHit lowerHit;
+		if (lowerNode->IntersectRay(ray, lowerHit) && lowerHit.distance < closestDistance)
+		{
+			closestDistance = lowerHit.distance;
+			hitInfo = lowerHit;
+			hit = true;
 		}
 	}
 

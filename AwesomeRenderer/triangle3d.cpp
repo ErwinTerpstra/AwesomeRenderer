@@ -13,6 +13,7 @@ Triangle3D::Triangle3D(const Vector3& a, const Vector3& b, const Vector3& c) :
 {
 	vO[0] = a; vO[1] = b; vO[2] = c;
 	CalculateNormal();
+	PreCalculateBarycentric();
 }
 
 Triangle3D::Triangle3D(const Triangle3D& other) :
@@ -30,7 +31,10 @@ const Vector3& Triangle3D::CalculateNormal()
 	ab.normalize();
 	ac.normalize();
 
-	return normal = cml::cross(ac, ab);
+	normal = cml::cross(ac, ab);
+	normal.normalize();
+
+	return normal;
 }
 
 void Triangle3D::Transform(const Matrix44& mtx)
@@ -46,13 +50,11 @@ void Triangle3D::Transform(const Matrix44& mtx)
 
 bool Triangle3D::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 {
-	float d = cml::dot(normal, v[0]);
-	float distanceToPlane = -(cml::dot(normal, ray.origin) + d);
-
-	float dot = cml::dot(normal, ray.direction);
+	float distanceToPlane = cml::dot(normal, ray.origin - v[0]);
+	float dot = -cml::dot(normal, ray.direction);
 
 	// Ray is parallel to triangle plane
-	if (dot == 0.0f)
+	if (fabs(dot) < 1e-3f)
 		return false;
 
 	float t = distanceToPlane / dot;
@@ -64,14 +66,36 @@ bool Triangle3D::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 	Vector3 pointOnPlane = ray.origin + t * ray.direction;
 
 	// Calculate barycentric coords to check if the point is within triangle boundaries
-	if (!IsPointInside(pointOnPlane, hitInfo.barycentricCoords))
-		return false;
+	//if (!IsPointInside(pointOnPlane, hitInfo.barycentricCoords))
+		//return false;
+	
+	//*
+	Vector3 C; // vector perpendicular to triangle's plane
+
+	Vector3 edge0 = v[1] - v[0];
+	Vector3 vp0 = pointOnPlane - v[0];
+	C = cml::cross(edge0, vp0);
+	if (cml::dot(normal, C) > 0) 
+		return false; 
+
+	Vector3 edge1 = v[2] - v[1];
+	Vector3 vp1 = pointOnPlane - v[1];
+	C = cml::cross(edge1, vp1);
+	if (cml::dot(normal, C) > 0) 
+		return false; 
+
+	Vector3 edge2 = v[0] - v[2];
+	Vector3 vp2 = pointOnPlane - v[2];
+	C = cml::cross(edge2, vp2);
+	if (cml::dot(normal, C) > 0) 
+		return false; 
+	//*/
 
 	// Fill the hit info struct with gathered data
 	hitInfo.point = pointOnPlane;
 	hitInfo.distance = t;
 	hitInfo.normal = normal;
-
+	
 	return true;
 }
 

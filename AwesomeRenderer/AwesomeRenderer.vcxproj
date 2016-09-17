@@ -88,6 +88,7 @@
     <ClCompile Include="blinnphong.cpp" />
     <ClCompile Include="cameracontroller.cpp" />
     <ClCompile Include="components.cpp" />
+    <ClCompile Include="debugintegrator.cpp" />
     <ClCompile Include="lightdata.cpp" />
     <ClCompile Include="microfacetspecular.cpp" />
     <ClCompile Include="montecarlointegrator.cpp" />
@@ -101,6 +102,9 @@
     <ClCompile Include="shader_gl.cpp" />
     <ClCompile Include="kdtree.cpp" />
     <ClCompile Include="renderer_gl.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="surfaceintegrator.cpp" />
     <ClCompile Include="textmesh.cpp" />
     <ClCompile Include="typedefs.cpp" />
@@ -133,9 +137,7 @@
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="color.cpp" />
     <ClCompile Include="gdibuffer.cpp" />
-    <ClCompile Include="main.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="material.cpp" />
     <ClCompile Include="memorybuffer.cpp" />
     <ClCompile Include="softwarerenderer.cpp" />
@@ -160,6 +162,7 @@
     <ClInclude Include="component.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="context.h" />
+    <ClInclude Include="debugintegrator.h" />
     <ClInclude Include="extensionprovider.h" />
     <ClInclude Include="extension.h" />
     <ClInclude Include="factory.h" />

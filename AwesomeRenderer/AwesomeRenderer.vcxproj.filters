@@ -264,6 +264,12 @@
     <ClCompile Include="jobgroup.cpp">
       <Filter>Source\Core\Threading</Filter>
     </ClCompile>
+    <ClCompile Include="debugintegrator.cpp">
+      <Filter>Source\Renderer\RayTracing\Integrators</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h">
@@ -511,6 +517,9 @@
     </ClInclude>
     <ClInclude Include="context.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="debugintegrator.h">
+      <Filter>Source\Renderer\RayTracing\Integrators</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

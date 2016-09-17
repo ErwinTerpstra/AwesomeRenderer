@@ -29,9 +29,11 @@ using namespace AwesomeRenderer::RayTracing;
 const float RayTracer::MAX_FRAME_TIME = 0.05f;
 const uint32_t RayTracer::PIXELS_PER_JOB = 512;
 
-RayTracer::RayTracer(Scheduler& scheduler) : Renderer(), whittedIntegrator(*this), monteCarloIntegrator(*this), renderingFrame(false), maxDepth(1), frameTimer(0.0f, FLT_MAX)
+RayTracer::RayTracer(Scheduler& scheduler) : Renderer(), debugIntegrator(*this), whittedIntegrator(*this), monteCarloIntegrator(*this), renderingFrame(false), maxDepth(0), frameTimer(0.0f, FLT_MAX)
 {
-	jobGroup = scheduler.CreateJobGroup(8);
+	currentIntegrator = &debugIntegrator;
+
+	jobGroup = scheduler.CreateJobGroup(4);
 }
 
 void RayTracer::Initialize()
@@ -199,15 +201,8 @@ void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int d
 	const Material* material = renderable->material;
 
 	assert(material->bsdf != NULL);
-
-	SurfaceIntegrator* integrator = NULL;
-
-	if (InputManager::Instance().GetKey('G'))
-		integrator = &whittedIntegrator;
-	else
-		integrator = &monteCarloIntegrator;
-
-	shadingInfo.color = Color(integrator->Li(ray, hitInfo, *material, *renderContext, depth), 1.0);
+	
+	shadingInfo.color = Color(currentIntegrator->Li(ray, hitInfo, *material, *renderContext, depth), 1.0);
 }
 
 float RayTracer::Fresnel(const Vector3& v, const Vector3& normal, float ior)

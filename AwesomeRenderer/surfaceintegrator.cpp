@@ -24,7 +24,6 @@ Vector3 SurfaceIntegrator::SampleDirectLight(const Ray& ray, const RaycastHit& h
 	Vector3 radiance(0.0f, 0.0f, 0.0f);
 
 	// Iterate through all the lights
-	// TODO: make this functionality of the base class SurfaceIntegrator. Then each integrator can decide whether it wants direct lighting or not
 	for (uint8_t i = 0; i < LightData::MAX_LIGHTS; ++i)
 	{
 		const LightData::Light& light = context.lightData->lights[i];

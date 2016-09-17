@@ -23,6 +23,13 @@ namespace AwesomeRenderer
 
 		}
 
+		RaycastHit(const RaycastHit& other) :
+			point(other.point), normal(other.normal), distance(other.distance), barycentricCoords(other.barycentricCoords),
+			inside(other.inside), node(other.node)
+		{
+
+		}
+
 	};
 
 }

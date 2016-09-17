@@ -331,26 +331,48 @@ void Setup::SetupCornellBox()
 	{
 		Node* node = new Node();
 
+		Quaternion q;
+		cml::quaternion_rotation_axis_angle(q, Vector3(0.0f, 1.0f, 0.0f), (float) PI);
+
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(0.5f, 0.0f, 0.5f));
+		transform->SetPosition(Vector3(-0.08f, -0.14f, 0.5f));
+		transform->SetRotation(q);
+		transform->SetScale(Vector3(4.0f, 4.0f, 4.0f));
 		node->AddComponent(transform);
 
+		PbrMaterial* material = new PbrMaterial(*(new Material()));
+		material->albedo = wallWhite;
+		material->specular = wallSpecular;
+		material->metallic = 0.0f;
+		material->roughness = wallRoughness;
+
+		//Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL));
+		//mesh->CreateCube(Vector3(0.0f, 0.25f, 0.0f), 0.25f);
+		//mesh->CalculateBounds();
+
 		Model* model = new Model();
-		context.objLoader->Load("../Assets/Car/car.obj", *model);
+		context.objLoader->Load("../Assets/bunny_lowpoly.obj", *model);
+		//model->AddMesh(mesh, &material->provider);
+		//model->CalculateBounds();
+
+		node->AddComponent(model);
 
 		ModelEx* modelEx = new ModelEx(*model);
 
-		PbrMaterial* material = new PbrMaterial(*(new Material()));
-		material->albedo = sphereDiffuse;
-		material->specular = sphereSpecular;
-		material->metallic = sphereMetallic;
-		material->roughness = sphereRoughness;
+		for (uint32_t meshIdx = 0; meshIdx < modelEx->meshes.size(); ++meshIdx)
+		{
+			Node* meshNode = new Node();
 
-		Renderable* renderable = new Renderable();
-		renderable->shape = modelEx->meshes[0];
-		renderable->material = &material->provider;
+			meshNode->AddComponent(transform);
 
-		node->AddComponent(renderable);
+			Renderable* renderable = new Renderable();
+			renderable->shape = modelEx->meshes[0];
+			renderable->material = &material->provider;
+
+			meshNode->AddComponent(renderable);
+
+			context.mainContext->nodes.push_back(meshNode);
+		}
 
 		context.mainContext->nodes.push_back(node);
 	}
