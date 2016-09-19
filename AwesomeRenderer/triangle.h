@@ -70,7 +70,7 @@ namespace AwesomeRenderer
 			float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
 
 			// Save calculated coord
-			barycentricCoords.set(1.0f - u - v, v, u);
+			barycentricCoords.set(1.0f - u - v, u, v);
 		}
 
 		bool IsPointInside(const VectorType& p, Vector3& barycentricCoords) const
@@ -82,10 +82,10 @@ namespace AwesomeRenderer
 		}
 
 		void PreCalculateBarycentric()
-		{
+		{ 
 			// Compute vectors from A -> C and A -> B
-			v0 = v[2] - v[0];
-			v1 = v[1] - v[0];
+			v0 = v[1] - v[0];
+			v1 = v[2] - v[0];
 
 			dot00 = cml::dot(v0, v0);
 			dot01 = cml::dot(v0, v1);

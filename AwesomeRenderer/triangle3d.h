@@ -20,6 +20,9 @@ namespace AwesomeRenderer
 		// Normal vector for this triangle (world space)
 		Vector3 normal;
 
+		// Vertex normals in object space
+		Vector3 vN[3];
+
 		// Vertices in object space
 		Vector3 vO[3];
 
@@ -27,6 +30,7 @@ namespace AwesomeRenderer
 
 	public:
 		Triangle3D(const Vector3& a, const Vector3& b, const Vector3& c);
+		Triangle3D(const Vector3& a, const Vector3& b, const Vector3& c, const Vector3& aN, const Vector3& bN, const Vector3& cN);
 		Triangle3D(const Triangle3D& other);
 
 		const Vector3& CalculateNormal();

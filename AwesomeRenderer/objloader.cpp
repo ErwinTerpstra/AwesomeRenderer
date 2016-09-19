@@ -25,7 +25,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 		return;
 	}
 
-	Mesh::VertexAttributes defaultAttributes = (Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL | Mesh::VERTEX_TEXCOORD);
+	Mesh::VertexAttributes defaultAttributes = (Mesh::VertexAttributes) 0;
 
 	// Buffers that hold the vertex lists
 	std::vector<Vector3> vertexBuffer;
@@ -161,14 +161,24 @@ void ObjLoader::Load(const char* fileName, Model& model)
 						{
 							IndexReader::VertexIndices& vi = reader.vertexIndices[triangles[triIdx * 3 + vertexIdx]];
 							
-							Vector3 vertex = vi.vertexIdx >= 0 ? vertexBuffer[vi.vertexIdx] : Vector3(0.0f, 0.0f, 0.0f);
-							Vector3 normal = vi.normalIdx >= 0 ? normalBuffer[vi.normalIdx] : Vector3(0.0f, 0.0f, 0.0f);
-							Vector2 texcoord = vi.texcoordIdx >= 0 ? texcoordBuffer[vi.texcoordIdx] : Vector2(0.0f, 0.0f);
+							if (vi.vertexIdx >= 0)
+							{
+								mesh->vertices.push_back(vertexBuffer[vi.vertexIdx]);
+								mesh->attributes = (Mesh::VertexAttributes) (mesh->attributes | Mesh::VERTEX_POSITION);
+							}
 
-							mesh->vertices.push_back(vertex);
-							mesh->texcoords.push_back(texcoord);
-							mesh->normals.push_back(normal);
+							if (vi.texcoordIdx >= 0 && mesh->HasAttribute(Mesh::VERTEX_TEXCOORD))
+							{
+								mesh->texcoords.push_back(texcoordBuffer[vi.normalIdx]);
+								mesh->attributes = (Mesh::VertexAttributes) (mesh->attributes | Mesh::VERTEX_TEXCOORD);
+							}
 
+							if (vi.normalIdx >= 0 && mesh->HasAttribute(Mesh::VERTEX_NORMAL))
+							{
+								mesh->normals.push_back(normalBuffer[vi.normalIdx]);
+								mesh->attributes = (Mesh::VertexAttributes) (mesh->attributes | Mesh::VERTEX_NORMAL);
+							}
+							
 							mesh->indices.push_back(mesh->vertices.size() - 1);
 						}
 					}

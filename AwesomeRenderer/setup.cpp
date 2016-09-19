@@ -335,9 +335,7 @@ void Setup::SetupCornellBox()
 		cml::quaternion_rotation_axis_angle(q, Vector3(0.0f, 1.0f, 0.0f), (float) PI);
 
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(-0.08f, -0.14f, 0.5f));
 		transform->SetRotation(q);
-		transform->SetScale(Vector3(4.0f, 4.0f, 4.0f));
 		node->AddComponent(transform);
 
 		PbrMaterial* material = new PbrMaterial(*(new Material()));
@@ -346,14 +344,26 @@ void Setup::SetupCornellBox()
 		material->metallic = 0.0f;
 		material->roughness = wallRoughness;
 
-		//Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL));
-		//mesh->CreateCube(Vector3(0.0f, 0.25f, 0.0f), 0.25f);
-		//mesh->CalculateBounds();
 
 		Model* model = new Model();
+		//*
 		context.objLoader->Load("../Assets/bunny_lowpoly.obj", *model);
-		//model->AddMesh(mesh, &material->provider);
-		//model->CalculateBounds();
+		transform->SetPosition(Vector3(-0.08f, -0.14f, 0.5f));
+		transform->SetScale(Vector3(4.0f, 4.0f, 4.0f));
+		/*/
+		transform->SetPosition(Vector3(0.0f, 0.05f, 0.5f));
+		transform->SetScale(Vector3(0.2f, 0.2f, 0.2f));
+		context.objLoader->Load("../Assets/bunny.obj", *model);
+		//*/
+
+		/*
+		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL));
+		mesh->CreateCube(Vector3(0.0f, 0.25f, 0.0f), 0.25f);
+		mesh->CalculateBounds();
+
+		model->AddMesh(mesh, &material->provider);
+		model->CalculateBounds();
+		*/
 
 		node->AddComponent(model);
 

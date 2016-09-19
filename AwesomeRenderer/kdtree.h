@@ -49,6 +49,7 @@ namespace AwesomeRenderer
 
 	private:
 		void Split(const AABB& bounds);
+		void SplitFast(const AABB& bounds);
 		
 		void CalculateBounds(const AABB& bounds, float splitPoint, AABB& upper, AABB& lower);
 

@@ -12,12 +12,21 @@ Triangle3D::Triangle3D(const Vector3& a, const Vector3& b, const Vector3& c) :
 	Triangle(a, b, c), Primitive()
 {
 	vO[0] = a; vO[1] = b; vO[2] = c;
+
 	CalculateNormal();
 	PreCalculateBarycentric();
+
+	vN[0] = normal, vN[1] = normal; vN[2] = normal;
+}
+
+Triangle3D::Triangle3D(const Vector3& a, const Vector3& b, const Vector3& c, const Vector3& aN, const Vector3& bN, const Vector3& cN) :
+	Triangle3D(a, b, c)
+{
+	vN[0] = aN; vN[1] = bN; vN[2] = cN;
 }
 
 Triangle3D::Triangle3D(const Triangle3D& other) :
-	Triangle3D(other.v[0], other.v[1], other.v[2])
+	Triangle3D(other.v[0], other.v[1], other.v[2], other.vN[0], other.vN[1], other.vN[2])
 {
 	
 }
@@ -66,28 +75,30 @@ bool Triangle3D::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 	Vector3 pointOnPlane = ray.origin + t * ray.direction;
 
 	// Calculate barycentric coords to check if the point is within triangle boundaries
-	//if (!IsPointInside(pointOnPlane, hitInfo.barycentricCoords))
-		//return false;
+
+	/*
+	if (!IsPointInside(pointOnPlane, hitInfo.barycentricCoords))
+		return false;
 	
-	//*
-	Vector3 C; // vector perpendicular to triangle's plane
+	/*/
+	Vector3 c; // vector perpendicular to triangle's plane
 
 	Vector3 edge0 = v[1] - v[0];
 	Vector3 vp0 = pointOnPlane - v[0];
-	C = cml::cross(edge0, vp0);
-	if (cml::dot(normal, C) > 0) 
+	c = cml::cross(edge0, vp0);
+	if (cml::dot(normal, c) > 0) 
 		return false; 
 
 	Vector3 edge1 = v[2] - v[1];
 	Vector3 vp1 = pointOnPlane - v[1];
-	C = cml::cross(edge1, vp1);
-	if (cml::dot(normal, C) > 0) 
+	c = cml::cross(edge1, vp1);
+	if (cml::dot(normal, c) > 0) 
 		return false; 
 
 	Vector3 edge2 = v[0] - v[2];
 	Vector3 vp2 = pointOnPlane - v[2];
-	C = cml::cross(edge2, vp2);
-	if (cml::dot(normal, C) > 0) 
+	c = cml::cross(edge2, vp2);
+	if (cml::dot(normal, c) > 0) 
 		return false; 
 	//*/
 
@@ -95,6 +106,8 @@ bool Triangle3D::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 	hitInfo.point = pointOnPlane;
 	hitInfo.distance = t;
 	hitInfo.normal = normal;
+
+	//VectorUtil<3>::Interpolate(vN[0], vN[1], vN[2], hitInfo.barycentricCoords, hitInfo.normal);
 	
 	return true;
 }

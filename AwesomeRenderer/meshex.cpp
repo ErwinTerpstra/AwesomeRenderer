@@ -15,7 +15,15 @@ MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(NULL), worldMtx(), world2obje
 		int vIdx0 = mesh.indices[cIndex], vIdx1 = mesh.indices[cIndex + 1], vIdx2 = mesh.indices[cIndex + 2];
 
 		// Create triangle object based on the vertex data
-		Triangle3D& triangle = AddTri(mesh.vertices[vIdx0], mesh.vertices[vIdx1], mesh.vertices[vIdx2]);
+		Triangle3D* triangle;
+		
+		if (mesh.HasAttribute(Mesh::VERTEX_NORMAL))
+			triangle = new Triangle3D(mesh.vertices[vIdx0], mesh.vertices[vIdx1], mesh.vertices[vIdx2],
+									  mesh.normals[vIdx0], mesh.normals[vIdx1], mesh.normals[vIdx2]);
+		else
+			triangle = new Triangle3D(mesh.vertices[vIdx0], mesh.vertices[vIdx1], mesh.vertices[vIdx2]);
+
+		triangles.push_back(triangle);
 	}
 
 	tree.objects.insert(tree.objects.end(), triangles.begin(), triangles.end());

@@ -4,7 +4,7 @@
 
 using namespace AwesomeRenderer;
 
-const int KDTree::MAX_NODES_PER_LEAF = 5;
+const int KDTree::MAX_NODES_PER_LEAF = 64;
 const int KDTree::MAX_DEPTH = 32;
 
 const float KDTree::TRAVERSAL_COST = 1.0f;
@@ -37,8 +37,14 @@ void KDTree::Optimize(const AABB& bounds, int depth)
 	// If we are within the maximum number of objects per leaf we can leave this node as is
 	if (objects.size() <= MAX_NODES_PER_LEAF)
 		return;
-	
-	Split(bounds);
+
+	if (depth >= MAX_DEPTH)
+		return;
+
+	SplitFast(bounds);
+
+	upperNode = new KDTree(this);
+	lowerNode = new KDTree(this);
 
 	// Create a plane that represents the split we made
 	Vector3 normal(0.0f, 0.0f, 0.0f);
@@ -68,15 +74,12 @@ void KDTree::Optimize(const AABB& bounds, int depth)
 	// Clear object list since this is no longer a leaf
 	objects.clear();
 
-	// If we are within the maximum tree depth, try to optimize child nodes
-	if (depth < MAX_DEPTH)
-	{
-		AABB upperBounds, lowerBounds;
+	// Try to optimize child nodes
+	AABB upperBounds, lowerBounds;
 
-		CalculateBounds(bounds, splitPoint, upperBounds, lowerBounds);
-		upperNode->Optimize(upperBounds, depth + 1);
-		lowerNode->Optimize(lowerBounds, depth + 1);
-	}
+	CalculateBounds(bounds, splitPoint, upperBounds, lowerBounds);
+	upperNode->Optimize(upperBounds, depth + 1);
+	lowerNode->Optimize(lowerBounds, depth + 1);
 }
 
 void KDTree::Split(const AABB& bounds)
@@ -163,16 +166,16 @@ void KDTree::Split(const AABB& bounds)
 	}
 
 	splitPoint = lowestSplitPoint;
-
-	AABB upperBounds, lowerBounds;
-	CalculateBounds(bounds, splitPoint, upperBounds, lowerBounds);
-
-	upperNode = new KDTree(this);
-	upperNode->bounds = upperBounds;
-
-	lowerNode = new KDTree(this);
-	lowerNode->bounds = lowerBounds;
 }
+
+void KDTree::SplitFast(const AABB& bounds)
+{
+	float min = bounds.Min()[axis];
+	float max = bounds.Max()[axis];
+
+	splitPoint = (min + max) / 2.0f;
+}
+
 
 void KDTree::CalculateBounds(const AABB& bounds, float splitPoint, AABB& upper, AABB& lower)
 {

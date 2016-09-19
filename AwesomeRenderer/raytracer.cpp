@@ -27,13 +27,13 @@ using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
 
 const float RayTracer::MAX_FRAME_TIME = 0.05f;
-const uint32_t RayTracer::PIXELS_PER_JOB = 512;
+const uint32_t RayTracer::PIXELS_PER_JOB = 4096;
 
 RayTracer::RayTracer(Scheduler& scheduler) : Renderer(), debugIntegrator(*this), whittedIntegrator(*this), monteCarloIntegrator(*this), renderingFrame(false), maxDepth(0), frameTimer(0.0f, FLT_MAX)
 {
 	currentIntegrator = &debugIntegrator;
 
-	jobGroup = scheduler.CreateJobGroup(4);
+	jobGroup = scheduler.CreateJobGroup(8);
 }
 
 void RayTracer::Initialize()
