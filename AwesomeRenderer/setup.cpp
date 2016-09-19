@@ -346,7 +346,7 @@ void Setup::SetupCornellBox()
 
 
 		Model* model = new Model();
-		//*
+		/*
 		context.objLoader->Load("../Assets/bunny_lowpoly.obj", *model);
 		transform->SetPosition(Vector3(-0.08f, -0.14f, 0.5f));
 		transform->SetScale(Vector3(4.0f, 4.0f, 4.0f));

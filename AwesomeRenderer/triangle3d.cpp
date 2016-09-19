@@ -75,39 +75,14 @@ bool Triangle3D::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 	Vector3 pointOnPlane = ray.origin + t * ray.direction;
 
 	// Calculate barycentric coords to check if the point is within triangle boundaries
-
-	/*
 	if (!IsPointInside(pointOnPlane, hitInfo.barycentricCoords))
 		return false;
-	
-	/*/
-	Vector3 c; // vector perpendicular to triangle's plane
-
-	Vector3 edge0 = v[1] - v[0];
-	Vector3 vp0 = pointOnPlane - v[0];
-	c = cml::cross(edge0, vp0);
-	if (cml::dot(normal, c) > 0) 
-		return false; 
-
-	Vector3 edge1 = v[2] - v[1];
-	Vector3 vp1 = pointOnPlane - v[1];
-	c = cml::cross(edge1, vp1);
-	if (cml::dot(normal, c) > 0) 
-		return false; 
-
-	Vector3 edge2 = v[0] - v[2];
-	Vector3 vp2 = pointOnPlane - v[2];
-	c = cml::cross(edge2, vp2);
-	if (cml::dot(normal, c) > 0) 
-		return false; 
-	//*/
 
 	// Fill the hit info struct with gathered data
 	hitInfo.point = pointOnPlane;
 	hitInfo.distance = t;
-	hitInfo.normal = normal;
 
-	//VectorUtil<3>::Interpolate(vN[0], vN[1], vN[2], hitInfo.barycentricCoords, hitInfo.normal);
+	VectorUtil<3>::Interpolate(vN[0], vN[1], vN[2], hitInfo.barycentricCoords, hitInfo.normal);
 	
 	return true;
 }

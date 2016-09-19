@@ -167,13 +167,13 @@ void ObjLoader::Load(const char* fileName, Model& model)
 								mesh->attributes = (Mesh::VertexAttributes) (mesh->attributes | Mesh::VERTEX_POSITION);
 							}
 
-							if (vi.texcoordIdx >= 0 && mesh->HasAttribute(Mesh::VERTEX_TEXCOORD))
+							if (vi.texcoordIdx >= 0)
 							{
 								mesh->texcoords.push_back(texcoordBuffer[vi.normalIdx]);
 								mesh->attributes = (Mesh::VertexAttributes) (mesh->attributes | Mesh::VERTEX_TEXCOORD);
 							}
 
-							if (vi.normalIdx >= 0 && mesh->HasAttribute(Mesh::VERTEX_NORMAL))
+							if (vi.normalIdx >= 0)
 							{
 								mesh->normals.push_back(normalBuffer[vi.normalIdx]);
 								mesh->attributes = (Mesh::VertexAttributes) (mesh->attributes | Mesh::VERTEX_NORMAL);
