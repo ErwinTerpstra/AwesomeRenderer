@@ -4,7 +4,7 @@
 using namespace AwesomeRenderer;
 
 
-Material::Material() : shader(NULL), bsdf(NULL), translucent(FALSE)
+Material::Material() : shader(NULL), bsdf(NULL), translucent(FALSE), emission(Color::BLACK)
 {
 
 }

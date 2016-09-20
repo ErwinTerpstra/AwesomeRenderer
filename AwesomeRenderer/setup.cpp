@@ -147,7 +147,7 @@ void Setup::SetupCornellBox()
 		light.color = Color(0.78f, 0.78f, 0.78f);
 		light.intensity = 1.0f;
 
-		light.enabled = true;
+		light.enabled = false;
 	}
 
 	// GEOMETRY
@@ -252,6 +252,41 @@ void Setup::SetupCornellBox()
 
 		Renderable* renderable = new Renderable();
 		renderable->shape = new Plane(0.0f, Vector3(0.0f, -1.0f, 0.0f));
+		renderable->material = &material->provider;
+
+		node->AddComponent(renderable);
+
+		context.mainContext->nodes.push_back(node);
+	}
+
+	{
+		// Light
+		Node* node = new Node();
+
+		Transformation* transform = new Transformation();
+		transform->SetPosition(Vector3(0.0f, 1.0f - 1e-5f, 0.0f));
+		transform->SetScale(Vector3(0.5f, 1.0f, 0.5f));
+		node->AddComponent(transform);
+
+		PbrMaterial* material = new PbrMaterial(*(new Material()));
+		material->albedo = Color::BLACK;
+		material->specular = Color::BLACK;
+		material->metallic = 0;
+		material->roughness = wallRoughness;
+		material->provider.emission = Color(0.78f, 0.78f, 0.78f);
+
+		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL));
+		mesh->AddQuad(Vector3(0.5f, 0.0f, -0.5f), Vector3(0.5f, 0.0f, 0.5f), Vector3(-0.5f, 0.0f, 0.5f), Vector3(-0.5f, 0.0f, -0.5f));
+		mesh->CalculateBounds();
+
+		Model* model = new Model();
+		model->AddMesh(mesh, &material->provider);
+		model->CalculateBounds();
+
+		ModelEx* modelEx = new ModelEx(*model);		
+
+		Renderable* renderable = new Renderable();
+		renderable->shape = modelEx->meshes[0];
 		renderable->material = &material->provider;
 
 		node->AddComponent(renderable);

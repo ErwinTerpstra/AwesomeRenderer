@@ -18,17 +18,17 @@ Vector3 MicrofacetSpecular::Sample(const Vector3& wo, const Vector3& wi, const V
 {
 	PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
 	Vector3 F0 = pbrMaterial->specular.subvector(3);
-
-	Vector3 reflection(0.0f, 0.0f, 0.0f);
-
+	
+	Vector3 radiance(0.0f, 0.0f, 0.0f);
+	
 	Vector3 ks;
-	reflection += SpecularCookTorrance(wo, normal, wi, F0, pbrMaterial->roughness, ks);
+	radiance += SpecularCookTorrance(wo, normal, wi, F0, pbrMaterial->roughness, ks);
 
 	// TODO: Split diffuse to other BSDF class
 	Vector3 kd = (1.0f - ks) * (1.0f - pbrMaterial->metallic);
-	reflection += DiffuseLambert(pbrMaterial->albedo.subvector(3)) * kd;
+	radiance += DiffuseLambert(pbrMaterial->albedo.subvector(3)) * kd;
 
-	return reflection;
+	return radiance;
 }
 
 Vector3 MicrofacetSpecular::DiffuseLambert(const Vector3& albedo)

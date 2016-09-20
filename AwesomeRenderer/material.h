@@ -21,6 +21,8 @@ namespace AwesomeRenderer
 
 		bool translucent;
 
+		Color emission;
+
 		// TODO: Move shader to SoftwareRenderer/OpenGL renderer specific material
 		Shader* shader;
 

@@ -22,14 +22,18 @@ MonteCarloIntegrator::MonteCarloIntegrator(RayTracer& rayTracer) : SurfaceIntegr
 
 Vector3 MonteCarloIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& context, int depth)
 {
-	Vector3 radiance = SampleDirectLight(ray, hitInfo, material, context);
+	Vector3 radiance = material.emission.subvector(3);
+	
+	radiance += SampleDirectLight(ray, hitInfo, material, context);
 
 	if (depth < rayTracer.maxDepth)
 	{
 		PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
 
 		Vector3 reflectedRadiance(0.0f, 0.0f, 0.0f);
-		for (int sampleIdx = 0; sampleIdx < sampleCount; ++sampleIdx)
+		uint32_t samples = std::max(sampleCount >> depth, 4U);
+
+		for (uint32_t sampleIdx = 0; sampleIdx < samples; ++sampleIdx)
 		{
 			float pdf;
 			Vector3 reflectionDirection = GenerateSampleVector(-ray.direction, hitInfo.normal, pbrMaterial->roughness, pdf);
@@ -55,7 +59,7 @@ Vector3 MonteCarloIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, cons
 			reflectedRadiance += material.bsdf->Sample(-ray.direction, reflectionDirection, hitInfo.normal, material) * lightRadiance * NoL / pdf;
 		}
 
-		radiance += reflectedRadiance / sampleCount;
+		radiance += reflectedRadiance / samples;
 	}
 	
 	return radiance;
