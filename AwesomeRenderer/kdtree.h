@@ -6,7 +6,7 @@
 
 namespace AwesomeRenderer
 {
-	class Shape;
+	class TreeElement;
 
 	class KDTree
 	{
@@ -18,9 +18,11 @@ namespace AwesomeRenderer
 		static const float INTERSECTION_COST;
 		static const float POSITION_EPSILON;
 
+	public:
+
 		KDTree *upperNode, *lowerNode;
 
-		std::vector<const Shape*> objects;
+		std::vector<const TreeElement*> elements;
 
 	private:
 		KDTree *parent;

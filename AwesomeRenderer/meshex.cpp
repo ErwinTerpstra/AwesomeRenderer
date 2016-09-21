@@ -26,7 +26,7 @@ MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(NULL), worldMtx(), world2obje
 		triangles.push_back(triangle);
 	}
 
-	tree.objects.insert(tree.objects.end(), triangles.begin(), triangles.end());
+	tree.elements.insert(tree.elements.end(), triangles.begin(), triangles.end());
 }
 
 MeshEx::~MeshEx()
@@ -83,7 +83,7 @@ bool MeshEx::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 	return false;
 }
 
-const Primitive& MeshEx::GetShape() const
+const Primitive& MeshEx::GetPrimitive() const
 {
 	return provider.bounds;
 }

@@ -247,7 +247,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	setup.SetupScene();
 	setup.SetupCornellBox();
 	//setup.SetupSpheres();
-
+	
 	/**/
 	UnlitShader unlitShader;
 	TextMesh* debugText;
@@ -339,6 +339,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 		}
 	}
+
+	mainContext.Optimize();
 
 	window.Show(nCmdShow);
 

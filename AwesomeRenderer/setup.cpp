@@ -147,7 +147,7 @@ void Setup::SetupCornellBox()
 		light.color = Color(0.78f, 0.78f, 0.78f);
 		light.intensity = 1.0f;
 
-		light.enabled = false;
+		light.enabled = true;
 	}
 
 	// GEOMETRY
@@ -158,7 +158,7 @@ void Setup::SetupCornellBox()
 	//*
 	const Color sphereDiffuse = Color::BLACK;
 	const Color sphereSpecular(0.6f, 0.6f, 0.6f);
-	const float sphereRoughness = 0.8f;
+	const float sphereRoughness = 0.1f;
 	const float sphereMetallic = 1;
 	/*/
 	const Color sphereDiffuse(0.5f, 0.5f, 0.5f);
@@ -259,6 +259,7 @@ void Setup::SetupCornellBox()
 		context.mainContext->nodes.push_back(node);
 	}
 
+	if (FALSE)
 	{
 		// Light
 		Node* node = new Node();
@@ -282,6 +283,7 @@ void Setup::SetupCornellBox()
 		Model* model = new Model();
 		model->AddMesh(mesh, &material->provider);
 		model->CalculateBounds();
+		node->AddComponent(model);
 
 		ModelEx* modelEx = new ModelEx(*model);		
 
@@ -337,7 +339,7 @@ void Setup::SetupCornellBox()
 
 		node->AddComponent(renderable);
 
-		//context.mainContext->nodes.push_back(node);
+		context.mainContext->nodes.push_back(node);
 	}
 
 	{
@@ -360,9 +362,10 @@ void Setup::SetupCornellBox()
 
 		node->AddComponent(renderable);
 
-		//context.mainContext->nodes.push_back(node);
+		context.mainContext->nodes.push_back(node);
 	}
 
+	if (FALSE)
 	{
 		Node* node = new Node();
 

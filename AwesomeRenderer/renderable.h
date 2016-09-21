@@ -2,16 +2,17 @@
 #define _RENDERABLE_H_
 
 #include "awesomerenderer.h"
-#include "primitive.h"
-#include "shape.h"
 #include "component.h"
+#include "treeelement.h"
+
+#include "shape.h"
 
 namespace AwesomeRenderer
 {
-	class Shape;
+	class Primitive;
 	class Material;
 
-	class Renderable : public Component
+	class Renderable : public Component, public TreeElement
 	{
 	public:
 		static const int id;
@@ -23,6 +24,8 @@ namespace AwesomeRenderer
 	public:
 		Renderable();
 		~Renderable();
+
+		const Primitive& GetPrimitive() const { return shape->GetPrimitive(); }
 	};
 
 }

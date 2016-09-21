@@ -521,5 +521,8 @@
     <ClInclude Include="debugintegrator.h">
       <Filter>Source\Renderer\RayTracing\Integrators</Filter>
     </ClInclude>
+    <ClInclude Include="treeelement.h">
+      <Filter>Source\Node</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

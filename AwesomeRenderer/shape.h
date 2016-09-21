@@ -1,6 +1,8 @@
 #ifndef _SHAPE_H_
 #define _SHAPE_H_
 
+#include "treeelement.h"
+
 namespace AwesomeRenderer
 {
 	class Primitive;
@@ -8,7 +10,7 @@ namespace AwesomeRenderer
 
 	struct RaycastHit;
 
-	class Shape
+	class Shape : public TreeElement
 	{
 	public:
 		virtual ~Shape() { }
@@ -17,7 +19,7 @@ namespace AwesomeRenderer
 
 		virtual bool IntersectRay(const Ray& ray, RaycastHit& hitInfo) const = 0;
 
-		virtual const Primitive& GetShape() const = 0;
+		virtual const Primitive& GetPrimitive() const = 0;
 
 	};
 

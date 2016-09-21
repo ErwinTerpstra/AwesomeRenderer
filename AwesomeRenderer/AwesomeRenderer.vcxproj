@@ -224,6 +224,7 @@
     <ClInclude Include="threading.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="transformation.h" />
+    <ClInclude Include="treeelement.h" />
     <ClInclude Include="triangle.h" />
     <ClInclude Include="triangle3d.h" />
     <ClInclude Include="triangle2d.h" />

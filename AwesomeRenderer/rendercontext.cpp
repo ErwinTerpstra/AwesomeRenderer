@@ -12,17 +12,29 @@
 
 using namespace AwesomeRenderer;
 
-RenderContext::RenderContext() : camera(NULL), renderTarget(NULL), lightData(NULL), skybox(NULL), clearFlags(RenderTarget::BUFFER_ALL)
+RenderContext::RenderContext() : camera(NULL), renderTarget(NULL), lightData(NULL), skybox(NULL), clearFlags(RenderTarget::BUFFER_ALL), tree()
 {
 
+}
+
+void RenderContext::Optimize()
+{
+	for (auto it = nodes.begin(); it != nodes.end(); ++it)
+	{
+		Renderable* renderable = (*it)->GetComponent<Renderable>();
+
+		if (renderable != NULL)
+			tree.elements.push_back(renderable);
+	}
+
+	float extents = 50.0f;
+	tree.Optimize(AABB(Vector3(-extents, -extents, -extents), Vector3(extents, extents, extents)));
 }
 
 void RenderContext::Update()
 {
 	// Prepare models in scene
-	std::vector<Node*>::iterator it;
-
-	for (it = nodes.begin(); it != nodes.end(); ++it)
+	for (auto it = nodes.begin(); it != nodes.end(); ++it)
 	{
 		Node& node = **it;
 		Transformation* transform = node.GetComponent<Transformation>();

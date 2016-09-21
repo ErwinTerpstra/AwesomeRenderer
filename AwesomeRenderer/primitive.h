@@ -27,7 +27,7 @@ namespace AwesomeRenderer
 
 		virtual void CalculateBounds(AABB& bounds) const = 0;
 
-		virtual const Primitive& GetShape() const { return *this; }
+		virtual const Primitive& GetPrimitive() const { return *this; }
 	};
 }
 

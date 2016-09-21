@@ -4,6 +4,8 @@
 #include "awesomerenderer.h"
 #include "rendertarget.h"
 
+#include "kdtree.h"
+
 namespace AwesomeRenderer
 {
 	class Window;
@@ -25,11 +27,15 @@ namespace AwesomeRenderer
 
 		Skybox* skybox;
 
+		// TODO: move this to a Scene class?
 		std::vector<Node*> nodes;
+		KDTree tree;
 
 	public:
 
 		RenderContext();
+
+		void Optimize();
 
 		void Update();
 

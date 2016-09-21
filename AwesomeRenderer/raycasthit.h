@@ -1,10 +1,10 @@
 #ifndef _RAY_CAST_HIT_H_
 #define _RAY_CAST_HIT_H_
 
+#include "treeelement.h"
+
 namespace AwesomeRenderer
 {
-	class Node;
-
 	struct RaycastHit
 	{
 		Vector3 point;
@@ -16,16 +16,16 @@ namespace AwesomeRenderer
 
 		bool inside;
 
-		const Node* node;
+		const TreeElement* element;
 
-		RaycastHit() : distance(FLT_MAX), node(NULL), inside(FALSE)
+		RaycastHit() : distance(FLT_MAX), element(NULL), inside(FALSE)
 		{
 
 		}
 
 		RaycastHit(const RaycastHit& other) :
 			point(other.point), normal(other.normal), distance(other.distance), barycentricCoords(other.barycentricCoords),
-			inside(other.inside), node(other.node)
+			inside(other.inside), element(other.element)
 		{
 
 		}

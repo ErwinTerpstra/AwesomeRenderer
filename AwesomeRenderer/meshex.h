@@ -33,7 +33,7 @@ namespace AwesomeRenderer
 
 		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo) const;
 
-		const Primitive& GetShape() const;
+		const Primitive& GetPrimitive() const;
 
 		static uint32_t ExtensionID() { return Mesh::MESH_EX; }
 	};

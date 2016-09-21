@@ -1,17 +1,18 @@
 #include "stdafx.h"
 #include "awesomerenderer.h"
 #include "kdtree.h"
+#include "treeelement.h"
 
 using namespace AwesomeRenderer;
 
-const int KDTree::MAX_NODES_PER_LEAF = 64;
+const int KDTree::MAX_NODES_PER_LEAF = 8;
 const int KDTree::MAX_DEPTH = 32;
 
 const float KDTree::TRAVERSAL_COST = 1.0f;
 const float KDTree::INTERSECTION_COST = 1.0f;
 const float KDTree::POSITION_EPSILON = FLT_EPSILON * 2.0f;
 
-KDTree::KDTree(KDTree* parent) : parent(parent), upperNode(NULL), lowerNode(NULL), objects()
+KDTree::KDTree(KDTree* parent) : parent(parent), upperNode(NULL), lowerNode(NULL), elements()
 {
 	if (parent)
 		axis = (parent->axis + 1) % 3;
@@ -27,7 +28,7 @@ KDTree::~KDTree()
 	if (lowerNode)
 		delete lowerNode;
 
-	objects.clear();
+	elements.clear();
 }
 
 void KDTree::Optimize(const AABB& bounds, int depth)
@@ -35,7 +36,7 @@ void KDTree::Optimize(const AABB& bounds, int depth)
 	this->bounds = bounds;
 
 	// If we are within the maximum number of objects per leaf we can leave this node as is
-	if (objects.size() <= MAX_NODES_PER_LEAF)
+	if (elements.size() <= MAX_NODES_PER_LEAF)
 		return;
 
 	if (depth >= MAX_DEPTH)
@@ -52,27 +53,25 @@ void KDTree::Optimize(const AABB& bounds, int depth)
 	Plane splitPlane(splitPoint, normal);
 
 	// Relocate all objects in this leaf to the child nodes they intersect
-	std::vector<const Shape*>::const_iterator it;
-	for (it = objects.begin(); it != objects.end(); ++it)
+	for (auto it = elements.begin(); it != elements.end(); ++it)
 	{
-		const Shape* object = *it;
-		const Primitive& shape = object->GetShape();
+		const Primitive& primitive = (*it)->GetPrimitive();
 
 		// Determine which side of the plane this object is
-		int side = shape.SideOfPlane(splitPlane);
+		int side = primitive.SideOfPlane(splitPlane);
 
 		if (side >= 0)
-			upperNode->objects.push_back(object);
+			upperNode->elements.push_back(*it);
 
 		if (side <= 0)
-			lowerNode->objects.push_back(object);
+			lowerNode->elements.push_back(*it);
 	}
 
 	//printf("Split @ depth %d (point %.5f)\n", depth, splitPoint);
 	//printf("Object upper: %d; Object lower: %d\n", upperNode->objects.size(), lowerNode->objects.size());
 
 	// Clear object list since this is no longer a leaf
-	objects.clear();
+	elements.clear();
 
 	// Try to optimize child nodes
 	AABB upperBounds, lowerBounds;
@@ -85,16 +84,15 @@ void KDTree::Optimize(const AABB& bounds, int depth)
 void KDTree::Split(const AABB& bounds)
 {
 	// Initialize a potentional position list with two positions per object
-	std::vector<float> splitPositions(objects.size() * 2);
+	std::vector<float> splitPositions(elements.size() * 2);
 	std::vector<float>::iterator positionIterator;
-	std::vector<const Shape*>::iterator objectIterator;
 
 	// Iterate through all objects in this leaf
-	for (objectIterator = objects.begin(); objectIterator != objects.end(); ++objectIterator)
+	for (auto it = elements.begin(); it != elements.end(); ++it)
 	{
 		// Calculate axis aligned boundaries for this shape
 		AABB objectBounds;
-		(*objectIterator)->GetShape().CalculateBounds(objectBounds);
+		(*it)->GetPrimitive().CalculateBounds(objectBounds);
 
 		// Save the minimum and maximum position for the bounds
 		splitPositions.push_back(objectBounds.Min()[axis] - POSITION_EPSILON);
@@ -112,7 +110,7 @@ void KDTree::Split(const AABB& bounds)
 	normal[axis] = 1.0f;
 
 	// Copy the object list to keep count of which objects are potentionally above the current split plane
-	std::vector<const Shape*> objectsAbove(objects.begin(), objects.end());
+	std::vector<const TreeElement*> objectsAbove(elements.begin(), elements.end());
 
 	// Iterate through the selected split positions
 	for (positionIterator = splitPositions.begin(); positionIterator != splitPositions.end(); ++positionIterator)
@@ -127,15 +125,15 @@ void KDTree::Split(const AABB& bounds)
 		Plane splitPlane(point, normal);
 
 		int upperObjectCount = 0;
-		int lowerObjectCount = objects.size() - objectsAbove.size(); // Start with the number of objects we already know that are lower than this
+		int lowerObjectCount = elements.size() - objectsAbove.size(); // Start with the number of objects we already know that are lower than this
 
 		// Iterate through all objects to count how many objects fall on each side of the split plane
-		for (objectIterator = objectsAbove.begin(); objectIterator != objectsAbove.end(); )
+		for (auto objectIterator = objectsAbove.begin(); objectIterator != objectsAbove.end(); )
 		{
-			const Primitive& shape = (*objectIterator)->GetShape();
+			const Primitive& primitive = (*objectIterator)->GetPrimitive();
 
 			// Determine which side of the plane this object is
-			int side = shape.SideOfPlane(splitPlane);
+			int side = primitive.SideOfPlane(splitPlane);
 
 			if (side >= 0)
 				++upperObjectCount;
@@ -205,9 +203,9 @@ bool KDTree::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 	// The current node is a leaf node, this means we can check its contents
 	if (IsLeaf())
 	{
-		for (auto objectIt = objects.begin(); objectIt != objects.end(); ++objectIt)
+		for (auto it = elements.begin(); it != elements.end(); ++it)
 		{
-			const Primitive& shape = (*objectIt)->GetShape();
+			const Primitive& shape = (*it)->GetPrimitive();
 
 			// Perform the ray-triangle intersection
 			RaycastHit shapeHitInfo;
@@ -218,7 +216,10 @@ bool KDTree::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 				continue;
 
 			closestDistance = shapeHitInfo.distance;
+
 			hitInfo = shapeHitInfo;
+			hitInfo.element = *it;
+
 			hit = true;
 		}
 	}
