@@ -22,6 +22,7 @@ namespace AwesomeRenderer
 		uint32_t glyphHeight;
 		uint32_t tableOffset;
 		Vector2 uvScale;
+		Vector2 pixelSize;
 
 	public:
 		TextMesh();

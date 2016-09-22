@@ -31,6 +31,7 @@ void Mesh::Clear()
 	colors.clear();
 	texcoords.clear();
 	normals.clear();
+	indices.clear();
 }
 
 void Mesh::CalculateBounds()

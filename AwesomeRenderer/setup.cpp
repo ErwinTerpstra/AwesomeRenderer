@@ -158,7 +158,7 @@ void Setup::SetupCornellBox()
 	//*
 	const Color sphereDiffuse = Color::BLACK;
 	const Color sphereSpecular(0.6f, 0.6f, 0.6f);
-	const float sphereRoughness = 0.1f;
+	const float sphereRoughness = 0.5f;
 	const float sphereMetallic = 1;
 	/*/
 	const Color sphereDiffuse(0.5f, 0.5f, 0.5f);

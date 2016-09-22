@@ -270,6 +270,9 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="raytracerdebug.cpp">
+      <Filter>Source\Renderer\RayTracing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h">
@@ -523,6 +526,9 @@
     </ClInclude>
     <ClInclude Include="treeelement.h">
       <Filter>Source\Node</Filter>
+    </ClInclude>
+    <ClInclude Include="raytracerdebug.h">
+      <Filter>Source\Renderer\RayTracing</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -95,6 +95,7 @@
     <ClCompile Include="pbrmaterial.cpp" />
     <ClCompile Include="phongmaterial.cpp" />
     <ClCompile Include="program_gl.cpp" />
+    <ClCompile Include="raytracerdebug.cpp" />
     <ClCompile Include="renderable.cpp" />
     <ClCompile Include="renderjob.cpp" />
     <ClCompile Include="scheduler.cpp" />
@@ -174,6 +175,7 @@
     <ClInclude Include="phongmaterial.h" />
     <ClInclude Include="program_gl.h" />
     <ClInclude Include="random.h" />
+    <ClInclude Include="raytracerdebug.h" />
     <ClInclude Include="renderable.h" />
     <ClInclude Include="renderjob.h" />
     <ClInclude Include="scheduler.h" />

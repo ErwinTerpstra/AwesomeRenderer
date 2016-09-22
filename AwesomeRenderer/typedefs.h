@@ -33,6 +33,7 @@ namespace AwesomeRenderer
 
 	Vector3 operator-(const float& lhs, const Vector3& rhs);
 	Vector3 operator*(const Vector3& lhs, const Vector3& rhs);
+	Vector2 operator*(const Vector2& lhs, const Vector2& rhs);
 }
 
 #endif

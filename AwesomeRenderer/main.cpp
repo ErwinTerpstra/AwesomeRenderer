@@ -81,6 +81,7 @@
 
 #include "softwarerenderer.h"
 #include "raytracer.h"
+#include "raytracerdebug.h"
 
 // Assets
 #include "factory.h"
@@ -248,46 +249,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	setup.SetupCornellBox();
 	//setup.SetupSpheres();
 	
-	/**/
-	UnlitShader unlitShader;
-	TextMesh* debugText;
-
-	{
-		Node* node = new Node();
-
-		Texture* texture = NULL;
-		textureFactory.GetAsset("../Assets/font.bmp", &texture);
-
-		debugText = new TextMesh();
-		debugText->Configure(texture, 32, 32, 1);
-		debugText->SetText("Initializing...");
-
-		Sampler* sampler = new Sampler();
-		sampler->sampleMode = Sampler::SM_POINT;
-		sampler->wrapMode = Sampler::WM_REPEAT;
-		sampler->texture = texture;
-
-		PhongMaterial* material = new PhongMaterial(*(new Material()));
-		material->provider.shader = &unlitShader;
-		material->diffuseMap = sampler;
-
-		Model* model = new Model();
-		model->AddMesh(debugText, &material->provider);
-
-		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(1.0f, 0.0f, 5.0f));
-		transform->SetScale(Vector3(1.0f, 1.0f, 1.0f) * 0.4f);
-
-		node->AddComponent(model);
-		node->AddComponent(transform);
-
-		hudContext.nodes.push_back(node);
-	}
-	/**/
-
 	// Camera controller
 	CameraController cameraController(camera);
 	cameraController.CopyFromCamera();
+
+	// Debug
+	RayTracerDebug rayTracerDebug(context, rayTracer);
+	rayTracerDebug.Setup();
 
 	// Convert all meshes to OpenGL meshes
 	std::vector<RenderContext*> contexts = { &mainContext };
@@ -349,20 +317,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Frame counter variables
 	float timeSinceLastPrint = 0.0f;
 	uint32_t framesDrawn = 0;
-	
-	// Debug display
-	char textBuffer[512];
-	
-	// Integrator switching
-	uint32_t currentIntegrator = 0;
-	const uint32_t integratorCount = 3;
-	SurfaceIntegrator* integrators[integratorCount] =
-	{
-		&rayTracer.debugIntegrator,
-		&rayTracer.whittedIntegrator,
-		&rayTracer.monteCarloIntegrator 
-	};
-
+		
 	while (!window.closed)
 	{
 		const TimingInfo& timingInfo = timer.Tick();
@@ -406,42 +361,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		if (inputManager.GetKey('P'))
 			mainRenderer = renderers[2];
 
-		bool plus = inputManager.GetKeyDown(VK_OEM_PLUS);
-		bool minus = inputManager.GetKeyDown(VK_OEM_MINUS);
-		bool shift = inputManager.GetKey(VK_SHIFT);
-
-		if (plus || minus)
-		{
-			if (shift)
-			{
-				if (plus)
-					rayTracer.monteCarloIntegrator.sampleCount <<= 1;
-				else if (rayTracer.monteCarloIntegrator.sampleCount > 1)
-					rayTracer.monteCarloIntegrator.sampleCount >>= 1;
-
-				printf("[AwesomeRenderer]: Settings raytracer sample count to %d\n", rayTracer.monteCarloIntegrator.sampleCount);
-			}
-			else
-			{
-				if (plus)
-					++rayTracer.maxDepth;
-				else if (rayTracer.maxDepth > 0)
-					--rayTracer.maxDepth;
-
-				printf("[AwesomeRenderer]: Settings raytracer max depth to %d\n", rayTracer.maxDepth);
-			}
-
-			rayTracer.ResetFrame();
-
-			sprintf(textBuffer, "Bounces: %u; SPP: %u", rayTracer.maxDepth, rayTracer.monteCarloIntegrator.sampleCount);
-			debugText->SetText(textBuffer);
-		}
-		
-		if (inputManager.GetKeyDown('G'))
-		{
-			currentIntegrator = (currentIntegrator + 1) % integratorCount;
-			rayTracer.currentIntegrator = integrators[currentIntegrator];
-		}
+		rayTracerDebug.Update();
 
 		mainContext.Update();
 		mainRenderer->SetRenderContext(&mainContext);

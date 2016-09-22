@@ -20,7 +20,8 @@ void TextMesh::Configure(const Texture* texture, uint32_t glyphWidth, uint32_t g
 
 	this->tableOffset = tableOffset;
 
-	uvScale = Vector2(((float) glyphWidth) / texture->width, ((float) glyphHeight) / texture->height);
+	uvScale = Vector2(((float) glyphWidth) / (texture->width - 1), ((float) glyphHeight) / (texture->height - 1));
+	pixelSize = Vector2(1.0f / texture->width, 1.0f / texture->height);
 }
 
 void TextMesh::SetText(const std::string& text)
@@ -46,6 +47,7 @@ void TextMesh::CreateMesh()
 	{
 		switch (*it)
 		{
+		case '\0':
 		case '\t':
 		case '\r':
 		case '\n':
