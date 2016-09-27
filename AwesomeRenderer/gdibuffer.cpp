@@ -14,12 +14,12 @@ GdiBuffer::~GdiBuffer()
 
 }
 
-void GdiBuffer::Allocate(uint32_t preferredWidth, uint32_t preferredHeight, Encoding encoding)
+void GdiBuffer::AllocateAligned(uint32_t preferredWidth, uint32_t preferredHeight, uint8_t alignment, Encoding encoding)
 {
 	// Only BGR24 encoding is supporte for the GDI buffer
 	assert(encoding == BGR24);
 
-	Buffer::Allocate(preferredWidth, preferredHeight, encoding);
+	Buffer::AllocateAligned(preferredWidth, preferredHeight, alignment, encoding);
 
 	bitmapInfo.bmiColors[0].rgbRed		= 255;
 	bitmapInfo.bmiColors[0].rgbGreen	= 255;

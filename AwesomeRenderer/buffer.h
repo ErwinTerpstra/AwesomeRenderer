@@ -16,8 +16,8 @@ namespace AwesomeRenderer
 			RGB24, RGBA32, BGR24, FLOAT32
 		};
 
-		uint32_t width, height, size;
-		uint8_t stride, bpp;
+		uint32_t width, height, stride, size;
+		uint8_t bpp, pixelStride, alignment;
 
 		Encoding encoding;
 
@@ -28,13 +28,17 @@ namespace AwesomeRenderer
 		Buffer();
 		virtual ~Buffer();
 
-		virtual void Allocate(uint32_t preferredWidth, uint32_t preferredHeight, Encoding encoding);
-		virtual uint8_t GetStrideForDepth(uint8_t bitDepth);
+		void Allocate(uint32_t preferredWidth, uint32_t preferredHeight, Encoding encoding);
+		virtual void AllocateAligned(uint32_t preferredWidth, uint32_t preferredHeight, uint8_t alignment, Encoding encoding);
+
+		virtual uint32_t CalculateStride(uint32_t width, uint8_t bitDepth, uint8_t alignment);
 		virtual void Destroy();
 		
 		__inline void Clear() { memset(data, 0, size); }
 		void Clear(const Color& color);
 		
+		void Blit(const Buffer& src);
+
 		float GetPixel(uint32_t x, uint32_t y) const;
 		void GetPixel(uint32_t x, uint32_t y, Color& color) const;
 
@@ -44,7 +48,7 @@ namespace AwesomeRenderer
 		
 		__inline uchar* GetBase(uint32_t x, uint32_t y) const
 		{ 
-			return data + (y * width + x) * stride;
+			return data + y * stride + x * pixelStride;
 		}
 
 		static uint8_t GetEncodingDepth(Encoding encoding);

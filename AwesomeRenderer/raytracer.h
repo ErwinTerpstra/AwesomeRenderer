@@ -71,6 +71,7 @@ namespace AwesomeRenderer
 			bool RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance = FLT_MAX);
 
 			float GetProgress() const;
+			bool IsRenderingFrame() const { return renderingFrame; }
 		private:
 
 			void PreRender();

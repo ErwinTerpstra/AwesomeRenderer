@@ -14,22 +14,33 @@ Buffer::Buffer() : data(NULL)
 
 Buffer::~Buffer()
 {
-	
+	Destroy();
 }
 
 void Buffer::Allocate(uint32_t preferredWidth, uint32_t preferredHeight, Encoding encoding)
 {
-	this->encoding = encoding;
-	this->bpp = GetEncodingDepth(encoding);
-	this->stride = GetStrideForDepth(bpp);
-	this->width = preferredWidth;
-	this->height = preferredHeight;
-	this->size = width * height * stride;
+	AllocateAligned(preferredWidth, preferredHeight, 1, encoding);
 }
 
-uint8_t Buffer::GetStrideForDepth(uint8_t bitDepth)
+void Buffer::AllocateAligned(uint32_t preferredWidth, uint32_t preferredHeight, uint8_t alignment, Encoding encoding)
 {
-	return bitDepth / 8;
+	this->encoding = encoding;
+	this->alignment = alignment;
+	
+	this->bpp = GetEncodingDepth(encoding);
+	this->pixelStride = this->bpp / 8;
+
+	this->width = preferredWidth;
+	this->height = preferredHeight;
+
+	this->stride = CalculateStride(preferredWidth, bpp, alignment);
+	this->size = height * stride;
+}
+
+uint32_t Buffer::CalculateStride(uint32_t width, uint8_t bitDepth, uint8_t alignment)
+{
+	uint32_t stride = width * (bitDepth / 8);
+	return (uint32_t) (ceil(stride / (float)alignment) * alignment);
 }
 
 void Buffer::Destroy()
@@ -42,6 +53,21 @@ void Buffer::Clear(const Color& color)
 	for (uint8_t y = 0; y < height; ++y)
 		for (uint8_t x = 0; x < width; ++x)
 			SetPixel(x, y, color);
+}
+
+void Buffer::Blit(const Buffer& src)
+{
+	Color color;
+
+	for (uint32_t y = 0; y < std::min(height, src.height); ++y)
+	{
+		for (uint32_t x = 0; x < std::min(width, src.width); ++x)
+		{
+			src.GetPixel(x, y, color);
+			SetPixel(x, y, color);
+		}
+	}
+
 }
 
 float Buffer::GetPixel(uint32_t x, uint32_t y) const
@@ -90,6 +116,8 @@ uint8_t Buffer::GetEncodingDepth(Encoding encoding)
 	}
 
 	assert(false && "Encoding not supported.");
+
+	return 0;
 }
 
 void Buffer::EncodeColor(const Color& color, Encoding encoding, uchar* buffer)
@@ -97,21 +125,21 @@ void Buffer::EncodeColor(const Color& color, Encoding encoding, uchar* buffer)
 	switch (encoding)
 	{
 	case RGB24:
-		buffer[0] = color[0] * 255.0f;
-		buffer[1] = color[1] * 255.0f;
-		buffer[2] = color[2] * 255.0f;
+		buffer[0] = (uchar)(color[0] * 255.0f);
+		buffer[1] = (uchar)(color[1] * 255.0f);
+		buffer[2] = (uchar)(color[2] * 255.0f);
 		break;
 
 	case RGBA32:
-		buffer[0] = color[0] * 255.0f;
-		buffer[1] = color[1] * 255.0f;
-		buffer[2] = color[2] * 255.0f;
+		buffer[0] = (uchar)(color[0] * 255.0f);
+		buffer[1] = (uchar)(color[1] * 255.0f);
+		buffer[2] = (uchar)(color[2] * 255.0f);
 		break;
 
 	case BGR24:
-		buffer[0] = color[2] * 255.0f;
-		buffer[1] = color[1] * 255.0f;
-		buffer[2] = color[0] * 255.0f;
+		buffer[0] = (uchar)(color[2] * 255.0f);
+		buffer[1] = (uchar)(color[1] * 255.0f);
+		buffer[2] = (uchar)(color[0] * 255.0f);
 		break;
 
 	default:

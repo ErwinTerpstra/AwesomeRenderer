@@ -50,6 +50,8 @@ namespace AwesomeRenderer
 
 		Sampler* GetTexture(const std::string& fileName);
 		
+		void WriteBMP(const std::string& fileName, const Buffer& buffer) const;
+
 	protected:
 
 		bool Instantiate(Texture** instance) const;

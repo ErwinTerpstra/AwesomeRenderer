@@ -18,6 +18,7 @@ namespace AwesomeRenderer
 		{
 
 		private:
+			static const std::string RENDER_ROOT;
 			static const uint32_t INTEGRATOR_COUNT = 3;
 
 			Context& context;
@@ -33,6 +34,8 @@ namespace AwesomeRenderer
 			SurfaceIntegrator* integrators[INTEGRATOR_COUNT];
 			uint32_t currentIntegrator;
 
+			bool saveNextFrame;
+
 		public:
 			RayTracerDebug(Context& context, RayTracer& rayTracer);
 			~RayTracerDebug();
@@ -43,6 +46,8 @@ namespace AwesomeRenderer
 		private:
 			void SetupDebugDisplay();
 			void UpdateDebugDisplay();
+
+			void SaveFrame();
 		};
 	}
 }

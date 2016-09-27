@@ -49,7 +49,7 @@ namespace AwesomeRenderer
 						uv[1] = direction[1];
 					}
 
-					n = Vector3(Util::Sign(direction[0]), 0, 0);
+					n = Vector3((float) Util::Sign(direction[0]), 0, 0);
 				}
 				else
 				{
@@ -66,7 +66,7 @@ namespace AwesomeRenderer
 						uv[1] = direction[1];
 					}
 						
-					n = Vector3(0, 0, Util::Sign(direction[2]));
+					n = Vector3(0, 0, (float) Util::Sign(direction[2]));
 				}
 			}
 			else
@@ -86,7 +86,7 @@ namespace AwesomeRenderer
 						uv[1] = direction[2];
 					}
 
-					n = Vector3(0, Util::Sign(direction[1]), 0);
+					n = Vector3(0, (float) Util::Sign(direction[1]), 0);
 				}
 				else
 				{
@@ -103,7 +103,7 @@ namespace AwesomeRenderer
 						uv[1] = direction[1];
 					}
 
-					n = Vector3(0, 0, Util::Sign(direction[2]));
+					n = Vector3(0, 0, (float) Util::Sign(direction[2]));
 				}
 			}
 

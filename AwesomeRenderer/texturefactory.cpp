@@ -105,3 +105,50 @@ Sampler* TextureFactory::GetTexture(const std::string& fileName)
 
 	return sampler;
 }
+
+void TextureFactory::WriteBMP(const std::string& fileName, const Buffer& buffer) const
+{
+	assert(buffer.encoding == Buffer::BGR24 && "Unsupported bitmap encoding");
+
+	// TODO: Move binary reading of file to FileReader class
+	FILE* filePtr;
+
+	// Open filename in write binary mode 
+	errno_t result = fopen_s(&filePtr, fileName.c_str(), "wb");
+
+	if (result != 0)
+	{
+		printf("[TextureFactory]: Failed to open file \"%s\". Error code: %d\n", fileName.c_str(), result);
+		return;
+	}
+
+	const uint8_t bpp = 24;
+	const uint32_t headerSize = sizeof(BmpFileHeader) + sizeof(BmpInfoHeader);
+
+	BmpFileHeader fileHeader;
+	fileHeader.type = 0x4D42;
+	fileHeader.size = buffer.size + headerSize;
+	fileHeader.offBits = headerSize;
+	fileHeader.reserved1 = 0;
+	fileHeader.reserved2 = 0;
+
+	BmpInfoHeader infoHeader;
+	infoHeader.size = sizeof(BmpInfoHeader);
+	infoHeader.width = buffer.width;
+	infoHeader.height = buffer.height;
+	infoHeader.planes = 1;
+	infoHeader.compression = 0;			// RGB colors
+	infoHeader.bitCount = bpp;
+	infoHeader.sizeImage = buffer.size;
+	infoHeader.xPelsPerMeter = 2835;	// ~72 DPI
+	infoHeader.yPelsPerMeter = 2835;	// ~72 DPI
+	infoHeader.clrUsed = 0;				// Default to 2 ^ bpp
+	infoHeader.clrImportant = 0;		// All colors are important
+
+	fwrite(&fileHeader, sizeof(BmpFileHeader), 1, filePtr);
+	fwrite(&infoHeader, sizeof(BmpInfoHeader), 1, filePtr);
+
+	fwrite(buffer.GetBase(0, 0), 1, buffer.size, filePtr);
+
+	fclose(filePtr);
+}

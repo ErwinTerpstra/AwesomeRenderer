@@ -14,9 +14,9 @@ MemoryBuffer::~MemoryBuffer()
 
 }
 
-void MemoryBuffer::Allocate(uint32_t preferredWidth, uint32_t preferredHeight, Encoding encoding)
+void MemoryBuffer::AllocateAligned(uint32_t preferredWidth, uint32_t preferredHeight, uint8_t alignment, Encoding encoding)
 {	
-	Buffer::Allocate(preferredWidth, preferredHeight, encoding);
+	Buffer::AllocateAligned(preferredWidth, preferredHeight, alignment, encoding);
 
 	data = new uchar[this->size];
 }

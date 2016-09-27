@@ -18,7 +18,11 @@
 using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
 
-RayTracerDebug::RayTracerDebug(Context& context, RayTracer& rayTracer) : context(context), rayTracer(rayTracer), inputManager(InputManager::Instance()), currentIntegrator(0), textBuffer(NULL)
+const std::string RayTracerDebug::RENDER_ROOT = "../Renders";
+
+RayTracerDebug::RayTracerDebug(Context& context, RayTracer& rayTracer) : 
+	context(context), rayTracer(rayTracer), inputManager(InputManager::Instance()),
+	currentIntegrator(0), textBuffer(NULL), saveNextFrame(FALSE)
 {
 	integrators[0] = &rayTracer.debugIntegrator;
 	integrators[1] = &rayTracer.whittedIntegrator;
@@ -78,6 +82,22 @@ void RayTracerDebug::Update()
 
 		UpdateDebugDisplay();
 	}
+
+	if (inputManager.GetKeyDown('L'))
+	{
+		saveNextFrame = !saveNextFrame;
+		UpdateDebugDisplay();
+	}
+
+	if (!rayTracer.IsRenderingFrame())
+	{
+		if (saveNextFrame)
+		{
+			SaveFrame();
+			saveNextFrame = false;
+			UpdateDebugDisplay();
+		}
+	}
 }
 
 void RayTracerDebug::SetupDebugDisplay()
@@ -117,6 +137,26 @@ void RayTracerDebug::SetupDebugDisplay()
 
 void RayTracerDebug::UpdateDebugDisplay()
 {
-	sprintf(textBuffer, "Bounces: %u; SPP: %u", rayTracer.maxDepth, rayTracer.monteCarloIntegrator.sampleCount);
+	sprintf(textBuffer, "Bounces: %u; SPP: %u;\nExport: %s", rayTracer.maxDepth, rayTracer.monteCarloIntegrator.sampleCount, saveNextFrame ? "enabled" : "disabled");
 	debugText->SetText(textBuffer);
+}
+
+void RayTracerDebug::SaveFrame()
+{
+	const Buffer& frameBuffer = *context.mainContext->renderTarget->frameBuffer;
+	
+	Texture texture;
+	texture.AllocateAligned(frameBuffer.width, frameBuffer.height, 4, Buffer::BGR24);
+	texture.Blit(frameBuffer);
+
+	time_t t = time(0);
+	tm* now = localtime(&t);
+
+	sprintf(textBuffer, "render %d-%02d-%02d %02d-%02d-%02d", 1900 + now->tm_year, now->tm_mon + 1, now->tm_mday, now->tm_hour, now->tm_min, now->tm_sec);
+	std::string identifier(textBuffer);
+
+	std::string imageFileName = RENDER_ROOT + "/" + identifier + ".bmp";
+	context.textureFactory->WriteBMP(imageFileName, texture);
+	
+	texture.Destroy();
 }

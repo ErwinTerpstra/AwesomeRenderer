@@ -130,7 +130,7 @@ void Window::DrawBuffer(const GdiBuffer& buffer) const
 	HDC bufferDC = CreateCompatibleDC(windowDC);
 	HGDIOBJ oldObj = SelectObject(bufferDC, buffer.bitmap);
 			
-	bool result = BitBlt(windowDC, 0, 0, buffer.width, buffer.height, bufferDC, 0, 0, SRCCOPY);
+	BOOL result = BitBlt(windowDC, 0, 0, buffer.width, buffer.height, bufferDC, 0, 0, SRCCOPY);
 	assert(result);
 			
 	SelectObject(bufferDC, oldObj);

@@ -14,6 +14,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <ctime>
 
 // Windows libraries
 #define NOMINMAX

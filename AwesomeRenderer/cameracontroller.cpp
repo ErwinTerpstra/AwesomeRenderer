@@ -24,8 +24,8 @@ void CameraController::CopyFromCamera()
 	horizontalForward[1] = 0;
 	horizontalForward.normalize();
 
-	yaw = acos(cml::dot(horizontalForward, Vector3(0.0f, 0.0f, -1.0f))) - HALF_PI;
-	pitch = acos(cml::dot(horizontalForward, forward)) + HALF_PI;
+	yaw = acos(cml::dot(horizontalForward, Vector3(0.0f, 0.0f, -1.0f))) - (float)HALF_PI;
+	pitch = acos(cml::dot(horizontalForward, forward)) + (float) HALF_PI;
 }
 
 void CameraController::Update(const TimingInfo& timingInfo)
