@@ -20,6 +20,17 @@ namespace AwesomeRenderer
 		private:
 			static const std::string RENDER_ROOT;
 			static const uint32_t INTEGRATOR_COUNT = 3;
+			static const uint32_t TEXT_BUFFER_SIZE = 1024;
+			static const float UPDATE_INTERVAL;
+
+			enum ExportMode
+			{
+				DISABLED,
+				ONCE,
+				CONTINUOUS,
+
+				EXPORT_MODE_COUNT
+			};
 
 			Context& context;
 			RayTracer& rayTracer;
@@ -34,20 +45,24 @@ namespace AwesomeRenderer
 			SurfaceIntegrator* integrators[INTEGRATOR_COUNT];
 			uint32_t currentIntegrator;
 
-			bool saveNextFrame;
+			ExportMode exportMode;
+
+			float timeSinceUpdate;
 
 		public:
 			RayTracerDebug(Context& context, RayTracer& rayTracer);
 			~RayTracerDebug();
 
 			void Setup();
-			void Update();
+			void Update(float dt);
 
 		private:
 			void SetupDebugDisplay();
 			void UpdateDebugDisplay();
 
-			void SaveFrame();
+			void Export();
+
+			std::string FormatTime(float time);
 		};
 	}
 }

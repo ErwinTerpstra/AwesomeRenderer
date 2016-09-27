@@ -74,7 +74,7 @@ Vector3 SurfaceIntegrator::SampleDirectLight(const Ray& ray, const RaycastHit& h
 
 		radiance += material.bsdf->Sample(viewVector, toLight, normal, material) * lightRadiance * NoL;
 	}
-
+	
 	/*/
 	if (FALSE)
 	{

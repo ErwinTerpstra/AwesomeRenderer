@@ -72,14 +72,13 @@ namespace AwesomeRenderer
 
 			float GetProgress() const;
 			bool IsRenderingFrame() const { return renderingFrame; }
+			float FrameTime() const { return frameTimer.Poll(); }
 		private:
 
 			void PreRender();
 			void PostRender();
 
 			void Render(const Point2& pixel);
-
-			void Trace(const Ray& ray, const Point2& screenPosition);
 
 			float Fresnel(const Vector3& v, const Vector3& normal, float ior);
 

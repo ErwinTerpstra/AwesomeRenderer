@@ -26,6 +26,8 @@ namespace AwesomeRenderer
 		~Renderable();
 
 		const Primitive& GetPrimitive() const { return shape->GetPrimitive(); }
+
+		const Shape& GetShape() const { return *shape; }
 	};
 
 }

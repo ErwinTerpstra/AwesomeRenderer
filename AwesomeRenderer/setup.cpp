@@ -140,15 +140,13 @@ void Setup::SetupCornellBox()
 	context.mainCamera->SetLookAt(cameraPosition, cameraPosition + Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0));
 	
 	// LIGHTING
-	{
-		LightData::Light& light = context.mainContext->lightData->lights[0];
-		light.type = LightData::LightType::POINT;
-		light.position = Vector3(0.0f, 0.9f, 0.5f);
-		light.color = Color(0.78f, 0.78f, 0.78f);
-		light.intensity = 1.0f;
+	LightData::Light& light = context.mainContext->lightData->lights[0];
+	light.type = LightData::LightType::POINT;
+	light.position = Vector3(0.0f, 0.9f, 0.5f);
+	light.color = Color(0.78f, 0.78f, 0.78f);
+	light.intensity = 1.0f;
 
-		light.enabled = true;
-	}
+	light.enabled = true;
 
 	// GEOMETRY
 	const Color wallWhite = Color(0.725f, 0.71f, 0.68f);
@@ -319,6 +317,7 @@ void Setup::SetupCornellBox()
 		context.mainContext->nodes.push_back(node);
 	}
 
+	if (FALSE)
 	{
 		// Left sphere
 		Node* node = new Node();
@@ -341,7 +340,8 @@ void Setup::SetupCornellBox()
 
 		context.mainContext->nodes.push_back(node);
 	}
-
+	
+	if (FALSE)
 	{
 		// right sphere
 		Node* node = new Node();
@@ -365,7 +365,7 @@ void Setup::SetupCornellBox()
 		context.mainContext->nodes.push_back(node);
 	}
 
-	if (FALSE)
+	//if (FALSE)
 	{
 		Node* node = new Node();
 
@@ -414,7 +414,7 @@ void Setup::SetupCornellBox()
 			meshNode->AddComponent(transform);
 
 			Renderable* renderable = new Renderable();
-			renderable->shape = modelEx->meshes[0];
+			renderable->shape = modelEx->meshes[meshIdx];
 			renderable->material = &material->provider;
 
 			meshNode->AddComponent(renderable);
@@ -428,9 +428,20 @@ void Setup::SetupCornellBox()
 
 void Setup::SetupSpheres()
 {
-	const Vector3 cameraPosition = Vector3(3.2f, 1.8f, 7.5f);
+	// CAMERA
+	const Vector3 cameraPosition = Vector3(3.2f, 1.8f, 9.0f);
 	context.mainCamera->SetLookAt(cameraPosition, cameraPosition - Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0));
 
+	// LIGHT
+	LightData::Light& light = context.mainContext->lightData->lights[0];
+	light.type = LightData::LightType::DIRECTIONAL;
+	light.direction = cml::normalize(Vector3(1.0f, -1.0f, 1.0f));
+	light.color = Color(0.78f, 0.78f, 0.78f);
+	light.intensity = 1.0f;
+
+	light.enabled = true;
+
+	// GEOMETRY
 	const float MIN_ROUGHNESS = 0.1f;
 	const float SPHERE_RADIUS = 0.6f;
 	const float SPHERE_SPACING = 0.4f;

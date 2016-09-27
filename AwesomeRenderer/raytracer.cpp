@@ -236,36 +236,4 @@ bool RayTracer::RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistanc
 		return nearestHit.distance < maxDistance;
 
 	return FALSE;
-
-	/*
-	std::vector<Node*>::const_iterator it;
-	
-	nearestHit.distance = FLT_MAX;
-
-	// Iterate through all nodes in the scene
-	for (it = renderContext->nodes.begin(); it != renderContext->nodes.end(); ++it)
-	{
-		const Node* node = *it;
-		const Renderable* renderable = node->GetComponent<Renderable>();
-
-		if (renderable == NULL)
-			continue;
-
-		const Shape* shape = renderable->shape;
-
-		// Perform the ray intersection		
-		RaycastHit hitInfo;
-		if (!shape->IntersectRay(ray, hitInfo))
-			continue;
-
-		// If the intersection is further away than a previous intersection, we're not interested
-		if (hitInfo.distance > nearestHit.distance || hitInfo.distance > maxDistance)
-			continue;
-		
-		nearestHit = hitInfo;
-		nearestHit.node = node;
-	}
-
-	return nearestHit.distance < maxDistance;
-	*/
 }

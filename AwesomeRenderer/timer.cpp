@@ -22,7 +22,7 @@ const TimingInfo& Timer::Tick()
 	return lastInfo;
 }
 
-float Timer::Poll()
+float Timer::Poll() const
 {
 	return (GetTickCount() - lastInfo.tickCount) / 1000.0f;
 }

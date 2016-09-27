@@ -246,8 +246,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Setup setup(context);
 	setup.SetupLighting();
 	setup.SetupScene();
-	setup.SetupCornellBox();
-	//setup.SetupSpheres();
+	//setup.SetupCornellBox();
+	setup.SetupSpheres();
 	
 	// Camera controller
 	CameraController cameraController(camera);
@@ -326,11 +326,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		++framesDrawn;
 		timeSinceLastPrint += timingInfo.elapsedSeconds;
 
-		if (timeSinceLastPrint >= 0.5f)
+		if (timeSinceLastPrint >= 1.0f)
 		{
-			if (mainRenderer == &rayTracer)
-				printf("[RayTracer]: Frame progress: %.0f%%\n", rayTracer.GetProgress() * 100);
-			else
+			if (mainRenderer != &rayTracer)
 				printf("[AwesomeRenderer]: FPS: %d; Last frame time: %dms;\n", framesDrawn, (uint32_t)(timingInfo.elapsedSeconds * 1000.0f));
 
 			framesDrawn = 0;
@@ -361,7 +359,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		if (inputManager.GetKey('P'))
 			mainRenderer = renderers[2];
 
-		rayTracerDebug.Update();
+		rayTracerDebug.Update(timingInfo.elapsedSeconds);
 
 		mainContext.Update();
 		mainRenderer->SetRenderContext(&mainContext);

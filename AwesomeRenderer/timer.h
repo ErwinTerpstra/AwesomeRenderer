@@ -30,7 +30,7 @@ namespace AwesomeRenderer
 
 		const TimingInfo& Tick();
 
-		float Poll();
+		float Poll() const;
 
 	};
 

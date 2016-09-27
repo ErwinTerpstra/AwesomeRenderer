@@ -6,13 +6,13 @@
 using namespace AwesomeRenderer;
 
 const int KDTree::MAX_NODES_PER_LEAF = 8;
-const int KDTree::MAX_DEPTH = 32;
+const int KDTree::MAX_DEPTH = 20;
 
 const float KDTree::TRAVERSAL_COST = 1.0f;
 const float KDTree::INTERSECTION_COST = 1.0f;
 const float KDTree::POSITION_EPSILON = FLT_EPSILON * 2.0f;
 
-KDTree::KDTree(KDTree* parent) : parent(parent), upperNode(NULL), lowerNode(NULL), elements()
+KDTree::KDTree(KDTree* parent) : parent(parent), upperNode(NULL), lowerNode(NULL), elements(), bounds(Vector3(-FLT_MAX, -FLT_MAX, -FLT_MAX), Vector3(FLT_MAX, FLT_MAX, FLT_MAX))
 {
 	if (parent)
 		axis = (parent->axis + 1) % 3;
@@ -205,7 +205,7 @@ bool KDTree::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 	{
 		for (auto it = elements.begin(); it != elements.end(); ++it)
 		{
-			const Primitive& shape = (*it)->GetPrimitive();
+			const Shape& shape = (*it)->GetShape();
 
 			// Perform the ray-triangle intersection
 			RaycastHit shapeHitInfo;

@@ -21,6 +21,8 @@ namespace AwesomeRenderer
 
 		virtual const Primitive& GetPrimitive() const = 0;
 
+		const Shape& GetShape() const { return *this; }
+
 	};
 
 }
