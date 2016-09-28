@@ -31,7 +31,7 @@ Vector3 MonteCarloIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, cons
 		PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
 
 		Vector3 reflectedRadiance(0.0f, 0.0f, 0.0f);
-		uint32_t samples = std::max(sampleCount >> depth, 4U);
+		uint32_t samples = sampleCount;// std::max(sampleCount >> depth, 4U);
 
 		for (uint32_t sampleIdx = 0; sampleIdx < samples; ++sampleIdx)
 		{

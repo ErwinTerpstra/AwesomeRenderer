@@ -29,7 +29,7 @@ using namespace AwesomeRenderer::RayTracing;
 const float RayTracer::MAX_FRAME_TIME = 0.05f;
 const uint32_t RayTracer::PIXELS_PER_JOB = 4096;
 
-RayTracer::RayTracer(Scheduler& scheduler) : Renderer(), debugIntegrator(*this), whittedIntegrator(*this), monteCarloIntegrator(*this), renderingFrame(false), maxDepth(0), frameTimer(0.0f, FLT_MAX)
+RayTracer::RayTracer(Scheduler& scheduler) : Renderer(), debugIntegrator(*this), whittedIntegrator(*this), monteCarloIntegrator(*this), renderingFrame(false), maxDepth(0), downScale(0), frameTimer(0.0f, FLT_MAX)
 {
 	currentIntegrator = &debugIntegrator;
 
@@ -51,17 +51,15 @@ void RayTracer::SetRenderContext(const RenderContext* context)
 	Renderer::SetRenderContext(context);
 
 	Buffer* frameBuffer = context->renderTarget->frameBuffer;
-	uint32_t pixels = frameBuffer->width * frameBuffer->height;
-
-	// Reserve enough memory for all pixels
-	pixelList.reserve(pixels);
-
+	
 	// Add all the pixel coordinates to the list
-	for (uint32_t y = 0; y < frameBuffer->height; ++y)
+	for (uint32_t y = 0; y < frameBuffer->height; y += 1 << downScale)
 	{
-		for (uint32_t x = 0; x < frameBuffer->width; ++x)
+		for (uint32_t x = 0; x < frameBuffer->width; x += 1 << downScale)
 			pixelList.push_back(Point2(x, y));
 	}
+
+	uint32_t pixels = pixelList.size();
 
 	std::random_shuffle(pixelList.begin(), pixelList.end());
 
@@ -179,11 +177,21 @@ void RayTracer::Render(const Point2& pixel)
 	ShadingInfo shadingInfo;
 	CalculateShading(primaryRay, shadingInfo);
 
-	// Write to color buffer
-	frameBuffer->SetPixel(pixel[0], pixel[1], shadingInfo.color);
+	if (downScale > 0)
+	{
+		// Write to color buffer
+		for (int y = 0; y < (1 << downScale); ++y)
+			for (int x = 0; x < (1 << downScale); ++x)
+				frameBuffer->SetPixel(std::min(pixel[0] + x, (int) frameBuffer->width - 1), std::min(pixel[1] + y, (int) frameBuffer->height - 1), shadingInfo.color);
+	}
+	else
+	{
+		// Write to color buffer
+		frameBuffer->SetPixel(pixel[0], pixel[1], shadingInfo.color);
+	}
 }
 
-void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int depth)
+void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int depth) const
 {
 	const LightData& lightData = *renderContext->lightData;
 
@@ -205,7 +213,7 @@ void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int d
 	shadingInfo.color = Color(currentIntegrator->Li(ray, hitInfo, *material, *renderContext, depth), 1.0);
 }
 
-float RayTracer::Fresnel(const Vector3& v, const Vector3& normal, float ior)
+float RayTracer::Fresnel(const Vector3& v, const Vector3& normal, float ior) const
 {
 	float cosi = cml::dot(v, normal);
 	float etai = 1, etat = ior;
@@ -230,7 +238,7 @@ float RayTracer::Fresnel(const Vector3& v, const Vector3& normal, float ior)
 }
 
 
-bool RayTracer::RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance)
+bool RayTracer::RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance) const 
 {
 	if (renderContext->tree.IntersectRay(ray, nearestHit))
 		return nearestHit.distance < maxDistance;

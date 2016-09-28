@@ -54,6 +54,7 @@ namespace AwesomeRenderer
 			SurfaceIntegrator* currentIntegrator;
 
 			uint32_t maxDepth;
+			uint32_t downScale;
 
 		public:
 
@@ -67,8 +68,8 @@ namespace AwesomeRenderer
 
 			void SetRenderContext(const RenderContext* context);
 
-			void CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int depth = 0);
-			bool RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance = FLT_MAX);
+			void CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int depth = 0) const;
+			bool RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance = FLT_MAX) const;
 
 			float GetProgress() const;
 			bool IsRenderingFrame() const { return renderingFrame; }
@@ -80,7 +81,7 @@ namespace AwesomeRenderer
 
 			void Render(const Point2& pixel);
 
-			float Fresnel(const Vector3& v, const Vector3& normal, float ior);
+			float Fresnel(const Vector3& v, const Vector3& normal, float ior) const;
 
 		};
 

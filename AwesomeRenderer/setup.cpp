@@ -144,7 +144,7 @@ void Setup::SetupCornellBox()
 	light.type = LightData::LightType::POINT;
 	light.position = Vector3(0.0f, 0.9f, 0.5f);
 	light.color = Color(0.78f, 0.78f, 0.78f);
-	light.intensity = 1.0f;
+	light.intensity = 0.6f;
 
 	light.enabled = true;
 
@@ -317,7 +317,7 @@ void Setup::SetupCornellBox()
 		context.mainContext->nodes.push_back(node);
 	}
 
-	if (FALSE)
+	//if (FALSE)
 	{
 		// Left sphere
 		Node* node = new Node();
@@ -341,7 +341,7 @@ void Setup::SetupCornellBox()
 		context.mainContext->nodes.push_back(node);
 	}
 	
-	if (FALSE)
+	//if (FALSE)
 	{
 		// right sphere
 		Node* node = new Node();
@@ -365,7 +365,7 @@ void Setup::SetupCornellBox()
 		context.mainContext->nodes.push_back(node);
 	}
 
-	//if (FALSE)
+	if (FALSE)
 	{
 		Node* node = new Node();
 
@@ -435,9 +435,10 @@ void Setup::SetupSpheres()
 	// LIGHT
 	LightData::Light& light = context.mainContext->lightData->lights[0];
 	light.type = LightData::LightType::DIRECTIONAL;
-	light.direction = cml::normalize(Vector3(1.0f, -1.0f, 1.0f));
-	light.color = Color(0.78f, 0.78f, 0.78f);
-	light.intensity = 1.0f;
+	light.direction = Vector3(-0.5f, -0.8f, -0.5f);
+	light.direction.normalize();
+	light.intensity = 2.0f;
+	light.color = Color::WHITE;
 
 	light.enabled = true;
 

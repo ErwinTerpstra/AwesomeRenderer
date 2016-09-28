@@ -5,6 +5,7 @@
 #include "lightdata.h"
 #include "rendercontext.h"
 #include "material.h"
+#include "pbrmaterial.h"
 
 #include "raytracer.h"
 
@@ -20,9 +21,9 @@ Vector3 SurfaceIntegrator::SampleDirectLight(const Ray& ray, const RaycastHit& h
 {
 	const Vector3 viewVector = -ray.direction;
 	const Vector3& normal = hitInfo.normal;
-
+	
 	Vector3 radiance(0.0f, 0.0f, 0.0f);
-
+	
 	// Iterate through all the lights
 	for (uint8_t i = 0; i < LightData::MAX_LIGHTS; ++i)
 	{
@@ -60,18 +61,18 @@ Vector3 SurfaceIntegrator::SampleDirectLight(const Ray& ray, const RaycastHit& h
 		else
 		{
 			toLight = -light.direction;
-			distanceToLight = 1000.0f; // TODO: shadow distance render context parameter?
+			distanceToLight = 10000.0f; // TODO: shadow distance render context parameter?
 		}
 
-		Ray shadowRay(hitInfo.point + toLight * 1e-5f, toLight);
+		Ray shadowRay(hitInfo.point + hitInfo.normal * 1e-3f, toLight);
 
 		RaycastHit shadowHitInfo;
 		if (rayTracer.RayCast(shadowRay, shadowHitInfo, distanceToLight))
 			continue;
-
+		
 		float NoL = std::max(cml::dot(normal, toLight), 0.0f);
 		Vector3 lightRadiance = light.color.subvector(3) * intensity;
-
+		
 		radiance += material.bsdf->Sample(viewVector, toLight, normal, material) * lightRadiance * NoL;
 	}
 	

@@ -76,9 +76,14 @@ Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& v, const Vector3
 
 	// Return the evaluated BRDF
 	Vector3 result = ((fresnel * geometry * distribution) / denominator);
+	
 	result[0] = Util::Clamp01(result[0]);
 	result[1] = Util::Clamp01(result[1]);
 	result[2] = Util::Clamp01(result[2]);
+
+	//result[0] = std::max(result[0], 0.0f);
+	//result[1] = std::max(result[1], 0.0f);
+	//result[2] = std::max(result[2], 0.0f);
 
 	return result;
 }
@@ -119,7 +124,7 @@ float MicrofacetSpecular::GeometryCookTorrance(const Vector3& v, const Vector3& 
 	float VoH = Util::Clamp(cml::dot(v, h), 1e-7f, 1.0f);
 
 	return std::min(1.0f, std::min((2.0f * NoH * NoV) / VoH,
-		(2.0f * NoH * NoL) / VoH));
+								   (2.0f * NoH * NoL) / VoH));
 }
 
 float MicrofacetSpecular::GeometrySmith(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float a)
@@ -145,10 +150,16 @@ float MicrofacetSpecular::G1GGX(const Vector3& v, const Vector3& n, const Vector
 {
 	float HoV = cml::dot(h, v);
 
-	if (HoV < 0.0f)
+	if (HoV <= 0.0f)
 		return 0.0f;
 
 	float a2 = a * a;
+
+	//*
+	float NoV = cml::dot(n, v);
+
+	return (2.0f * NoV) / std::max(NoV + sqrt(a2 + (1.0f - a2) * NoV * NoV), 1e-7f);
+	/*/
 
 	float NoV2 = cml::dot(n, v);
 	NoV2 = NoV2 * NoV2;
@@ -156,6 +167,7 @@ float MicrofacetSpecular::G1GGX(const Vector3& v, const Vector3& n, const Vector
 	float tan2 = (1.0f - NoV2) / NoV2;
 
 	return (2.0f / std::max(1.0f + sqrt(1.0f + a2 * tan2), 1e-7f));
+	//*/
 }
 
 Vector3 MicrofacetSpecular::FresnelSchlick(float cosT, Vector3 F0)

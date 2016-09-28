@@ -27,7 +27,7 @@ void RenderContext::Optimize()
 			tree.elements.push_back(renderable);
 	}
 
-	//float extents = 5.0f;
+	//float extents = 50.0f;
 	//tree.Optimize(AABB(Vector3(-extents, -extents, -extents), Vector3(extents, extents, extents)));
 }
 
