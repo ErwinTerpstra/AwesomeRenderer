@@ -144,7 +144,7 @@ void Setup::SetupCornellBox()
 	light.type = LightData::LightType::POINT;
 	light.position = Vector3(0.0f, 0.9f, 0.5f);
 	light.color = Color(0.78f, 0.78f, 0.78f);
-	light.intensity = 0.6f;
+	light.intensity = 1.0f;
 
 	light.enabled = true;
 

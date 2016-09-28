@@ -43,7 +43,7 @@ Vector3 MonteCarloIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, cons
 				continue;
 
 			// Calculate incoming light along this sample vector
-			Ray reflectionRay(hitInfo.point + hitInfo.normal * 1e-5f, reflectionDirection);
+			Ray reflectionRay(hitInfo.point + hitInfo.normal * 1e-3f, reflectionDirection);
 
 			ShadingInfo reflectionShading;
 			rayTracer.CalculateShading(reflectionRay, reflectionShading, depth + 1);
