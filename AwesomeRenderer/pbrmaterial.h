@@ -15,8 +15,6 @@ namespace AwesomeRenderer
 
 		float metallic;
 
-		float ior;
-
 		Color albedo;
 
 		Color specular;

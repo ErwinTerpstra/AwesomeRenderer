@@ -77,9 +77,9 @@ Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& v, const Vector3
 	// Return the evaluated BRDF
 	Vector3 result = ((fresnel * geometry * distribution) / denominator);
 	
-	result[0] = Util::Clamp01(result[0]);
-	result[1] = Util::Clamp01(result[1]);
-	result[2] = Util::Clamp01(result[2]);
+	//result[0] = Util::Clamp01(result[0]);
+	//result[1] = Util::Clamp01(result[1]);
+	//result[2] = Util::Clamp01(result[2]);
 
 	//result[0] = std::max(result[0], 0.0f);
 	//result[1] = std::max(result[1], 0.0f);

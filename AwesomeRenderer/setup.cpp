@@ -158,11 +158,15 @@ void Setup::SetupCornellBox()
 	const Color sphereSpecular(0.6f, 0.6f, 0.6f);
 	const float sphereRoughness = 0.5f;
 	const float sphereMetallic = 1;
+	const float sphereIor = 1.5f;
+	const bool sphereTranslucent = true;
 	/*/
 	const Color sphereDiffuse(0.5f, 0.5f, 0.5f);
 	const Color sphereSpecular(0.1f, 0.1f, 0.1f);
 	const float sphereRoughness = 0.4f;
 	const float sphereMetallic = 0;
+	const float sphereIor = 1.5f;
+	const bool sphereTranslucent = false;
 	//*/
 
 	{
@@ -331,6 +335,8 @@ void Setup::SetupCornellBox()
 		material->specular = sphereSpecular;
 		material->metallic = sphereMetallic;
 		material->roughness = sphereRoughness;
+		material->provider.ior = sphereIor;
+		material->provider.translucent = sphereTranslucent;
 
 		Renderable* renderable = new Renderable();
 		renderable->shape = new Sphere(Vector3(0.0f, 0.15f, 0.0f), 0.15f);
@@ -355,6 +361,8 @@ void Setup::SetupCornellBox()
 		material->specular = sphereSpecular;
 		material->metallic = sphereMetallic;
 		material->roughness = sphereRoughness;
+		material->provider.ior = sphereIor;
+		material->provider.translucent = sphereTranslucent;
 
 		Renderable* renderable = new Renderable();
 		renderable->shape = new Sphere(Vector3(0.0f, 0.18f, 0.0f), 0.18f);

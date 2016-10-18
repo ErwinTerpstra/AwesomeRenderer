@@ -81,8 +81,6 @@ namespace AwesomeRenderer
 
 			void Render(const Point2& pixel);
 
-			float Fresnel(const Vector3& v, const Vector3& normal, float ior) const;
-
 		};
 
 	}

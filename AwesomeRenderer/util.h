@@ -38,6 +38,9 @@ namespace AwesomeRenderer
 
 		static void Refract(const Vector& v, const Vector& normal, float ior, Vector3& out)
 		{
+			assert(IsNormalized(v));
+			assert(IsNormalized(normal));
+
 			float cosi = cml::dot(v, normal);
 			float etai = 1, etat = ior;
 			Vector n = normal;

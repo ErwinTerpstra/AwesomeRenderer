@@ -76,44 +76,5 @@ Vector3 SurfaceIntegrator::SampleDirectLight(const Ray& ray, const RaycastHit& h
 		radiance += material.bsdf->Sample(viewVector, toLight, normal, material) * lightRadiance * NoL;
 	}
 	
-	/*/
-	if (FALSE)
-	{
-		float ior = 0.75f;
-
-		// Refraction
-		Vector3 innerRefractionDirection;
-		VectorUtil<3>::Refract(ray.direction, normal, ior, innerRefractionDirection);
-
-		Ray innerRefractionRay(hitInfo.point - normal * 0.01f, innerRefractionDirection);
-
-		Ray refractionRay;
-
-		RaycastHit refractionHit;
-		if (RayCast(innerRefractionRay, refractionHit))
-		{
-		if (refractionHit.inside)
-		{
-		ior = 1.0f / ior;
-
-		Vector3 outerRefractionDirection;
-		VectorUtil<3>::Refract(innerRefractionDirection, refractionHit.normal, ior, outerRefractionDirection);
-
-		refractionRay = Ray(refractionHit.point + normal * 0.01f, outerRefractionDirection);
-		}
-		else
-		{
-		refractionRay = innerRefractionRay;
-		}
-
-		}
-
-		ShadingInfo refractionShading;
-		CalculateShading(refractionRay, refractionShading, depth + 1);
-
-		radiance += refractionShading.color.subvector(3);
-	}
-	/**/
-
 	return radiance;
 }

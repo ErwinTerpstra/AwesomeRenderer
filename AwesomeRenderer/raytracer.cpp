@@ -213,31 +213,6 @@ void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int d
 	shadingInfo.color = Color(currentIntegrator->Li(ray, hitInfo, *material, *renderContext, depth), 1.0);
 }
 
-float RayTracer::Fresnel(const Vector3& v, const Vector3& normal, float ior) const
-{
-	float cosi = cml::dot(v, normal);
-	float etai = 1, etat = ior;
-
-	if (cosi > 0)
-		std::swap(etai, etat);
-
-	// Compute sini using Snell's law
-	float sint = etai / etat * sqrtf(std::max(0.f, 1 - cosi * cosi));
-
-	// Total internal reflection
-	if (sint >= 1)
-		return 1.0f;
-
-	float cost = sqrtf(std::max(0.f, 1 - sint * sint));
-	cosi = fabsf(cosi);
-
-	float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
-	float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
-
-	return (Rs * Rs + Rp * Rp) / 2;
-}
-
-
 bool RayTracer::RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance) const 
 {
 	if (renderContext->tree.IntersectRay(ray, nearestHit))
