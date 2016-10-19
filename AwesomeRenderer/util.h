@@ -58,7 +58,13 @@ namespace AwesomeRenderer
 			float eta = etai / etat;
 			float k = 1 - eta * eta * (1 - cosi * cosi);
 
-			out = k < 0 ? Vector3(0.0f, 0.0f, 0.0f) : (eta * v + (eta * cosi - sqrtf(k)) * n);
+			if (k >= 0)
+			{
+				out = eta * v + (eta * cosi - sqrtf(k)) * n;
+				assert(IsNormalized(out));
+			}
+			else
+				out = Vector3(0.0f, 0.0f, 0.0f);
 		}
 
 	};

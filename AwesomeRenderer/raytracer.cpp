@@ -72,6 +72,8 @@ void RayTracer::SetRenderContext(const RenderContext* context)
 		RenderJob* job = new RenderJob(*this, it + renderJobIdx * PIXELS_PER_JOB, it + std::min((renderJobIdx + 1) * PIXELS_PER_JOB, pixels));
 		renderJobs.push_back(job);
 	}
+
+	//std::random_shuffle(renderJobs.begin(), renderJobs.end());
 }
 
 void RayTracer::PreRender()

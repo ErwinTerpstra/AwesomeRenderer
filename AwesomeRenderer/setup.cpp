@@ -153,20 +153,34 @@ void Setup::SetupCornellBox()
 	const Color wallSpecular = Color::WHITE * 0.2f;
 	const float wallRoughness = 0.8f;
 
-	//*
+	// Metal
+	/*
 	const Color sphereDiffuse = Color::BLACK;
 	const Color sphereSpecular(0.6f, 0.6f, 0.6f);
 	const float sphereRoughness = 0.5f;
 	const float sphereMetallic = 1;
-	const float sphereIor = 1.5f;
-	const bool sphereTranslucent = true;
-	/*/
+	const float sphereIor = 1.0f;
+	const bool sphereTranslucent = false;
+	//*/
+
+	// Plastic
+	/*
 	const Color sphereDiffuse(0.5f, 0.5f, 0.5f);
 	const Color sphereSpecular(0.1f, 0.1f, 0.1f);
 	const float sphereRoughness = 0.4f;
 	const float sphereMetallic = 0;
-	const float sphereIor = 1.5f;
+	const float sphereIor = 1.0f;
 	const bool sphereTranslucent = false;
+	//*/
+
+	// Glass
+	//*
+	const Color sphereDiffuse(0.5f, 0.5f, 0.5f);
+	const Color sphereSpecular(0.1f, 0.1f, 0.1f);
+	const float sphereRoughness = 0.0f;
+	const float sphereMetallic = 0;
+	const float sphereIor = 1.4f;
+	const bool sphereTranslucent = true;
 	//*/
 
 	{
@@ -385,10 +399,12 @@ void Setup::SetupCornellBox()
 		node->AddComponent(transform);
 
 		PbrMaterial* material = new PbrMaterial(*(new Material()));
-		material->albedo = wallWhite;
-		material->specular = wallSpecular;
-		material->metallic = 0.0f;
-		material->roughness = wallRoughness;
+		material->albedo = sphereDiffuse;
+		material->specular = sphereSpecular;
+		material->metallic = sphereMetallic;
+		material->roughness = sphereRoughness;
+		material->provider.ior = sphereIor;
+		material->provider.translucent = sphereTranslucent;
 
 
 		Model* model = new Model();
@@ -448,7 +464,7 @@ void Setup::SetupSpheres()
 	light.intensity = 2.0f;
 	light.color = Color::WHITE;
 
-	light.enabled = true;
+	light.enabled = false;
 
 	// GEOMETRY
 	const float MIN_ROUGHNESS = 0.1f;

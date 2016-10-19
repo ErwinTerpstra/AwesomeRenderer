@@ -84,6 +84,8 @@ bool Triangle3D::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 
 	VectorUtil<3>::Interpolate(vN[0], vN[1], vN[2], hitInfo.barycentricCoords, hitInfo.normal);
 	
+	hitInfo.inside = cml::dot(ray.direction, hitInfo.normal) >= 0;
+	
 	return true;
 }
 

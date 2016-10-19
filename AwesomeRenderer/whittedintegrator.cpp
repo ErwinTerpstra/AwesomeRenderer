@@ -11,6 +11,8 @@
 
 #include "shadinginfo.h"
 
+#include "sphere.h"
+
 using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
 
@@ -32,10 +34,9 @@ Vector3 WhittedIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, const M
 		if (material.translucent)
 		{
 			Vector3 refraction = SampleRefraction(ray, hitInfo, material, context, depth);
-			return refraction;
 
 			float fresnel = Fresnel(ray.direction, hitInfo.normal, material.ior);
-			radiance += reflection * (1.0f - fresnel) + refraction * fresnel;
+			radiance += reflection * fresnel + refraction * (1.0f - fresnel);
 		}
 		else
 			radiance += reflection;
@@ -65,7 +66,7 @@ Vector3 WhittedIntegrator::SampleReflection(const Ray& ray, const RaycastHit& hi
 
 Vector3 WhittedIntegrator::SampleRefraction(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& context, int depth)
 {
-	if (fabs(cml::dot(ray.direction, hitInfo.normal)) < 1e-3f)
+	if (cml::dot(-ray.direction, hitInfo.normal) < 1e-3f)
 		return Vector3(0.0f, 0.0f, 0.0f);
 
 	float ior = material.ior;
@@ -75,7 +76,6 @@ Vector3 WhittedIntegrator::SampleRefraction(const Ray& ray, const RaycastHit& hi
 	VectorUtil<3>::Refract(ray.direction, hitInfo.normal, ior, innerRefractionDirection);
 
 	Ray innerRefractionRay(hitInfo.point + innerRefractionDirection * 1e-3f, innerRefractionDirection);
-
 	Ray refractionRay;
 
 	RaycastHit refractionHit;
@@ -86,7 +86,7 @@ Vector3 WhittedIntegrator::SampleRefraction(const Ray& ray, const RaycastHit& hi
 			ior = 1.0f / ior;
 
 			Vector3 outerRefractionDirection;
-			VectorUtil<3>::Refract(innerRefractionDirection, refractionHit.normal, ior, outerRefractionDirection);
+			VectorUtil<3>::Refract(innerRefractionDirection, -refractionHit.normal, ior, outerRefractionDirection);
 
 			refractionRay = Ray(refractionHit.point + outerRefractionDirection * 1e-3f, outerRefractionDirection);
 		}

@@ -69,10 +69,14 @@ bool Sphere::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
     float t1 = c / q;
 
 	// Check if t0 is smaller than t1. Otherwise, swap them around
-	if (t0 > t1 && t1 >= 0.0f)
+	if (t0 > t1)
 		std::swap(t0, t1);
 
-	// If t0 is smaller than zero, both intersections are in negative distance. So the ray misses
+	// Check if t0 is in negative time
+	if (t0 < 0.0f)
+		std::swap(t0, t1);
+
+	// If t0 is still smaller than zero, both intersections are in negative time. So the ray misses
 	if (t0 < 0.0f)
 		return false;
 
@@ -80,8 +84,8 @@ bool Sphere::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 	hitInfo.distance = t0;
 	hitInfo.point = ray.origin + ray.direction * t0;
 	hitInfo.inside = t1 < 0.0f;
-	hitInfo.normal = hitInfo.inside ? cml::normalize(centerTransformed - hitInfo.point) : cml::normalize(hitInfo.point - centerTransformed);
-
+	hitInfo.normal = cml::normalize(hitInfo.point - centerTransformed);
+	
 	return true;
 }
 
