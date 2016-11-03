@@ -492,7 +492,7 @@ void Setup::SetupSpheres()
 
 			if (row == 0)
 			{
-				material->albedo = Color::WHITE * 0.8f;
+				material->albedo = Color::WHITE * 0.3f;
 				material->specular = Color::WHITE * 0.2f;
 				material->metallic = 0;
 			}

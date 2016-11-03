@@ -53,7 +53,7 @@
       <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <PreprocessorDefinitions>_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN32;AR_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <Link>
@@ -68,7 +68,7 @@
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN32;AR_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
@@ -86,9 +86,12 @@
   <ItemGroup>
     <ClCompile Include="aabb.cpp" />
     <ClCompile Include="blinnphong.cpp" />
+    <ClCompile Include="bsdf.cpp" />
+    <ClCompile Include="bxdf.cpp" />
     <ClCompile Include="cameracontroller.cpp" />
     <ClCompile Include="components.cpp" />
     <ClCompile Include="debugintegrator.cpp" />
+    <ClCompile Include="lambert.cpp" />
     <ClCompile Include="lightdata.cpp" />
     <ClCompile Include="microfacetspecular.cpp" />
     <ClCompile Include="montecarlointegrator.cpp" />
@@ -157,8 +160,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aabb.h" />
-    <ClInclude Include="buffer.h" />
     <ClInclude Include="bsdf.h" />
+    <ClInclude Include="buffer.h" />
+    <ClInclude Include="bxdf.h" />
     <ClInclude Include="coloredskybox.h" />
     <ClInclude Include="component.h" />
     <ClInclude Include="debug.h" />
@@ -167,6 +171,7 @@
     <ClInclude Include="extensionprovider.h" />
     <ClInclude Include="extension.h" />
     <ClInclude Include="factory.h" />
+    <ClInclude Include="lambert.h" />
     <ClInclude Include="lightdata.h" />
     <ClInclude Include="microfacetspecular.h" />
     <ClInclude Include="montecarlointegrator.h" />

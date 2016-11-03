@@ -31,7 +31,7 @@ namespace AwesomeRenderer
 		{
 			ExtensionMap::const_iterator it = extensions.find(ExtensionType::ExtensionID());
 
-#if _DEBUG
+#ifdef AR_DEBUG
 			if (it == extensions.end())
 				return NULL;
 #endif

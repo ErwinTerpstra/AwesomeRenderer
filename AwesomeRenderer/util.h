@@ -82,7 +82,19 @@ namespace AwesomeRenderer
 			else
 				right = Vector3(0, -up[2], up[1]) / sqrtf(up[1] * up[1] + up[2] * up[2]);
 
-			forward = cml::cross(up, right);
+			forward = cml::normalize(cml::cross(up, right));
+		};
+
+		static void OrthoNormalize(const Vector3& up, const Vector3& forwardHint, Vector3& right, Vector3& forward)
+		{
+			if (std::fabs(cml::dot(up, forwardHint)) < 1e-5f)
+			{
+				OrthoNormalize(up, right, forward);
+				return;
+			}
+
+			right = cml::normalize(cml::cross(forwardHint, up));
+			forward = cml::normalize(cml::cross(up, right));
 		};
 	};
 	

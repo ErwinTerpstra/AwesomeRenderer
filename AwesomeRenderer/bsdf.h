@@ -9,15 +9,21 @@ namespace AwesomeRenderer
 
 	namespace RayTracing
 	{
+		class BxDF;
 
 		class BSDF
 		{
-			
+		public:
+			BxDF* diffuse;
+			BxDF* specular;
 
 		public:
 
-			virtual Vector3 Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) = 0;
+			BSDF();
+			BSDF(BxDF* diffuse, BxDF* specular);
 
+			Vector3 Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const;
+			Vector3 ConserveEnergy(const Vector3& diffuseRadiance, const Vector3& specularRadiance) const;
 		};
 	}
 }

@@ -15,11 +15,30 @@
 #include "context.h"
 #include "surfaceintegrator.h"
 
+#include "random.h"
+#include "lambert.h"
+#include "microfacetspecular.h"
+#include "pbrmaterial.h"
+
 using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
 
 const std::string RayTracerDebug::RENDER_ROOT = "../Renders";
 const float RayTracerDebug::UPDATE_INTERVAL = 0.2f;
+
+float pdf(float phi, float theta)
+{
+	//return cos(theta) / 4.0f;
+	//return 1.0 / (2.0 * PI);
+
+	float roughness = 0.5f;
+	float alpha2 = roughness * roughness;
+
+	float cosTheta = cos(theta);
+	float denom = (cosTheta * cosTheta * (alpha2 - 1.0f)) + 1.0f;
+
+	return ((2 * alpha2) / std::max((float)PI * denom * denom, 1e-7f)) * cosTheta * sinf(theta);
+}
 
 RayTracerDebug::RayTracerDebug(Context& context, RayTracer& rayTracer) : 
 	context(context), rayTracer(rayTracer), inputManager(InputManager::Instance()),
@@ -28,6 +47,35 @@ RayTracerDebug::RayTracerDebug(Context& context, RayTracer& rayTracer) :
 	integrators[0] = &rayTracer.debugIntegrator;
 	integrators[1] = &rayTracer.whittedIntegrator;
 	integrators[2] = &rayTracer.monteCarloIntegrator;
+
+	/**/
+	Random random;
+
+	float cdf = 0;
+	int steps = 5000;
+	
+	int iterations = 0;
+
+	float delta = (2.0f * PI) / (steps * steps);
+
+	for (int phiStep = 0; phiStep < steps; ++phiStep)
+	{
+		double phi = -PI + (2.0 * PI * (phiStep / (double)steps));
+
+		for (int thetaStep = 0; thetaStep < steps; ++thetaStep)
+		{
+			double theta = (0.5 * PI * (thetaStep / (double)(steps - 1)));
+
+			float p = pdf(phi, theta);
+
+			cdf += p * delta;
+			++iterations;
+		}
+	}
+
+	printf("CDF: %.5lf in %d/%d iterations\n", cdf, iterations, steps * steps);
+	printf("\n");
+	/**/
 }
 
 RayTracerDebug::~RayTracerDebug()

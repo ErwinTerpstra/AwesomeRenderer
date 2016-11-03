@@ -32,7 +32,7 @@ const uint32_t RayTracer::PIXELS_PER_JOB = 4096;
 RayTracer::RayTracer(Scheduler& scheduler) : Renderer(), debugIntegrator(*this), whittedIntegrator(*this), monteCarloIntegrator(*this), renderingFrame(false), maxDepth(0), downScale(0), frameTimer(0.0f, FLT_MAX)
 {
 	currentIntegrator = &debugIntegrator;
-
+	
 	jobGroup = scheduler.CreateJobGroup(8);
 }
 

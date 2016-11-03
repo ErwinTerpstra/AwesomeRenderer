@@ -273,6 +273,15 @@
     <ClCompile Include="raytracerdebug.cpp">
       <Filter>Source\Renderer\RayTracing</Filter>
     </ClCompile>
+    <ClCompile Include="lambert.cpp">
+      <Filter>Source\Renderer\RayTracing\BSDF</Filter>
+    </ClCompile>
+    <ClCompile Include="bxdf.cpp">
+      <Filter>Source\Renderer\RayTracing\BSDF</Filter>
+    </ClCompile>
+    <ClCompile Include="bsdf.cpp">
+      <Filter>Source\Renderer\RayTracing\BSDF</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h">
@@ -503,9 +512,6 @@
     <ClInclude Include="microfacetspecular.h">
       <Filter>Source\Renderer\RayTracing\BSDF</Filter>
     </ClInclude>
-    <ClInclude Include="bsdf.h">
-      <Filter>Source\Renderer\RayTracing\BSDF</Filter>
-    </ClInclude>
     <ClInclude Include="blinnphong.h">
       <Filter>Source\Renderer\RayTracing\BSDF</Filter>
     </ClInclude>
@@ -529,6 +535,15 @@
     </ClInclude>
     <ClInclude Include="raytracerdebug.h">
       <Filter>Source\Renderer\RayTracing</Filter>
+    </ClInclude>
+    <ClInclude Include="lambert.h">
+      <Filter>Source\Renderer\RayTracing\BSDF</Filter>
+    </ClInclude>
+    <ClInclude Include="bxdf.h">
+      <Filter>Source\Renderer\RayTracing\BSDF</Filter>
+    </ClInclude>
+    <ClInclude Include="bsdf.h">
+      <Filter>Source\Renderer\RayTracing\BSDF</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
