@@ -17,7 +17,6 @@ namespace AwesomeRenderer
 			uint32_t sampleCount;
 
 		private:
-
 			Random& random;
 
 		public:

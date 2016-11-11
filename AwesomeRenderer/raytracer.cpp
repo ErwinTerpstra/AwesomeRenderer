@@ -27,9 +27,9 @@ using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
 
 const float RayTracer::MAX_FRAME_TIME = 0.05f;
-const uint32_t RayTracer::PIXELS_PER_JOB = 4096;
+const uint32_t RayTracer::TILE_SIZE = 32;
 
-RayTracer::RayTracer(Scheduler& scheduler) : Renderer(), debugIntegrator(*this), whittedIntegrator(*this), monteCarloIntegrator(*this), renderingFrame(false), maxDepth(0), downScale(0), frameTimer(0.0f, FLT_MAX)
+RayTracer::RayTracer(Scheduler& scheduler) : Renderer(), debugIntegrator(*this), whittedIntegrator(*this), monteCarloIntegrator(*this), renderingFrame(false), maxDepth(0), frameTimer(0.0f, FLT_MAX)
 {
 	currentIntegrator = &debugIntegrator;
 	
@@ -52,28 +52,23 @@ void RayTracer::SetRenderContext(const RenderContext* context)
 
 	Buffer* frameBuffer = context->renderTarget->frameBuffer;
 	
-	// Add all the pixel coordinates to the list
-	for (uint32_t y = 0; y < frameBuffer->height; y += 1 << downScale)
+	uint32_t horizontalTiles = ceil(frameBuffer->width / (float)TILE_SIZE);
+	uint32_t verticalTiles = ceil(frameBuffer->height / (float)TILE_SIZE);
+
+	for (uint32_t verticalTile = 0; verticalTile < verticalTiles; ++verticalTile)
 	{
-		for (uint32_t x = 0; x < frameBuffer->width; x += 1 << downScale)
-			pixelList.push_back(Point2(x, y));
+		uint32_t y = verticalTile * TILE_SIZE;
+
+		for (uint32_t horizontalTile = 0; horizontalTile < horizontalTiles; ++horizontalTile)
+		{
+			uint32_t x = horizontalTile * TILE_SIZE;
+
+			RenderJob* job = new RenderJob(*this, x, y, std::min(TILE_SIZE, frameBuffer->width - x), std::min(TILE_SIZE, frameBuffer->height - y));
+			renderJobs.push_back(job);
+		}
 	}
-
-	uint32_t pixels = pixelList.size();
-
-	std::random_shuffle(pixelList.begin(), pixelList.end());
-
-	// Create render jobs to hold all pixels
-	uint32_t renderJobCount = ceil(pixels / (float)PIXELS_PER_JOB);
-
-	std::vector<Point2>::iterator it = pixelList.begin();
-	for (uint32_t renderJobIdx = 0; renderJobIdx < renderJobCount; ++renderJobIdx)
-	{
-		RenderJob* job = new RenderJob(*this, it + renderJobIdx * PIXELS_PER_JOB, it + std::min((renderJobIdx + 1) * PIXELS_PER_JOB, pixels));
-		renderJobs.push_back(job);
-	}
-
-	//std::random_shuffle(renderJobs.begin(), renderJobs.end());
+	
+	std::random_shuffle(renderJobs.begin(), renderJobs.end());
 }
 
 void RayTracer::PreRender()
@@ -179,18 +174,8 @@ void RayTracer::Render(const Point2& pixel)
 	ShadingInfo shadingInfo;
 	CalculateShading(primaryRay, shadingInfo);
 
-	if (downScale > 0)
-	{
-		// Write to color buffer
-		for (int y = 0; y < (1 << downScale); ++y)
-			for (int x = 0; x < (1 << downScale); ++x)
-				frameBuffer->SetPixel(std::min(pixel[0] + x, (int) frameBuffer->width - 1), std::min(pixel[1] + y, (int) frameBuffer->height - 1), shadingInfo.color);
-	}
-	else
-	{
-		// Write to color buffer
-		frameBuffer->SetPixel(pixel[0], pixel[1], shadingInfo.color);
-	}
+	// Write to color buffer
+	frameBuffer->SetPixel(pixel[0], pixel[1], shadingInfo.color);
 }
 
 void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int depth) const

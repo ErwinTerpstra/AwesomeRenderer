@@ -28,8 +28,9 @@ const float RayTracerDebug::UPDATE_INTERVAL = 0.2f;
 
 float pdf(float phi, float theta)
 {
-	//return cos(theta) / 4.0f;
-	//return 1.0 / (2.0 * PI);
+	//return cos(theta) / (2 * PI);
+	//return 1.0 / (0.5 * PI * PI);
+	return 1.0 / (2.0 * PI);
 
 	float roughness = 0.5f;
 	float alpha2 = roughness * roughness;
@@ -48,7 +49,7 @@ RayTracerDebug::RayTracerDebug(Context& context, RayTracer& rayTracer) :
 	integrators[1] = &rayTracer.whittedIntegrator;
 	integrators[2] = &rayTracer.monteCarloIntegrator;
 
-	/**/
+	/*/
 	Random random;
 
 	float cdf = 0;

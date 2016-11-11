@@ -21,6 +21,7 @@ namespace AwesomeRenderer
 
 	public:
 		PbrMaterial(Material& material);
+		PbrMaterial::PbrMaterial(RayTracing::BSDF& bsdf, Material& material);
 		~PbrMaterial();
 
 		static uint32_t ExtensionID() { return Material::MATERIAL_PBR; }

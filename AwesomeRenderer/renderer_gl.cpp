@@ -78,6 +78,7 @@ void RendererGL::PreRender()
 		clearBits |= GL_DEPTH_BUFFER_BIT;
 
 	glClear(clearBits);
+	renderContext->renderTarget->frameBuffer->Clear();
 }
 
 void RendererGL::PostRender()

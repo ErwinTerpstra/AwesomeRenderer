@@ -31,8 +31,13 @@ Vector3 MonteCarloIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, cons
 
 	if (depth < rayTracer.maxDepth)
 	{
-		Vector3 diffuse = Integrate(ray, hitInfo, *material.bsdf->diffuse, material, sampleCount, depth);
-		Vector3 specular = Vector3(0.0f, 0.0f, 0.0f);// Integrate(ray, hitInfo, *material.bsdf->specular, material, sampleCount, depth);
+		Vector3 diffuse, specular;
+
+		if (material.bsdf->diffuse != NULL)
+			diffuse = Integrate(ray, hitInfo, *material.bsdf->diffuse, material, sampleCount, depth);
+
+		if (material.bsdf->specular != NULL)
+			specular = Integrate(ray, hitInfo, *material.bsdf->specular, material, sampleCount, depth);
 
 		radiance += material.bsdf->ConserveEnergy(diffuse, specular);
 	}
@@ -49,10 +54,11 @@ Vector3 MonteCarloIntegrator::Integrate(const Ray& ray, const RaycastHit& hitInf
 		float pdf;
 		Vector3 reflectionDirection = GenerateSampleVector(ray.direction, hitInfo.normal, bxdf, material, pdf);
 		
-		// TODO: Is it correct to skip a sample when it's PDF is zero?
 		if (pdf < 1e-5f)
 			continue;
-
+		
+		Vector3 reflectance = bxdf.Sample(-ray.direction, reflectionDirection, hitInfo.normal, material);
+		
 		// Calculate incoming light along this sample vector
 		Ray reflectionRay(hitInfo.point + hitInfo.normal * 1e-3f, reflectionDirection);
 
@@ -64,10 +70,7 @@ Vector3 MonteCarloIntegrator::Integrate(const Ray& ray, const RaycastHit& hitInf
 
 		Vector3 lightRadiance = reflectionShading.color.subvector(3);
 
-		if (lightRadiance.length_squared() <= 1e-5)
-			continue;
-
-		radiance += bxdf.Sample(-ray.direction, reflectionDirection, hitInfo.normal, material) * lightRadiance * NoL / pdf;
+		radiance += reflectance * lightRadiance * NoL * (1.0f / pdf);
 	}
 
 	return radiance / samples;

@@ -44,6 +44,7 @@ namespace AwesomeRenderer
 		virtual void Cleanup() = 0;
 
 		virtual void SetRenderContext(const RenderContext* renderContext);
+		const RenderContext& GetRenderContext() const { return *renderContext; }
 
 	protected:
 		Renderer();

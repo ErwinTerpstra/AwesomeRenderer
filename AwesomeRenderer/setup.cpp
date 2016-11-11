@@ -22,6 +22,8 @@
 #include "material.h"
 #include "phongmaterial.h"
 #include "pbrmaterial.h"
+#include "bsdf.h"
+#include "microfacetspecular.h"
 
 #include "mesh.h"
 #include "model.h"
@@ -154,7 +156,8 @@ void Setup::SetupCornellBox()
 	const float wallRoughness = 0.8f;
 
 	// Metal
-	/*
+	//*
+	const RayTracing::BSDF* sphereBSDF = new RayTracing::BSDF(NULL, new RayTracing::MicrofacetSpecular());
 	const Color sphereDiffuse = Color::BLACK;
 	const Color sphereSpecular(0.6f, 0.6f, 0.6f);
 	const float sphereRoughness = 0.5f;
@@ -165,7 +168,8 @@ void Setup::SetupCornellBox()
 
 	// Plastic
 	/*
-	const Color sphereDiffuse(0.5f, 0.5f, 0.5f);
+	const RayTracing::BSDF* sphereBSDF = &pbrBSDF;
+	const Color sphereDiffuse(0.8f, 0.8f, 0.8f);
 	const Color sphereSpecular(0.1f, 0.1f, 0.1f);
 	const float sphereRoughness = 0.4f;
 	const float sphereMetallic = 0;
@@ -174,7 +178,8 @@ void Setup::SetupCornellBox()
 	//*/
 
 	// Glass
-	//*
+	/*
+	const RayTracing::BSDF* sphereBSDF = &pbrBSDF;
 	const Color sphereDiffuse(0.5f, 0.5f, 0.5f);
 	const Color sphereSpecular(0.1f, 0.1f, 0.1f);
 	const float sphereRoughness = 0.0f;

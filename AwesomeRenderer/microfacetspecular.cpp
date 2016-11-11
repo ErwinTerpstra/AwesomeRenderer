@@ -28,14 +28,14 @@ void MicrofacetSpecular::GenerateSampleVector(const Vector2& r, const Material& 
 	const PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
 	float alpha2 = pbrMaterial->roughness * pbrMaterial->roughness;
 
-	phi = 2.0f * PI * r[0];
+	phi = 2.0f * PI * r[1];
 
-	float cosTheta = sqrt((1.0f - r[1]) / ((alpha2 - 1.0f) * r[1] + 1.0f));
+	float cosTheta = sqrt((1.0f - r[0]) / ((alpha2 - 1.0f) * r[0] + 1.0f));
 	theta = acos(cosTheta);
 
 	float denom = (cosTheta * cosTheta * (alpha2 - 1.0f)) + 1.0f;
 
-	pdf = ((2 * alpha2) / std::max((float)PI * denom * denom, 1e-7f)) * cosTheta * sinf(theta);
+	pdf = (alpha2 / std::max((float)PI * denom * denom, 1e-7f)) * cosTheta * sinf(theta);
 }
 
 Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& v, const Vector3& n, const Vector3& l, const Vector3& F0, float roughness, Vector3& ks) const

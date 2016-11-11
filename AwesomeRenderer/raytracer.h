@@ -35,7 +35,7 @@ namespace AwesomeRenderer
 
 		private:
 			static const float MAX_FRAME_TIME;
-			static const uint32_t PIXELS_PER_JOB;
+			static const uint32_t TILE_SIZE;
 
 			Timer frameTimer;
 
@@ -54,7 +54,6 @@ namespace AwesomeRenderer
 			SurfaceIntegrator* currentIntegrator;
 
 			uint32_t maxDepth;
-			uint32_t downScale;
 
 		public:
 

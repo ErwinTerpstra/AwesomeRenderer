@@ -34,4 +34,5 @@ void Lambert::GenerateSampleVector(const Vector2& r, const Material& material, f
 	theta = acos(r[0]);
 
 	pdf = r[0] / PI;
+	//pdf = 1 / (2 * PI);
 }
