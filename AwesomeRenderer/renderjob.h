@@ -23,7 +23,6 @@ namespace AwesomeRenderer
 
 		public:
 			RenderJob(RayTracer& rayTracer, uint32_t x, uint32_t y, uint32_t width, uint32_t height);
-			RenderJob(RayTracer& rayTracer, std::vector<Point2>::iterator start, std::vector<Point2>::iterator end);
 			
 			void Reset();
 

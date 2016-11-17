@@ -246,8 +246,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Setup setup(context);
 	setup.SetupLighting();
 	setup.SetupScene();
-	setup.SetupCornellBox();
-	//setup.SetupSpheres();
+	//setup.SetupCornellBox();
+	setup.SetupSpheres();
 	
 	// Camera controller
 	CameraController cameraController(camera);

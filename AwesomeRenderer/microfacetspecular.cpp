@@ -49,10 +49,6 @@ Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& v, const Vector3
 	// Calculate the half vector
 	Vector3 h = cml::normalize(l + v);
 
-	// Fresnel term
-	Vector3 fresnel = InputManager::Instance().GetKey('Z') ? F0 : FresnelSchlick(Util::Clamp01(cml::dot(h, l)), F0);
-	ks = fresnel;
-
 	float distribution, geometry;
 
 	// Normal distribution & geometry term
@@ -77,7 +73,8 @@ Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& v, const Vector3
 	float denominator = std::max(4 * Util::Clamp01(cml::dot(n, v)) * Util::Clamp01(cml::dot(n, l)), 1e-7f);
 
 	// Return the evaluated BRDF
-	Vector3 result = ((fresnel * geometry * distribution) / denominator);
+	float reflectance = (geometry * distribution) / denominator;
+	Vector3 result = Vector3(reflectance, reflectance, reflectance);
 	
 	//result[0] = Util::Clamp01(result[0]);
 	//result[1] = Util::Clamp01(result[1]);
@@ -170,9 +167,4 @@ float MicrofacetSpecular::G1GGX(const Vector3& v, const Vector3& n, const Vector
 
 	return (2.0f / std::max(1.0f + sqrt(1.0f + a2 * tan2), 1e-7f));
 	//*/
-}
-
-Vector3 MicrofacetSpecular::FresnelSchlick(float cosT, Vector3 F0) const
-{
-	return F0 + (1.0f - F0) * pow(1 - cosT, 5);
 }

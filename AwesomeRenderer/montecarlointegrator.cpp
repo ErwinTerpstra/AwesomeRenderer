@@ -27,22 +27,63 @@ Vector3 MonteCarloIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, cons
 {
 	Vector3 radiance = material.emission.subvector(3);
 	
-	radiance += SampleDirectLight(ray, hitInfo, material, context);
+	//radiance += SampleDirectLight(ray, hitInfo, material, context);
 
 	if (depth < rayTracer.maxDepth)
 	{
-		Vector3 diffuse, specular;
+		/*
+		Vector3 diffuse(0.0f, 0.0f, 0.0f), specular(0.0f, 0.0f, 0.0f);
 
+		// TODO: Perform specular trade off
 		if (material.bsdf->diffuse != NULL)
 			diffuse = Integrate(ray, hitInfo, *material.bsdf->diffuse, material, sampleCount, depth);
 
 		if (material.bsdf->specular != NULL)
 			specular = Integrate(ray, hitInfo, *material.bsdf->specular, material, sampleCount, depth);
 
-		radiance += material.bsdf->ConserveEnergy(diffuse, specular);
+		radiance += diffuse + specular;
+		*/
+
+		radiance += Integrate(ray, hitInfo, material, sampleCount, depth);
 	}
 	
 	return radiance;
+}
+
+Vector3 MonteCarloIntegrator::Integrate(const Ray& ray, const RaycastHit& hitInfo, const Material& material, uint32_t samples, int depth)
+{
+	Vector3 radiance(0.0f, 0.0f, 0.0f);
+
+	for (uint32_t sampleIdx = 0; sampleIdx < samples; ++sampleIdx)
+	{
+		float pdf;
+		Vector3 reflectionDirection;
+		
+		if (material.bsdf->specular != NULL)
+			reflectionDirection = GenerateSampleVector(ray.direction, hitInfo.normal, *material.bsdf->specular, material, pdf);
+		else
+			reflectionDirection = GenerateSampleVector(ray.direction, hitInfo.normal, *material.bsdf->diffuse, material, pdf);
+
+		if (pdf < 1e-5f)
+			continue;
+
+		Vector3 reflectance = material.bsdf->Sample(-ray.direction, reflectionDirection, hitInfo.normal, material);
+
+		// Calculate incoming light along this sample vector
+		Ray reflectionRay(hitInfo.point + hitInfo.normal * 1e-3f, reflectionDirection);
+
+		ShadingInfo reflectionShading;
+		rayTracer.CalculateShading(reflectionRay, reflectionShading, depth + 1);
+
+		float NoL = cml::dot(hitInfo.normal, reflectionDirection);
+		assert(NoL + 1e-5f >= 0.0f && NoL - 1e-5f <= 1.0f);
+
+		Vector3 lightRadiance = reflectionShading.color.subvector(3);
+
+		radiance += reflectance * lightRadiance * NoL * (1.0f / pdf);
+	}
+
+	return radiance / samples;
 }
 
 Vector3 MonteCarloIntegrator::Integrate(const Ray& ray, const RaycastHit& hitInfo, const BxDF& bxdf, const Material& material, uint32_t samples, int depth)

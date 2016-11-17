@@ -25,6 +25,7 @@ namespace AwesomeRenderer
 			Vector3 Li(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& renderContext, int depth);
 
 		private:
+			Vector3 Integrate(const Ray& ray, const RaycastHit& hitInfo, const Material& material, uint32_t samples, int depth);
 			Vector3 Integrate(const Ray& ray, const RaycastHit& hitInfo, const BxDF& bxdf, const Material& material, uint32_t samples, int depth);
 
 			Vector3 GenerateSampleVector(const Vector3& v, const Vector3& n, const BxDF& bxdf, const Material& material, float& pdf);
