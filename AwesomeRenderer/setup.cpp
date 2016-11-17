@@ -471,6 +471,25 @@ void Setup::SetupSpheres()
 
 	light.enabled = false;
 
+
+	// SKYBOX
+
+	/*
+	ColoredSkybox skybox;
+	skybox.top = Color(35, 71, 189) * 0.5f;
+	skybox.bottom = Color(107, 205, 209) * 0.5f;
+	*/
+
+	SixSidedSkybox* skybox = new SixSidedSkybox();
+	skybox->right = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0001.bmp");
+	skybox->front = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0002.bmp");
+	skybox->top = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0003.bmp");
+	skybox->left = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0004.bmp");
+	skybox->back = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0005.bmp");
+	skybox->bottom = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0006.bmp");
+
+	context.mainContext->skybox = skybox;
+
 	// GEOMETRY
 	const float MIN_ROUGHNESS = 0.1f;
 	const float SPHERE_RADIUS = 0.6f;
@@ -518,4 +537,49 @@ void Setup::SetupSpheres()
 			context.mainContext->nodes.push_back(node);
 		}
 	}
+}
+
+void Setup::SetupFractal()
+{
+	// CAMERA
+	const Vector3 cameraPosition = Vector3(3.2f, 1.8f, 9.0f);
+	context.mainCamera->SetLookAt(cameraPosition, cameraPosition - Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0));
+	
+	PbrMaterial* defaultMaterial = new PbrMaterial(*(new Material()));
+	defaultMaterial->roughness = 0.0f;
+	defaultMaterial->albedo = Color::WHITE * 0.6f;
+	defaultMaterial->specular = Color::BLACK;
+	defaultMaterial->metallic = 0;
+
+	PbrMaterial* emissiveMaterial = new PbrMaterial(*(new Material()));
+	emissiveMaterial->roughness = 0.0f;
+	emissiveMaterial->albedo = Color::BLACK;
+	emissiveMaterial->provider.emission = Color::GREEN;
+	emissiveMaterial->specular = Color::BLACK;
+	emissiveMaterial->metallic = 0;
+
+	const float SPHERE_RADIUS = 0.6f;
+	const uint32_t SPHERE_COUNT = 20;
+	const Vector3 origin(0.0f, 0.5f + SPHERE_RADIUS, 0.0f);
+
+	for (uint32_t sphereIdx = 0; sphereIdx < SPHERE_COUNT; ++sphereIdx)
+	{
+		Node* node = new Node();
+
+		Vector3 position = origin;
+
+		Transformation* transform = new Transformation();
+		transform->SetPosition(position);
+		node->AddComponent(transform);
+
+		Renderable* renderable = new Renderable();
+		renderable->shape = new Sphere(Vector3(0.0f, 0.0f, 0.0f), SPHERE_RADIUS);
+
+		renderable->material = &defaultMaterial->provider;
+
+		node->AddComponent(renderable);
+
+		context.mainContext->nodes.push_back(node);
+	}
+
 }

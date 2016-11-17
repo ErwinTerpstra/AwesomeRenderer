@@ -214,24 +214,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Game loop timer
 	Timer timer(0.00001f, 100.0f);
 	timer.Tick();
-
-	// Skybox
-
-	/*
-	ColoredSkybox skybox;
-	skybox.top = Color(35, 71, 189) * 0.5f;
-	skybox.bottom = Color(107, 205, 209) * 0.5f;
-	*/
-
-	SixSidedSkybox skybox;
-	skybox.right = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0001.bmp");
-	skybox.front = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0002.bmp");
-	skybox.top = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0003.bmp");
-	skybox.left = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0004.bmp");
-	skybox.back = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0005.bmp");
-	skybox.bottom = textureFactory.GetTexture("../Assets/Skyboxes/sun25deg/skyrender0006.bmp");
-
-	mainContext.skybox = &skybox;
 	
 	Context context;
 	context.mainCamera = &camera;

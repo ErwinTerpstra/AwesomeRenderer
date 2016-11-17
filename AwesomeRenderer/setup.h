@@ -18,6 +18,7 @@ namespace AwesomeRenderer
 
 		void SetupCornellBox();
 		void SetupSpheres();
+		void SetupFractal();
 	};
 }
 
