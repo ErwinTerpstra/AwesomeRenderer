@@ -25,7 +25,7 @@ Vector3 WhittedIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, const M
 {
 	Vector3 radiance = material.emission.subvector(3);
 	
-	radiance += SampleDirectLight(ray, hitInfo, material, context);
+	//radiance += SampleDirectLight(ray, hitInfo, material, context);
 
 	if (depth < rayTracer.maxDepth)
 	{
@@ -48,7 +48,7 @@ Vector3 WhittedIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, const M
 Vector3 WhittedIntegrator::SampleReflection(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& context, int depth)
 {
 	Vector3 reflectionDirection;
-	VectorUtil<3>::Reflect(ray.direction, hitInfo.normal, reflectionDirection);
+	VectorUtil<3>::Reflect(-ray.direction, hitInfo.normal, reflectionDirection);
 
 	// Reflection
 	Ray reflectionRay(hitInfo.point + hitInfo.normal * 1e-3f, reflectionDirection);

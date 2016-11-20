@@ -33,7 +33,7 @@ namespace AwesomeRenderer
 
 		static void Reflect(const Vector& v, const Vector& normal, Vector& out)
 		{
-			out = v - 2 * cml::dot(v, normal) * normal;
+			out = -v + 2 * cml::dot(v, normal) * normal;
 		}
 
 		static void Refract(const Vector& v, const Vector& normal, float ior, Vector3& out)
@@ -87,7 +87,7 @@ namespace AwesomeRenderer
 
 		static void OrthoNormalize(const Vector3& up, const Vector3& forwardHint, Vector3& right, Vector3& forward)
 		{
-			if (std::fabs(cml::dot(up, forwardHint)) < 1e-5f)
+			if (1.0f - std::fabs(cml::dot(up, forwardHint)) < 1e-5f)
 			{
 				OrthoNormalize(up, right, forward);
 				return;

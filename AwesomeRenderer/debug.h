@@ -34,8 +34,13 @@ namespace AwesomeRenderer
 
 		static bool Halt()
 		{
-			DebugBreak();
+			__debugbreak();
 			return true;
+		}
+
+		static void Break()
+		{
+			__debugbreak();
 		}
 	};
 

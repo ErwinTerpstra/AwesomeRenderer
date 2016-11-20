@@ -20,6 +20,8 @@
 #include "microfacetspecular.h"
 #include "pbrmaterial.h"
 
+#include <WinUser.h>
+
 using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
 
@@ -139,6 +141,17 @@ void RayTracerDebug::Update(float dt)
 	{
 		exportMode = (ExportMode) ((exportMode + 1) % EXPORT_MODE_COUNT);
 		UpdateDebugDisplay();
+	}
+
+	if (inputManager.GetKey(VK_CONTROL) && inputManager.GetKeyDown(InputManager::LEFT_MOUSE_BUTTON))
+	{
+		const Buffer& frameBuffer = *context.mainContext->renderTarget->frameBuffer;
+
+		Point2 debugPixel = inputManager.GetMousePosition();
+		debugPixel[1] = frameBuffer.height - debugPixel[1];
+
+		rayTracer.debugPixel = debugPixel;
+		rayTracer.Render(debugPixel);
 	}
 
 	if (!rayTracer.IsRenderingFrame())

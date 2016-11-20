@@ -23,7 +23,7 @@ namespace AwesomeRenderer
 			BSDF(BxDF* diffuse, BxDF* specular);
 
 			Vector3 Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const;
-
+			Vector3 SpecularTradeoff(const Vector3& diffuseRadiance, const Vector3& specularRadiance, const Vector3& n, const Vector3& v, const Material& material) const;
 
 		private:
 			Vector3 GetF0(const Material& material) const;

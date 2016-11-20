@@ -33,7 +33,7 @@ RayTracer::RayTracer(Scheduler& scheduler) : Renderer(), debugIntegrator(*this),
 {
 	currentIntegrator = &debugIntegrator;
 	
-	jobGroup = scheduler.CreateJobGroup(8);
+	jobGroup = scheduler.CreateJobGroup(4);
 }
 
 void RayTracer::Initialize()
@@ -165,6 +165,8 @@ float RayTracer::GetProgress() const
 
 void RayTracer::Render(const Point2& pixel)
 {
+	BreakOnDebugPixel(pixel);
+
 	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
 
 	// Create a ray from the camera near plane through this pixel
@@ -178,12 +180,23 @@ void RayTracer::Render(const Point2& pixel)
 	frameBuffer->SetPixel(pixel[0], pixel[1], shadingInfo.color);
 }
 
+void RayTracer::BreakOnDebugPixel(const Point2& pixel)
+{
+	if (pixel == debugPixel)
+	{
+		debugPixel = Point2(-1, -1);
+		Debug::Break();
+	}
+
+}
+
 void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int depth) const
 {
 	const LightData& lightData = *renderContext->lightData;
 
 	// Perform the raycast to find out which node we've hit
 	RaycastHit hitInfo;
+	//if (depth > 0 || !RayCast(ray, hitInfo))
 	if (!RayCast(ray, hitInfo))
 	{
 		if (renderContext->skybox != NULL)
@@ -203,7 +216,7 @@ void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int d
 bool RayTracer::RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance) const 
 {
 	if (renderContext->tree.IntersectRay(ray, nearestHit))
-		return nearestHit.distance < maxDistance;
+		return nearestHit.distance <= maxDistance;
 
 	return FALSE;
 }

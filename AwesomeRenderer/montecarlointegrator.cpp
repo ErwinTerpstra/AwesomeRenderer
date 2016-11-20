@@ -27,60 +27,76 @@ Vector3 MonteCarloIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, cons
 {
 	Vector3 radiance = material.emission.subvector(3);
 	
-	//radiance += SampleDirectLight(ray, hitInfo, material, context);
+	radiance += SampleDirectLight(ray, hitInfo, material, context);
 
 	if (depth < rayTracer.maxDepth)
-	{
-		/*
-		Vector3 diffuse(0.0f, 0.0f, 0.0f), specular(0.0f, 0.0f, 0.0f);
-
-		// TODO: Perform specular trade off
-		if (material.bsdf->diffuse != NULL)
-			diffuse = Integrate(ray, hitInfo, *material.bsdf->diffuse, material, sampleCount, depth);
-
-		if (material.bsdf->specular != NULL)
-			specular = Integrate(ray, hitInfo, *material.bsdf->specular, material, sampleCount, depth);
-
-		radiance += diffuse + specular;
-		*/
-
-		radiance += Integrate(ray, hitInfo, material, sampleCount, depth);
-	}
+		radiance += Integrate(hitInfo.point, -ray.direction, hitInfo.normal, material, sampleCount, depth);
 	
 	return radiance;
 }
 
-Vector3 MonteCarloIntegrator::Integrate(const Ray& ray, const RaycastHit& hitInfo, const Material& material, uint32_t samples, int depth)
+Vector3 MonteCarloIntegrator::Integrate(const Vector3& p, const Vector3& wo, const Vector3& normal, const Material& material, uint32_t samples, int depth)
 {
 	Vector3 radiance(0.0f, 0.0f, 0.0f);
 
+	// Determine the BxDF that will control sample vectors
+	const BxDF* sampleBxDF;
+	if (material.bsdf->specular != NULL)
+		sampleBxDF = material.bsdf->specular;
+	else if (material.bsdf->diffuse != NULL)
+		sampleBxDF = material.bsdf->diffuse;
+	else
+		return radiance;
+	
 	for (uint32_t sampleIdx = 0; sampleIdx < samples; ++sampleIdx)
 	{
-		float pdf;
-		Vector3 reflectionDirection;
-		
-		if (material.bsdf->specular != NULL)
-			reflectionDirection = GenerateSampleVector(ray.direction, hitInfo.normal, *material.bsdf->specular, material, pdf);
-		else
-			reflectionDirection = GenerateSampleVector(ray.direction, hitInfo.normal, *material.bsdf->diffuse, material, pdf);
+		Vector2 r(random.NextFloat(), random.NextFloat());
 
-		if (pdf < 1e-5f)
+		Vector3 sampleVector;
+		sampleBxDF->GenerateSampleVector(r, wo, normal, material, sampleVector);
+		
+		float NoL = cml::dot(normal, sampleVector);
+
+		if (NoL <= 0.0f)
 			continue;
 
-		Vector3 reflectance = material.bsdf->Sample(-ray.direction, reflectionDirection, hitInfo.normal, material);
+		Vector3 h = cml::normalize(wo + sampleVector);
+
+		// Sample specular BRDF
+		Vector3 specularReflectance(0.0f, 0.0f, 0.0f);
+		if (material.bsdf->specular != NULL)
+		{
+			float pdf = material.bsdf->specular->CalculatePDF(wo, sampleVector, normal, material);
+
+			if (pdf > 0.0f)
+				specularReflectance = material.bsdf->specular->Sample(wo, sampleVector, normal, material) / pdf;
+		}
+
+		// Sample diffuse BRDF
+		Vector3 diffuseReflectance(0.0f, 0.0f, 0.0f);
+		if (material.bsdf->diffuse != NULL)
+		{
+			float pdf = material.bsdf->diffuse->CalculatePDF(wo, sampleVector, normal, material);
+
+			if (pdf > 0.0f)
+				diffuseReflectance = material.bsdf->diffuse->Sample(wo, sampleVector, normal, material) / pdf;
+		}
+
+		// Combine in a single reflectance value
+		Vector3 reflectance = material.bsdf->SpecularTradeoff(diffuseReflectance, specularReflectance, normal, h, material);
+
+		if (reflectance.length_squared() < 1e-5f)
+			continue;
 
 		// Calculate incoming light along this sample vector
-		Ray reflectionRay(hitInfo.point + hitInfo.normal * 1e-3f, reflectionDirection);
-
+		Ray reflectionRay(p + normal * 1e-3f, sampleVector);
+		
 		ShadingInfo reflectionShading;
 		rayTracer.CalculateShading(reflectionRay, reflectionShading, depth + 1);
-
-		float NoL = cml::dot(hitInfo.normal, reflectionDirection);
-		assert(NoL + 1e-5f >= 0.0f && NoL - 1e-5f <= 1.0f);
-
+		
 		Vector3 lightRadiance = reflectionShading.color.subvector(3);
 
-		radiance += reflectance * lightRadiance * NoL * (1.0f / pdf);
+		radiance += reflectance * lightRadiance * NoL;
 	}
 
 	return radiance / samples;
@@ -92,8 +108,12 @@ Vector3 MonteCarloIntegrator::Integrate(const Ray& ray, const RaycastHit& hitInf
 	
 	for (uint32_t sampleIdx = 0; sampleIdx < samples; ++sampleIdx)
 	{
-		float pdf;
-		Vector3 reflectionDirection = GenerateSampleVector(ray.direction, hitInfo.normal, bxdf, material, pdf);
+		Vector2 r(random.NextFloat(), random.NextFloat());
+		
+		Vector3 reflectionDirection;
+		bxdf.GenerateSampleVector(r, -ray.direction, hitInfo.normal, material, reflectionDirection);
+
+		float pdf = bxdf.CalculatePDF(-ray.direction, reflectionDirection, hitInfo.normal, material);
 		
 		if (pdf < 1e-5f)
 			continue;
@@ -115,59 +135,4 @@ Vector3 MonteCarloIntegrator::Integrate(const Ray& ray, const RaycastHit& hitInf
 	}
 
 	return radiance / samples;
-}
-
-Vector3 MonteCarloIntegrator::GenerateSampleVector(const Vector3& v, const Vector3& n, const BxDF& bxdf, const Material& material, float& pdf)
-{
-	// Generate random numbers which will decide our spherical coordinates
-	float r1 = random.NextFloat();
-	float r2 = random.NextFloat();
-
-	// Calculate the sample vector in spherical coordinates
-	float phi, theta;
-	bxdf.GenerateSampleVector(Vector2(r1, r2), material, phi, theta, pdf);
-
-	// Convert to carthesian coordinates and align with normal
-	return TransformSampleVector(v, n, phi, theta);
-}
-
-Vector3 MonteCarloIntegrator::TransformSampleVector(const Vector3& v, const Vector3& n, float phi, float theta)
-{
-	assert(VectorUtil<3>::IsNormalized(v));
-	assert(VectorUtil<3>::IsNormalized(n));
-
-	// Convert to carthesian coordinates
-	float sinTheta = sinf(theta);
-	float x = sinTheta * cosf(phi);
-	float z = sinTheta * sinf(phi);
-
-	Vector3 sample = Vector3(x, cosf(theta), z);
-
-	assert(VectorUtil<3>::IsNormalized(sample));
-
-	// Create an orientation matrix that aligns with the surface normal
-	Vector3 right, forward;
-	VectorUtil<3>::OrthoNormalize(n, v, right, forward);
-
-	assert(VectorUtil<3>::IsNormalized(right));
-	assert(VectorUtil<3>::IsNormalized(forward));
-
-	assert(fabs(cml::dot(n, forward)) < 1e-5f);
-	assert(fabs(cml::dot(n, right)) < 1e-5f);
-	assert(fabs(cml::dot(right, forward)) < 1e-5f);
-
-	Matrix33 transform(
-		right[0], right[1], right[2],
-		n[0], n[1], n[2],
-		forward[0], forward[1], forward[2]
-	);
-
-	assert(cml::dot(sample, Vector3(0.0f, 1.0f, 0.0f)) >= 0.0f - 1e-5f);
-
-	// Transform the sample to world space
-	sample = transform_vector(transform, sample);
-
-	assert(VectorUtil<3>::IsNormalized(sample));
-
-	return sample;
 }

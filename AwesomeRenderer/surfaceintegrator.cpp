@@ -23,7 +23,7 @@ Vector3 SurfaceIntegrator::SampleDirectLight(const Ray& ray, const RaycastHit& h
 	const Vector3& normal = hitInfo.normal;
 	
 	Vector3 radiance(0.0f, 0.0f, 0.0f);
-	
+		
 	// Iterate through all the lights
 	for (uint8_t i = 0; i < LightData::MAX_LIGHTS; ++i)
 	{

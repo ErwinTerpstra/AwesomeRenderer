@@ -146,7 +146,7 @@ void Setup::SetupCornellBox()
 	light.type = LightData::LightType::POINT;
 	light.position = Vector3(0.0f, 0.9f, 0.5f);
 	light.color = Color(0.78f, 0.78f, 0.78f);
-	light.intensity = 1.0f;
+	light.intensity = 2.0f;
 
 	light.enabled = true;
 
@@ -157,10 +157,9 @@ void Setup::SetupCornellBox()
 
 	// Metal
 	//*
-	const RayTracing::BSDF* sphereBSDF = new RayTracing::BSDF(NULL, new RayTracing::MicrofacetSpecular());
 	const Color sphereDiffuse = Color::BLACK;
 	const Color sphereSpecular(0.6f, 0.6f, 0.6f);
-	const float sphereRoughness = 0.5f;
+	const float sphereRoughness = 0.2f;
 	const float sphereMetallic = 1;
 	const float sphereIor = 1.0f;
 	const bool sphereTranslucent = false;
@@ -168,10 +167,9 @@ void Setup::SetupCornellBox()
 
 	// Plastic
 	/*
-	const RayTracing::BSDF* sphereBSDF = &pbrBSDF;
 	const Color sphereDiffuse(0.8f, 0.8f, 0.8f);
 	const Color sphereSpecular(0.1f, 0.1f, 0.1f);
-	const float sphereRoughness = 0.4f;
+	const float sphereRoughness = 0.6f;
 	const float sphereMetallic = 0;
 	const float sphereIor = 1.0f;
 	const bool sphereTranslucent = false;
@@ -179,10 +177,9 @@ void Setup::SetupCornellBox()
 
 	// Glass
 	/*
-	const RayTracing::BSDF* sphereBSDF = &pbrBSDF;
 	const Color sphereDiffuse(0.5f, 0.5f, 0.5f);
 	const Color sphereSpecular(0.1f, 0.1f, 0.1f);
-	const float sphereRoughness = 0.0f;
+	const float sphereRoughness = 0.1f;
 	const float sphereMetallic = 0;
 	const float sphereIor = 1.4f;
 	const bool sphereTranslucent = true;
@@ -359,6 +356,7 @@ void Setup::SetupCornellBox()
 
 		Renderable* renderable = new Renderable();
 		renderable->shape = new Sphere(Vector3(0.0f, 0.15f, 0.0f), 0.15f);
+		//renderable->shape = new AABB(Vector3(-0.15, 0.0f, -0.15f), Vector3(0.15f, 0.3f, 0.15f));
 		renderable->material = &material->provider;
 
 		node->AddComponent(renderable);
@@ -458,18 +456,19 @@ void Setup::SetupCornellBox()
 void Setup::SetupSpheres()
 {
 	// CAMERA
-	const Vector3 cameraPosition = Vector3(3.2f, 1.8f, 9.0f);
-	context.mainCamera->SetLookAt(cameraPosition, cameraPosition - Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0));
+	//const Vector3 cameraPosition = Vector3(3.2f, 1.8f, 9.0f);
+	const Vector3 cameraPosition = Vector3(9.0f, 1.8f, 3.2f);
+	context.mainCamera->SetLookAt(cameraPosition, cameraPosition - Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0));
 
 	// LIGHT
 	LightData::Light& light = context.mainContext->lightData->lights[0];
 	light.type = LightData::LightType::DIRECTIONAL;
 	light.direction = Vector3(-0.5f, -0.8f, -0.5f);
 	light.direction.normalize();
-	light.intensity = 2.0f;
-	light.color = Color::WHITE;
+	light.intensity = 1.0f;
+	light.color = Color(255, 244, 214);
 
-	light.enabled = false;
+	light.enabled = true;
 
 
 	// SKYBOX
@@ -481,12 +480,12 @@ void Setup::SetupSpheres()
 	*/
 
 	SixSidedSkybox* skybox = new SixSidedSkybox();
-	skybox->right = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0001.bmp");
-	skybox->front = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0002.bmp");
-	skybox->top = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0003.bmp");
-	skybox->left = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0004.bmp");
-	skybox->back = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0005.bmp");
-	skybox->bottom = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0006.bmp");
+	skybox->right = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0001.bmp");
+	skybox->front = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0002.bmp");
+	skybox->top = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0003.bmp");
+	skybox->left = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0004.bmp");
+	skybox->back = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0005.bmp");
+	skybox->bottom = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0006.bmp");
 
 	context.mainContext->skybox = skybox;
 
@@ -504,7 +503,7 @@ void Setup::SetupSpheres()
 			Node* node = new Node();
 
 			Vector3 position = origin;
-			position[0] += sphereIdx * (SPHERE_RADIUS * 2 + SPHERE_SPACING);
+			position[2] += sphereIdx * (SPHERE_RADIUS * 2 + SPHERE_SPACING);
 			position[1] += row * (SPHERE_RADIUS * 2 + SPHERE_SPACING);
 
 			Transformation* transform = new Transformation();
@@ -517,13 +516,13 @@ void Setup::SetupSpheres()
 			if (row == 0)
 			{
 				material->albedo = Color::WHITE * 0.5f;
-				material->specular = Color::WHITE * 0.2f;
+				material->specular = Color::WHITE * 0.1f;
 				material->metallic = 0;
 			}
 			else if (row == 1)
 			{
 				material->albedo = Color::BLACK;
-				material->specular = Color::WHITE * 0.9f;
+				material->specular = Color::WHITE * 0.6f;
 				material->metallic = 1;
 			}
 

@@ -54,6 +54,7 @@ namespace AwesomeRenderer
 			SurfaceIntegrator* currentIntegrator;
 
 			uint32_t maxDepth;
+			Point2 debugPixel;
 
 		public:
 
@@ -67,6 +68,9 @@ namespace AwesomeRenderer
 
 			void SetRenderContext(const RenderContext* context);
 
+			void BreakOnDebugPixel(const Point2& pixel);
+
+			void Render(const Point2& pixel);
 			void CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int depth = 0) const;
 			bool RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance = FLT_MAX) const;
 
@@ -77,8 +81,6 @@ namespace AwesomeRenderer
 
 			void PreRender();
 			void PostRender();
-
-			void Render(const Point2& pixel);
 
 		};
 

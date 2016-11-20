@@ -21,19 +21,19 @@ void InputManager::Update()
 		prevKeys[i] = keys[i];
 }
 
-bool InputManager::GetKey(uint8_t key)
+bool InputManager::GetKey(uint8_t key) const
 {
 	assert(key >= 0 && key < MAX_KEYS);
 	return keys[key];
 }
 
-bool InputManager::GetKeyDown(uint8_t key)
+bool InputManager::GetKeyDown(uint8_t key) const
 {
 	assert(key >= 0 && key < MAX_KEYS);
 	return keys[key] && !prevKeys[key];
 }
 
-bool InputManager::GetKeyUp(uint8_t key)
+bool InputManager::GetKeyUp(uint8_t key) const
 {
 	assert(key >= 0 && key < MAX_KEYS);
 	return !keys[key] && prevKeys[key];
@@ -47,6 +47,16 @@ void InputManager::KeyDown(uint8_t key)
 void InputManager::KeyUp(uint8_t key)
 {
 	keys[key] = false;
+}
+
+void InputManager::SetMousePosition(const Point2& position)
+{
+	mousePosition = position;
+}
+
+Point2 InputManager::GetMousePosition() const
+{
+	return mousePosition;
 }
 
 InputManager& InputManager::Instance()	

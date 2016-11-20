@@ -6,13 +6,14 @@
 #include "inputmanager.h"
 #include "gdibuffer.h"
 
+#include <Windowsx.h>
 #include <assert.h>
 
 using namespace AwesomeRenderer;
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-Window::Window(HINSTANCE instance, const char* className, bool createClass) : instance(instance), className(className)
+Window::Window(HINSTANCE instance, const char* className, bool createClass) : instance(instance), className(className), inputManager(InputManager::Instance())
 {
 	if (createClass)
 		RegisterClass();
@@ -85,7 +86,7 @@ void Window::Show(int command) const
 
 void Window::ProcessMessages() const
 {
-	InputManager::Instance().Update();
+	inputManager.Update();
 
 	MSG msg;
 
@@ -98,6 +99,7 @@ void Window::ProcessMessages() const
 
 LRESULT CALLBACK Window::MessageCallback(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+
 	switch(msg)
 	{
 		case WM_CLOSE:
@@ -108,13 +110,29 @@ LRESULT CALLBACK Window::MessageCallback(HWND hWnd, UINT msg, WPARAM wParam, LPA
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			break;
+
+		case WM_MOUSEMOVE:
+		{
+			short x = GET_X_LPARAM(lParam);
+			short y = GET_Y_LPARAM(lParam);
+			inputManager.SetMousePosition(Point2(x, y));
+			break;
+		}
 		
+		case WM_LBUTTONDOWN:
+			inputManager.KeyDown(InputManager::LEFT_MOUSE_BUTTON);
+			break;
+
+		case WM_LBUTTONUP:
+			inputManager.KeyUp(InputManager::LEFT_MOUSE_BUTTON);
+			break;
+
 		case WM_KEYDOWN:
-			InputManager::Instance().KeyDown(wParam);
+			inputManager.KeyDown(wParam);
 			break;
 
 		case WM_KEYUP:
-			InputManager::Instance().KeyUp(wParam);
+			inputManager.KeyUp(wParam);
 			break;
 
 		default:

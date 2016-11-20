@@ -28,6 +28,8 @@ void RenderJob::Run()
 	{
 		Point2 pixel(x + (pixelIdx % width), y + (pixelIdx / width));
 
+		rayTracer.BreakOnDebugPixel(pixel);
+
 		// Create a ray from the camera near plane through this pixel
 		Ray primaryRay;
 		renderContext.camera->ViewportToRay(pixel, primaryRay);

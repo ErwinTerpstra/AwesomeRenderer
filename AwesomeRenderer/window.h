@@ -4,6 +4,7 @@
 namespace AwesomeRenderer
 {
 	class GdiBuffer;
+	class InputManager;
 
 	class Window : public ExtensionProvider<Window>
 	{
@@ -24,6 +25,8 @@ namespace AwesomeRenderer
 
 	private:
 		HINSTANCE instance;
+
+		InputManager& inputManager;
 
 		const char* className;
 

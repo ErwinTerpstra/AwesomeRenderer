@@ -17,28 +17,42 @@ MicrofacetSpecular::MicrofacetSpecular()
 Vector3 MicrofacetSpecular::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const
 {
 	PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
-	Vector3 F0 = pbrMaterial->specular.subvector(3);
-	
-	Vector3 ks;
-	return SpecularCookTorrance(wo, normal, wi, F0, pbrMaterial->roughness, ks);
+	return SpecularCookTorrance(wo, normal, wi, pbrMaterial->roughness);
 }
 
-void MicrofacetSpecular::GenerateSampleVector(const Vector2& r, const Material& material, float& phi, float& theta, float& pdf) const
+void MicrofacetSpecular::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vector3& normal, const Material& material, Vector3& wi) const
 {
 	const PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
 	float alpha2 = pbrMaterial->roughness * pbrMaterial->roughness;
 
-	phi = 2.0f * PI * r[1];
+	float phi = 2.0f * PI * r[1];
 
-	float cosTheta = sqrt((1.0f - r[0]) / ((alpha2 - 1.0f) * r[0] + 1.0f));
-	theta = acos(cosTheta);
+	float cosTheta = r[0] < 1.0f ? sqrt((1.0f - r[0]) / ((alpha2 - 1.0f) * r[0] + 1.0f)) : 0.0f;
+	float theta = acos(cosTheta);
 
-	float denom = (cosTheta * cosTheta * (alpha2 - 1.0f)) + 1.0f;
-
-	pdf = (alpha2 / std::max((float)PI * denom * denom, 1e-7f)) * cosTheta * sinf(theta);
+	Vector3 h;
+	SphericalToCartesian(phi, theta, h);
+	TransformSampleVector(normal, h, h);
+	
+	VectorUtil<3>::Reflect(wo, h, wi);
 }
 
-Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& v, const Vector3& n, const Vector3& l, const Vector3& F0, float roughness, Vector3& ks) const
+float MicrofacetSpecular::CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const
+{
+	const PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
+	float alpha2 = pow(pbrMaterial->roughness, 4);
+
+	Vector3 h = cml::normalize(wo + wi);
+
+	float cosTheta = cml::dot(normal, h);
+	//float sinTheta = sqrtf(std::max(0.0f, 1.0f - cosTheta * cosTheta));
+	float denom = (cosTheta * cosTheta * (alpha2 - 1.0f)) + 1.0f;
+
+	float pdf = (alpha2 / std::max((float)PI * denom * denom, 1e-7f)) * cosTheta;
+	return pdf / (4 * cml::dot(wo, h));
+}
+
+Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& v, const Vector3& n, const Vector3& l, float roughness) const
 {
 	assert(VectorUtil<3>::IsNormalized(v));
 	assert(VectorUtil<3>::IsNormalized(n));
@@ -80,9 +94,9 @@ Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& v, const Vector3
 	//result[1] = Util::Clamp01(result[1]);
 	//result[2] = Util::Clamp01(result[2]);
 
-	//result[0] = std::max(result[0], 0.0f);
-	//result[1] = std::max(result[1], 0.0f);
-	//result[2] = std::max(result[2], 0.0f);
+	result[0] = std::max(result[0], 0.0f);
+	result[1] = std::max(result[1], 0.0f);
+	result[2] = std::max(result[2], 0.0f);
 
 	return result;
 }
