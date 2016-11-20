@@ -53,6 +53,8 @@
 #include "texturefactory.h"
 #include "objloader.h"
 
+#include "random.h"
+
 using namespace AwesomeRenderer;
 
 Setup::Setup(Context& context) : context(context)
@@ -146,9 +148,20 @@ void Setup::SetupCornellBox()
 	light.type = LightData::LightType::POINT;
 	light.position = Vector3(0.0f, 0.9f, 0.5f);
 	light.color = Color(0.78f, 0.78f, 0.78f);
-	light.intensity = 2.0f;
+	light.intensity = 1.0f;
 
 	light.enabled = true;
+
+	// SKYBOX
+	SixSidedSkybox* skybox = new SixSidedSkybox();
+	skybox->right = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0001.bmp");
+	skybox->front = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0002.bmp");
+	skybox->top = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0003.bmp");
+	skybox->left = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0004.bmp");
+	skybox->back = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0005.bmp");
+	skybox->bottom = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0006.bmp");
+
+	context.mainContext->skybox = skybox;
 
 	// GEOMETRY
 	const Color wallWhite = Color(0.725f, 0.71f, 0.68f);
@@ -158,7 +171,8 @@ void Setup::SetupCornellBox()
 	// Metal
 	//*
 	const Color sphereDiffuse = Color::BLACK;
-	const Color sphereSpecular(0.6f, 0.6f, 0.6f);
+	const Color sphereSpecular = Color::WHITE * 0.8f;
+	//const Color sphereSpecular = Color(245, 215, 121); // GOLD
 	const float sphereRoughness = 0.2f;
 	const float sphereMetallic = 1;
 	const float sphereIor = 1.0f;
@@ -185,6 +199,12 @@ void Setup::SetupCornellBox()
 	const bool sphereTranslucent = true;
 	//*/
 
+	const bool showBox = false;
+	const bool showLight = false;
+	const bool showSpheres = false;
+	const bool showBunny = true;
+
+	if (showBox)
 	{
 		// Left wall
 		Node* node = new Node();
@@ -208,6 +228,7 @@ void Setup::SetupCornellBox()
 		context.mainContext->nodes.push_back(node);
 	}
 
+	if (showBox)
 	{
 		// Right wall
 		Node* node = new Node();
@@ -231,6 +252,7 @@ void Setup::SetupCornellBox()
 		context.mainContext->nodes.push_back(node);
 	}
 
+	if (showBox)
 	{
 		// Floor
 		Node* node = new Node();
@@ -254,6 +276,7 @@ void Setup::SetupCornellBox()
 		context.mainContext->nodes.push_back(node);
 	}
 
+	if (showBox)
 	{
 		// Ceiling
 		Node* node = new Node();
@@ -277,7 +300,7 @@ void Setup::SetupCornellBox()
 		context.mainContext->nodes.push_back(node);
 	}
 
-	if (FALSE)
+	if (showLight)
 	{
 		// Light
 		Node* node = new Node();
@@ -314,6 +337,7 @@ void Setup::SetupCornellBox()
 		context.mainContext->nodes.push_back(node);
 	}
 
+	if (showBox)
 	{
 		// Back wall
 		Node* node = new Node();
@@ -337,7 +361,7 @@ void Setup::SetupCornellBox()
 		context.mainContext->nodes.push_back(node);
 	}
 
-	//if (FALSE)
+	if (showSpheres)
 	{
 		// Left sphere
 		Node* node = new Node();
@@ -363,8 +387,8 @@ void Setup::SetupCornellBox()
 
 		context.mainContext->nodes.push_back(node);
 	}
-	
-	//if (FALSE)
+
+	if (showSpheres)
 	{
 		// right sphere
 		Node* node = new Node();
@@ -390,7 +414,7 @@ void Setup::SetupCornellBox()
 		context.mainContext->nodes.push_back(node);
 	}
 
-	if (FALSE)
+	if (showBunny)
 	{
 		Node* node = new Node();
 
@@ -538,6 +562,79 @@ void Setup::SetupSpheres()
 	}
 }
 
+void Setup::SetupSponza()
+{
+	// CAMERA
+	const Vector3 cameraPosition = Vector3(0.0f, 2.0f, 0.0f);
+	context.mainCamera->SetLookAt(cameraPosition, cameraPosition - Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0));
+
+	// LIGHT
+	LightData::Light& light = context.mainContext->lightData->lights[0];
+	light.type = LightData::LightType::DIRECTIONAL;
+	light.direction = Vector3(-0.5f, -0.8f, -0.5f);
+	light.direction.normalize();
+	light.intensity = 1.0f;
+	light.color = Color(255, 244, 214);
+
+	light.enabled = true;
+
+	// MODEL
+	Node* node = new Node();
+	Model* model = new Model();
+
+	Transformation* transform = new Transformation();
+
+	node->AddComponent(model);
+	node->AddComponent(transform);
+
+	//transform->SetScale(Vector3(0.1f, 0.1f, 0.1f));
+	//transform->SetScale(Vector3(0.2f, 0.2f, 0.2f));
+	//objLoader.Load("../Assets/Town/town.obj", *model);
+	context.objLoader->Load("../Assets/CrytekSponza/sponza.obj", *model);
+	//objLoader.Load("../Assets/Castle01/castle.obj", *model);
+
+	ModelEx* modelEx = new ModelEx(*model);
+
+	PbrMaterial* material = new PbrMaterial(*(new Material()));
+	material->albedo = Color::WHITE * 0.5f;
+	material->specular = Color::WHITE * 0.2f;
+	material->metallic = 0.0f;
+	material->roughness = 0.8f;
+	material->provider.ior = 1.0f;
+	material->provider.translucent = false;
+
+	for (uint32_t meshIdx = 0; meshIdx < modelEx->meshes.size(); ++meshIdx)
+	{
+		Node* meshNode = new Node();
+
+		meshNode->AddComponent(transform);
+
+		Renderable* renderable = new Renderable();
+		renderable->shape = modelEx->meshes[meshIdx];
+		renderable->material = &material->provider;
+
+		meshNode->AddComponent(renderable);
+
+		context.mainContext->nodes.push_back(meshNode);
+	}
+
+	context.mainContext->nodes.push_back(node);
+}
+
+void Mandelbulb(const Vector3& v, const Vector3& c, int n, Vector3& result)
+{
+	float r = v.length();
+	float theta = atan2(v[1], sqrt(v[0] * v[0] + v[2] + v[2]));
+	float phi = atan2(v[2], v[0]);
+
+	float rn = pow(r, n);
+
+	result = c;
+	result[0] += rn * cosf(n * phi) * cosf(n * theta);
+	result[2] += rn * sinf(n * phi) * cosf(n * theta);
+	result[1] += rn * sinf(n * theta);
+}
+
 void Setup::SetupFractal()
 {
 	// CAMERA
@@ -549,36 +646,67 @@ void Setup::SetupFractal()
 	defaultMaterial->albedo = Color::WHITE * 0.6f;
 	defaultMaterial->specular = Color::BLACK;
 	defaultMaterial->metallic = 0;
+	defaultMaterial->provider.emission = Color::WHITE * 0.05f;
 
 	PbrMaterial* emissiveMaterial = new PbrMaterial(*(new Material()));
 	emissiveMaterial->roughness = 0.0f;
 	emissiveMaterial->albedo = Color::BLACK;
-	emissiveMaterial->provider.emission = Color::GREEN;
+	emissiveMaterial->provider.emission = Color::GREEN * 0.8f;
 	emissiveMaterial->specular = Color::BLACK;
 	emissiveMaterial->metallic = 0;
 
 	const float SPHERE_RADIUS = 0.6f;
-	const uint32_t SPHERE_COUNT = 20;
-	const Vector3 origin(0.0f, 0.5f + SPHERE_RADIUS, 0.0f);
+	const uint32_t MAX_ITERATIONS = 256;
+	const float EMISSION_CHANCE = 0.1f;
+	const int SIZE = 5;
+	const float SCALE = 0.2f;
+	const int POWER = 8;
+	const Vector3 origin(0.0f, 0.0f, 0.0f);
 
-	for (uint32_t sphereIdx = 0; sphereIdx < SPHERE_COUNT; ++sphereIdx)
+	Random r;
+
+	for (int x = -SIZE; x < SIZE; ++x)
 	{
-		Node* node = new Node();
+		for (int y = -SIZE; y < SIZE; ++y)
+		{
+			for (int z = -SIZE; z < SIZE; ++z)
+			{
+				Node* node = new Node();
 
-		Vector3 position = origin;
+				Vector3 p(x, y, z);
+				Vector3 v(0.0f, 0.0f, 0.0f);
 
-		Transformation* transform = new Transformation();
-		transform->SetPosition(position);
-		node->AddComponent(transform);
+				uint32_t iteration;
+				for (iteration = 0; iteration < MAX_ITERATIONS; ++iteration)
+				{
+					Mandelbulb(v, p * SCALE, POWER, v);
 
-		Renderable* renderable = new Renderable();
-		renderable->shape = new Sphere(Vector3(0.0f, 0.0f, 0.0f), SPHERE_RADIUS);
+					if (v.length_squared() > 2)
+						break;
+				}
 
-		renderable->material = &defaultMaterial->provider;
+				if (iteration < MAX_ITERATIONS)
+					continue;
+				
+				Vector3 position = origin + p * SPHERE_RADIUS * 2;
 
-		node->AddComponent(renderable);
+				Transformation* transform = new Transformation();
+				transform->SetPosition(position);
+				node->AddComponent(transform);
 
-		context.mainContext->nodes.push_back(node);
+				Renderable* renderable = new Renderable();
+				renderable->shape = new Sphere(Vector3(0.0f, 0.0f, 0.0f), SPHERE_RADIUS);
+
+				if (r.NextFloat() < EMISSION_CHANCE)
+					renderable->material = &emissiveMaterial->provider;
+				else
+					renderable->material = &defaultMaterial->provider;
+
+				node->AddComponent(renderable);
+
+				context.mainContext->nodes.push_back(node);
+			}
+		}
 	}
 
 }

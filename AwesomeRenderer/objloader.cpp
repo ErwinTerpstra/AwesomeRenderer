@@ -169,7 +169,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 
 							if (vi.texcoordIdx >= 0)
 							{
-								mesh->texcoords.push_back(texcoordBuffer[vi.normalIdx]);
+								mesh->texcoords.push_back(texcoordBuffer[vi.texcoordIdx]);
 								mesh->attributes = (Mesh::VertexAttributes) (mesh->attributes | Mesh::VERTEX_TEXCOORD);
 							}
 

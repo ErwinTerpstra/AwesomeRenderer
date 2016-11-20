@@ -5,8 +5,8 @@
 
 using namespace AwesomeRenderer;
 
-const int KDTree::MAX_NODES_PER_LEAF = 8;
-const int KDTree::MAX_DEPTH = 20;
+const int KDTree::MAX_NODES_PER_LEAF = 5;
+const int KDTree::MAX_DEPTH = 15;
 
 const float KDTree::TRAVERSAL_COST = 1.0f;
 const float KDTree::INTERSECTION_COST = 1.0f;
@@ -188,21 +188,26 @@ void KDTree::CalculateBounds(const AABB& bounds, float splitPoint, AABB& upper, 
 
 	lower.Initialize(min, maxSplit);
 	upper.Initialize(minSplit, max);
-
 }
 
 bool KDTree::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 {
-	RaycastHit boundsHitInfo;
-	if (!bounds.IntersectRay(ray, boundsHitInfo))
+	float tMax, tMin;
+	Vector3 normal;
+	if (!bounds.IntersectRay(ray, tMin, tMax, normal))
 		return false;
 
-	float closestDistance = FLT_MAX;
-	bool hit = false;
+	return IntersectRay(ray, hitInfo, tMin, tMax);
+}
 
+bool KDTree::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const
+{
 	// The current node is a leaf node, this means we can check its contents
 	if (IsLeaf())
 	{
+		float closestDistance = FLT_MAX;
+		bool hit = false;
+
 		for (auto it = elements.begin(); it != elements.end(); ++it)
 		{
 			const Shape& shape = (*it)->GetShape();
@@ -214,7 +219,7 @@ bool KDTree::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 
 			if (shapeHitInfo.distance > closestDistance)
 				continue;
-
+			
 			closestDistance = shapeHitInfo.distance;
 
 			hitInfo = shapeHitInfo;
@@ -222,25 +227,59 @@ bool KDTree::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 
 			hit = true;
 		}
+
+		return hit;
 	}
 	else
 	{
-		RaycastHit upperHit;
-		if (upperNode->IntersectRay(ray, upperHit) && upperHit.distance < closestDistance)
+		KDTree* nearNode;
+		KDTree* farNode;
+
+		if (ray.origin[axis] < splitPoint)
 		{
-			closestDistance = upperHit.distance;
-			hitInfo = upperHit;
-			hit = true;
+			nearNode = lowerNode;
+			farNode = upperNode;
+		}
+		else
+		{
+			nearNode = upperNode;
+			farNode = lowerNode;
 		}
 
-		RaycastHit lowerHit;
-		if (lowerNode->IntersectRay(ray, lowerHit) && lowerHit.distance < closestDistance)
+		float tSplit = (splitPoint - ray.origin[axis]) / ray.direction[axis];
+
+		if (tSplit > tMax)
+			return nearNode->IntersectRay(ray, hitInfo, tMin, tMax);
+		
+		if (tSplit < tMin) 
 		{
-			closestDistance = lowerHit.distance;
-			hitInfo = lowerHit;
-			hit = true;
+			if (tSplit > 0)
+				return farNode->IntersectRay(ray, hitInfo, tMin, tMax);
+			
+			if (tSplit < 0)
+				return nearNode->IntersectRay(ray, hitInfo, tMin, tMax);
+
+			if (ray.direction[axis] < 0)
+				return farNode->IntersectRay(ray, hitInfo, tMin, tMax);
+
+			return nearNode->IntersectRay(ray, hitInfo, tMin, tMax);
+		}
+		else 
+		{
+			if (tSplit > 0) 
+			{
+				if (nearNode->IntersectRay(ray, hitInfo, tMin, tMax))
+				{
+					// We should only return this intersection if the intersection point is inside the node...
+					//if (hitInfo.distance <= tSplit)
+						return true;
+				}
+
+				return farNode->IntersectRay(ray, hitInfo, tMin, tMax);
+			}
+
+			return nearNode->IntersectRay(ray, hitInfo, tMin, tMax);
 		}
 	}
 
-	return hit;
 }

@@ -2,8 +2,8 @@
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
 
-#define SCREEN_WIDTH 1024
-#define SCREEN_HEIGHT 768
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 1024
 
 #include <stdio.h>
 #include <io.h>
@@ -114,6 +114,8 @@ int main()
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
+	srand(time(0));
+
 	// Open window
 	printf("[AwesomeRenderer]: Creating Win32 window...\n");
 	
@@ -228,8 +230,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Setup setup(context);
 	setup.SetupLighting();
 	setup.SetupScene();
-	//setup.SetupCornellBox();
-	setup.SetupSpheres();
+	setup.SetupCornellBox();
+	//setup.SetupSpheres();
+	//setup.SetupFractal();
+	//setup.SetupSponza();
 	
 	// Camera controller
 	CameraController cameraController(camera);
@@ -333,10 +337,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		// Keyboard renderer switching
 		if (inputManager.GetKey('I'))
+		{
 			mainRenderer = renderers[0];
+			rayTracer.ResetFrame(false);
+		}
 
 		if (inputManager.GetKey('O'))
+		{
 			mainRenderer = renderers[1];
+			rayTracer.ResetFrame(false);
+		}
 
 		if (inputManager.GetKey('P'))
 			mainRenderer = renderers[2];

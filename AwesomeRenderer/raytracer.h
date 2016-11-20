@@ -64,7 +64,7 @@ namespace AwesomeRenderer
 			void Render();
 			void Present(Window& window);
 			void Cleanup();
-			void ResetFrame();
+			void ResetFrame(bool startNewFrame = true);
 
 			void SetRenderContext(const RenderContext* context);
 

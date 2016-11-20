@@ -28,7 +28,9 @@ namespace AwesomeRenderer
 		void GetCorners(Vector3* corners) const;
 		void GetTransformedCorners(Vector3* corners) const;
 
+		bool IntersectRay(const Ray& ray, float& tMin, float& tMax, Vector3& normal) const;
 		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo) const;
+		bool Contains(const Vector3& point) const;
 		
 		int SideOfPlane(const Plane& plane) const;
 

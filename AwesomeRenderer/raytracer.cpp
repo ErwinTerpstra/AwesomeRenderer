@@ -29,7 +29,9 @@ using namespace AwesomeRenderer::RayTracing;
 const float RayTracer::MAX_FRAME_TIME = 0.05f;
 const uint32_t RayTracer::TILE_SIZE = 32;
 
-RayTracer::RayTracer(Scheduler& scheduler) : Renderer(), debugIntegrator(*this), whittedIntegrator(*this), monteCarloIntegrator(*this), renderingFrame(false), maxDepth(0), frameTimer(0.0f, FLT_MAX)
+RayTracer::RayTracer(Scheduler& scheduler) : Renderer(), 
+	debugIntegrator(*this), whittedIntegrator(*this), monteCarloIntegrator(*this), renderingFrame(false), 
+	maxDepth(0), frameTimer(0.0f, FLT_MAX), debugPixel(-1, -1)
 {
 	currentIntegrator = &debugIntegrator;
 	
@@ -144,13 +146,14 @@ void RayTracer::Cleanup()
 	renderJobs.clear();
 }
 
-void RayTracer::ResetFrame()
+void RayTracer::ResetFrame(bool startNewFrame)
 {
 	PostRender();
 
 	renderContext->renderTarget->Clear(Color::BLACK, renderContext->clearFlags);
 
-	PreRender();
+	if (startNewFrame)
+		PreRender();
 }
 
 float RayTracer::GetProgress() const

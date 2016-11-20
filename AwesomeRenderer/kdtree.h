@@ -48,6 +48,7 @@ namespace AwesomeRenderer
 		KDTree* Parent() const { return parent; }
 
 		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo) const;
+		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const;
 
 	private:
 		void Split(const AABB& bounds);

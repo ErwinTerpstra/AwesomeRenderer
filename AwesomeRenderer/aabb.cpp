@@ -73,12 +73,10 @@ void AABB::GetCorners(Vector3* corners, const Vector3& min, const Vector3& max)
 	corners[7] = Vector3(max[0], max[1], max[2]);
 }
 
-bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
+bool AABB::IntersectRay(const Ray& ray, float& tMin, float& tMax, Vector3& normal) const
 {
-	float tMin = -FLT_MAX;
-	float tMax = FLT_MAX;
-
-	Vector3 normal;
+	tMin = -FLT_MAX;
+	tMax = FLT_MAX;
 
 	// Find the shortest intersection between the ray and an axis of the box
 	for (int axis = 0; axis < 3; ++axis)
@@ -86,7 +84,7 @@ bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 		float cMin = (minTransformed[axis] - ray.origin[axis]) / ray.direction[axis];
 		float cMax = (maxTransformed[axis] - ray.origin[axis]) / ray.direction[axis];
 
-		if (cMin > cMax) 
+		if (cMin > cMax)
 			std::swap(cMin, cMax);
 
 		if (cMin > tMin)
@@ -104,12 +102,27 @@ bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 	if (tMax < 0 || tMin > tMax)
 		return false;
 
+	return true;
+}
+
+bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
+{
+	float tMin, tMax;
+	Vector3 normal;
+	IntersectRay(ray, tMin, tMax, normal);
+
 	hitInfo.distance = tMin;
 	hitInfo.point = ray.origin + ray.direction * tMin;
 	hitInfo.inside = FALSE;
 	hitInfo.normal = hitInfo.inside ? -normal : normal;
 
 	return true;
+}
+
+bool AABB::Contains(const Vector3& point) const
+{
+	return point[0] >= minTransformed[0] && point[1] >= minTransformed[1] && point[2] >= minTransformed[2] &&
+		point[0] <= maxTransformed[0] && point[1] <= maxTransformed[1] && point[2] <= maxTransformed[2];
 }
 
 int AABB::SideOfPlane(const Plane& plane) const
