@@ -205,7 +205,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//renderer->drawMode = Renderer::DRAW_LINE;
 	}
 
-	Renderer* mainRenderer = &rayTracer;
+	Renderer* mainRenderer = &rendererGL;
 	
 	// Lighting
 	LightData lightData;

@@ -15,6 +15,7 @@
 /*/
 
 #define GL_CHECK_ERROR(CALL) \
+{ \
 	CALL; \
     do { \
        GLenum err = glGetError(); \
@@ -22,8 +23,8 @@
           printf("[OpenGL]: %s; at %s:%u: %s (0x%04x)\n", #CALL, __FILE__, __LINE__, \
                     gluErrorString(err), err); \
        } \
-    } while (0)
-
+    } while (0); \
+} 
 //*/
 
 #endif

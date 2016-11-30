@@ -41,7 +41,7 @@ void Buffer::AllocateAligned(uint32_t preferredWidth, uint32_t preferredHeight, 
 	this->stride = CalculateStride(preferredWidth, bpp, alignment);
 	this->size = height * stride;
 
-	allocator->Allocate(*this);
+	data = allocator->Allocate(*this);
 }
 
 uint32_t Buffer::CalculateStride(uint32_t width, uint8_t bitDepth, uint8_t alignment)
@@ -52,7 +52,12 @@ uint32_t Buffer::CalculateStride(uint32_t width, uint8_t bitDepth, uint8_t align
 
 void Buffer::Destroy()
 {
-	allocator->Destroy();
+	if (data != NULL)
+	{
+		allocator->Destroy();
+
+		data = NULL;
+	}
 }
 
 void Buffer::Clear(const Color& color)

@@ -90,8 +90,8 @@ void RendererGL::PostRender()
 {
 	RenderTargetGL* renderTargetGL = renderContext->renderTarget->As<RenderTargetGL>();
 
-	renderTargetGL->Read();
 	renderTargetGL->Unbind();
+	renderTargetGL->Read();
 }
 
 void RendererGL::Present(Window& window)
