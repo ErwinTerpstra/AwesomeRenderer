@@ -1,38 +1,36 @@
 #include "stdafx.h"
 #include "awesomerenderer.h"
-#include "gdibuffer.h"
+#include "gdibufferallocator.h"
 
 using namespace AwesomeRenderer;
 
-GdiBuffer::GdiBuffer(HWND windowHandle) : windowHandle(windowHandle), Buffer()
+GDIBufferAllocator::GDIBufferAllocator(HWND windowHandle) : BufferAllocator(), windowHandle(windowHandle)
 {
 
 }
 
-GdiBuffer::~GdiBuffer()
+GDIBufferAllocator::~GDIBufferAllocator()
 {
 
 }
 
-void GdiBuffer::AllocateAligned(uint32_t preferredWidth, uint32_t preferredHeight, uint8_t alignment, Encoding encoding)
+uchar* GDIBufferAllocator::Allocate(const Buffer& buffer)
 {
 	// Only BGR24 encoding is supporte for the GDI buffer
-	assert(encoding == BGR24);
-
-	Buffer::AllocateAligned(preferredWidth, preferredHeight, alignment, encoding);
+	assert(buffer.encoding == Buffer::BGR24);
 
 	bitmapInfo.bmiColors[0].rgbRed		= 255;
 	bitmapInfo.bmiColors[0].rgbGreen	= 255;
 	bitmapInfo.bmiColors[0].rgbBlue		= 255;
 
 	BITMAPINFOHEADER& header = bitmapInfo.bmiHeader;
-	header.biWidth = width;
-	header.biHeight = height;
+	header.biWidth = buffer.width;
+	header.biHeight = buffer.height;
 	header.biPlanes = 1;
-	header.biBitCount = this->bpp;
+	header.biBitCount = buffer.bpp;
 	header.biCompression = BI_RGB;
 	header.biSize = sizeof(BITMAPINFOHEADER);
-	header.biSizeImage = size;
+	header.biSizeImage = buffer.size;
 	header.biClrImportant = 0;
 	header.biClrUsed = 0;
 	
@@ -41,12 +39,14 @@ void GdiBuffer::AllocateAligned(uint32_t preferredWidth, uint32_t preferredHeigh
 	void* bufferBase = NULL;
 	bitmap = CreateDIBSection(windowDC, &bitmapInfo, DIB_RGB_COLORS, &bufferBase, NULL, 0);
 
-	data = static_cast<uchar*>(bufferBase);
+	uchar* data = static_cast<uchar*>(bufferBase);
 
 	ReleaseDC(windowHandle, windowDC);
+
+	return data;
 }
 
-void GdiBuffer::Destroy()
+void GDIBufferAllocator::Destroy()
 {
 	DeleteObject(bitmap);
 }

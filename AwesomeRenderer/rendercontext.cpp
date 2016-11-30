@@ -50,7 +50,7 @@ void RenderContext::Optimize()
 	Vector3 epsilon(0.1f, 0.1f, 0.1f);
 	min -= epsilon;
 	max += epsilon;
-	tree.Optimize(AABB(min, max));
+	//tree.Optimize(AABB(min, max));
 }
 
 void RenderContext::Update()

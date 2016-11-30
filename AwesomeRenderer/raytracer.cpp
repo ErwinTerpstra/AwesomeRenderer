@@ -4,8 +4,9 @@
 #include "ray.h"
 #include "raycasthit.h"
 #include "buffer.h"
+#include "texture.h"
 #include "camera.h"
-#include "gdibuffer.h"
+#include "gdibufferallocator.h"
 #include "window.h"
 #include "primitive.h"
 #include "model.h"
@@ -52,7 +53,7 @@ void RayTracer::SetRenderContext(const RenderContext* context)
 
 	Renderer::SetRenderContext(context);
 
-	Buffer* frameBuffer = context->renderTarget->frameBuffer;
+	Texture* frameBuffer = context->renderTarget->frameBuffer;
 	
 	uint32_t horizontalTiles = ceil(frameBuffer->width / (float)TILE_SIZE);
 	uint32_t verticalTiles = ceil(frameBuffer->height / (float)TILE_SIZE);
@@ -126,10 +127,11 @@ void RayTracer::Render()
 
 void RayTracer::Present(Window& window)
 {
-	GdiBuffer* buffer = static_cast<GdiBuffer*>(renderContext->renderTarget->frameBuffer);
+	Buffer* buffer = renderContext->renderTarget->frameBuffer;
+	const GDIBufferAllocator& allocator = static_cast<const GDIBufferAllocator&>(buffer->GetAllocator());
 
 	if (buffer != NULL)
-		window.DrawBuffer(*buffer);
+		window.DrawBuffer(*buffer, allocator);
 }
 
 void RayTracer::Cleanup()
@@ -170,7 +172,7 @@ void RayTracer::Render(const Point2& pixel)
 {
 	BreakOnDebugPixel(pixel);
 
-	Buffer* frameBuffer = renderContext->renderTarget->frameBuffer;
+	Texture* frameBuffer = renderContext->renderTarget->frameBuffer;
 
 	// Create a ray from the camera near plane through this pixel
 	Ray primaryRay;

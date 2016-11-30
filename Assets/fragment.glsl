@@ -1,6 +1,6 @@
 #version 330
 
-out vec4 outColor;
+layout(location = 0) out vec4 outColor;
 
 uniform sampler2D diffuseMap;
 
@@ -9,5 +9,6 @@ in vec2 texcoord;
 
 void main() 
 {
-	outColor = texture(diffuseMap, texcoord);
+	//outColor = texture(diffuseMap, texcoord);
+	outColor = normal;
 }

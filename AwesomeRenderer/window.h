@@ -3,7 +3,8 @@
 
 namespace AwesomeRenderer
 {
-	class GdiBuffer;
+	class Buffer;
+	class GDIBufferAllocator;
 	class InputManager;
 
 	class Window : public ExtensionProvider<Window>
@@ -41,7 +42,7 @@ namespace AwesomeRenderer
 		
 		void ProcessMessages() const;
 		
-		void DrawBuffer(const GdiBuffer& buffer) const;
+		void DrawBuffer(const Buffer& buffer, const GDIBufferAllocator& allocator) const;
 
 		LRESULT CALLBACK MessageCallback(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

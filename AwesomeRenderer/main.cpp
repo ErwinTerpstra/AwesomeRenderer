@@ -2,8 +2,8 @@
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
 
-#define SCREEN_WIDTH 1280
-#define SCREEN_HEIGHT 1024
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
 
 #include <stdio.h>
 #include <io.h>
@@ -12,7 +12,8 @@
 #include "awesomerenderer.h"
 
 #include "buffer.h"
-#include "memorybuffer.h"
+#include "memorybufferallocator.h"
+#include "gdibufferallocator.h"
 
 #include "scheduler.h"
 
@@ -90,7 +91,7 @@
 #include "objloader.h"
 
 // Win32
-#include "gdibuffer.h"
+#include "gdibufferallocator.h"
 #include "window.h"
 
 // OpenGL
@@ -100,6 +101,7 @@
 #include "shader_gl.h"
 #include "program_gl.h"
 #include "renderer_gl.h"
+#include "rendertarget_gl.h"
 
 #include "context.h"
 #include "setup.h"
@@ -140,8 +142,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Setup frame and depth buffers
 	printf("[AwesomeRenderer]: Initializing frame buffer...\n");
 
-	GdiBuffer frameBuffer(window.handle);
-	MemoryBuffer depthBuffer;
+	Texture frameBuffer(new GDIBufferAllocator(window.handle));
+	Texture depthBuffer(new MemoryBufferAllocator());
 	
 	frameBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, Buffer::BGR24);
 	depthBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, Buffer::FLOAT32);
@@ -151,6 +153,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	RenderTarget renderTarget;
 	renderTarget.SetupBuffers(&frameBuffer, &depthBuffer);
+
+	RenderTargetGL renderTargetGL(renderTarget);
+	renderTargetGL.Load();
 
 	// Setup camera
 	Camera camera(cml::left_handed);
@@ -361,8 +366,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		softwareRenderer.SetRenderContext(&hudContext);
 		softwareRenderer.Render();
 
-		window.DrawBuffer(frameBuffer);
-		//windowGL.Draw();
+		window.DrawBuffer(frameBuffer, static_cast<const GDIBufferAllocator&>(frameBuffer.GetAllocator()));
 
 		// Process Win32 messages
 		window.ProcessMessages();

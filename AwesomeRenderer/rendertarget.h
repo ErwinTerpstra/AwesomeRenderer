@@ -5,9 +5,9 @@
 
 namespace AwesomeRenderer
 {
-	class Buffer;
+	class Texture;
 
-	class RenderTarget
+	class RenderTarget : public ExtensionProvider<RenderTarget>
 	{
 
 	public:
@@ -20,14 +20,20 @@ namespace AwesomeRenderer
 			BUFFER_ALL = BUFFER_COLOR | BUFFER_DEPTH
 		};
 
+		enum Extensions
+		{
+			RENDER_TARGET_GL
+		};
+
+
 		BufferType buffers;
 		
-		Buffer *frameBuffer, *depthBuffer;
+		Texture *frameBuffer, *depthBuffer;
 
 	public:
 		RenderTarget();
 		
-		void SetupBuffers(Buffer* frameBuffer, Buffer* depthBuffer);
+		void SetupBuffers(Texture* frameBuffer, Texture* depthBuffer);
 		void Clear(const Color& color, BufferType buffers = BUFFER_ALL);
 
 	};

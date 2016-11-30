@@ -4,7 +4,7 @@
 #include "window.h"
 
 #include "inputmanager.h"
-#include "gdibuffer.h"
+#include "gdibufferallocator.h"
 
 #include <Windowsx.h>
 #include <assert.h>
@@ -142,11 +142,11 @@ LRESULT CALLBACK Window::MessageCallback(HWND hWnd, UINT msg, WPARAM wParam, LPA
 	return 0;
 }
 
-void Window::DrawBuffer(const GdiBuffer& buffer) const
+void Window::DrawBuffer(const Buffer& buffer, const GDIBufferAllocator& allocator) const
 {
 	HDC windowDC = GetDC(handle);
 	HDC bufferDC = CreateCompatibleDC(windowDC);
-	HGDIOBJ oldObj = SelectObject(bufferDC, buffer.bitmap);
+	HGDIOBJ oldObj = SelectObject(bufferDC, allocator.bitmap);
 			
 	BOOL result = BitBlt(windowDC, 0, 0, buffer.width, buffer.height, bufferDC, 0, 0, SRCCOPY);
 	assert(result);

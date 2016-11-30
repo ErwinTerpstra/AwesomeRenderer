@@ -3,18 +3,23 @@
 
 #include "awesomerenderer.h"
 #include "buffer.h"
+#include "bufferallocator.h"
 
 using namespace AwesomeRenderer;
 
-
-Buffer::Buffer() : data(NULL)
+Buffer::Buffer(BufferAllocator* allocator) : allocator(allocator), data(NULL)
 {
-
+	
 }
 
 Buffer::~Buffer()
 {
 	Destroy();
+}
+
+const BufferAllocator& Buffer::GetAllocator() const
+{
+	return *allocator;
 }
 
 void Buffer::Allocate(uint32_t preferredWidth, uint32_t preferredHeight, Encoding encoding)
@@ -35,6 +40,8 @@ void Buffer::AllocateAligned(uint32_t preferredWidth, uint32_t preferredHeight, 
 
 	this->stride = CalculateStride(preferredWidth, bpp, alignment);
 	this->size = height * stride;
+
+	allocator->Allocate(*this);
 }
 
 uint32_t Buffer::CalculateStride(uint32_t width, uint8_t bitDepth, uint8_t alignment)
@@ -45,7 +52,7 @@ uint32_t Buffer::CalculateStride(uint32_t width, uint8_t bitDepth, uint8_t align
 
 void Buffer::Destroy()
 {
-
+	allocator->Destroy();
 }
 
 void Buffer::Clear(const Color& color)

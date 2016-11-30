@@ -5,6 +5,8 @@
 
 namespace AwesomeRenderer
 {
+	class BufferAllocator;
+
 	// TODO: Make this a generic buffer (void*) and move the "byte" functionality to a ByteBufer subclass
 	// Also split the color functionality to a ColorBuffer class
 	class Buffer
@@ -23,16 +25,21 @@ namespace AwesomeRenderer
 
 		uchar* data;
 
+	private:
+		BufferAllocator* allocator;
+
 	public:
 
-		Buffer();
+		Buffer(BufferAllocator* allocator);
 		virtual ~Buffer();
 
-		void Allocate(uint32_t preferredWidth, uint32_t preferredHeight, Encoding encoding);
-		virtual void AllocateAligned(uint32_t preferredWidth, uint32_t preferredHeight, uint8_t alignment, Encoding encoding);
+		const BufferAllocator& GetAllocator() const;
 
-		virtual uint32_t CalculateStride(uint32_t width, uint8_t bitDepth, uint8_t alignment);
-		virtual void Destroy();
+		void Allocate(uint32_t preferredWidth, uint32_t preferredHeight, Encoding encoding);
+		void AllocateAligned(uint32_t preferredWidth, uint32_t preferredHeight, uint8_t alignment, Encoding encoding);
+
+		uint32_t CalculateStride(uint32_t width, uint8_t bitDepth, uint8_t alignment);
+		void Destroy();
 		
 		__inline void Clear() { memset(data, 0, size); }
 		void Clear(const Color& color);

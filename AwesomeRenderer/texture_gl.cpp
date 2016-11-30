@@ -8,14 +8,15 @@
 
 using namespace AwesomeRenderer;
 
-TextureGL::TextureGL(Texture& texture) : Extension(texture)
+TextureGL::TextureGL(Texture& texture) : Extension(texture), id(0)
 {
 
 }
 
 TextureGL::~TextureGL()
 {
-	glDeleteTextures(1, &id);
+	if (id != 0)
+		glDeleteTextures(1, &id);
 }
 
 void TextureGL::Load()

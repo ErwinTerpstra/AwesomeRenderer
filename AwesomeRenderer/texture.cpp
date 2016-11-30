@@ -2,10 +2,11 @@
 #include "awesomerenderer.h"
 
 #include "texture.h"
+#include "bufferallocator.h"
 
 using namespace AwesomeRenderer;
 
-Texture::Texture() : MemoryBuffer()
+Texture::Texture(BufferAllocator* allocator) : Buffer(allocator)
 {
 
 }

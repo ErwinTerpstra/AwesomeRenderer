@@ -3,7 +3,8 @@
 
 #include "window.h"
 #include "buffer.h"
-#include "gdibuffer.h"
+#include "gdibufferallocator.h"
+#include "texture.h"
 
 #include "rendercontext.h"
 #include "camera.h"
@@ -97,10 +98,11 @@ void SoftwareRenderer::PostRender()
 
 void SoftwareRenderer::Present(Window& window)
 {
-	GdiBuffer* buffer = static_cast<GdiBuffer*>(renderContext->renderTarget->frameBuffer);
+	Buffer* buffer = renderContext->renderTarget->frameBuffer;
+	const GDIBufferAllocator& allocator = static_cast<const GDIBufferAllocator&>(buffer->GetAllocator());
 
 	if (buffer != NULL)
-		window.DrawBuffer(*buffer);
+		window.DrawBuffer(*buffer, allocator);
 }
 
 void SoftwareRenderer::Render()

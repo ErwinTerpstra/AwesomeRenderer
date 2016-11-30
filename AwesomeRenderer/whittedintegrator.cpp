@@ -25,7 +25,7 @@ Vector3 WhittedIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, const M
 {
 	Vector3 radiance = material.emission.subvector(3);
 	
-	//radiance += SampleDirectLight(ray, hitInfo, material, context);
+	radiance += SampleDirectLight(ray, hitInfo, material, context);
 
 	if (depth < rayTracer.maxDepth)
 	{

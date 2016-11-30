@@ -8,6 +8,7 @@
 #include "node.h"
 #include "texturefactory.h"
 #include "sampler.h"
+#include "memorybufferallocator.h"
 #include "transformation.h"
 #include "textmesh.h"
 #include "phongmaterial.h"
@@ -241,14 +242,14 @@ void RayTracerDebug::Export()
 	// Save image
 	const Buffer& frameBuffer = *context.mainContext->renderTarget->frameBuffer;
 	
-	Texture texture;
-	texture.AllocateAligned(frameBuffer.width, frameBuffer.height, 4, Buffer::BGR24);
-	texture.Blit(frameBuffer);
+	Buffer alignedBuffer(new MemoryBufferAllocator());
+	alignedBuffer.AllocateAligned(frameBuffer.width, frameBuffer.height, 4, Buffer::BGR24);
+	alignedBuffer.Blit(frameBuffer);
 
 	std::string imageFileName = RENDER_ROOT + "/" + identifier + ".bmp";
-	context.textureFactory->WriteBMP(imageFileName, texture);
+	context.textureFactory->WriteBMP(imageFileName, alignedBuffer);
 	
-	texture.Destroy();
+	alignedBuffer.Destroy();
 
 	// Write stats
 	std::string statsFileName = RENDER_ROOT + "/" + identifier + ".txt";

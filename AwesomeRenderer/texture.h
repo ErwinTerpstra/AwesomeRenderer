@@ -2,12 +2,13 @@
 #define _TEXTURE_H_
 
 #include "awesomerenderer.h"
-#include "memorybuffer.h"
+#include "buffer.h"
 
 namespace AwesomeRenderer
 {
+	class BufferAllocator;
 
-	class Texture : public MemoryBuffer, public ExtensionProvider<Texture>
+	class Texture : public Buffer, public ExtensionProvider<Texture>
 	{
 	public:
 
@@ -17,8 +18,8 @@ namespace AwesomeRenderer
 		};
 
 	public:
-		Texture();
-		
+		Texture(BufferAllocator* allocator);
+
 	};
 
 }

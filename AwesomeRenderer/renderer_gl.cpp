@@ -3,12 +3,10 @@
 #include "filereader.h"
 #include "rendercontext.h"
 #include "window.h"
-#include "window_gl.h"
 #include "material.h"
 #include "phongmaterial.h"
 #include "sampler.h"
 #include "texture.h"
-#include "texture_gl.h"
 #include "camera.h"
 
 #include "node.h"
@@ -16,6 +14,10 @@
 #include "mesh.h"
 #include "mesh_gl.h"
 #include "transformation.h"
+
+#include "window_gl.h"
+#include "texture_gl.h"
+#include "rendertarget_gl.h"
 
 using namespace AwesomeRenderer;
 
@@ -69,8 +71,12 @@ void RendererGL::Initialize()
 
 void RendererGL::PreRender()
 {
+	RenderTargetGL* renderTargetGL = renderContext->renderTarget->As<RenderTargetGL>();
+
+	renderTargetGL->Bind();
+
 	uint32_t clearBits = 0;
-	
+
 	if ((renderContext->clearFlags & RenderTarget::BUFFER_COLOR) != 0)
 		clearBits |= GL_COLOR_BUFFER_BIT;
 
@@ -78,11 +84,14 @@ void RendererGL::PreRender()
 		clearBits |= GL_DEPTH_BUFFER_BIT;
 
 	glClear(clearBits);
-	renderContext->renderTarget->frameBuffer->Clear();
 }
 
 void RendererGL::PostRender()
 {
+	RenderTargetGL* renderTargetGL = renderContext->renderTarget->As<RenderTargetGL>();
+
+	renderTargetGL->Read();
+	renderTargetGL->Unbind();
 }
 
 void RendererGL::Present(Window& window)

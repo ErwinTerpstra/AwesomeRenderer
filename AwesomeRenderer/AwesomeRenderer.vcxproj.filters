@@ -78,12 +78,6 @@
     <ClCompile Include="buffer.cpp">
       <Filter>Source\Buffer</Filter>
     </ClCompile>
-    <ClCompile Include="gdibuffer.cpp">
-      <Filter>Source\Buffer</Filter>
-    </ClCompile>
-    <ClCompile Include="memorybuffer.cpp">
-      <Filter>Source\Buffer</Filter>
-    </ClCompile>
     <ClCompile Include="mesh.cpp">
       <Filter>Source\Model</Filter>
     </ClCompile>
@@ -173,9 +167,6 @@
     </ClCompile>
     <ClCompile Include="window_gl.cpp">
       <Filter>Source\Window</Filter>
-    </ClCompile>
-    <ClCompile Include="texture_gl.cpp">
-      <Filter>Source\Model</Filter>
     </ClCompile>
     <ClCompile Include="phongshader.cpp">
       <Filter>Source\Renderer\SoftwareRendering\SoftwareShaders</Filter>
@@ -282,6 +273,21 @@
     <ClCompile Include="bsdf.cpp">
       <Filter>Source\Renderer\RayTracing\BSDF</Filter>
     </ClCompile>
+    <ClCompile Include="rendertarget_gl.cpp">
+      <Filter>Source\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="bufferallocator.cpp">
+      <Filter>Source\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="memorybufferallocator.cpp">
+      <Filter>Source\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="gdibufferallocator.cpp">
+      <Filter>Source\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="texture_gl.cpp">
+      <Filter>Source\Renderer\OpenGL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h">
@@ -291,12 +297,6 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="buffer.h">
-      <Filter>Source\Buffer</Filter>
-    </ClInclude>
-    <ClInclude Include="gdibuffer.h">
-      <Filter>Source\Buffer</Filter>
-    </ClInclude>
-    <ClInclude Include="memorybuffer.h">
       <Filter>Source\Buffer</Filter>
     </ClInclude>
     <ClInclude Include="mesh.h">
@@ -406,9 +406,6 @@
     </ClInclude>
     <ClInclude Include="window_gl.h">
       <Filter>Source\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="texture_gl.h">
-      <Filter>Source\Model</Filter>
     </ClInclude>
     <ClInclude Include="factory.h">
       <Filter>Source\Assets</Filter>
@@ -544,6 +541,21 @@
     </ClInclude>
     <ClInclude Include="bsdf.h">
       <Filter>Source\Renderer\RayTracing\BSDF</Filter>
+    </ClInclude>
+    <ClInclude Include="rendertarget_gl.h">
+      <Filter>Source\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="bufferallocator.h">
+      <Filter>Source\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="memorybufferallocator.h">
+      <Filter>Source\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="gdibufferallocator.h">
+      <Filter>Source\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="texture_gl.h">
+      <Filter>Source\Renderer\OpenGL</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

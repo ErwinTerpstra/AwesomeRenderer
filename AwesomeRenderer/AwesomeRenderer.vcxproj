@@ -87,6 +87,7 @@
     <ClCompile Include="aabb.cpp" />
     <ClCompile Include="blinnphong.cpp" />
     <ClCompile Include="bsdf.cpp" />
+    <ClCompile Include="bufferallocator.cpp" />
     <ClCompile Include="bxdf.cpp" />
     <ClCompile Include="cameracontroller.cpp" />
     <ClCompile Include="components.cpp" />
@@ -101,6 +102,7 @@
     <ClCompile Include="raytracerdebug.cpp" />
     <ClCompile Include="renderable.cpp" />
     <ClCompile Include="renderjob.cpp" />
+    <ClCompile Include="rendertarget_gl.cpp" />
     <ClCompile Include="scheduler.cpp" />
     <ClCompile Include="setup.cpp" />
     <ClCompile Include="shader_gl.cpp" />
@@ -140,10 +142,10 @@
     <ClCompile Include="buffer.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="color.cpp" />
-    <ClCompile Include="gdibuffer.cpp" />
+    <ClCompile Include="gdibufferallocator.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="material.cpp" />
-    <ClCompile Include="memorybuffer.cpp" />
+    <ClCompile Include="memorybufferallocator.cpp" />
     <ClCompile Include="softwarerenderer.cpp" />
     <ClCompile Include="softwareshader.cpp" />
     <ClCompile Include="texturefactory.cpp" />
@@ -162,6 +164,7 @@
     <ClInclude Include="aabb.h" />
     <ClInclude Include="bsdf.h" />
     <ClInclude Include="buffer.h" />
+    <ClInclude Include="bufferallocator.h" />
     <ClInclude Include="bxdf.h" />
     <ClInclude Include="coloredskybox.h" />
     <ClInclude Include="component.h" />
@@ -183,6 +186,7 @@
     <ClInclude Include="raytracerdebug.h" />
     <ClInclude Include="renderable.h" />
     <ClInclude Include="renderjob.h" />
+    <ClInclude Include="rendertarget_gl.h" />
     <ClInclude Include="scheduler.h" />
     <ClInclude Include="setup.h" />
     <ClInclude Include="shader_gl.h" />
@@ -221,9 +225,9 @@
     <ClInclude Include="texture.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="color.h" />
-    <ClInclude Include="gdibuffer.h" />
+    <ClInclude Include="gdibufferallocator.h" />
     <ClInclude Include="material.h" />
-    <ClInclude Include="memorybuffer.h" />
+    <ClInclude Include="memorybufferallocator.h" />
     <ClInclude Include="softwarerenderer.h" />
     <ClInclude Include="softwareshader.h" />
     <ClInclude Include="texturefactory.h" />

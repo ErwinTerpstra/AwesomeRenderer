@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "awesomerenderer.h"
 #include "texturefactory.h"
+#include "memorybufferallocator.h"
 #include "sampler.h"
 
 using namespace AwesomeRenderer;
@@ -12,7 +13,7 @@ TextureFactory::TextureFactory()
 
 bool TextureFactory::Instantiate(Texture** instance) const
 {
-	new (*instance) Texture();
+	new (*instance) Texture(new MemoryBufferAllocator());
 
 	return true;
 }

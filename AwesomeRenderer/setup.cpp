@@ -199,7 +199,7 @@ void Setup::SetupCornellBox()
 	const bool sphereTranslucent = true;
 	//*/
 
-	const bool showBox = false;
+	const bool showBox = true;
 	const bool showLight = false;
 	const bool showSpheres = false;
 	const bool showBunny = true;

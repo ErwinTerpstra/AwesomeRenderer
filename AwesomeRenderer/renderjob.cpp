@@ -6,7 +6,7 @@
 #include "camera.h"
 #include "rendercontext.h"
 #include "shadinginfo.h"
-#include "buffer.h"
+#include "texture.h"
 
 using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;

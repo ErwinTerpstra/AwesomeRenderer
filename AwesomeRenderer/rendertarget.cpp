@@ -2,7 +2,7 @@
 #include "awesomerenderer.h"
 
 #include "rendertarget.h"
-#include "buffer.h"
+#include "texture.h"
 
 using namespace AwesomeRenderer;
 
@@ -11,7 +11,7 @@ RenderTarget::RenderTarget() : frameBuffer(NULL), depthBuffer(NULL)
 
 }
 
-void RenderTarget::SetupBuffers(Buffer* frameBuffer, Buffer* depthBuffer)
+void RenderTarget::SetupBuffers(Texture* frameBuffer, Texture* depthBuffer)
 {
 	this->frameBuffer = frameBuffer;
 	this->depthBuffer = depthBuffer;
