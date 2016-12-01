@@ -15,6 +15,7 @@
 #include "mesh_gl.h"
 #include "transformation.h"
 
+#include "util_gl.h"
 #include "window_gl.h"
 #include "texture_gl.h"
 #include "rendertarget_gl.h"
@@ -73,7 +74,8 @@ void RendererGL::PreRender()
 {
 	RenderTargetGL* renderTargetGL = renderContext->renderTarget->As<RenderTargetGL>();
 
-	renderTargetGL->Bind();
+	if (renderTargetGL != NULL)
+		renderTargetGL->Bind();
 
 	uint32_t clearBits = 0;
 
@@ -90,8 +92,11 @@ void RendererGL::PostRender()
 {
 	RenderTargetGL* renderTargetGL = renderContext->renderTarget->As<RenderTargetGL>();
 
-	renderTargetGL->Unbind();
-	renderTargetGL->Read();
+	if (renderTargetGL != NULL)
+	{
+		renderTargetGL->Unbind();
+		renderTargetGL->Read();
+	}
 }
 
 void RendererGL::Present(Window& window)
@@ -122,7 +127,7 @@ void RendererGL::Render()
 	}
 
 	glDisableClientState(GL_VERTEX_ARRAY);
-	
+		
 	PostRender();
 }
 
@@ -146,6 +151,8 @@ void RendererGL::DrawModel(const Model& model, const Transformation& trans)
 
 		EndDraw();
 	}
+
+	GL_CHECK_ERROR("DrawModel");
 }
 
 void RendererGL::BeginDraw(const Matrix44& model, const Material& material)

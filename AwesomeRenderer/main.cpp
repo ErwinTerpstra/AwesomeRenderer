@@ -154,8 +154,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	RenderTarget renderTarget;
 	renderTarget.SetupBuffers(&frameBuffer, &depthBuffer);
 
-	RenderTargetGL renderTargetGL(renderTarget);
-	renderTargetGL.Load();
+	//RenderTargetGL renderTargetGL(renderTarget);
+	//renderTargetGL.Load();
 
 	// Setup camera
 	Camera camera(cml::left_handed);

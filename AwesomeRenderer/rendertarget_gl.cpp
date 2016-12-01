@@ -23,7 +23,7 @@ RenderTargetGL::~RenderTargetGL()
 
 void RenderTargetGL::Load()
 {
-	GL_CHECK_ERROR(glGenFramebuffers(1, &renderTargetID));
+	glGenFramebuffers(1, &renderTargetID);
 
 	Bind();
 
@@ -33,24 +33,32 @@ void RenderTargetGL::Load()
 		frameBuffer->Load();
 
 		// Bind the frame buffer as COLOR_ATTACHMENT0
-		GL_CHECK_ERROR(glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, frameBuffer->id, 0));
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, frameBuffer->id, 0);
 
 		// Set the list of draw buffers.
 		GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
-		GL_CHECK_ERROR(glDrawBuffers(1, drawBuffers));
+		glDrawBuffers(1, drawBuffers);
 	}
 	
 	if (provider.depthBuffer != NULL)
 	{
 		// Setup a depth buffer
-		GL_CHECK_ERROR(glGenRenderbuffers(1, &depthBufferID));
-		GL_CHECK_ERROR(glBindRenderbuffer(GL_RENDERBUFFER, depthBufferID));
-		GL_CHECK_ERROR(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, provider.depthBuffer->width, provider.depthBuffer->height));
-		GL_CHECK_ERROR(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBufferID));
+		glGenRenderbuffers(1, &depthBufferID);
+		glBindRenderbuffer(GL_RENDERBUFFER, depthBufferID);
+
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBufferID);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, provider.depthBuffer->width, provider.depthBuffer->height);
+
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	}
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		printf("[RenderTargetGL]: Error setting up GL render target!");
+
+
+	GL_CHECK_ERROR("RenderTargetGL::Load");
+
+	Unbind();
 }
 
 void RenderTargetGL::Bind()
@@ -68,9 +76,11 @@ void RenderTargetGL::Read()
 	if (provider.frameBuffer != NULL)
 	{
 		glReadBuffer((GLenum)GL_COLOR_ATTACHMENT0_EXT);
-		GL_CHECK_ERROR(glReadPixels(0, 0, provider.frameBuffer->width, provider.frameBuffer->height, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)provider.frameBuffer->data));
+		glReadPixels(0, 0, provider.frameBuffer->width, provider.frameBuffer->height, GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)provider.frameBuffer->data);
 	}
 
 	if (provider.depthBuffer != NULL)
-		GL_CHECK_ERROR(glReadPixels(0, 0, provider.depthBuffer->width, provider.depthBuffer->height, GL_DEPTH_COMPONENT, GL_FLOAT, (GLvoid*)provider.depthBuffer->data));
+		glReadPixels(0, 0, provider.depthBuffer->width, provider.depthBuffer->height, GL_DEPTH_COMPONENT, GL_FLOAT, (GLvoid*)provider.depthBuffer->data);
+
+	GL_CHECK_ERROR("RenderTargetGL::Read");
 }

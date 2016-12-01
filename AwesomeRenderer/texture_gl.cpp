@@ -47,11 +47,18 @@ void TextureGL::Load()
 		alignment = 1;
 	}
 
-	glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
-	glTexImage2D(GL_TEXTURE_2D, 0, interalFormat, provider.width, provider.height, 0, dataFormat, GL_UNSIGNED_BYTE, provider.data);
+	GL_CHECK_ERROR(glPixelStorei(GL_UNPACK_ALIGNMENT, alignment));
+	GL_CHECK_ERROR(glTexImage2D(GL_TEXTURE_2D, 0, interalFormat, provider.width, provider.height, 0, dataFormat, GL_UNSIGNED_BYTE, provider.data));
+
+	Unbind();
 }
 
 void TextureGL::Bind()
 {
-	glBindTexture(GL_TEXTURE_2D, id);
+	GL_CHECK_ERROR(glBindTexture(GL_TEXTURE_2D, id));
+}
+
+void TextureGL::Unbind()
+{
+	GL_CHECK_ERROR(glBindTexture(GL_TEXTURE_2D, 0));
 }

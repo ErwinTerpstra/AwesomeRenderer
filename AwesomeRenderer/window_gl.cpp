@@ -67,7 +67,8 @@ bool WindowGL::Setup()
 		wglDeleteContext(tempContext);
 		wglMakeCurrent(deviceContext, renderContext);
 	}
-	else {
+	else 
+	{
 		// Fallback context if we can't get our desired version context
 		renderContext = tempContext;
 	}

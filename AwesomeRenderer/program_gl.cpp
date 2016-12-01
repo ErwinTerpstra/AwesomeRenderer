@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "awesomerenderer.h"
+
+#include "util_gl.h"
 #include "program_gl.h"
 #include "texture_gl.h"
 
@@ -23,25 +25,28 @@ void ProgramGL::Prepare()
 
 void ProgramGL::Attach(ShaderGL* shader)
 {
-	glAttachShader(handle, shader->handle);
+	GL_CHECK_ERROR(glAttachShader(handle, shader->handle));
 }
 
 void ProgramGL::Link()
 {
-	glLinkProgram(handle);
+	GL_CHECK_ERROR(glLinkProgram(handle));
 }
 
 void ProgramGL::Bind()
 {
-	glUseProgram(handle);
+	GL_CHECK_ERROR(glUseProgram(handle));
 }
 
 void ProgramGL::BindTexture(TextureGL* texture, std::string uniformName, GLenum slot)
 {
 	glActiveTexture(slot);
+
 	texture->Bind();
 
 	glUniform1i(GetUniformLocation(uniformName), slot - GL_TEXTURE0);
+
+	GL_CHECK_ERROR("BindTexture");
 }
 
 GLint ProgramGL::GetUniformLocation(std::string name)
