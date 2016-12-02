@@ -69,6 +69,10 @@ bool TextureFactory::LoadBmp(const std::string& fileName, Texture** texture) con
 	case 24:
 		encoding = Buffer::BGR24;
 		break;
+
+	case 32:
+		encoding = Buffer::BGRA32;
+		break;
 	
 	default:
 		printf("[TextureFactory]: Unsupported bit depth: %d\n", infoHeader.bitCount);
@@ -98,13 +102,48 @@ Sampler* TextureFactory::GetTexture(const std::string& fileName)
 	
 	if (!GetAsset(fileName, &texture))
 		return NULL;
+	
+	return CreateSampler(texture);
+}
 
+Sampler* TextureFactory::CreateSampler(Texture* texture)
+{
 	Sampler* sampler = new Sampler();
-	sampler->sampleMode = Sampler::SM_POINT;
+	sampler->sampleMode = Sampler::SM_BILINEAR;
 	sampler->wrapMode = Sampler::WM_REPEAT;
 	sampler->texture = texture;
 
 	return sampler;
+}
+
+Texture* TextureFactory::MergeAlphaChannel(const Texture* albedo, const Texture* alpha)
+{
+	assert(albedo->width == alpha->width && albedo->height == alpha->height);
+
+	Texture* target;
+	
+	if (!Allocate(&target))
+		return NULL;
+
+	target->AllocateAligned(albedo->width, albedo->height, albedo->alignment, Texture::RGBA32);
+
+	for (uint32_t y = 0; y < albedo->height; ++y)
+	{
+		for (uint32_t x = 0; x < albedo->width; ++x)
+		{
+			Color albedoColor;
+			albedo->GetPixel(x, y, albedoColor);
+
+			Color alphaColor;
+			alpha->GetPixel(x, y, alphaColor);
+
+			albedoColor[3] = alphaColor[0];
+
+			target->SetPixel(x, y, albedoColor);
+		}
+	}
+
+	return target;
 }
 
 void TextureFactory::WriteBMP(const std::string& fileName, const Buffer& buffer) const

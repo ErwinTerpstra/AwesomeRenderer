@@ -124,6 +124,7 @@ uint8_t Buffer::GetEncodingDepth(Encoding encoding)
 	case RGB24:			return 24;
 	case RGBA32:		return 32;
 	case BGR24:			return 24;
+	case BGRA32:		return 32;
 	case FLOAT32:		return 32;
 	}
 
@@ -146,12 +147,20 @@ void Buffer::EncodeColor(const Color& color, Encoding encoding, uchar* buffer)
 		buffer[0] = (uchar)(color[0] * 255.0f);
 		buffer[1] = (uchar)(color[1] * 255.0f);
 		buffer[2] = (uchar)(color[2] * 255.0f);
+		buffer[3] = (uchar)(color[3] * 255.0f);
 		break;
 
 	case BGR24:
 		buffer[0] = (uchar)(color[2] * 255.0f);
 		buffer[1] = (uchar)(color[1] * 255.0f);
 		buffer[2] = (uchar)(color[0] * 255.0f);
+		break;
+
+	case BGRA32:
+		buffer[0] = (uchar)(color[2] * 255.0f);
+		buffer[1] = (uchar)(color[1] * 255.0f);
+		buffer[2] = (uchar)(color[0] * 255.0f);
+		buffer[3] = (uchar)(color[3] * 255.0f);
 		break;
 
 	default:
@@ -184,6 +193,13 @@ void Buffer::DecodeColor(const uchar* buffer, Encoding encoding, Color& color)
 		color[1] = buffer[1] / 255.0f;
 		color[2] = buffer[0] / 255.0f;
 		color[3] = 1.0f;
+		break;
+
+	case BGRA32:
+		color[0] = buffer[2] / 255.0f;
+		color[1] = buffer[1] / 255.0f;
+		color[2] = buffer[0] / 255.0f;
+		color[3] = buffer[3] / 255.0f;
 		break;
 
 	default:

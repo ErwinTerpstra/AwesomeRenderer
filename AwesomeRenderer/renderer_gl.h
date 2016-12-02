@@ -43,6 +43,15 @@ namespace AwesomeRenderer
 
 		void DrawModel(const Model& model, const Transformation& trans);
 
+		GLenum GetCullMode() const
+		{
+			switch (cullMode)
+			{
+			case CULL_BACK:	return GL_BACK;
+			case CULL_FRONT: return GL_FRONT;
+			default: return GL_NONE;
+			}
+		}
 
 	};
 

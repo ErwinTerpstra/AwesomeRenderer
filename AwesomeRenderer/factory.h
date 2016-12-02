@@ -106,8 +106,7 @@ namespace AwesomeRenderer
 						return false;
 					}
 
-					// Save asset in map
-					assets.insert(std::pair<std::string, AssetType*>(fileName, *instance));
+					CacheAsset(fileName, *instance);
 
 					return true;
 				}
@@ -121,6 +120,12 @@ namespace AwesomeRenderer
 	protected:
 
 		virtual bool Instantiate(AssetType** instance) const = 0;
+
+		void CacheAsset(const std::string& fileName, AssetType* instance)
+		{
+			// Save asset in map
+			assets.insert(std::pair<std::string, AssetType*>(fileName, instance));
+		}
 
 		void AddLoadFunction(const std::string extension, LoadFunction function)
 		{

@@ -583,6 +583,7 @@ void Setup::SetupSponza()
 	Model* model = new Model();
 
 	Transformation* transform = new Transformation();
+	transform->SetScale(Vector3(0.1f, 0.1f, 0.1f));
 
 	node->AddComponent(model);
 	node->AddComponent(transform);

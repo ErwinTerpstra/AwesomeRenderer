@@ -310,6 +310,8 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 				switch (lineBuffer[1])
 				{
 					case 'a':
+						// Ambient color, but often set as duplicate for diffuse
+						// Ignore for now...
 						break;
 
 					case 'd':
@@ -377,25 +379,49 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 				if (line.compare(0, 6, "map_Kd") == 0)
 				{
 					// Create a filename relative to the filename of the material library
-					std::string textureFile(fileName);
-					size_t idx = textureFile.find_last_of('/');
-					textureFile.resize(idx != std::string::npos ? idx + 1 : 0);
-					textureFile += line.substr(7);
+					std::string textureFile = GetRelativeFileName(line.substr(7), fileName);
 					
-					Texture* texture = NULL;
-					Sampler* sampler = new Sampler(); // TODO: Move memory allocation to somewhere else
-
-					if (textureFactory.GetAsset(textureFile, &texture))
-					{
-						sampler->texture = texture;
+					Sampler* sampler = textureFactory.GetTexture(textureFile);
+					
+					if (sampler)
 						material->diffuseMap = sampler;
-					}
 					else
 						printf("[ObjLoader]: Failed to load diffuse map for material.\n");
 
 					break;
 				}
 
+				// Alpha map
+				if (line.compare(0, 5, "map_d") == 0)
+				{
+					if (material->diffuseMap == NULL)
+					{
+						printf("[ObjLoader]: Expected diffuse map before alpha map.\n");
+						break;
+					}
+
+					// Create a filename relative to the filename of the material library
+					std::string textureFile = GetRelativeFileName(line.substr(6), fileName);
+
+					Texture* alphaTexture = NULL;
+					if (textureFactory.GetAsset(textureFile, &alphaTexture))
+					{
+						Texture* mergedTexture = textureFactory.MergeAlphaChannel(material->diffuseMap->texture, alphaTexture);
+
+						if (!mergedTexture)
+						{
+							printf("[ObjLoader]: Failed to merge alpha map with diffuse map.\n");
+							break;
+						}
+
+						material->diffuseMap->texture = mergedTexture;
+						material->provider.translucent = TRUE;
+					}
+					else
+						printf("[ObjLoader]: Failed to load alpha map for material.\n");
+
+					break;
+				}
 
 
 				printf("[ObjLoader]: Invalid line in MTL \"%s\"\n", lineBuffer);
@@ -407,6 +433,16 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 	reader.Close();
 
 	printf("[ObjLoader]: Loaded %d materials\n", materialLib.size());
+}
+
+std::string ObjLoader::GetRelativeFileName(std::string fileName, const char* basePath)
+{
+	std::string textureFile(basePath);
+	size_t idx = textureFile.find_last_of('/');
+	textureFile.resize(idx != std::string::npos ? idx + 1 : 0);
+	textureFile += fileName;
+
+	return textureFile;
 }
 
 void ObjLoader::ParseColor(const char* input, Color& color)

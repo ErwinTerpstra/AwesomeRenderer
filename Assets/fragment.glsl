@@ -9,6 +9,5 @@ in vec2 texcoord;
 
 void main() 
 {
-	//outColor = texture(diffuseMap, texcoord);
-	outColor = vec4(normal, 1.0);
+	outColor = texture(diffuseMap, texcoord);
 }

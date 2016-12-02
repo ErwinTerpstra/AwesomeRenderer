@@ -66,8 +66,16 @@ void RendererGL::Initialize()
 
 	defaultShader.Link();
 
-	glEnable(GL_DEPTH_TEST);
+	GL_CHECK_ERROR(
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
+		glDepthFunc(GL_LEQUAL);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	);
+
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
 }
 
 void RendererGL::PreRender()
@@ -86,6 +94,16 @@ void RendererGL::PreRender()
 		clearBits |= GL_DEPTH_BUFFER_BIT;
 
 	glClear(clearBits);
+
+	if (cullMode != CULL_NONE)
+	{
+		glEnable(GL_CULL_FACE);
+		glCullFace(GetCullMode());
+	}
+	else
+		glDisable(GL_CULL_FACE);
+
+	GL_CHECK_ERROR("PreRender");
 }
 
 void RendererGL::PostRender()
@@ -94,9 +112,11 @@ void RendererGL::PostRender()
 
 	if (renderTargetGL != NULL)
 	{
-		renderTargetGL->Unbind();
 		renderTargetGL->Read();
+		renderTargetGL->Unbind();
 	}
+
+	GL_CHECK_ERROR("PostRender");
 }
 
 void RendererGL::Present(Window& window)
@@ -113,7 +133,7 @@ void RendererGL::Render()
 
 	std::vector<Node*>::const_iterator it;
 
-	glEnableClientState(GL_VERTEX_ARRAY);
+	GL_CHECK_ERROR(glEnableClientState(GL_VERTEX_ARRAY));
 
 	for (it = renderContext->nodes.begin(); it != renderContext->nodes.end(); ++it)
 	{
@@ -127,7 +147,7 @@ void RendererGL::Render()
 	}
 
 	glDisableClientState(GL_VERTEX_ARRAY);
-		
+
 	PostRender();
 }
 
@@ -159,12 +179,16 @@ void RendererGL::BeginDraw(const Matrix44& model, const Material& material)
 {
 	currentMaterial = &material;
 
+	glDepthMask(material.translucent ? GL_FALSE : GL_TRUE);
+
 	ProgramGL* shader = &defaultShader;
 
+	shader->Prepare();
+
 	// Setup geometry matrices for shader
-	glUniformMatrix4fv(shader->GetUniformLocation("modelMtx"), 1, GL_FALSE, model.data());
-	glUniformMatrix4fv(shader->GetUniformLocation("viewMtx"), 1, GL_FALSE, renderContext->camera->viewMtx.data());
-	glUniformMatrix4fv(shader->GetUniformLocation("projMtx"), 1, GL_FALSE, renderContext->camera->projMtx.data());
+	GL_CHECK_ERROR(glUniformMatrix4fv(shader->GetUniformLocation("modelMtx"), 1, GL_FALSE, model.data()));
+	GL_CHECK_ERROR(glUniformMatrix4fv(shader->GetUniformLocation("viewMtx"), 1, GL_FALSE, renderContext->camera->viewMtx.data()));
+	GL_CHECK_ERROR(glUniformMatrix4fv(shader->GetUniformLocation("projMtx"), 1, GL_FALSE, renderContext->camera->projMtx.data()));
 
 	// Load textures supplied by material
 	GLenum activeTexture = GL_TEXTURE0;
@@ -180,7 +204,6 @@ void RendererGL::BeginDraw(const Matrix44& model, const Material& material)
 	if (phongMaterial->specularMap != NULL)
 		shader->BindTexture(phongMaterial->specularMap->texture->As<TextureGL>(), "specularMap", activeTexture++);
 
-	shader->Prepare();
 }
 
 void RendererGL::EndDraw()

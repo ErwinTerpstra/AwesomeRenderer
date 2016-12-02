@@ -154,8 +154,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	RenderTarget renderTarget;
 	renderTarget.SetupBuffers(&frameBuffer, &depthBuffer);
 
-	//RenderTargetGL renderTargetGL(renderTarget);
-	//renderTargetGL.Load();
+	RenderTargetGL renderTargetGL(renderTarget);
+	renderTargetGL.Load();
 
 	// Setup camera
 	Camera camera(cml::left_handed);
@@ -235,10 +235,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Setup setup(context);
 	setup.SetupLighting();
 	setup.SetupScene();
-	setup.SetupCornellBox();
+	//setup.SetupCornellBox();
 	//setup.SetupSpheres();
 	//setup.SetupFractal();
-	//setup.SetupSponza();
+	setup.SetupSponza();
 	
 	// Camera controller
 	CameraController cameraController(camera);
@@ -308,6 +308,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Frame counter variables
 	float timeSinceLastPrint = 0.0f;
 	uint32_t framesDrawn = 0;
+
+	const char switchKeys[] = { 'I', 'O', 'P' };
 		
 	while (!window.closed)
 	{
@@ -341,20 +343,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 
 		// Keyboard renderer switching
-		if (inputManager.GetKey('I'))
+		for (uint32_t rendererIdx = 0; rendererIdx < NUM_RENDERERS; ++rendererIdx)
 		{
-			mainRenderer = renderers[0];
-			rayTracer.ResetFrame(false);
-		}
+			if (mainRenderer == renderers[rendererIdx])
+				continue;
 
-		if (inputManager.GetKey('O'))
-		{
-			mainRenderer = renderers[1];
-			rayTracer.ResetFrame(false);
-		}
+			if (inputManager.GetKey(switchKeys[rendererIdx]))
+			{
+				if (mainRenderer == &rayTracer)
+					rayTracer.ResetFrame(false);
 
-		if (inputManager.GetKey('P'))
-			mainRenderer = renderers[2];
+				mainRenderer = renderers[rendererIdx];
+
+				printf("[AwesomeRenderer]: Rendering using %s\n", RENDERER_NAMES[rendererIdx]);
+			}
+		}
 
 		rayTracerDebug.Update(timingInfo.elapsedSeconds);
 
@@ -362,9 +365,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		mainRenderer->SetRenderContext(&mainContext);
 		mainRenderer->Render();
 		
-		hudContext.Update();
-		softwareRenderer.SetRenderContext(&hudContext);
-		softwareRenderer.Render();
+		//hudContext.Update();
+		//softwareRenderer.SetRenderContext(&hudContext);
+		//softwareRenderer.Render();
 
 		window.DrawBuffer(frameBuffer, static_cast<const GDIBufferAllocator&>(frameBuffer.GetAllocator()));
 

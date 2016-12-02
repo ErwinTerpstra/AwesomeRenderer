@@ -49,7 +49,11 @@ namespace AwesomeRenderer
 		TextureFactory();
 
 		Sampler* GetTexture(const std::string& fileName);
+
+		Sampler* CreateSampler(Texture* texture);
 		
+		Texture* MergeAlphaChannel(const Texture* albedo, const Texture* alpha);
+
 		void WriteBMP(const std::string& fileName, const Buffer& buffer) const;
 
 	protected:

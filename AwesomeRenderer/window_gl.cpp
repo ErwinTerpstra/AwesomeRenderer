@@ -4,6 +4,8 @@
 #include "window_gl.h"
 #include "window.h"
 
+#include "util_gl.h"
+
 using namespace AwesomeRenderer;
 
 WindowGL::WindowGL(Window& window) : Extension(window)
@@ -55,15 +57,21 @@ bool WindowGL::Setup()
 	{
 		WGL_CONTEXT_MAJOR_VERSION_ARB, 4, 
 		WGL_CONTEXT_MINOR_VERSION_ARB, 0, 
-		WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB, 
+		WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB | WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+		WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
 		0
 	};
 
 	// Check if the OpenGL 3.x context creation extension is available  
-	if (wglewIsSupported("WGL_ARB_create_context") == 1) 
+	// NOTE: wglCreateContextAttribsARB seems to give a context on which glEnableClientState fails. Fix this!
+	if (false && wglewIsSupported("WGL_ARB_create_context") == 1) 
 	{ 
-		renderContext = wglCreateContextAttribsARB(deviceContext, NULL, attributes);
-		wglMakeCurrent(NULL, NULL);
+		renderContext = wglCreateContextAttribsARB(deviceContext, 0, attributes);
+
+		assert(renderContext != NULL);
+		assert(GetLastError() == NO_ERROR);
+
+		wglMakeCurrent(deviceContext, NULL);
 		wglDeleteContext(tempContext);
 		wglMakeCurrent(deviceContext, renderContext);
 	}
@@ -72,12 +80,14 @@ bool WindowGL::Setup()
 		// Fallback context if we can't get our desired version context
 		renderContext = tempContext;
 	}
-	
+		
 	int glVersion[2] = { -1, -1 };
 	glGetIntegerv(GL_MAJOR_VERSION, &glVersion[0]);
 	glGetIntegerv(GL_MINOR_VERSION, &glVersion[1]);
 
 	printf("[WindowGL]: Using OpenGL: %d.%d\n", glVersion[0], glVersion[1]);
+
+	GL_CHECK_ERROR(glEnableClientState(GL_VERTEX_ARRAY));
 
 	return true;
 }

@@ -19,7 +19,7 @@ void MeshGL::CreateBuffers()
 	}
 
 	// Create and bind Vertex Array Object
-	GL_CHECK_ERROR(glGenVertexArrays(1, &vertexArray));
+	glGenVertexArrays(1, &vertexArray);
 	glBindVertexArray(vertexArray);
 	
 	if (provider.HasAttribute(Mesh::VERTEX_POSITION) && provider.vertices.size() > 0)
@@ -51,19 +51,23 @@ void MeshGL::CreateBuffers()
 	}
 
 	// Indices
-	GL_CHECK_ERROR(glGenBuffers(1, &indexBuffer));
+	glGenBuffers(1, &indexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 
 	if (provider.indices.size() > 0)
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, provider.indices.size() * sizeof(uint32_t), &provider.indices[0], GL_STATIC_DRAW);
 	
 	glBindVertexArray(0);
+
+	GL_CHECK_ERROR(GL_NO_CALL);
 }
 
 void MeshGL::AddAttributeBuffer(uint32_t idx, GLuint* buffer)
 {
-	GL_CHECK_ERROR(glGenBuffers(1, buffer));
+	glGenBuffers(1, buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, *buffer);
 
 	glEnableVertexAttribArray(idx);
+
+	GL_CHECK_ERROR(GL_NO_CALL);
 }

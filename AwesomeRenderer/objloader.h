@@ -63,8 +63,7 @@ namespace AwesomeRenderer
 		void LoadMaterialLib(const char* fileName);
 
 	private:
-		void Reset();
-
+		std::string GetRelativeFileName(std::string fileName, const char* basePath);
 		void ParseColor(const char* input, Color& color);
 	};
 
