@@ -14,6 +14,11 @@ namespace AwesomeRenderer
 			return abs(v.length_squared() - 1.0f) < 1e-5f;
 		}
 
+		static float Dot(const Vector& a, const Vector& b)
+		{
+			return cml::dot(a, b);
+		}
+
 		static void Interpolate(const Vector& a, const Vector& b, float d, Vector& out)
 		{
 			out = a * (1.0f - d) + b * d;
@@ -83,7 +88,7 @@ namespace AwesomeRenderer
 				right = Vector3(0, -up[2], up[1]) / sqrtf(up[1] * up[1] + up[2] * up[2]);
 
 			forward = cml::normalize(cml::cross(up, right));
-		};
+		}
 
 		static void OrthoNormalize(const Vector3& up, const Vector3& forwardHint, Vector3& right, Vector3& forward)
 		{
@@ -95,7 +100,12 @@ namespace AwesomeRenderer
 
 			right = cml::normalize(cml::cross(forwardHint, up));
 			forward = cml::normalize(cml::cross(up, right));
-		};
+		}
+
+		static float Dot(const Vector3& a, const Vector3& b)
+		{
+			return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+		}
 	};
 	
 	class Util

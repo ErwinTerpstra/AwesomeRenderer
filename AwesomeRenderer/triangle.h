@@ -62,8 +62,8 @@ namespace AwesomeRenderer
 			VectorType v2 = p - v[0];
 
 			// Compute dot products
-			float dot02 = cml::dot(v0, v2);
-			float dot12 = cml::dot(v1, v2);
+			float dot02 = VectorUtil<VectorType::dimension>::Dot(v0, v2);
+			float dot12 = VectorUtil<VectorType::dimension>::Dot(v1, v2);
 
 			// Compute barycentric coordinates
 			float u = (dot11 * dot02 - dot01 * dot12) * invDenom;

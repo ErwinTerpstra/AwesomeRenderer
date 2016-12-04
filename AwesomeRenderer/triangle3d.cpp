@@ -59,8 +59,8 @@ void Triangle3D::Transform(const Matrix44& mtx)
 
 bool Triangle3D::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 {
-	float distanceToPlane = cml::dot(normal, ray.origin - v[0]);
-	float dot = -cml::dot(normal, ray.direction);
+	float distanceToPlane = VectorUtil<3>::Dot(normal, ray.origin - v[0]);
+	float dot = -VectorUtil<3>::Dot(normal, ray.direction);
 
 	// Ray is parallel to triangle plane
 	if (fabs(dot) < 1e-3f)
@@ -84,7 +84,7 @@ bool Triangle3D::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 
 	VectorUtil<3>::Interpolate(vN[0], vN[1], vN[2], hitInfo.barycentricCoords, hitInfo.normal);
 	
-	hitInfo.inside = cml::dot(ray.direction, hitInfo.normal) >= 0;
+	hitInfo.inside = VectorUtil<3>::Dot(ray.direction, hitInfo.normal) >= 0;
 	
 	return true;
 }
