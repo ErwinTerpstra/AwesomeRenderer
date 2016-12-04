@@ -92,6 +92,7 @@
     <ClCompile Include="cameracontroller.cpp" />
     <ClCompile Include="components.cpp" />
     <ClCompile Include="debugintegrator.cpp" />
+    <ClCompile Include="kdtreenode.cpp" />
     <ClCompile Include="lambert.cpp" />
     <ClCompile Include="lightdata.cpp" />
     <ClCompile Include="microfacetspecular.cpp" />
@@ -174,6 +175,7 @@
     <ClInclude Include="extensionprovider.h" />
     <ClInclude Include="extension.h" />
     <ClInclude Include="factory.h" />
+    <ClInclude Include="kdtreenode.h" />
     <ClInclude Include="lambert.h" />
     <ClInclude Include="lightdata.h" />
     <ClInclude Include="microfacetspecular.h" />

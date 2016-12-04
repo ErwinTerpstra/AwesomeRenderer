@@ -9,6 +9,7 @@ namespace AwesomeRenderer
 	class Model;
 	class Mesh;
 	class Material;
+	class PhongMaterial;
 	class Shader;
 	class TextureFactory;
 
@@ -48,13 +49,16 @@ namespace AwesomeRenderer
 			void NextVertex();
 			void ResetIndex();
 		};
-
-		Shader* defaultShader;
-
 	private:
 		std::map<std::string, Material*> materialLib;
 
 		TextureFactory& textureFactory;
+
+		Material* defaultMaterial;
+		PhongMaterial* defaultMaterialImplementation;
+
+		Shader* defaultShader;
+
 
 	public:
 		ObjLoader(TextureFactory& textureFactory);

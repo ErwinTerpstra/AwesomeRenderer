@@ -2,8 +2,8 @@
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
 
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
+#define SCREEN_WIDTH 480
+#define SCREEN_HEIGHT 320
 
 #include <stdio.h>
 #include <io.h>
@@ -201,7 +201,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Renderer* renderer = renderers[rendererIdx];
 		renderer->Initialize();
 				
-		renderer->cullMode = Renderer::CULL_NONE;
+		renderer->cullMode = Renderer::CULL_BACK;
 		//renderer->drawMode = Renderer::DRAW_LINE;
 	}
 
@@ -216,7 +216,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Assets factories
 	TextureFactory textureFactory;
 	ObjLoader objLoader(textureFactory);
-	objLoader.defaultShader = new PhongShader();
 	
 	// Game loop timer
 	Timer timer(0.00001f, 100.0f);

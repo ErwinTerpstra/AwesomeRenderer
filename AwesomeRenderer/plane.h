@@ -26,7 +26,7 @@ namespace AwesomeRenderer
 		int SideOfPlane(const Plane& plane) const;
 		int SideOfPlane(const Vector3& point) const;
 
-		void CalculateBounds(AABB& bounds) const { }
+		void CalculateBounds(AABB& bounds) const { assert(false && "Can't calculate bounds for an infinite plane!"); }
 
 		__inline Vector3 PointOnPlane() const { return dTransformed * normalTransformed; }
 		__inline float Distance(const Vector3& point) const 

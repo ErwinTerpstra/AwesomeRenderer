@@ -73,46 +73,57 @@ void AABB::GetCorners(Vector3* corners, const Vector3& min, const Vector3& max)
 	corners[7] = Vector3(max[0], max[1], max[2]);
 }
 
-bool AABB::IntersectRay(const Ray& ray, float& tMin, float& tMax, Vector3& normal) const
+bool AABB::IntersectRay(const Ray& ray, float& tMin, float& tMax) const
 {
-	tMin = -FLT_MAX;
-	tMax = FLT_MAX;
-
 	// Find the shortest intersection between the ray and an axis of the box
-	for (int axis = 0; axis < 3; ++axis)
+	float cMin = (minTransformed[0] - ray.origin[0]) * ray.invDirection[0];
+	float cMax = (maxTransformed[0] - ray.origin[0]) * ray.invDirection[0];
+
+	tMin = std::min(cMin, cMax);
+	tMax = std::max(cMin, cMax);
+
+	for (int axis = 1; axis < 3; ++axis)
 	{
-		float cMin = (minTransformed[axis] - ray.origin[axis]) / ray.direction[axis];
-		float cMax = (maxTransformed[axis] - ray.origin[axis]) / ray.direction[axis];
+		cMin = (minTransformed[axis] - ray.origin[axis]) * ray.invDirection[axis];
+		cMax = (maxTransformed[axis] - ray.origin[axis]) * ray.invDirection[axis];
 
-		if (cMin > cMax)
-			std::swap(cMin, cMax);
+		// Correct NaN handling
+		//tMin = std::max(tMin, std::min(std::min(cMin, cMax), tMax));
+		//tMax = std::min(tMax, std::max(std::max(cMin, cMax), tMin));
 
-		if (cMin > tMin)
-		{
-			normal.set(0.0f, 0.0f, 0.0f);
-			normal[axis] = -1.0f * Util::Sign(ray.direction[axis]);
-
-			tMin = cMin;
-		}
-
-		tMin = std::max(cMin, tMin);
-		tMax = std::min(cMax, tMax);
+		tMin = std::max(tMin, std::min(cMin, cMax));
+		tMax = std::min(tMax, std::max(cMin, cMax));
 	}
 
-	if (tMax < 0 || tMin > tMax)
-		return false;
-
-	return true;
+	return tMax > std::max(tMin, 0.0f);
 }
 
 bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 {
 	float tMin, tMax;
-	Vector3 normal;
-	IntersectRay(ray, tMin, tMax, normal);
-
+	if (!IntersectRay(ray, tMin, tMax))
+		return false;
+	
 	hitInfo.distance = tMin;
 	hitInfo.point = ray.origin + ray.direction * tMin;
+
+	// Decide the normal by checking which on which plane the hitpoint lies
+	Vector3 normal(0.0f, 0.0f, 0.0f);
+	for (int axis = 0; axis < 3; ++axis)
+	{
+		if (fabs(hitInfo.point[axis] - minTransformed[axis]) < 1e-5f)
+		{
+			normal[axis] = -1.0f;
+			break;
+		}
+
+		if (fabs(hitInfo.point[axis] - maxTransformed[axis]) < 1e-5f)
+		{
+			normal[axis] = 1.0f;
+			break;
+		}
+	}
+
 	hitInfo.inside = FALSE;
 	hitInfo.normal = hitInfo.inside ? -normal : normal;
 

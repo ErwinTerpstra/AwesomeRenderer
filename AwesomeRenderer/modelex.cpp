@@ -16,7 +16,7 @@ ModelEx::ModelEx(Model& model) : Extension(model)
 	for (it = model.meshes.begin(); it != model.meshes.end(); ++it)
 	{
 		MeshEx* mesh = new MeshEx(**it);
-		//mesh->OptimizeTree();
+		mesh->OptimizeTree();
 		meshes.push_back(mesh);
 	}
 }

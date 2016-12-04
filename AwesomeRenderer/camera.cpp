@@ -74,5 +74,8 @@ void Camera::SetViewport(float x, float y, float width, float height)
 
 void Camera::ViewportToRay(const Vector2& viewport, Ray& ray)
 {
-	cml::make_pick_ray(viewport[0], viewport[1], viewMtx, projMtx, viewportMtx, ray.origin, ray.direction);
+	Vector3 origin, direction;
+	cml::make_pick_ray(viewport[0], viewport[1], viewMtx, projMtx, viewportMtx, origin, direction);
+
+	ray = Ray(origin, direction);
 }

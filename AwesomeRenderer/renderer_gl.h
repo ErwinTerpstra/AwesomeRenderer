@@ -13,13 +13,47 @@ namespace AwesomeRenderer
 	class Model;
 	class Material;
 	class Transformation;
+	class Mesh;
 
 	class RendererGL : public Renderer
 	{
 
 	private:
+		enum SortMode
+		{
+			BACK_TO_FRONT,
+			FRONT_TO_BACK
+		};
 
-		const Material* currentMaterial;
+		struct RenderJob
+		{
+			const Mesh* mesh;
+			const Material* material;
+			const Transformation* trans;
+		};
+
+		struct RenderQueue
+		{
+			SortMode sortMode;
+			std::deque<RenderJob> jobs;
+		};
+
+		class JobComparator
+		{
+		public:
+
+		private:
+			Vector3 cameraPosition;
+
+			SortMode sortMode;
+
+		public:
+			JobComparator(const Vector3& cameraPosition, SortMode sortMode);
+
+			bool operator()(const RenderJob& a, const RenderJob& b);
+		};
+
+		RenderQueue opaque, transparent;
 
 		ProgramGL defaultShader;
 		ShaderGL defaultVertex;
@@ -38,10 +72,14 @@ namespace AwesomeRenderer
 		void PreRender();
 		void PostRender();
 
+		void EnqueueModel(const Model& model, const Transformation& trans);
+
+		void SortRenderQueue(RenderQueue& queue);
+		void DrawRenderQueue(RenderQueue& queue);
+		void DrawJob(const RenderJob& job);
+
 		void BeginDraw(const Matrix44& model, const Material& material);
 		void EndDraw();
-
-		void DrawModel(const Model& model, const Transformation& trans);
 
 		GLenum GetCullMode() const
 		{

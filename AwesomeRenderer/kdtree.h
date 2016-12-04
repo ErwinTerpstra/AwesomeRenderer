@@ -6,55 +6,33 @@
 
 namespace AwesomeRenderer
 {
-	class TreeElement;
+	class KDTreeNode;
 
 	class KDTree
 	{
+		friend class KDTreeNode;
 
 	public:
-		static const int MAX_NODES_PER_LEAF;
-		static const int MAX_DEPTH;
 		static const float TRAVERSAL_COST;
 		static const float INTERSECTION_COST;
 		static const float POSITION_EPSILON;
+		static const float MAX_OVERLAPPING_ELEMENTS;
 
-	public:
-
-		KDTree *upperNode, *lowerNode;
-
-		std::vector<const TreeElement*> elements;
+		KDTreeNode* rootNode;
 
 	private:
-		KDTree *parent;
-
-		int axis;
-
-		float splitPoint;
-
 		AABB bounds;
 
+		uint32_t maxElementsPerLeaf;
+		uint32_t maxDepth;
 	public:
-
-		KDTree(KDTree* parent = NULL);
-
+		KDTree(uint32_t maxElementsPerLeaf, uint32_t maxDepth);
 		~KDTree();
 
-		void Optimize(const AABB& bounds, int depth = 0);
-
-		bool IsLeaf() const { return upperNode == NULL && lowerNode == NULL; }
-
-		float SplitPoint() const { return splitPoint; }
-		int Axis() const { return axis; }
-		KDTree* Parent() const { return parent; }
+		void Optimize(const AABB& bounds);
+		void Analyze() const;
 
 		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo) const;
-		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const;
-
-	private:
-		void Split(const AABB& bounds);
-		void SplitFast(const AABB& bounds);
-		
-		void CalculateBounds(const AABB& bounds, float splitPoint, AABB& upper, AABB& lower);
 
 	};
 }

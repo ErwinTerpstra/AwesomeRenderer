@@ -17,7 +17,9 @@ namespace AwesomeRenderer
 			TRANSMISSION,
 		};
 		
-		Vector3 origin, direction;
+		Vector3 origin;
+		Vector3 direction;
+		Vector3 invDirection;
 
 		Type type;
 	public:

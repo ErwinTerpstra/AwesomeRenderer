@@ -565,8 +565,9 @@ void Setup::SetupSpheres()
 void Setup::SetupSponza()
 {
 	// CAMERA
-	const Vector3 cameraPosition = Vector3(0.0f, 2.0f, 0.0f);
-	context.mainCamera->SetLookAt(cameraPosition, cameraPosition - Vector3(1.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0));
+	const Vector3 cameraPosition = Vector3(-124.449127f, 22.0583744f, -3.47746253f);
+	const Vector3 cameraLookAt = Vector3(-123.449951f, 22.0319462f, -3.44655204f);
+	context.mainCamera->SetLookAt(cameraPosition, cameraLookAt, Vector3(0.0f, 1.0f, 0.0));
 
 	// LIGHT
 	LightData::Light& light = context.mainContext->lightData->lights[0];
@@ -594,7 +595,6 @@ void Setup::SetupSponza()
 	context.objLoader->Load("../Assets/CrytekSponza/sponza.obj", *model);
 	//objLoader.Load("../Assets/Castle01/castle.obj", *model);
 
-	ModelEx* modelEx = new ModelEx(*model);
 
 	PbrMaterial* material = new PbrMaterial(*(new Material()));
 	material->albedo = Color::WHITE * 0.5f;
@@ -604,6 +604,7 @@ void Setup::SetupSponza()
 	material->provider.ior = 1.0f;
 	material->provider.translucent = false;
 
+	ModelEx* modelEx = new ModelEx(*model);
 	for (uint32_t meshIdx = 0; meshIdx < modelEx->meshes.size(); ++meshIdx)
 	{
 		Node* meshNode = new Node();

@@ -3,10 +3,11 @@
 #include "meshex.h"
 #include "mesh.h"
 #include "triangle3d.h"
+#include "kdtreenode.h"
 
 using namespace AwesomeRenderer;
 
-MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(NULL), worldMtx(), world2object()
+MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(10, 20), worldMtx(), world2object()
 {
 
 	for (unsigned int cIndex = 0; cIndex < mesh.indices.size(); cIndex += 3)
@@ -26,7 +27,7 @@ MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(NULL), worldMtx(), world2obje
 		triangles.push_back(triangle);
 	}
 
-	tree.elements.insert(tree.elements.end(), triangles.begin(), triangles.end());
+	tree.rootNode->elements.insert(tree.rootNode->elements.end(), triangles.begin(), triangles.end());
 }
 
 MeshEx::~MeshEx()
@@ -47,7 +48,17 @@ Triangle3D& MeshEx::AddTri(const Vector3& a, const Vector3& b, const Vector3& c)
 
 void MeshEx::OptimizeTree()
 {
-	tree.Optimize(provider.bounds);
+	// Optimize the tree with the local bounds, since it works with triangles in local coordinates
+	Matrix44 mtx;
+	mtx.identity();
+
+	AABB localBounds = provider.bounds;
+	localBounds.Transform(mtx);
+
+	tree.Optimize(localBounds);
+
+	printf("[MeshEx]: Mesh tree optimized, analyzing...\n");
+	tree.Analyze();
 }
 
 void MeshEx::Transform(const Matrix44& mtx)
@@ -61,11 +72,8 @@ void MeshEx::Transform(const Matrix44& mtx)
 
 bool MeshEx::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 {
-	//return provider.bounds.IntersectRay(ray, hitInfo);
-
 	// Transform ray to object space to use for intersection
 	Ray objectSpaceRay(cml::transform_point(world2object, ray.origin), cml::transform_vector(world2object, ray.direction));
-	objectSpaceRay.direction.normalize();
 
 	// Perform intersection on the KD-tree
 	if (tree.IntersectRay(objectSpaceRay, hitInfo))

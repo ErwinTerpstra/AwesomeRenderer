@@ -288,6 +288,9 @@
     <ClCompile Include="texture_gl.cpp">
       <Filter>Source\Renderer\OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="kdtreenode.cpp">
+      <Filter>Source\Node</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h">
@@ -556,6 +559,9 @@
     </ClInclude>
     <ClInclude Include="texture_gl.h">
       <Filter>Source\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="kdtreenode.h">
+      <Filter>Source\Node</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

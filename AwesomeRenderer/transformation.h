@@ -37,6 +37,19 @@ namespace AwesomeRenderer
 		void GetRotation(Quaternion& rotation) const { rotation = this->rotation; }
 		void GetScale(Vector3& scale) const { scale = this->scale; }
 
+		void GetWorldPosition(Vector3& position) const
+		{
+			position = (worldMtx * Vector4(this->position, 1.0f)).subvector(3);
+		}
+
+		Vector3 GetWorldPosition() const
+		{
+			Vector3 worldPosition;
+			GetWorldPosition(worldPosition);
+
+			return worldPosition;
+		}
+
 		Vector3 GetPosition() const { return position; }
 		Quaternion GetRotation() const { return rotation; }
 		Vector3 GetScale() const { return scale; }

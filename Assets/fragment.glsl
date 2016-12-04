@@ -10,4 +10,7 @@ in vec2 texcoord;
 void main() 
 {
 	outColor = texture(diffuseMap, texcoord);
+
+	if (outColor.a <= 0.0)
+		discard;
 }

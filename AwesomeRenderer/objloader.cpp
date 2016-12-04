@@ -6,13 +6,19 @@
 #include "filereader.h"
 #include "mesh.h"
 #include "phongmaterial.h"
+#include "phongshader.h"
 #include "sampler.h"
 
 using namespace AwesomeRenderer;
 
 ObjLoader::ObjLoader(TextureFactory& textureFactory) : textureFactory(textureFactory)
 {
+	defaultShader = new PhongShader();
 
+	defaultMaterial = new Material();
+	defaultMaterial->shader = defaultShader;
+
+	defaultMaterialImplementation = new PhongMaterial(*defaultMaterial);
 }
 
 void ObjLoader::Load(const char* fileName, Model& model)
@@ -33,7 +39,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 	std::vector<Vector2> texcoordBuffer;
 
 	Mesh* mesh = NULL;
-	PhongMaterial* material = NULL;
+	Material* material = NULL;
 
 	while (char* lineBuffer = reader.ReadLine())
 	{		
@@ -72,10 +78,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 				// TODO: Manage memory registered by factory
 				mesh = new Mesh(defaultAttributes);
 				
-				material = new PhongMaterial(*(new Material()));
-				material->provider.shader = defaultShader;
-
-				model.AddMesh(mesh, &material->provider);
+				model.AddMesh(mesh, defaultMaterial);
 				
 				break;
 			}
@@ -208,8 +211,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 				if (line.compare(0, 6, "usemtl") == 0)
 				{
 					std::string name = line.substr(7);
-					mesh = new Mesh(defaultAttributes);
-					model.AddMesh(mesh, materialLib[name]);
+					model.materials[model.materials.size() - 1] = materialLib[name];
 					break;
 				}
 

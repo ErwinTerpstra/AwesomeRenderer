@@ -22,12 +22,13 @@
 
 using namespace AwesomeRenderer;
 
-RendererGL::RendererGL() : Renderer(), 
+RendererGL::RendererGL() : Renderer(),
 	defaultShader(),
 	defaultVertex(GL_VERTEX_SHADER),
 	defaultFragment(GL_FRAGMENT_SHADER)
 {
-
+	opaque.sortMode = FRONT_TO_BACK;
+	transparent.sortMode = BACK_TO_FRONT;
 }
 
 
@@ -132,9 +133,7 @@ void RendererGL::Render()
 	PreRender();
 
 	std::vector<Node*>::const_iterator it;
-
-	GL_CHECK_ERROR(glEnableClientState(GL_VERTEX_ARRAY));
-
+	
 	for (it = renderContext->nodes.begin(); it != renderContext->nodes.end(); ++it)
 	{
 		Model* model = (*it)->GetComponent<Model>();
@@ -143,42 +142,113 @@ void RendererGL::Render()
 		if (model == NULL)
 			continue;
 
-		DrawModel(*model, *transform);
+		EnqueueModel(*model, *transform);
 	}
+	
+	SortRenderQueue(opaque);
+	SortRenderQueue(transparent);
+
+	GL_CHECK_ERROR(glEnableClientState(GL_VERTEX_ARRAY));
+
+	DrawRenderQueue(opaque);
+	DrawRenderQueue(transparent);
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 
 	PostRender();
 }
 
-void RendererGL::DrawModel(const Model& model, const Transformation& trans)
+void RendererGL::SortRenderQueue(RenderQueue& queue)
+{
+	// TODO: sort render jobs by material
+	JobComparator comparator(renderContext->camera->position, queue.sortMode);
+
+	std::sort(queue.jobs.begin(), queue.jobs.end(), comparator);
+}
+
+RendererGL::JobComparator::JobComparator(const Vector3& cameraPosition, SortMode sortMode) :
+	cameraPosition(cameraPosition), sortMode(sortMode)
+{
+
+}
+
+bool RendererGL::JobComparator::operator()(const RenderJob& a, const RenderJob& b)
+{
+	Vector3 pA = a.trans->GetWorldPosition();
+	Vector3 pB = b.trans->GetWorldPosition();
+
+	float dA = (cameraPosition - pA).length();
+	float dB = (cameraPosition - pB).length();
+
+	switch (sortMode)
+	{
+	default:
+	case BACK_TO_FRONT:
+		return dA > dB;
+
+	case FRONT_TO_BACK:
+		return dA < dB;
+	}
+}
+
+void RendererGL::DrawRenderQueue(RenderQueue& queue)
+{
+	// Render all jobs in the queue
+	while (!queue.jobs.empty())
+	{
+		const RenderJob& job = queue.jobs.front();
+
+		DrawJob(job);
+
+		queue.jobs.pop_front();
+	}
+
+}
+
+void RendererGL::EnqueueModel(const Model& model, const Transformation& trans)
 {
 	// Iterate through meshes in the model
 	for (unsigned int cMesh = 0; cMesh < model.meshes.size(); ++cMesh)
 	{
-		const Mesh& mesh = *model.meshes[cMesh];
-		const Material& material = *model.materials[cMesh];
+		const Mesh* mesh = model.meshes[cMesh];
+		const Material* material = model.materials[cMesh];
 
-		BeginDraw(trans.WorldMtx(), material);
-
-		MeshGL* meshGL = mesh.As<MeshGL>();
+		RenderJob job;
+		job.mesh = mesh;
+		job.material = material;
+		job.trans = &trans;
 		
-		glBindVertexArray(meshGL->vertexArray);
-
-		glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, NULL);
-		
-		glBindVertexArray(0);
-
-		EndDraw();
+		// Render translucent objects in a separate queue
+		if (material->translucent)
+			transparent.jobs.push_back(job);
+		else
+			opaque.jobs.push_front(job);		
 	}
 
-	GL_CHECK_ERROR("DrawModel");
+}
+
+void RendererGL::DrawJob(const RenderJob& job)
+{
+	MeshGL* meshGL = job.mesh->As<MeshGL>();
+
+	if (meshGL == NULL)
+		return;
+
+	BeginDraw(job.trans->WorldMtx(), *job.material);
+
+	glBindVertexArray(meshGL->vertexArray);
+
+	glDrawElements(GL_TRIANGLES, job.mesh->indices.size(), GL_UNSIGNED_INT, NULL);
+
+	glBindVertexArray(0);
+
+	EndDraw();
+
+	GL_CHECK_ERROR("DrawJob");
 }
 
 void RendererGL::BeginDraw(const Matrix44& model, const Material& material)
 {
-	currentMaterial = &material;
-
 	glDepthMask(material.translucent ? GL_FALSE : GL_TRUE);
 
 	ProgramGL* shader = &defaultShader;
@@ -208,7 +278,7 @@ void RendererGL::BeginDraw(const Matrix44& model, const Material& material)
 
 void RendererGL::EndDraw()
 {
-
+	glDepthMask(GL_TRUE);
 }
 
 void RendererGL::Cleanup()

@@ -5,6 +5,7 @@
 // STD library
 //#include <algorithm>
 //#include <limits>
+#include <list>
 #include <memory>
 #include <map>
 #include <stack>

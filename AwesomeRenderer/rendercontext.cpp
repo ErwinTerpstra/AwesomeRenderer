@@ -9,10 +9,13 @@
 #include "model.h"
 #include "mesh.h"
 #include "renderable.h"
+#include "kdtreenode.h"
 
 using namespace AwesomeRenderer;
 
-RenderContext::RenderContext() : camera(NULL), renderTarget(NULL), lightData(NULL), skybox(NULL), clearFlags(RenderTarget::BUFFER_ALL), tree()
+RenderContext::RenderContext() : 
+	camera(NULL), renderTarget(NULL), lightData(NULL), skybox(NULL), 
+	clearFlags(RenderTarget::BUFFER_ALL), tree(15, 15)
 {
 
 }
@@ -43,14 +46,17 @@ void RenderContext::Optimize()
 			max[1] = std::max(max[1], boundsMax[1]);
 			max[2] = std::max(max[2], boundsMax[2]);
 
-			tree.elements.push_back(renderable);
+			tree.rootNode->elements.push_back(renderable);
 		}
 	}
 
 	Vector3 epsilon(0.1f, 0.1f, 0.1f);
 	min -= epsilon;
 	max += epsilon;
-	//tree.Optimize(AABB(min, max));
+	tree.Optimize(AABB(min, max));
+
+	printf("[RenderContext]: Scene tree optimized, analyzing...\n");
+	tree.Analyze();
 }
 
 void RenderContext::Update()
