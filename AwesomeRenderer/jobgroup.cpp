@@ -45,3 +45,8 @@ void JobGroup::ClearQueue()
 
 	jobQueue.Unlock();
 }
+
+uint32_t JobGroup::JobsLeft() const
+{
+	return jobQueue->size();
+}

@@ -55,7 +55,7 @@ Vector3 MonteCarloIntegrator::Integrate(const Vector3& p, const Vector3& wo, con
 		Vector3 sampleVector;
 		sampleBxDF->GenerateSampleVector(r, wo, normal, material, sampleVector);
 		
-		float NoL = cml::dot(normal, sampleVector);
+		float NoL = VectorUtil<3>::Dot(normal, sampleVector);
 
 		if (NoL <= 0.0f)
 			continue;
@@ -126,7 +126,7 @@ Vector3 MonteCarloIntegrator::Integrate(const Ray& ray, const RaycastHit& hitInf
 		ShadingInfo reflectionShading;
 		rayTracer.CalculateShading(reflectionRay, reflectionShading, depth + 1);
 
-		float NoL = cml::dot(hitInfo.normal, reflectionDirection);
+		float NoL = VectorUtil<3>::Dot(hitInfo.normal, reflectionDirection);
 		assert(NoL + 1e-5f >= 0.0f && NoL - 1e-5f <= 1.0f);
 
 		Vector3 lightRadiance = reflectionShading.color.subvector(3);

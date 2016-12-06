@@ -40,5 +40,5 @@ void Lambert::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Ve
 
 float Lambert::CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const
 {
-	return cml::dot(normal, wi) / PI;
+	return VectorUtil<3>::Dot(normal, wi) / PI;
 }

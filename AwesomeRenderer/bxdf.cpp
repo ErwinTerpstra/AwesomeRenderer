@@ -34,9 +34,9 @@ void BxDF::TransformSampleVector(const Vector3& n, const Vector3& in, Vector3& o
 	assert(VectorUtil<3>::IsNormalized(right));
 	assert(VectorUtil<3>::IsNormalized(forward));
 
-	assert(fabs(cml::dot(n, forward)) < 1e-5f);
-	assert(fabs(cml::dot(n, right)) < 1e-5f);
-	assert(fabs(cml::dot(right, forward)) < 1e-5f);
+	assert(fabs(VectorUtil<3>::Dot(n, forward)) < 1e-5f);
+	assert(fabs(VectorUtil<3>::Dot(n, right)) < 1e-5f);
+	assert(fabs(VectorUtil<3>::Dot(right, forward)) < 1e-5f);
 
 	Matrix33 transform(
 		right[0], right[1], right[2],

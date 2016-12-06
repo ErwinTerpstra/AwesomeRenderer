@@ -17,7 +17,7 @@ Vector3 BlinnPhong::Sample(const Vector3& wo, const Vector3& wi, const Vector3& 
 	PhongMaterial* phongMaterial = material.As<PhongMaterial>();
 
 	Vector3 halfVector = cml::normalize(wo + wi);
-	float specularTerm = std::pow(std::max(cml::dot(normal, halfVector), 0.0f), phongMaterial->shininess);
+	float specularTerm = std::pow(std::max(VectorUtil<3>::Dot(normal, halfVector), 0.0f), phongMaterial->shininess);
 	float normalization = (phongMaterial->shininess + 8) / (8 * PI);
 	
 	return Vector3(1.0f, 1.0f, 1.0f) * (normalization * specularTerm);
@@ -34,7 +34,7 @@ void BlinnPhong::GenerateSampleVector(const Vector2& r, const Vector3& wo, const
 	SphericalToCartesian(phi, theta, h);
 	TransformSampleVector(normal, h, h);
 
-	float VoH = cml::dot(wo, h);
+	float VoH = VectorUtil<3>::Dot(wo, h);
 	if (VoH < 0.0f)
 		h = -h;
 
@@ -46,7 +46,7 @@ float BlinnPhong::CalculatePDF(const Vector3& wo, const Vector3& wi, const Vecto
 	PhongMaterial* phongMaterial = material.As<PhongMaterial>();
 
 	Vector3 h = cml::normalize(wo + wi);
-	float cosTheta = cml::dot(normal, h);
+	float cosTheta = VectorUtil<3>::Dot(normal, h);
 
-	return ((phongMaterial->shininess + 1) * pow(cosTheta, phongMaterial->shininess)) / (2.0f * PI * 4.0f * cml::dot(wo, h));
+	return ((phongMaterial->shininess + 1) * pow(cosTheta, phongMaterial->shininess)) / (2.0f * PI * 4.0f * VectorUtil<3>::Dot(wo, h));
 }

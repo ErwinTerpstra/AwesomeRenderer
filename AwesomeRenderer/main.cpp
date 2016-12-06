@@ -1,9 +1,7 @@
 #include "stdafx.h"
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
 
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
+#define SCREEN_WIDTH 480
+#define SCREEN_HEIGHT 320
 
 #include <stdio.h>
 #include <io.h>
@@ -202,7 +200,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Renderer* renderer = renderers[rendererIdx];
 		renderer->Initialize();
 				
-		renderer->cullMode = Renderer::CULL_BACK;
+		renderer->cullMode = Renderer::CULL_NONE;
 		//renderer->drawMode = Renderer::DRAW_LINE;
 	}
 
@@ -365,9 +363,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		mainRenderer->SetRenderContext(&mainContext);
 		mainRenderer->Render();
 		
-		//hudContext.Update();
-		//softwareRenderer.SetRenderContext(&hudContext);
-		//softwareRenderer.Render();
+		if (inputManager.GetKey('H'))
+		{
+			hudContext.Update();
+			softwareRenderer.SetRenderContext(&hudContext);
+			softwareRenderer.Render();
+		}
 
 		window.DrawBuffer(frameBuffer, static_cast<const GDIBufferAllocator&>(frameBuffer.GetAllocator()));
 

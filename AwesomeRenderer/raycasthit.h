@@ -14,18 +14,16 @@ namespace AwesomeRenderer
 
 		Vector3 barycentricCoords;
 
-		bool inside;
-
 		const TreeElement* element;
 
-		RaycastHit() : distance(FLT_MAX), element(NULL), inside(FALSE)
+		RaycastHit() : distance(FLT_MAX), element(NULL)
 		{
 
 		}
 
 		RaycastHit(const RaycastHit& other) :
 			point(other.point), normal(other.normal), distance(other.distance), barycentricCoords(other.barycentricCoords),
-			inside(other.inside), element(other.element)
+			element(other.element)
 		{
 
 		}

@@ -81,7 +81,7 @@ class vector< Element, fixed<Size> >
 
     /** Return square of the length. */
     value_type length_squared() const {
-        return cml::dot(*this,*this);
+		return cml::dot(*this, *this);
     }
 
     /** Return the length. */

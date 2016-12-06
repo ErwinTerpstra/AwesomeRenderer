@@ -47,7 +47,7 @@ Vector3 SurfaceIntegrator::SampleDirectLight(const Ray& ray, const RaycastHit& h
 
 			if (light.type == LightData::SPOT)
 			{
-				float angleTerm = cml::dot(light.direction, -toLight);
+				float angleTerm = VectorUtil<3>::Dot(light.direction, -toLight);
 				float cosAngle = cos(light.angle);
 
 				if (angleTerm > cosAngle)
@@ -70,7 +70,7 @@ Vector3 SurfaceIntegrator::SampleDirectLight(const Ray& ray, const RaycastHit& h
 		if (rayTracer.RayCast(shadowRay, shadowHitInfo, distanceToLight))
 			continue;
 		
-		float NoL = std::max(cml::dot(normal, toLight), 0.0f);
+		float NoL = std::max(VectorUtil<3>::Dot(normal, toLight), 0.0f);
 		Vector3 lightRadiance = light.color.subvector(3) * intensity;
 		
 		radiance += material.bsdf->Sample(viewVector, toLight, normal, material) * lightRadiance * NoL;

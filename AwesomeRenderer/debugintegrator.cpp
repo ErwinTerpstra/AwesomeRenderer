@@ -26,5 +26,5 @@ Vector3 DebugIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, const Mat
 	Vector3 lightDirection(1.0f, 1.0f, 0.0f);
 	cml::normalize(lightDirection);
 
-	return Vector3(1.0f, 1.0f, 1.0f) * Util::Clamp01(0.1f + cml::dot(hitInfo.normal, lightDirection));
+	return Vector3(1.0f, 1.0f, 1.0f) * Util::Clamp01(0.1f + VectorUtil<3>::Dot(hitInfo.normal, lightDirection));
 }

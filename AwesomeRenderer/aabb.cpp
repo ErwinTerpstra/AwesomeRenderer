@@ -98,10 +98,13 @@ bool AABB::IntersectRay(const Ray& ray, float& tMin, float& tMax) const
 	return tMax > std::max(tMin, 0.0f);
 }
 
-bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
+bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance) const
 {
 	float tMin, tMax;
 	if (!IntersectRay(ray, tMin, tMax))
+		return false;
+
+	if (tMin > maxDistance)
 		return false;
 	
 	hitInfo.distance = tMin;
@@ -124,8 +127,7 @@ bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 		}
 	}
 
-	hitInfo.inside = FALSE;
-	hitInfo.normal = hitInfo.inside ? -normal : normal;
+	hitInfo.normal = normal;
 
 	return true;
 }

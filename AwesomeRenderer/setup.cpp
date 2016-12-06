@@ -71,25 +71,6 @@ void Setup::SetupScene()
 	if (FALSE)
 	{
 		Node* node = new Node();
-		Model* model = new Model();
-
-		Transformation* transform = new Transformation();
-
-		node->AddComponent(model);
-		node->AddComponent(transform);
-
-		//transform->SetScale(Vector3(0.1f, 0.1f, 0.1f));
-		//transform->SetScale(Vector3(0.2f, 0.2f, 0.2f));
-		//objLoader.Load("../Assets/Town/town.obj", *model);
-		context.objLoader->Load("../Assets/crytek-sponza/sponza.obj", *model);
-		//objLoader.Load("../Assets/Castle01/castle.obj", *model);
-
-		context.mainContext->nodes.push_back(node);
-	}
-
-	if (FALSE)
-	{
-		Node* node = new Node();
 
 		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL | Mesh::VERTEX_TEXCOORD));
 		mesh->AddQuad(Vector3(1.0f, 0.0f, -1.0f), Vector3(1.0f, 0.0f, 1.0f), Vector3(-1.0f, 0.0f, 1.0f), Vector3(-1.0f, 0.0f, -1.0f));
@@ -578,6 +559,17 @@ void Setup::SetupSponza()
 	light.color = Color(255, 244, 214);
 
 	light.enabled = true;
+
+	// SKYBOX
+	SixSidedSkybox* skybox = new SixSidedSkybox();
+	skybox->right = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0001.bmp");
+	skybox->front = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0002.bmp");
+	skybox->top = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0003.bmp");
+	skybox->left = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0004.bmp");
+	skybox->back = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0005.bmp");
+	skybox->bottom = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0006.bmp");
+
+	context.mainContext->skybox = skybox;
 
 	// MODEL
 	Node* node = new Node();

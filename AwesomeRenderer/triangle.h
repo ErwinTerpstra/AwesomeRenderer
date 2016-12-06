@@ -87,9 +87,9 @@ namespace AwesomeRenderer
 			v0 = v[1] - v[0];
 			v1 = v[2] - v[0];
 
-			dot00 = cml::dot(v0, v0);
-			dot01 = cml::dot(v0, v1);
-			dot11 = cml::dot(v1, v1);
+			dot00 = VectorUtil<VectorType::dimension>::Dot(v0, v0);
+			dot01 = VectorUtil<VectorType::dimension>::Dot(v0, v1);
+			dot11 = VectorUtil<VectorType::dimension>::Dot(v1, v1);
 
 			float denom = dot00 * dot11 - dot01 * dot01;
 

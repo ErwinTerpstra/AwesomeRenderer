@@ -8,7 +8,8 @@ using namespace AwesomeRenderer;
 const float KDTree::TRAVERSAL_COST = 1.0f;
 const float KDTree::INTERSECTION_COST = 1.0f;
 const float KDTree::POSITION_EPSILON = 1e-7f;
-const float KDTree::MAX_OVERLAPPING_ELEMENTS = 0.5f;
+const float KDTree::PREVENT_SPLIT_MAX_OVERFLOW = 5.0f;
+const float KDTree::PREVENT_SPLIT_OVERLAPPING_ELEMENTS = 0.3f;
 
 KDTree::KDTree(uint32_t maxElementsPerLeaf, uint32_t maxDepth) :
 	maxElementsPerLeaf(maxElementsPerLeaf), maxDepth(maxDepth)
@@ -71,11 +72,14 @@ void KDTree::Analyze() const
 }
 
 
-bool KDTree::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
+bool KDTree::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance) const
 {
 	float tMax, tMin;
 	if (!bounds.IntersectRay(ray, tMin, tMax))
 		return false;
 
-	return rootNode->IntersectRay(ray, hitInfo, tMin, tMax);
+	if (tMin > maxDistance)
+		return false;
+
+	return rootNode->IntersectRay(ray, hitInfo, maxDistance, tMin, tMax);
 }

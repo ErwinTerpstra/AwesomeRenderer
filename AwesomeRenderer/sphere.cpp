@@ -39,14 +39,14 @@ void Sphere::Transform(const Matrix44& mtx)
 	centerTransformed = cml::transform_point(mtx, center);
 }
 		
-bool Sphere::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
+bool Sphere::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance) const
 {
 	Vector3 relativeOrigin = ray.origin - centerTransformed;
 
 	// Compute A, B and C coefficients
-	float a = cml::dot(ray.direction, ray.direction);
-	float b = 2 * cml::dot(ray.direction, relativeOrigin);
-	float c = cml::dot(relativeOrigin, relativeOrigin) - (radiusTransformed * radiusTransformed);
+	float a = VectorUtil<3>::Dot(ray.direction, ray.direction);
+	float b = 2 * VectorUtil<3>::Dot(ray.direction, relativeOrigin);
+	float c = VectorUtil<3>::Dot(relativeOrigin, relativeOrigin) - (radiusTransformed * radiusTransformed);
 
     // Find discriminant
     float disc = b * b - 4 * a * c;
@@ -77,13 +77,12 @@ bool Sphere::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 		std::swap(t0, t1);
 
 	// If t0 is still smaller than zero, both intersections are in negative time. So the ray misses
-	if (t0 < 0.0f)
+	if (t0 < 0.0f || t0 > maxDistance)
 		return false;
 
 	// Fill RaycastHit struct
 	hitInfo.distance = t0;
 	hitInfo.point = ray.origin + ray.direction * t0;
-	hitInfo.inside = t1 < 0.0f;
 	hitInfo.normal = cml::normalize(hitInfo.point - centerTransformed);
 	
 	return true;

@@ -33,7 +33,7 @@ Vector3 BSDF::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal
 
 Vector3 BSDF::SpecularTradeoff(const Vector3& diffuseRadiance, const Vector3& specularRadiance, const Vector3& n, const Vector3& v, const Material& material) const
 {
-	Vector3 fresnel = FresnelSchlick(cml::dot(n, v), GetF0(material));
+	Vector3 fresnel = FresnelSchlick(VectorUtil<3>::Dot(n, v), GetF0(material));
 	return (diffuseRadiance * (1.0f - fresnel)) + (specularRadiance * fresnel);
 }
 

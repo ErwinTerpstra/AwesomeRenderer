@@ -31,7 +31,7 @@ namespace AwesomeRenderer
 
 		void Transform(const Matrix44& mtx);
 
-		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo) const;
+		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance) const;
 
 		const Primitive& GetPrimitive() const;
 

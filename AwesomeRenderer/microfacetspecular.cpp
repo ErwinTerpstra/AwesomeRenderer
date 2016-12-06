@@ -44,12 +44,12 @@ float MicrofacetSpecular::CalculatePDF(const Vector3& wo, const Vector3& wi, con
 
 	Vector3 h = cml::normalize(wo + wi);
 
-	float cosTheta = cml::dot(normal, h);
+	float cosTheta = VectorUtil<3>::Dot(normal, h);
 	//float sinTheta = sqrtf(std::max(0.0f, 1.0f - cosTheta * cosTheta));
 	float denom = (cosTheta * cosTheta * (alpha2 - 1.0f)) + 1.0f;
 
 	float pdf = (alpha2 / std::max((float)PI * denom * denom, 1e-7f)) * cosTheta;
-	return pdf / (4 * cml::dot(wo, h));
+	return pdf / (4 * VectorUtil<3>::Dot(wo, h));
 }
 
 Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& v, const Vector3& n, const Vector3& l, float roughness) const
@@ -84,7 +84,7 @@ Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& v, const Vector3
 	geometry = std::max(geometry, 0.0f);
 
 	// Calculate the Cook-Torrance denominator
-	float denominator = std::max(4 * Util::Clamp01(cml::dot(n, v)) * Util::Clamp01(cml::dot(n, l)), 1e-7f);
+	float denominator = std::max(4 * Util::Clamp01(VectorUtil<3>::Dot(n, v)) * Util::Clamp01(VectorUtil<3>::Dot(n, l)), 1e-7f);
 
 	// Return the evaluated BRDF
 	float reflectance = (geometry * distribution) / denominator;
@@ -108,7 +108,7 @@ float MicrofacetSpecular::RoughnessToShininess(float a) const
 
 float MicrofacetSpecular::DistributionBlinn(const Vector3 & n, const Vector3& h, float e) const
 {
-	float NoH = Util::Clamp01(cml::dot(n, h));
+	float NoH = Util::Clamp01(VectorUtil<3>::Dot(n, h));
 
 	return ((e + 2) * INV_TWO_PI) * std::pow(NoH, e);
 }
@@ -116,25 +116,25 @@ float MicrofacetSpecular::DistributionBlinn(const Vector3 & n, const Vector3& h,
 float MicrofacetSpecular::DistributionGGX(const Vector3& n, const Vector3& h, float alpha) const
 {
 	float alpha2 = alpha * alpha;
-	float NoH = Util::Clamp01(cml::dot(n, h));
+	float NoH = Util::Clamp01(VectorUtil<3>::Dot(n, h));
 	float denom = (NoH * NoH * (alpha2 - 1.0f)) + 1.0f;
 	return alpha2 / std::max((float)PI * denom * denom, 1e-7f);
 }
 
 float MicrofacetSpecular::GeometryImplicit(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h) const
 {
-	float NoV = Util::Clamp01(cml::dot(n, v));
-	float NoL = Util::Clamp01(cml::dot(n, l));
+	float NoV = Util::Clamp01(VectorUtil<3>::Dot(n, v));
+	float NoL = Util::Clamp01(VectorUtil<3>::Dot(n, l));
 
 	return NoL * NoV;
 }
 
 float MicrofacetSpecular::GeometryCookTorrance(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h) const
 {
-	float NoH = Util::Clamp01(cml::dot(n, h));
-	float NoV = Util::Clamp01(cml::dot(n, v));
-	float NoL = Util::Clamp01(cml::dot(n, l));
-	float VoH = Util::Clamp(cml::dot(v, h), 1e-7f, 1.0f);
+	float NoH = Util::Clamp01(VectorUtil<3>::Dot(n, h));
+	float NoV = Util::Clamp01(VectorUtil<3>::Dot(n, v));
+	float NoL = Util::Clamp01(VectorUtil<3>::Dot(n, l));
+	float VoH = Util::Clamp(VectorUtil<3>::Dot(v, h), 1e-7f, 1.0f);
 
 	return std::min(1.0f, std::min((2.0f * NoH * NoV) / VoH,
 								   (2.0f * NoH * NoL) / VoH));
@@ -149,7 +149,7 @@ float MicrofacetSpecular::GeometrySmith(const Vector3& v, const Vector3& l, cons
 
 float MicrofacetSpecular::G1Schlick(const Vector3& v, const Vector3& n, float a) const
 {
-	float NoV = Util::Clamp01(cml::dot(v, n));
+	float NoV = Util::Clamp01(VectorUtil<3>::Dot(v, n));
 	float k = (a * a) / 8;
 	return NoV / (NoV * (1.0f - k) + k);
 }
@@ -161,7 +161,7 @@ float MicrofacetSpecular::GeometryGGX(const Vector3& v, const Vector3& l, const 
 
 float MicrofacetSpecular::G1GGX(const Vector3& v, const Vector3& n, const Vector3& h, float a) const
 {
-	float HoV = cml::dot(h, v);
+	float HoV = VectorUtil<3>::Dot(h, v);
 
 	if (HoV <= 0.0f)
 		return 0.0f;
@@ -169,12 +169,12 @@ float MicrofacetSpecular::G1GGX(const Vector3& v, const Vector3& n, const Vector
 	float a2 = a * a;
 
 	//*
-	float NoV = cml::dot(n, v);
+	float NoV = VectorUtil<3>::Dot(n, v);
 
 	return (2.0f * NoV) / std::max(NoV + sqrt(a2 + (1.0f - a2) * NoV * NoV), 1e-7f);
 	/*/
 
-	float NoV2 = cml::dot(n, v);
+	float NoV2 = VectorUtil<3>::Dot(n, v);
 	NoV2 = NoV2 * NoV2;
 
 	float tan2 = (1.0f - NoV2) / NoV2;

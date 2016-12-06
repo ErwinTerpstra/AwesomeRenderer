@@ -57,8 +57,8 @@ void MeshEx::OptimizeTree()
 
 	tree.Optimize(localBounds);
 
-	//printf("[MeshEx]: Mesh tree optimized, analyzing...\n");
-	//tree.Analyze();
+	printf("[MeshEx]: Mesh tree optimized, analyzing...\n");
+	tree.Analyze();
 }
 
 void MeshEx::Transform(const Matrix44& mtx)
@@ -70,13 +70,14 @@ void MeshEx::Transform(const Matrix44& mtx)
 	world2object.inverse();
 }
 
-bool MeshEx::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
+bool MeshEx::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance) const
 {
 	// Transform ray to object space to use for intersection
 	Ray objectSpaceRay(cml::transform_point(world2object, ray.origin), cml::transform_vector(world2object, ray.direction));
 
 	// Perform intersection on the KD-tree
-	if (tree.IntersectRay(objectSpaceRay, hitInfo))
+	// TODO: maxDistance should be scaled to object space, right?
+	if (tree.IntersectRay(objectSpaceRay, hitInfo, maxDistance))
 	{
 		hitInfo.point = cml::transform_point(worldMtx, hitInfo.point);
 		hitInfo.normal = cml::transform_vector(worldMtx, hitInfo.normal);

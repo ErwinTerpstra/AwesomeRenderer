@@ -56,9 +56,9 @@ Vector3 WhittedIntegrator::SampleReflection(const Ray& ray, const RaycastHit& hi
 	ShadingInfo reflectionShading;
 	rayTracer.CalculateShading(reflectionRay, reflectionShading, depth + 1);
 
-	assert(fabs(cml::dot(hitInfo.normal, reflectionDirection) - cml::dot(hitInfo.normal, -ray.direction)) < 1e-5f);
+	assert(fabs(VectorUtil<3>::Dot(hitInfo.normal, reflectionDirection) - VectorUtil<3>::Dot(hitInfo.normal, -ray.direction)) < 1e-5f);
 
-	float NoL = Util::Clamp01(cml::dot(hitInfo.normal, reflectionDirection));
+	float NoL = Util::Clamp01(VectorUtil<3>::Dot(hitInfo.normal, reflectionDirection));
 	Vector3 lightRadiance = reflectionShading.color.subvector(3);
 
 	return material.bsdf->Sample(-ray.direction, reflectionDirection, hitInfo.normal, material) * lightRadiance * NoL;
@@ -66,7 +66,7 @@ Vector3 WhittedIntegrator::SampleReflection(const Ray& ray, const RaycastHit& hi
 
 Vector3 WhittedIntegrator::SampleRefraction(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& context, int depth)
 {
-	if (cml::dot(-ray.direction, hitInfo.normal) < 1e-3f)
+	if (VectorUtil<3>::Dot(-ray.direction, hitInfo.normal) < 1e-3f)
 		return Vector3(0.0f, 0.0f, 0.0f);
 
 	float ior = material.ior;
@@ -81,7 +81,9 @@ Vector3 WhittedIntegrator::SampleRefraction(const Ray& ray, const RaycastHit& hi
 	RaycastHit refractionHit;
 	if (rayTracer.RayCast(innerRefractionRay, refractionHit))
 	{
-		if (refractionHit.inside)
+		bool inside = VectorUtil<3>::Dot(refractionHit.normal, innerRefractionRay.direction) > 0;
+
+		if (inside)
 		{
 			ior = 1.0f / ior;
 
@@ -105,7 +107,7 @@ Vector3 WhittedIntegrator::SampleRefraction(const Ray& ray, const RaycastHit& hi
 
 float WhittedIntegrator::Fresnel(const Vector3& v, const Vector3& normal, float ior) const
 {
-	float cosi = cml::dot(v, normal);
+	float cosi = VectorUtil<3>::Dot(v, normal);
 	float etai = 1, etat = ior;
 
 	if (cosi > 0)

@@ -77,7 +77,7 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 
 			if (light.type == LightData::SPOT)
 			{
-				float angleTerm = cml::dot(light.direction, -toLight);
+				float angleTerm = VectorUtil<3>::Dot(light.direction, -toLight);
 				float cosAngle = cos(light.angle);
 
 				if (angleTerm > cosAngle)
@@ -93,7 +93,7 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 
 		
 		// Compute the diffuse term
-		float diffuseTerm = std::max(cml::dot(in.normal, toLight), 0.0f);
+		float diffuseTerm = std::max(VectorUtil<3>::Dot(in.normal, toLight), 0.0f);
 		diffuseLight += light.color * diffuseTerm * intensity;
 
 		// Compute the specular term
@@ -102,7 +102,7 @@ void PhongShader::ProcessPixel(const VertexToPixel& in, PixelInfo& out) const
 			Vector3 toEye = cml::normalize(viewPosition - in.worldPosition).subvector(3);
 			Vector3 halfVector = cml::normalize(toLight + toEye);
 
-			float specularTerm = std::pow(std::max(cml::dot(in.normal, halfVector), 0.0f), shininess);
+			float specularTerm = std::pow(std::max(VectorUtil<3>::Dot(in.normal, halfVector), 0.0f), shininess);
 			specularLight += light.color * specularTerm * intensity;
 		}
 	}

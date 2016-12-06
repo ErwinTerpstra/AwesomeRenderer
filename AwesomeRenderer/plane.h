@@ -21,7 +21,7 @@ namespace AwesomeRenderer
 
 		void Transform(const Matrix44& mtx);
 
-		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo) const;
+		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance) const;
 
 		int SideOfPlane(const Plane& plane) const;
 		int SideOfPlane(const Vector3& point) const;
@@ -32,7 +32,7 @@ namespace AwesomeRenderer
 		__inline float Distance(const Vector3& point) const 
 		{
 			Vector3 delta = point - PointOnPlane();
-			return cml::dot(normalTransformed, delta);
+			return VectorUtil<3>::Dot(normalTransformed, delta);
 		}
 
 	};

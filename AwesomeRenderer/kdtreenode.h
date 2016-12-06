@@ -39,7 +39,7 @@ namespace AwesomeRenderer
 		int Axis() const { return axis; }
 		KDTreeNode* Parent() const { return parent; }
 
-		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const;
+		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance, float tMin, float tMax) const;
 
 	private:
 		void SplitSAH(const AABB& bounds);

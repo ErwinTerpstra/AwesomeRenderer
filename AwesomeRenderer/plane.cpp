@@ -16,12 +16,12 @@ void Plane::Transform(const Matrix44& mtx)
 	normalTransformed.normalize();
 
 	// Convert back to distance-from-origin representation
-	dTransformed = cml::dot(transformedPoint, normalTransformed);
+	dTransformed = VectorUtil<3>::Dot(transformedPoint, normalTransformed);
 }
 
-bool Plane::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
+bool Plane::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance) const
 {
-	float dot = -cml::dot(normalTransformed, ray.direction);
+	float dot = -VectorUtil<3>::Dot(normalTransformed, ray.direction);
 
 	// Ray is parallel to plane
 	if (dot == 0.0f)
@@ -30,7 +30,7 @@ bool Plane::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 	float t = Distance(ray.origin) / dot;
 
 	// Intersection point is behind the ray
-	if (t < 0.0f)
+	if (t < 0.0f || t > maxDistance)
 		return false;
 
 	Vector3 pointOnPlane = ray.origin + t * ray.direction;
@@ -45,12 +45,12 @@ bool Plane::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
 
 int Plane::SideOfPlane(const Vector3& point) const
 {
-	return (int) cml::sign(cml::dot(point - PointOnPlane(), normal));
+	return (int) cml::sign(VectorUtil<3>::Dot(point - PointOnPlane(), normal));
 }
 
 int Plane::SideOfPlane(const Plane& plane) const
 {
 	// If the planes are perpendicular compare their distances from the origin
 	// Otherwise they always intersect
-	return (int) std::fabs(cml::dot(normalTransformed, plane.normalTransformed)) >= 1.0 - FLT_EPSILON ? cml::sign(plane.d - d) : 0;
+	return (int) std::fabs(VectorUtil<3>::Dot(normalTransformed, plane.normalTransformed)) >= 1.0 - FLT_EPSILON ? cml::sign(plane.d - d) : 0;
 }

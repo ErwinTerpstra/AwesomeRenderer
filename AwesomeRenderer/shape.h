@@ -17,7 +17,7 @@ namespace AwesomeRenderer
 
 		virtual void Transform(const Matrix44& mtx) = 0;
 
-		virtual bool IntersectRay(const Ray& ray, RaycastHit& hitInfo) const = 0;
+		virtual bool IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance = FLT_MAX) const = 0;
 
 		virtual const Primitive& GetPrimitive() const = 0;
 

@@ -107,7 +107,7 @@ namespace AwesomeRenderer
 				}
 			}
 
-			uv /= cml::dot(direction, n);
+			uv /= VectorUtil<3>::Dot(direction, n);
 
 			uv[0] = (uv[0] + 1.0f) * 0.5f;
 			uv[1] = (uv[1] + 1.0f) * 0.5f;

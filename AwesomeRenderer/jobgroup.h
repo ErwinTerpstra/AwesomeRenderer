@@ -25,6 +25,7 @@ namespace AwesomeRenderer
 		WorkerJob* DequeueJob();
 
 		void ClearQueue();
+		uint32_t JobsLeft() const;
 	};
 
 }

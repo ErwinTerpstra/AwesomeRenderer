@@ -11,18 +11,22 @@ using namespace AwesomeRenderer;
 Triangle3D::Triangle3D(const Vector3& a, const Vector3& b, const Vector3& c) :
 	Triangle(a, b, c), Primitive()
 {
-	vO[0] = a; vO[1] = b; vO[2] = c;
+	//vO[0] = a; vO[1] = b; vO[2] = c;
 
 	CalculateNormal();
 	PreCalculateBarycentric();
 
-	vN[0] = normal, vN[1] = normal; vN[2] = normal;
+	vN[0] = normal;
+	vN[1] = normal;
+	vN[2] = normal;
 }
 
 Triangle3D::Triangle3D(const Vector3& a, const Vector3& b, const Vector3& c, const Vector3& aN, const Vector3& bN, const Vector3& cN) :
 	Triangle3D(a, b, c)
 {
-	vN[0] = aN; vN[1] = bN; vN[2] = cN;
+	vN[0] = aN;
+	vN[1] = bN;
+	vN[2] = cN;
 }
 
 Triangle3D::Triangle3D(const Triangle3D& other) :
@@ -42,50 +46,70 @@ const Vector3& Triangle3D::CalculateNormal()
 
 	normal = cml::cross(ac, ab);
 	normal.normalize();
-
+	
 	return normal;
 }
 
 void Triangle3D::Transform(const Matrix44& mtx)
 {
 	// Transform all vertices from object space by the given matrix
+	/*
 	v[0] = cml::transform_point(mtx, vO[0]);
 	v[1] = cml::transform_point(mtx, vO[1]);
 	v[2] = cml::transform_point(mtx, vO[2]);
 
 	CalculateNormal();
 	PreCalculateBarycentric();
+	*/
+
+	// TODO: Find a way to implement this without having to store additional data, which makes the path tracer slow
+	// Or make it possible to inherit from Shape without having to implement this method
+	assert(false && "Not implemented.");
 }
 
-bool Triangle3D::IntersectRay(const Ray& ray, RaycastHit& hitInfo) const
+bool Triangle3D::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance) const
 {
-	float distanceToPlane = VectorUtil<3>::Dot(normal, ray.origin - v[0]);
-	float dot = -VectorUtil<3>::Dot(normal, ray.direction);
+	float dot = VectorUtil<3>::Dot(normal, ray.direction);
 
-	// Ray is parallel to triangle plane
-	if (fabs(dot) < 1e-3f)
+	// Ray is parallel or hits the triangle plane from behind
+	// TODO: Provide backface intersection?
+	if (dot >= 0.0f)
 		return false;
 
-	float t = distanceToPlane / dot;
+	float distanceToPlane = VectorUtil<3>::Dot(normal, ray.origin - v[0]);
 
 	// Intersection point is behind the ray
-	if (t < 0.0f)
+	if (distanceToPlane < 0.0f)
+		return false;
+
+	float t = distanceToPlane / -dot;
+
+	if (t > maxDistance)
 		return false;
 
 	Vector3 pointOnPlane = ray.origin + t * ray.direction;
 
 	// Calculate barycentric coords to check if the point is within triangle boundaries
-	if (!IsPointInside(pointOnPlane, hitInfo.barycentricCoords))
-		return false;
+	Vector3 v2 = pointOnPlane - v[0];
 
+	// Compute dot products
+	float dot02 = VectorUtil<3>::Dot(v0, v2);
+	float dot12 = VectorUtil<3>::Dot(v1, v2);
+
+	// Compute barycentric coordinates
+	float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+	float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+	if (u < 0.0f || v < 0.0f || u + v > 1.0f)
+		return false;
+		
 	// Fill the hit info struct with gathered data
 	hitInfo.point = pointOnPlane;
 	hitInfo.distance = t;
+	hitInfo.barycentricCoords.set(1.0f - u - v, u, v);
 
 	VectorUtil<3>::Interpolate(vN[0], vN[1], vN[2], hitInfo.barycentricCoords, hitInfo.normal);
-	
-	hitInfo.inside = VectorUtil<3>::Dot(ray.direction, hitInfo.normal) >= 0;
-	
+		
 	return true;
 }
 

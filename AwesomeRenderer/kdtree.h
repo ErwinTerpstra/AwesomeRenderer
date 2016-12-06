@@ -16,7 +16,8 @@ namespace AwesomeRenderer
 		static const float TRAVERSAL_COST;
 		static const float INTERSECTION_COST;
 		static const float POSITION_EPSILON;
-		static const float MAX_OVERLAPPING_ELEMENTS;
+		static const float PREVENT_SPLIT_MAX_OVERFLOW;
+		static const float PREVENT_SPLIT_OVERLAPPING_ELEMENTS;
 
 		KDTreeNode* rootNode;
 
@@ -32,7 +33,7 @@ namespace AwesomeRenderer
 		void Optimize(const AABB& bounds);
 		void Analyze() const;
 
-		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo) const;
+		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance = FLT_MAX) const;
 
 	};
 }

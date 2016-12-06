@@ -35,6 +35,7 @@ void KDTreeNode::Optimize(const AABB& bounds, int depth)
 		return;
 
 	SplitFast(bounds);
+	//SplitMode(bounds);
 
 	// Create a plane that represents the split we made
 	Vector3 normal(0.0f, 0.0f, 0.0f);
@@ -55,7 +56,8 @@ void KDTreeNode::Optimize(const AABB& bounds, int depth)
 	}
 
 	// Don't perform the split if elements end up in both nodes
-	if (overlappingElements / (float)elements.size() >= KDTree::MAX_OVERLAPPING_ELEMENTS)
+	if (elements.size() < tree->maxElementsPerLeaf * KDTree::PREVENT_SPLIT_MAX_OVERFLOW && 
+		overlappingElements / (float)elements.size() >= KDTree::PREVENT_SPLIT_OVERLAPPING_ELEMENTS)
 		return;
 
 	upperNode = new KDTreeNode(tree, this);
@@ -239,30 +241,27 @@ void KDTreeNode::CalculateBounds(const AABB& bounds, float splitPoint, AABB& upp
 	upper.Initialize(minSplit, max);
 }
 
-bool KDTreeNode::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const
+bool KDTreeNode::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance, float tMin, float tMax) const
 {
 	// The current node is a leaf node, this means we can check its contents
 	if (IsLeaf())
 	{
-		float closestDistance = FLT_MAX;
+		float closestDistance = maxDistance;
 		bool hit = false;
 
-		for (auto it = elements.begin(); it != elements.end(); ++it)
+		for (uint32_t elementIdx = 0, elementCount = elements.size(); elementIdx < elementCount; ++elementIdx)
 		{
-			const Shape& shape = (*it)->GetShape();
+			const Shape& shape = elements[elementIdx]->GetShape();
 
 			// Perform the ray-triangle intersection
 			RaycastHit shapeHitInfo;
-			if (!shape.IntersectRay(ray, shapeHitInfo))
-				continue;
-
-			if (shapeHitInfo.distance > closestDistance)
+			if (!shape.IntersectRay(ray, shapeHitInfo, closestDistance))
 				continue;
 
 			closestDistance = shapeHitInfo.distance;
 
 			hitInfo = shapeHitInfo;
-			hitInfo.element = *it;
+			hitInfo.element = elements[elementIdx];
 
 			hit = true;
 		}
@@ -285,39 +284,39 @@ bool KDTreeNode::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float tMin, f
 			farNode = lowerNode;
 		}
 
-		float tSplit = (splitPoint - ray.origin[axis]) / ray.direction[axis];
+		float tSplit = (splitPoint - ray.origin[axis]) * ray.invDirection[axis];
 
 		if (tSplit > tMax)
-			return nearNode->IntersectRay(ray, hitInfo, tMin, tMax);
+			return nearNode->IntersectRay(ray, hitInfo, maxDistance, tMin, tMax);
 
-		if (tSplit < tMin)
-		{
-			if (tSplit > 0)
-				return farNode->IntersectRay(ray, hitInfo, tMin, tMax);
-
-			if (tSplit < 0)
-				return nearNode->IntersectRay(ray, hitInfo, tMin, tMax);
-
-			if (ray.direction[axis] < 0)
-				return farNode->IntersectRay(ray, hitInfo, tMin, tMax);
-
-			return nearNode->IntersectRay(ray, hitInfo, tMin, tMax);
-		}
-		else
+		if (tSplit >= tMin)
 		{
 			if (tSplit > 0)
 			{
-				if (nearNode->IntersectRay(ray, hitInfo, tMin, tMax))
+				if (nearNode->IntersectRay(ray, hitInfo, maxDistance, tMin, tMax))
 				{
 					// We should only return this intersection if the intersection point is inside the node...
 					if (hitInfo.distance <= tSplit)
 						return true;
 				}
 
-				return farNode->IntersectRay(ray, hitInfo, tMin, tMax);
+				return farNode->IntersectRay(ray, hitInfo, maxDistance, tMin, tMax);
 			}
 
-			return nearNode->IntersectRay(ray, hitInfo, tMin, tMax);
+			return nearNode->IntersectRay(ray, hitInfo, maxDistance, tMin, tMax);
+		}
+		else
+		{
+			if (tSplit > 0)
+				return farNode->IntersectRay(ray, hitInfo, maxDistance, tMin, tMax);
+
+			if (tSplit < 0)
+				return nearNode->IntersectRay(ray, hitInfo, maxDistance, tMin, tMax);
+
+			if (ray.direction[axis] < 0)
+				return farNode->IntersectRay(ray, hitInfo, maxDistance, tMin, tMax);
+
+			return nearNode->IntersectRay(ray, hitInfo, maxDistance, tMin, tMax);
 		}
 	}
 

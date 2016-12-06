@@ -294,7 +294,7 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 			onEdge[1] = Util::Clamp(onEdge[1], -onEdge[3], onEdge[3]);
 			onEdge[2] = Util::Clamp(onEdge[2], 0.0f, onEdge[3]);
 
-			float d = cml::dot(onEdge, toShared);
+			float d = VectorUtil<4>::Dot(onEdge, toShared);
 
 
 			// TODO: Interpolate other vertex attributes to match onEdge position

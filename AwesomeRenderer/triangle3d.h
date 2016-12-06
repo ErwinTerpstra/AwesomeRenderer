@@ -17,15 +17,12 @@ namespace AwesomeRenderer
 		using Primitive::CalculateBounds;
 
 	public:
+
 		// Normal vector for this triangle (world space)
 		Vector3 normal;
 
 		// Vertex normals in object space
 		Vector3 vN[3];
-
-		// Vertices in object space
-		Vector3 vO[3];
-
 	private:
 
 	public:
@@ -37,11 +34,12 @@ namespace AwesomeRenderer
 		
 		void Transform(const Matrix44& mtx);
 
-		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo) const;
+		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance) const;
 
 		int SideOfPlane(const Plane& plane) const;
 
 		void CalculateBounds(AABB& bounds) const;
+
 	};
 }
 
