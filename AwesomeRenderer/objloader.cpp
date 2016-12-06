@@ -40,7 +40,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 
 	Mesh* mesh = NULL;
 	Material* material = NULL;
-
+	
 	while (char* lineBuffer = reader.ReadLine())
 	{		
 		std::string line(lineBuffer);
@@ -77,6 +77,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 				// New submesh
 				// TODO: Manage memory registered by factory
 				mesh = new Mesh(defaultAttributes);
+				material = NULL;
 				
 				model.AddMesh(mesh, defaultMaterial);
 				
@@ -197,12 +198,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 				// Material library directive
 				if (line.compare(0, 6, "mtllib") == 0)
 				{
-					// TODO: make this an utility function somewhere
-					std::string mtlLib(fileName);
-					size_t idx = mtlLib.find_last_of('/');
-					mtlLib.resize(idx != std::string::npos ? idx + 1 : 0);
-					mtlLib += line.substr(7);
-					
+					std::string mtlLib = GetRelativeFileName(line.substr(7), fileName);					
 					LoadMaterialLib(mtlLib.c_str());
 					break;
 				}
@@ -211,7 +207,22 @@ void ObjLoader::Load(const char* fileName, Model& model)
 				if (line.compare(0, 6, "usemtl") == 0)
 				{
 					std::string name = line.substr(7);
-					model.materials[model.materials.size() - 1] = materialLib[name];
+					Material* linkedMaterial = materialLib[name];
+					
+					if (material != NULL)
+					{
+						// If the mesh already has a material, create a new submesh
+						mesh = new Mesh(defaultAttributes);
+						model.AddMesh(mesh, linkedMaterial);
+					}
+					else
+					{
+						// Assign this material to the last created submesh
+						model.materials[model.materials.size() - 1] = linkedMaterial;
+					}
+
+					material = linkedMaterial;
+
 					break;
 				}
 
@@ -366,14 +377,13 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 
 				// New material directive
 				if (line.compare(0, 6, "newmtl") == 0)
-				{
-					std::string name = line.substr(7);
-					
+				{					
 					// TODO: Move memory allocation to somewhere else
 					material = new PhongMaterial(*(new Material()));
+					material->provider.name = line.substr(7);
 					material->provider.shader = defaultShader;
 
-					materialLib[name] = &material->provider;
+					materialLib[material->provider.name] = &material->provider;
 					break;
 				}
 
@@ -426,8 +436,7 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 				}
 
 
-				printf("[ObjLoader]: Invalid line in MTL \"%s\"\n", lineBuffer);
-
+				//printf("[ObjLoader]: Invalid line in MTL \"%s\"\n", lineBuffer);
 				break;
 		}
 	}

@@ -22,7 +22,7 @@ TextureGL::~TextureGL()
 void TextureGL::Load()
 {
 	GL_CHECK_ERROR(glGenTextures(1, &id));
-
+	
 	Bind();
 
 	GL_CHECK_ERROR(glEnable(GL_TEXTURE_2D));
@@ -39,33 +39,49 @@ void TextureGL::Load()
 	
 	GLenum interalFormat;
 	GLenum dataFormat;
-	GLint alignment;
-	if (provider.bpp >= 32)
+
+	switch (provider.encoding)
 	{
-		interalFormat = GL_RGBA8;
-		dataFormat = GL_BGRA;
-		alignment = 4;
-	}
-	else
-	{
+	case Buffer::BGR24:
 		interalFormat = GL_RGB8;
 		dataFormat = GL_BGR;
-		alignment = 1;
-	}
+		break;
 
+	case Buffer::BGRA32:
+		interalFormat = GL_RGBA8;
+		dataFormat = GL_BGRA;
+		break;
+
+	case Buffer::RGB24:
+		interalFormat = GL_RGB8;
+		dataFormat = GL_RGB;
+		break;
+
+	case Buffer::RGBA32:
+		interalFormat = GL_RGBA8;
+		dataFormat = GL_RGBA;
+		break;
+
+	default:
+		printf("[TextureGL]: Invalid source texture format\n");
+		assert(false);
+		break;
+	}
 
 	// Setup storage
 	GL_CHECK_ERROR(glTexStorage2D(GL_TEXTURE_2D, provider.GetMipmapLevels(), interalFormat, provider.width, provider.height));
 
 	// Upload source image
+	GLint alignment = provider.alignment;
 	glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
+
 	//GL_CHECK_ERROR(glTexImage2D(GL_TEXTURE_2D, 0, interalFormat, provider.width, provider.height, 0, dataFormat, GL_UNSIGNED_BYTE, provider.data));
 	GL_CHECK_ERROR(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, provider.width, provider.height, dataFormat, GL_UNSIGNED_BYTE, provider.data));
 
 	// Generate mipmaps
 	GL_CHECK_ERROR(glGenerateMipmap(GL_TEXTURE_2D));
 
-	Unbind();
+	ClearBoundTexture();
 }
 
 void TextureGL::Bind()
@@ -73,7 +89,7 @@ void TextureGL::Bind()
 	GL_CHECK_ERROR(glBindTexture(GL_TEXTURE_2D, id));
 }
 
-void TextureGL::Unbind()
+void TextureGL::ClearBoundTexture()
 {
 	GL_CHECK_ERROR(glBindTexture(GL_TEXTURE_2D, 0));
 }

@@ -20,7 +20,8 @@ namespace AwesomeRenderer
 
 		void Load();
 		void Bind();
-		void Unbind();
+
+		static void ClearBoundTexture();
 
 		static uint32_t ExtensionID() { return Texture::TEXTURE_GL; }
 	};

@@ -19,6 +19,8 @@ namespace AwesomeRenderer
 			MATERIAL_PBR
 		};
 
+		std::string name;
+
 		bool translucent;
 
 		float ior;

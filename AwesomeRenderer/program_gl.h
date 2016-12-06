@@ -30,11 +30,15 @@ namespace AwesomeRenderer
 		void Bind();
 
 		void BindTexture(TextureGL* texture, std::string uniformName, GLenum slot);
+		
+		void SetVector3(const std::string& uniformName, const Vector3& v);
+		void SetVector4(const std::string& uniformName, const Vector4& v);
+		void SetMatrix44(const std::string& uniformName, const Matrix44& m);
 
-		GLint GetUniformLocation(std::string name);
-		GLint GetAttribLocation(std::string name);
+		GLint GetUniformLocation(const std::string& name);
+		GLint GetAttribLocation(const std::string& name);
 
-		void SetAttribLocation(std::string name, GLuint location);
+		void SetAttribLocation(const std::string& name, GLuint location);
 	};
 }
 

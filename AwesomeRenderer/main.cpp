@@ -2,8 +2,8 @@
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
 
-#define SCREEN_WIDTH 480
-#define SCREEN_HEIGHT 320
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
 
 #include <stdio.h>
 #include <io.h>
@@ -24,6 +24,7 @@
 #include "ray.h"
 #include "raycasthit.h"
 #include "camera.h"
+#include "random.h"
 
 // Mult-threading
 #include "threading.h"
@@ -309,7 +310,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	uint32_t framesDrawn = 0;
 
 	const char switchKeys[] = { 'I', 'O', 'P' };
-		
+	
 	while (!window.closed)
 	{
 		const TimingInfo& timingInfo = timer.Tick();

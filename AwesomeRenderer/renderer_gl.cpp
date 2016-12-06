@@ -256,24 +256,26 @@ void RendererGL::BeginDraw(const Matrix44& model, const Material& material)
 	shader->Prepare();
 
 	// Setup geometry matrices for shader
-	GL_CHECK_ERROR(glUniformMatrix4fv(shader->GetUniformLocation("modelMtx"), 1, GL_FALSE, model.data()));
-	GL_CHECK_ERROR(glUniformMatrix4fv(shader->GetUniformLocation("viewMtx"), 1, GL_FALSE, renderContext->camera->viewMtx.data()));
-	GL_CHECK_ERROR(glUniformMatrix4fv(shader->GetUniformLocation("projMtx"), 1, GL_FALSE, renderContext->camera->projMtx.data()));
+	shader->SetMatrix44("modelMtx", model);
+	shader->SetMatrix44("viewMtx", renderContext->camera->viewMtx);
+	shader->SetMatrix44("projMtx", renderContext->camera->projMtx);
+
+	const PhongMaterial* phongMaterial = material.As<PhongMaterial>();
+
+	shader->SetVector4("diffuseColor", phongMaterial->diffuseColor);
+	shader->SetVector4("specularColor", phongMaterial->specularColor);
 
 	// Load textures supplied by material
 	GLenum activeTexture = GL_TEXTURE0;
 
-	const PhongMaterial* phongMaterial = material.As<PhongMaterial>();
+	TextureGL* diffuseTexture = phongMaterial->diffuseMap != NULL ? phongMaterial->diffuseMap->texture->As<TextureGL>() : NULL;
+	shader->BindTexture(diffuseTexture, "diffuseMap", activeTexture++);
+	
+	TextureGL* normalTexture = phongMaterial->normalMap != NULL ? phongMaterial->normalMap->texture->As<TextureGL>() : NULL;
+	shader->BindTexture(normalTexture, "normalMap", activeTexture++);
 
-	if (phongMaterial->diffuseMap != NULL)
-		shader->BindTexture(phongMaterial->diffuseMap->texture->As<TextureGL>(), "diffuseMap", activeTexture++);
-
-	if (phongMaterial->normalMap != NULL)
-		shader->BindTexture(phongMaterial->normalMap->texture->As<TextureGL>(), "normalMap", activeTexture++);
-
-	if (phongMaterial->specularMap != NULL)
-		shader->BindTexture(phongMaterial->specularMap->texture->As<TextureGL>(), "specularMap", activeTexture++);
-
+	TextureGL* specularTexture = phongMaterial->specularMap != NULL ? phongMaterial->specularMap->texture->As<TextureGL>() : NULL;
+	shader->BindTexture(specularTexture, "specularMap", activeTexture++);
 }
 
 void RendererGL::EndDraw()

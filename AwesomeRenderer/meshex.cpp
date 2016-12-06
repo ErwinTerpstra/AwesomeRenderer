@@ -57,8 +57,8 @@ void MeshEx::OptimizeTree()
 
 	tree.Optimize(localBounds);
 
-	printf("[MeshEx]: Mesh tree optimized, analyzing...\n");
-	tree.Analyze();
+	//printf("[MeshEx]: Mesh tree optimized, analyzing...\n");
+	//tree.Analyze();
 }
 
 void MeshEx::Transform(const Matrix44& mtx)

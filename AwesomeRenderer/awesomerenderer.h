@@ -10,6 +10,9 @@
 #define INV_PI		1.0 / PI
 #define INV_TWO_PI	1.0 / TWO_PI
 
+#define AR_INLINE inline
+#define AR_FORCE_INLINE AR_INLINE __forceinline
+
 #include "debug.h"
 
 // Data types
