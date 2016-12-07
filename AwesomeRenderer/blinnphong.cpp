@@ -12,7 +12,7 @@ BlinnPhong::BlinnPhong()
 
 }
 
-Vector3 BlinnPhong::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const
+Vector3 BlinnPhong::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material) const
 {
 	PhongMaterial* phongMaterial = material.As<PhongMaterial>();
 

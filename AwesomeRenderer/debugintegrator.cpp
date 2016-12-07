@@ -21,7 +21,8 @@ DebugIntegrator::DebugIntegrator(RayTracer& rayTracer) : SurfaceIntegrator(rayTr
 
 Vector3 DebugIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& context, int depth)
 {
-	//return hitInfo.normal;
+	//return Vector3(hitInfo.uv, 0);
+	return hitInfo.normal;
 
 	Vector3 lightDirection(1.0f, 1.0f, 0.0f);
 	cml::normalize(lightDirection);

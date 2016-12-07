@@ -220,8 +220,5 @@ void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int d
 
 bool RayTracer::RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance) const 
 {
-	if (renderContext->tree.IntersectRay(ray, nearestHit))
-		return nearestHit.distance <= maxDistance;
-
-	return FALSE;
+	return renderContext->tree.IntersectRay(ray, nearestHit, maxDistance);
 }

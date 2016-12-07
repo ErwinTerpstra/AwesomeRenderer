@@ -26,7 +26,6 @@ namespace AwesomeRenderer
 		MeshEx(Mesh& mesh);
 		~MeshEx();
 
-		Triangle3D& AddTri(const Vector3& a, const Vector3& b, const Vector3& c);
 		void OptimizeTree();
 
 		void Transform(const Matrix44& mtx);

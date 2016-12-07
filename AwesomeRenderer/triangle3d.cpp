@@ -6,31 +6,24 @@
 #include "plane.h"
 #include "aabb.h"
 
+#include "meshex.h"
+
 using namespace AwesomeRenderer;
 
-Triangle3D::Triangle3D(const Vector3& a, const Vector3& b, const Vector3& c) :
-	Triangle(a, b, c), Primitive()
+Triangle3D::Triangle3D(const MeshEx& mesh, uint32_t vIdx0, uint32_t vIdx1, uint32_t vIdx2) :
+	Triangle(mesh.provider.vertices[vIdx0], mesh.provider.vertices[vIdx1], mesh.provider.vertices[vIdx2]), Primitive(), mesh(mesh)
 {
-	//vO[0] = a; vO[1] = b; vO[2] = c;
+	vIdx[0] = vIdx0;
+	vIdx[1] = vIdx1;
+	vIdx[2] = vIdx2;
 
 	CalculateNormal();
 	PreCalculateBarycentric();
-
-	vN[0] = normal;
-	vN[1] = normal;
-	vN[2] = normal;
 }
 
-Triangle3D::Triangle3D(const Vector3& a, const Vector3& b, const Vector3& c, const Vector3& aN, const Vector3& bN, const Vector3& cN) :
-	Triangle3D(a, b, c)
-{
-	vN[0] = aN;
-	vN[1] = bN;
-	vN[2] = cN;
-}
 
 Triangle3D::Triangle3D(const Triangle3D& other) :
-	Triangle3D(other.v[0], other.v[1], other.v[2], other.vN[0], other.vN[1], other.vN[2])
+	Triangle3D(other.mesh, other.vIdx[0], other.vIdx[1], other.vIdx[2])
 {
 	
 }
@@ -108,7 +101,25 @@ bool Triangle3D::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDist
 	hitInfo.distance = t;
 	hitInfo.barycentricCoords.set(1.0f - u - v, u, v);
 
-	VectorUtil<3>::Interpolate(vN[0], vN[1], vN[2], hitInfo.barycentricCoords, hitInfo.normal);
+	if (mesh.provider.HasAttribute(Mesh::VERTEX_NORMAL))
+	{
+		VectorUtil<3>::Interpolate(
+			mesh.provider.normals[vIdx[0]],
+			mesh.provider.normals[vIdx[1]],
+			mesh.provider.normals[vIdx[2]],
+			hitInfo.barycentricCoords, hitInfo.normal);
+	}
+	else
+		hitInfo.normal = normal;
+
+	if (mesh.provider.HasAttribute(Mesh::VERTEX_TEXCOORD))
+	{
+		VectorUtil<2>::Interpolate(
+			mesh.provider.texcoords[vIdx[0]],
+			mesh.provider.texcoords[vIdx[1]],
+			mesh.provider.texcoords[vIdx[2]],
+			hitInfo.barycentricCoords, hitInfo.uv);
+	}		
 		
 	return true;
 }

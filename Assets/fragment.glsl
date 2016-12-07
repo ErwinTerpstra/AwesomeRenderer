@@ -16,4 +16,7 @@ void main()
 {
 	vec4 diffuse = texture(diffuseMap, texcoord);// * diffuseColor;
 	outColor = diffuse;
+	
+	//outColor = vec4(texcoord.x, texcoord.y, 0, 1);
+	outColor = vec4(normal, 1);
 }

@@ -9,6 +9,7 @@ namespace AwesomeRenderer
 {
 
 	class Ray;
+	class MeshEx;
 	struct RaycastHit;
 
 	class Triangle3D : public Triangle<Vector3>, public Primitive
@@ -17,17 +18,16 @@ namespace AwesomeRenderer
 		using Primitive::CalculateBounds;
 
 	public:
-
 		// Normal vector for this triangle (world space)
 		Vector3 normal;
 
-		// Vertex normals in object space
-		Vector3 vN[3];
+		const MeshEx& mesh;
+
+		uint32_t vIdx[3];
 	private:
 
 	public:
-		Triangle3D(const Vector3& a, const Vector3& b, const Vector3& c);
-		Triangle3D(const Vector3& a, const Vector3& b, const Vector3& c, const Vector3& aN, const Vector3& bN, const Vector3& cN);
+		Triangle3D(const MeshEx& mesh, uint32_t vIdx0, uint32_t vIdx1, uint32_t vIdx2);
 		Triangle3D(const Triangle3D& other);
 
 		const Vector3& CalculateNormal();

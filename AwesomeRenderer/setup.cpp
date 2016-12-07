@@ -552,8 +552,8 @@ void Setup::SetupSponza()
 
 	// LIGHT
 	LightData::Light& light = context.mainContext->lightData->lights[0];
-	light.type = LightData::LightType::DIRECTIONAL;
-	light.direction = Vector3(-0.5f, -0.8f, -0.5f);
+	light.type = LightData::LightType::POINT;
+	light.position = Vector3(0.0f, 1.0f, 0.0f);
 	light.direction.normalize();
 	light.intensity = 1.0f;
 	light.color = Color(255, 244, 214);

@@ -14,7 +14,7 @@ MicrofacetSpecular::MicrofacetSpecular()
 
 }
 
-Vector3 MicrofacetSpecular::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const
+Vector3 MicrofacetSpecular::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material) const
 {
 	PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
 	return SpecularCookTorrance(wo, normal, wi, pbrMaterial->roughness);

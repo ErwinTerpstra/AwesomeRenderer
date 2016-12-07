@@ -13,6 +13,7 @@ namespace AwesomeRenderer
 		float distance;
 
 		Vector3 barycentricCoords;
+		Vector2 uv;
 
 		const TreeElement* element;
 
@@ -22,7 +23,8 @@ namespace AwesomeRenderer
 		}
 
 		RaycastHit(const RaycastHit& other) :
-			point(other.point), normal(other.normal), distance(other.distance), barycentricCoords(other.barycentricCoords),
+			point(other.point), normal(other.normal), distance(other.distance), 
+			barycentricCoords(other.barycentricCoords), uv(other.uv),
 			element(other.element)
 		{
 

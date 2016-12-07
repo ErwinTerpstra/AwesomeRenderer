@@ -30,12 +30,12 @@ Vector3 MonteCarloIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, cons
 	radiance += SampleDirectLight(ray, hitInfo, material, context);
 
 	if (depth < rayTracer.maxDepth)
-		radiance += Integrate(hitInfo.point, -ray.direction, hitInfo.normal, material, sampleCount, depth);
+		radiance += Integrate(hitInfo.point, -ray.direction, hitInfo.normal, hitInfo, material, sampleCount, depth);
 	
 	return radiance;
 }
 
-Vector3 MonteCarloIntegrator::Integrate(const Vector3& p, const Vector3& wo, const Vector3& normal, const Material& material, uint32_t samples, int depth)
+Vector3 MonteCarloIntegrator::Integrate(const Vector3& p, const Vector3& wo, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, uint32_t samples, int depth)
 {
 	Vector3 radiance(0.0f, 0.0f, 0.0f);
 
@@ -69,7 +69,7 @@ Vector3 MonteCarloIntegrator::Integrate(const Vector3& p, const Vector3& wo, con
 			float pdf = material.bsdf->specular->CalculatePDF(wo, sampleVector, normal, material);
 
 			if (pdf > 0.0f)
-				specularReflectance = material.bsdf->specular->Sample(wo, sampleVector, normal, material) / pdf;
+				specularReflectance = material.bsdf->specular->Sample(wo, sampleVector, normal, hitInfo, material) / pdf;
 		}
 
 		// Sample diffuse BRDF
@@ -79,7 +79,7 @@ Vector3 MonteCarloIntegrator::Integrate(const Vector3& p, const Vector3& wo, con
 			float pdf = material.bsdf->diffuse->CalculatePDF(wo, sampleVector, normal, material);
 
 			if (pdf > 0.0f)
-				diffuseReflectance = material.bsdf->diffuse->Sample(wo, sampleVector, normal, material) / pdf;
+				diffuseReflectance = material.bsdf->diffuse->Sample(wo, sampleVector, normal, hitInfo, material) / pdf;
 		}
 
 		// Combine in a single reflectance value
@@ -118,7 +118,7 @@ Vector3 MonteCarloIntegrator::Integrate(const Ray& ray, const RaycastHit& hitInf
 		if (pdf < 1e-5f)
 			continue;
 		
-		Vector3 reflectance = bxdf.Sample(-ray.direction, reflectionDirection, hitInfo.normal, material);
+		Vector3 reflectance = bxdf.Sample(-ray.direction, reflectionDirection, hitInfo.normal, hitInfo, material);
 		
 		// Calculate incoming light along this sample vector
 		Ray reflectionRay(hitInfo.point + hitInfo.normal * 1e-3f, reflectionDirection);

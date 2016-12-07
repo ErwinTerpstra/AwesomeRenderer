@@ -61,7 +61,7 @@ Vector3 WhittedIntegrator::SampleReflection(const Ray& ray, const RaycastHit& hi
 	float NoL = Util::Clamp01(VectorUtil<3>::Dot(hitInfo.normal, reflectionDirection));
 	Vector3 lightRadiance = reflectionShading.color.subvector(3);
 
-	return material.bsdf->Sample(-ray.direction, reflectionDirection, hitInfo.normal, material) * lightRadiance * NoL;
+	return material.bsdf->Sample(-ray.direction, reflectionDirection, hitInfo.normal, hitInfo, material) * lightRadiance * NoL;
 }
 
 Vector3 WhittedIntegrator::SampleRefraction(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& context, int depth)

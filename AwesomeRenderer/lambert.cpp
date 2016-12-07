@@ -3,7 +3,10 @@
 
 #include "material.h"
 #include "phongmaterial.h"
+#include "sampler.h"
+
 #include "pbrmaterial.h"
+#include "raycasthit.h"
 
 using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
@@ -13,7 +16,7 @@ Lambert::Lambert()
 
 }
 
-Vector3 Lambert::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const
+Vector3 Lambert::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material) const
 {
 	PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
 
@@ -23,7 +26,14 @@ Vector3 Lambert::Sample(const Vector3& wo, const Vector3& wi, const Vector3& nor
 	PhongMaterial* phongMaterial = material.As<PhongMaterial>();
 
 	if (phongMaterial != NULL)
-		return phongMaterial->diffuseColor.subvector(3) / PI;
+	{
+		Color result = phongMaterial->diffuseColor;
+
+		if (phongMaterial->diffuseMap != NULL)
+			result *= phongMaterial->diffuseMap->Sample(hitInfo.uv);
+
+		return result.subvector(3) / PI;
+	}
 
 	return Vector3(0.0f, 0.0f, 0.0f);
 }

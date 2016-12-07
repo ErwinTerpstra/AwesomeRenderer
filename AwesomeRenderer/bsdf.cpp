@@ -5,6 +5,8 @@
 #include "pbrmaterial.h"
 #include "phongmaterial.h"
 
+#include "raycasthit.h"
+
 using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
 
@@ -18,15 +20,15 @@ BSDF::BSDF(BxDF* diffuse, BxDF* specular) : diffuse(diffuse), specular(specular)
 
 }
 
-Vector3 BSDF::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const
+Vector3 BSDF::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material) const
 {
 	Vector3 diffuseRadiance(0.0f, 0.0f, 0.0f), specularRadiance(0.0f, 0.0f, 0.0f);
 
 	if (diffuse != NULL)
-		diffuseRadiance = diffuse->Sample(wo, wi, normal, material);
+		diffuseRadiance = diffuse->Sample(wo, wi, normal, hitInfo, material);
 	
 	if (specular != NULL)
-		specularRadiance = specular->Sample(wo, wi, normal, material);
+		specularRadiance = specular->Sample(wo, wi, normal, hitInfo, material);
 
 	return SpecularTradeoff(diffuseRadiance, specularRadiance, normal, cml::normalize(wo + wi), material);
 }

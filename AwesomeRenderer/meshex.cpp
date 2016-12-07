@@ -16,14 +16,7 @@ MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(10, 20), worldMtx(), world2ob
 		int vIdx0 = mesh.indices[cIndex], vIdx1 = mesh.indices[cIndex + 1], vIdx2 = mesh.indices[cIndex + 2];
 
 		// Create triangle object based on the vertex data
-		Triangle3D* triangle;
-		
-		if (mesh.HasAttribute(Mesh::VERTEX_NORMAL))
-			triangle = new Triangle3D(mesh.vertices[vIdx0], mesh.vertices[vIdx1], mesh.vertices[vIdx2],
-									  mesh.normals[vIdx0], mesh.normals[vIdx1], mesh.normals[vIdx2]);
-		else
-			triangle = new Triangle3D(mesh.vertices[vIdx0], mesh.vertices[vIdx1], mesh.vertices[vIdx2]);
-
+		Triangle3D* triangle = new Triangle3D(*this, vIdx0, vIdx1, vIdx2);
 		triangles.push_back(triangle);
 	}
 
@@ -38,14 +31,6 @@ MeshEx::~MeshEx()
 	triangles.clear();
 }
 
-Triangle3D& MeshEx::AddTri(const Vector3& a, const Vector3& b, const Vector3& c)
-{
-	Triangle3D* triangle = new Triangle3D(a, b, c);
-	triangles.push_back(triangle);
-
-	return *triangle;
-}
-
 void MeshEx::OptimizeTree()
 {
 	// Optimize the tree with the local bounds, since it works with triangles in local coordinates
@@ -57,8 +42,8 @@ void MeshEx::OptimizeTree()
 
 	tree.Optimize(localBounds);
 
-	printf("[MeshEx]: Mesh tree optimized, analyzing...\n");
-	tree.Analyze();
+	//printf("[MeshEx]: Mesh tree optimized, analyzing...\n");
+	//tree.Analyze();
 }
 
 void MeshEx::Transform(const Matrix44& mtx)

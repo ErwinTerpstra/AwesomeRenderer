@@ -56,7 +56,7 @@ Vector3 SurfaceIntegrator::SampleDirectLight(const Ray& ray, const RaycastHit& h
 					intensity = 0;
 			}
 
-			intensity /= (distanceToLight * distanceToLight);
+			//intensity /= (distanceToLight * distanceToLight);
 		}
 		else
 		{
@@ -73,7 +73,7 @@ Vector3 SurfaceIntegrator::SampleDirectLight(const Ray& ray, const RaycastHit& h
 		float NoL = std::max(VectorUtil<3>::Dot(normal, toLight), 0.0f);
 		Vector3 lightRadiance = light.color.subvector(3) * intensity;
 		
-		radiance += material.bsdf->Sample(viewVector, toLight, normal, material) * lightRadiance * NoL;
+		radiance += material.bsdf->Sample(viewVector, toLight, normal, hitInfo, material) * lightRadiance * NoL;
 	}
 	
 	return radiance;
