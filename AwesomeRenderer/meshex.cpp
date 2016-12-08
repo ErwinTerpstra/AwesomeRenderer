@@ -60,8 +60,11 @@ bool MeshEx::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance
 	// Transform ray to object space to use for intersection
 	Ray objectSpaceRay(cml::transform_point(world2object, ray.origin), cml::transform_vector(world2object, ray.direction));
 
+	// Transform maxDistance to object space
+	Vector3 scale = cml::transform_vector(world2object, Vector3(1.0f, 1.0f, 1.0f));
+	maxDistance *= std::max(scale[0], std::max(scale[1], scale[2]));
+
 	// Perform intersection on the KD-tree
-	// TODO: maxDistance should be scaled to object space, right?
 	if (tree.IntersectRay(objectSpaceRay, hitInfo, maxDistance))
 	{
 		hitInfo.point = cml::transform_point(worldMtx, hitInfo.point);

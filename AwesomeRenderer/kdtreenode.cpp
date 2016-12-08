@@ -258,6 +258,9 @@ bool KDTreeNode::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDist
 			if (!shape.IntersectRay(ray, shapeHitInfo, closestDistance))
 				continue;
 
+			if (shapeHitInfo.distance > closestDistance)
+				continue;
+
 			closestDistance = shapeHitInfo.distance;
 
 			hitInfo = shapeHitInfo;
@@ -293,7 +296,7 @@ bool KDTreeNode::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDist
 		{
 			if (tSplit > 0)
 			{
-				if (nearNode->IntersectRay(ray, hitInfo, maxDistance, tMin, tMax))
+				if (nearNode->IntersectRay(ray, hitInfo, std::min(maxDistance, tSplit), tMin, tMax))
 				{
 					// We should only return this intersection if the intersection point is inside the node...
 					if (hitInfo.distance <= tSplit)
