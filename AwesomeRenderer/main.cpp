@@ -64,6 +64,8 @@
 
 #include "renderable.h"
 
+#include "kdtreenode.h"
+
 // Renderer
 #include "lightdata.h"
 #include "skybox.h"

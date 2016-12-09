@@ -26,6 +26,8 @@ namespace AwesomeRenderer
 
 		uint32_t maxElementsPerLeaf;
 		uint32_t maxDepth;
+
+		std::vector<const TreeElement*> temporaryElementList;
 	public:
 		KDTree(uint32_t maxElementsPerLeaf, uint32_t maxDepth);
 		~KDTree();
@@ -35,6 +37,22 @@ namespace AwesomeRenderer
 
 		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance = FLT_MAX) const;
 
+	private:
+		void Optimize(KDTreeNode* node, const AABB& bounds, int depth = 0);
+
+		bool IntersectRay(KDTreeNode* node, const Ray& ray, RaycastHit& hitInfo, float maxDistance, float tMin, float tMax) const;
+
+		bool SplitSAH(KDTreeNode* node, const AABB& bounds);
+		void SplitMode(KDTreeNode* node, const AABB& bounds);
+		bool SplitFast(KDTreeNode* node, const AABB& bounds);
+
+		void CalculateBounds(const AABB& bounds, int axis, float splitPoint, AABB& upper, AABB& lower);
+
+		template<typename T>
+		T* Allocate(uint32_t count = 1);
+
+		template<typename T>
+		void Free(T* block);
 	};
 }
 

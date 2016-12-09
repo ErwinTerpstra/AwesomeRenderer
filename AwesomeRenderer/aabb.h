@@ -35,13 +35,14 @@ namespace AwesomeRenderer
 		int SideOfPlane(const Plane& plane) const;
 
 		void CalculateBounds(AABB& bounds) const { bounds.Initialize(minTransformed, maxTransformed); }
+		float CalculateSurfaceArea() const;
 
-		float Width() const { return maxTransformed[0] - minTransformed[0]; }
-		float Height() const { return maxTransformed[1] - minTransformed[1]; }
-		float Depth() const { return maxTransformed[2] - minTransformed[2]; }
+		AR_INLINE float Width() const { return maxTransformed[0] - minTransformed[0]; }
+		AR_INLINE float Height() const { return maxTransformed[1] - minTransformed[1]; }
+		AR_INLINE float Depth() const { return maxTransformed[2] - minTransformed[2]; }
 
-		const Vector3& Min() const { return minTransformed; }
-		const Vector3& Max() const { return maxTransformed; }
+		AR_INLINE const Vector3& Min() const { return minTransformed; }
+		AR_INLINE const Vector3& Max() const { return maxTransformed; }
 
 	private:
 		static void GetCorners(Vector3* corners, const Vector3& min, const Vector3& max);

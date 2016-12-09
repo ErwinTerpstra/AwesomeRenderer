@@ -24,6 +24,7 @@ namespace AwesomeRenderer
 		virtual ~Primitive() { }
 
 		virtual int SideOfPlane(const Plane& plane) const = 0;
+		virtual int SideOfAAPlane(int axis, float position) const;
 
 		virtual void CalculateBounds(AABB& bounds) const = 0;
 

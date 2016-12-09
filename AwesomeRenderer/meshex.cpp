@@ -9,7 +9,6 @@ using namespace AwesomeRenderer;
 
 MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(10, 20), worldMtx(), world2object()
 {
-
 	for (unsigned int cIndex = 0; cIndex < mesh.indices.size(); cIndex += 3)
 	{
 		// Retrieve vertex indices for this triangle
@@ -20,7 +19,8 @@ MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(10, 20), worldMtx(), world2ob
 		triangles.push_back(triangle);
 	}
 
-	tree.rootNode->elements.insert(tree.rootNode->elements.end(), triangles.begin(), triangles.end());
+	KDTreeNode::ElementList& elements = tree.rootNode->GetElements();
+	elements.insert(elements.end(), triangles.begin(), triangles.end());
 }
 
 MeshEx::~MeshEx()
@@ -42,8 +42,8 @@ void MeshEx::OptimizeTree()
 
 	tree.Optimize(localBounds);
 
-	//printf("[MeshEx]: Mesh tree optimized, analyzing...\n");
-	//tree.Analyze();
+	printf("[MeshEx]: Mesh tree optimized, analyzing...\n");
+	tree.Analyze();
 }
 
 void MeshEx::Transform(const Matrix44& mtx)
@@ -67,12 +67,36 @@ bool MeshEx::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance
 	// Perform intersection on the KD-tree
 	if (tree.IntersectRay(objectSpaceRay, hitInfo, maxDistance))
 	{
+		// Interpolate vertex attributes of the hit triangle
+		const Triangle3D* tri = dynamic_cast<const Triangle3D*>(hitInfo.element);
+
+		if (provider.HasAttribute(Mesh::VERTEX_NORMAL))
+		{
+			VectorUtil<3>::Interpolate(
+				provider.normals[tri->vIdx[0]],
+				provider.normals[tri->vIdx[1]],
+				provider.normals[tri->vIdx[2]],
+				hitInfo.barycentricCoords, hitInfo.normal);
+		}
+		else
+			hitInfo.normal = tri->normal;
+
+		if (provider.HasAttribute(Mesh::VERTEX_TEXCOORD))
+		{
+			VectorUtil<2>::Interpolate(
+				provider.texcoords[tri->vIdx[0]],
+				provider.texcoords[tri->vIdx[1]],
+				provider.texcoords[tri->vIdx[2]],
+				hitInfo.barycentricCoords, hitInfo.uv);
+		}
+
 		hitInfo.point = cml::transform_point(worldMtx, hitInfo.point);
 		hitInfo.normal = cml::transform_vector(worldMtx, hitInfo.normal);
 		hitInfo.normal.normalize();
 
 		// TODO: transform provided distance back to world space instead of recalculating?
 		hitInfo.distance = (hitInfo.point - ray.origin).length();
+
 
 		return true;
 	}

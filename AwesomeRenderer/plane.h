@@ -28,11 +28,10 @@ namespace AwesomeRenderer
 
 		void CalculateBounds(AABB& bounds) const { assert(false && "Can't calculate bounds for an infinite plane!"); }
 
-		__inline Vector3 PointOnPlane() const { return dTransformed * normalTransformed; }
-		__inline float Distance(const Vector3& point) const 
+		AR_FORCE_INLINE Vector3 PointOnPlane() const { return dTransformed * normalTransformed; }
+		AR_FORCE_INLINE float Distance(const Vector3& point) const 
 		{
-			Vector3 delta = point - PointOnPlane();
-			return VectorUtil<3>::Dot(normalTransformed, delta);
+			return VectorUtil<3>::Dot(normalTransformed, point - PointOnPlane());
 		}
 
 	};

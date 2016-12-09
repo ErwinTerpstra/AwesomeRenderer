@@ -11,7 +11,12 @@
 using namespace AwesomeRenderer;
 
 Triangle3D::Triangle3D(const MeshEx& mesh, uint32_t vIdx0, uint32_t vIdx1, uint32_t vIdx2) :
-	Triangle(mesh.provider.vertices[vIdx0], mesh.provider.vertices[vIdx1], mesh.provider.vertices[vIdx2]), Primitive(), mesh(mesh)
+	Triangle3D(mesh.provider.vertices[vIdx0], mesh.provider.vertices[vIdx1], mesh.provider.vertices[vIdx2], vIdx0, vIdx1, vIdx2)
+{
+}
+
+Triangle3D::Triangle3D(const Vector3& v0, const Vector3& v1, const Vector3& v2, uint32_t vIdx0, uint32_t vIdx1, uint32_t vIdx2) :
+	Triangle(v0, v1, v2), Primitive()
 {
 	vIdx[0] = vIdx0;
 	vIdx[1] = vIdx1;
@@ -21,11 +26,10 @@ Triangle3D::Triangle3D(const MeshEx& mesh, uint32_t vIdx0, uint32_t vIdx1, uint3
 	PreCalculateBarycentric();
 }
 
-
 Triangle3D::Triangle3D(const Triangle3D& other) :
-	Triangle3D(other.mesh, other.vIdx[0], other.vIdx[1], other.vIdx[2])
+	Triangle3D(other.v[0], other.v[1], other.v[2], other.vIdx[0], other.vIdx[1], other.vIdx[2])
 {
-	
+
 }
 
 const Vector3& Triangle3D::CalculateNormal()
@@ -100,26 +104,6 @@ bool Triangle3D::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDist
 	hitInfo.point = pointOnPlane;
 	hitInfo.distance = t;
 	hitInfo.barycentricCoords.set(1.0f - u - v, u, v);
-
-	if (mesh.provider.HasAttribute(Mesh::VERTEX_NORMAL))
-	{
-		VectorUtil<3>::Interpolate(
-			mesh.provider.normals[vIdx[0]],
-			mesh.provider.normals[vIdx[1]],
-			mesh.provider.normals[vIdx[2]],
-			hitInfo.barycentricCoords, hitInfo.normal);
-	}
-	else
-		hitInfo.normal = normal;
-
-	if (mesh.provider.HasAttribute(Mesh::VERTEX_TEXCOORD))
-	{
-		VectorUtil<2>::Interpolate(
-			mesh.provider.texcoords[vIdx[0]],
-			mesh.provider.texcoords[vIdx[1]],
-			mesh.provider.texcoords[vIdx[2]],
-			hitInfo.barycentricCoords, hitInfo.uv);
-	}		
 		
 	return true;
 }
@@ -129,6 +113,17 @@ int Triangle3D::SideOfPlane(const Plane& plane) const
 	int a = plane.SideOfPlane(v[0]);
 	int b = plane.SideOfPlane(v[1]);
 	int c = plane.SideOfPlane(v[2]);
+
+	// If all vertices are on the same side, return that side
+	// Otherwise the triangle intersects the plane
+	return (a == b && a == c) ? a : 0;
+}
+
+int Triangle3D::SideOfAAPlane(int axis, float position) const
+{
+	int a = Util::Sign(v[0][axis] - position);
+	int b = Util::Sign(v[1][axis] - position);
+	int c = Util::Sign(v[2][axis] - position);
 
 	// If all vertices are on the same side, return that side
 	// Otherwise the triangle intersects the plane

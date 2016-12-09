@@ -45,7 +45,7 @@ bool Plane::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance)
 
 int Plane::SideOfPlane(const Vector3& point) const
 {
-	return (int) cml::sign(VectorUtil<3>::Dot(point - PointOnPlane(), normal));
+	return (int) Util::Sign(VectorUtil<3>::Dot(point - PointOnPlane(), normal));
 }
 
 int Plane::SideOfPlane(const Plane& plane) const

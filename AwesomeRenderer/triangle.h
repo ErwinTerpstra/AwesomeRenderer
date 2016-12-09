@@ -3,12 +3,12 @@
 
 namespace AwesomeRenderer
 {
-
 	template <typename VectorType>
 	class Triangle
 	{
 	
-	protected:
+	public:
+		
 		// The three positions making this triangle
 		VectorType v[3];
 
