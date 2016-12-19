@@ -18,7 +18,7 @@
 using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
 
-MonteCarloIntegrator::MonteCarloIntegrator(RayTracer& rayTracer) : SurfaceIntegrator(rayTracer), sampleCount(16), random(Random::instance)
+MonteCarloIntegrator::MonteCarloIntegrator(RayTracer& rayTracer) : SurfaceIntegrator(rayTracer), sampleCount(1), random(Random::instance)
 {
 
 }

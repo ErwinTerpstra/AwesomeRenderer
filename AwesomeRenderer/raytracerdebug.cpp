@@ -106,6 +106,8 @@ void RayTracerDebug::Update(float dt)
 	{
 		currentIntegrator = (currentIntegrator + 1) % INTEGRATOR_COUNT;
 		rayTracer.currentIntegrator = integrators[currentIntegrator];
+
+		rayTracer.ResetFrame();
 	}
 
 	bool plus = inputManager.GetKeyDown(VK_OEM_PLUS);
@@ -117,11 +119,11 @@ void RayTracerDebug::Update(float dt)
 		if (shift)
 		{
 			if (plus)
-				rayTracer.monteCarloIntegrator.sampleCount <<= 1;
-			else if (rayTracer.monteCarloIntegrator.sampleCount > 1)
-				rayTracer.monteCarloIntegrator.sampleCount >>= 1;
+				rayTracer.samplesPerPixel <<= 1;
+			else if (rayTracer.samplesPerPixel > 1)
+				rayTracer.samplesPerPixel >>= 1;
 
-			printf("[AwesomeRenderer]: Settings raytracer sample count to %d\n", rayTracer.monteCarloIntegrator.sampleCount);
+			printf("[AwesomeRenderer]: Settings raytracer sample count to %d\n", rayTracer.samplesPerPixel);
 		}
 		else
 		{
@@ -222,7 +224,7 @@ void RayTracerDebug::UpdateDebugDisplay()
 
 	sprintf(textBuffer,
 		"Bounces: %u; SPP: %u;\nEst. time left: %s\nProgress: %.0f%%\nExport: %s",
-		rayTracer.maxDepth, rayTracer.monteCarloIntegrator.sampleCount, 
+		rayTracer.maxDepth, rayTracer.samplesPerPixel,
 		timeLeft.c_str(),
 		progress * 100,
 		exportMode == CONTINUOUS ? "continuous" : (exportMode == ONCE ? "once" : "disabled")
@@ -269,7 +271,7 @@ void RayTracerDebug::Export()
 
 	fprintf(filePtr, "Resolution: %ux%u\n", frameBuffer.width, frameBuffer.height);
 	fprintf(filePtr, "Render time: %s\n", frameTime.c_str());
-	fprintf(filePtr, "Bounces: %u; SPP: %u\n", rayTracer.maxDepth, rayTracer.monteCarloIntegrator.sampleCount);
+	fprintf(filePtr, "Bounces: %u; SPP: %u\n", rayTracer.maxDepth, rayTracer.samplesPerPixel);
 
 	fclose(filePtr);
 }

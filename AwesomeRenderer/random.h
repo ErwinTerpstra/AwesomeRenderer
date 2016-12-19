@@ -18,7 +18,7 @@ namespace AwesomeRenderer
 
 		}
 
-		float NextFloat() { return rand() / (float)RAND_MAX; }
+		float NextFloat() { return ((uint32_t)rand()) / (float)RAND_MAX; }
 	};
 
 }

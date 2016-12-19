@@ -25,6 +25,8 @@ namespace AwesomeRenderer
 	class Scheduler;
 	class JobGroup;
 
+	class Random;
+
 	namespace RayTracing
 	{
 		class RenderJob;
@@ -54,7 +56,12 @@ namespace AwesomeRenderer
 			SurfaceIntegrator* currentIntegrator;
 
 			uint32_t maxDepth;
+			uint32_t samplesPerPixel;
+			uint32_t renderedSamples;
+
 			Point2 debugPixel;
+
+			Random& random;
 
 		public:
 

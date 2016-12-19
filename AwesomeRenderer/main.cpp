@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
-#define SCREEN_WIDTH 480
-#define SCREEN_HEIGHT 320
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
 
 #include <stdio.h>
 #include <io.h>
@@ -235,10 +235,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Setup setup(context);
 	setup.SetupLighting();
 	setup.SetupScene();
-	//setup.SetupCornellBox();
+	setup.SetupCornellBox();
 	//setup.SetupSpheres();
 	//setup.SetupFractal();
-	setup.SetupSponza();
+	//setup.SetupSponza();
 	
 	// Camera controller
 	CameraController cameraController(camera);

@@ -28,6 +28,9 @@ void RenderJob::Run()
 	{
 		Point2 pixel(x + (pixelIdx % width), y + (pixelIdx / width));
 
+		rayTracer.Render(pixel);
+
+		/*
 		rayTracer.BreakOnDebugPixel(pixel);
 
 		// Create a ray from the camera near plane through this pixel
@@ -39,6 +42,7 @@ void RenderJob::Run()
 
 		// Write to color buffer
 		frameBuffer->SetPixel(pixel[0], pixel[1], shadingInfo.color);
+		*/
 
 		++pixelIdx;
 	}

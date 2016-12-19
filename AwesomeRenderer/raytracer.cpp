@@ -31,8 +31,8 @@ const float RayTracer::MAX_FRAME_TIME = 0.05f;
 const uint32_t RayTracer::TILE_SIZE = 16;
 
 RayTracer::RayTracer(Scheduler& scheduler) : Renderer(), 
-	debugIntegrator(*this), whittedIntegrator(*this), monteCarloIntegrator(*this), renderingFrame(false), 
-	maxDepth(0), frameTimer(0.0f, FLT_MAX), debugPixel(-1, -1)
+	debugIntegrator(*this), whittedIntegrator(*this), monteCarloIntegrator(*this), renderingFrame(false), random(Random::instance),
+	maxDepth(0), samplesPerPixel(16), renderedSamples(0), frameTimer(0.0f, FLT_MAX), debugPixel(-1, -1)
 {
 	currentIntegrator = &debugIntegrator;
 	
@@ -100,8 +100,9 @@ void RayTracer::PostRender()
 		(*it)->Reset();
 
 	renderingFrame = false;
+	renderedSamples += samplesPerPixel;
 
-	printf("[RayTracer]: Rendered frame in %.0fms.\n", time * 1000);
+	printf("[RayTracer]: Rendered frame in %.0fms, total samples rendered: %u.\n", time * 1000, renderedSamples);
 }
 
 void RayTracer::Render()
@@ -152,6 +153,7 @@ void RayTracer::ResetFrame(bool startNewFrame)
 {
 	PostRender();
 
+	renderedSamples = 0;
 	renderContext->renderTarget->Clear(Color::BLACK, renderContext->clearFlags);
 
 	if (startNewFrame)
@@ -174,15 +176,31 @@ void RayTracer::Render(const Point2& pixel)
 
 	Texture* frameBuffer = renderContext->renderTarget->frameBuffer;
 
-	// Create a ray from the camera near plane through this pixel
-	Ray primaryRay;
-	renderContext->camera->ViewportToRay(pixel, primaryRay);
+	Color color;
+	frameBuffer->GetPixel(pixel[0], pixel[1], color);
 
-	ShadingInfo shadingInfo;
-	CalculateShading(primaryRay, shadingInfo);
+	color = (color / (renderedSamples + samplesPerPixel)) * renderedSamples;
+	
+	for (uint32_t sample = 0; sample < samplesPerPixel; ++sample)
+	{
+		Vector2 subPixel = pixel;
+		subPixel[0] += -0.5f + random.NextFloat();
+		subPixel[1] += -0.5f + random.NextFloat();
+
+		// Create a ray from the camera near plane through this pixel
+		Ray primaryRay;
+		renderContext->camera->ViewportToRay(pixel, primaryRay);
+
+		ShadingInfo shadingInfo;
+		CalculateShading(primaryRay, shadingInfo);
+
+		shadingInfo.color /= (renderedSamples + samplesPerPixel);
+
+		color += shadingInfo.color;
+	}
 
 	// Write to color buffer
-	frameBuffer->SetPixel(pixel[0], pixel[1], shadingInfo.color);
+	frameBuffer->SetPixel(pixel[0], pixel[1], color);
 }
 
 void RayTracer::BreakOnDebugPixel(const Point2& pixel)

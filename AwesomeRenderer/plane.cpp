@@ -52,5 +52,5 @@ int Plane::SideOfPlane(const Plane& plane) const
 {
 	// If the planes are perpendicular compare their distances from the origin
 	// Otherwise they always intersect
-	return (int) std::fabs(VectorUtil<3>::Dot(normalTransformed, plane.normalTransformed)) >= 1.0 - FLT_EPSILON ? cml::sign(plane.d - d) : 0;
+	return (int) std::fabs(VectorUtil<3>::Dot(normalTransformed, plane.normalTransformed)) >= 1.0 - 1e-3f ? cml::sign(plane.d - d) : 0;
 }
