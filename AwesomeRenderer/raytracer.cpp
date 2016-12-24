@@ -32,7 +32,7 @@ const uint32_t RayTracer::TILE_SIZE = 16;
 
 RayTracer::RayTracer(Scheduler& scheduler) : Renderer(), 
 	debugIntegrator(*this), whittedIntegrator(*this), monteCarloIntegrator(*this), renderingFrame(false), random(Random::instance),
-	maxDepth(0), samplesPerPixel(16), renderedSamples(0), frameTimer(0.0f, FLT_MAX), debugPixel(-1, -1)
+	maxDepth(0), samplesPerPixel(1), renderedSamples(0), frameTimer(0.0f, FLT_MAX), debugPixel(-1, -1)
 {
 	currentIntegrator = &debugIntegrator;
 	

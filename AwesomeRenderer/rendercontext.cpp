@@ -34,7 +34,7 @@ void RenderContext::Optimize()
 
 		if (renderable != NULL)
 		{
-			/*
+			//*
 			AABB bounds;
 			renderable->GetPrimitive().CalculateBounds(bounds);
 
@@ -47,16 +47,16 @@ void RenderContext::Optimize()
 			max[0] = std::max(max[0], boundsMax[0]);
 			max[1] = std::max(max[1], boundsMax[1]);
 			max[2] = std::max(max[2], boundsMax[2]);
-			*/
+			//*/
 
 			elements.push_back(renderable);
 		}
 	}
 	
-	/**/
+	/*
 	min = Vector3(-5.0f, -5.0f, -5.0f);
 	max = Vector3( 5.0f,  5.0f,  5.0f);
-	/**/
+	//*/
 
 	Vector3 epsilon(0.1f, 0.1f, 0.1f);
 	min -= epsilon;

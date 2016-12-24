@@ -587,15 +587,6 @@ void Setup::SetupSponza()
 	context.objLoader->Load("../Assets/CrytekSponza/sponza.obj", *model);
 	//objLoader.Load("../Assets/Castle01/castle.obj", *model);
 
-
-	PbrMaterial* material = new PbrMaterial(*(new Material()));
-	material->albedo = Color::WHITE * 0.5f;
-	material->specular = Color::WHITE * 0.2f;
-	material->metallic = 0.0f;
-	material->roughness = 0.8f;
-	material->provider.ior = 1.0f;
-	material->provider.translucent = false;
-
 	ModelEx* modelEx = new ModelEx(*model);
 	for (uint32_t meshIdx = 0; meshIdx < modelEx->meshes.size(); ++meshIdx)
 	{
@@ -605,7 +596,7 @@ void Setup::SetupSponza()
 
 		Renderable* renderable = new Renderable();
 		renderable->shape = modelEx->meshes[meshIdx];
-		renderable->material = &material->provider;
+		renderable->material = model->materials[meshIdx];
 
 		meshNode->AddComponent(renderable);
 

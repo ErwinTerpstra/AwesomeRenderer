@@ -75,19 +75,6 @@ void KDTree::Analyze() const
 		leaves, emptyLeaves, crampedLeaves, (leafFillPercentage * 100));
 }
 
-
-bool KDTree::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance) const
-{
-	float tMax, tMin;
-	if (!bounds.IntersectRay(ray, tMin, tMax))
-		return false;
-
-	if (tMin > maxDistance)
-		return false;
-
-	return IntersectRay(rootNode, ray, hitInfo, maxDistance, tMin, tMax);
-}
-
 void KDTree::Optimize(KDTreeNode* node, const AABB& bounds, int depth)
 {
 	assert(node->IsLeaf());
@@ -200,7 +187,7 @@ bool KDTree::SplitSAH(KDTreeNode* node, const AABB& bounds)
 		int upperObjectCount = 0;
 		int lowerObjectCount = elements.size() - elementCount; // Start with the number of objects we already know that are lower than this
 
-															   // Iterate through all objects to count how many objects fall on each side of the split plane
+		// Iterate through all objects to count how many objects fall on each side of the split plane
 		for (uint32_t elementIdx = 0; elementIdx < elementCount; )
 		{
 			const Primitive& primitive = elementsAbove[elementIdx]->GetPrimitive();
@@ -343,12 +330,25 @@ void KDTree::CalculateBounds(const AABB& bounds, int axis, float splitPoint, AAB
 	upper.Initialize(minSplit, max);
 }
 
-bool KDTree::IntersectRay(KDTreeNode* node, const Ray& ray, RaycastHit& hitInfo, float maxDistance, float tMin, float tMax) const
+bool KDTree::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance) const
+{
+	float tMax, tMin;
+	if (!bounds.IntersectRay(ray, tMin, tMax))
+		return false;
+
+	if (tMin > maxDistance)
+		return false;
+
+	//return IntersectRayRec(rootNode, ray, hitInfo, std::max(0.0f, tMin), std::min(maxDistance, tMax));
+	return IntersectRaySec(ray, hitInfo, std::max(0.0f, tMin), std::min(maxDistance, tMax));
+}
+
+bool KDTree::IntersectRayRec(KDTreeNode* node, const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const
 {
 	// The current node is a leaf node, this means we can check its contents
 	if (node->IsLeaf())
 	{
-		float closestDistance = maxDistance;
+		float closestDistance = tMax;
 		bool hit = false;
 
 		KDTreeNode::ElementList& elements = node->GetElements();
@@ -393,39 +393,112 @@ bool KDTree::IntersectRay(KDTreeNode* node, const Ray& ray, RaycastHit& hitInfo,
 		float tSplit = (splitPoint - ray.origin[axis]) * ray.invDirection[axis];
 
 		if (tSplit > tMax)
-			return IntersectRay(nearNode, ray, hitInfo, maxDistance, tMin, tMax);
+			return IntersectRayRec(nearNode, ray, hitInfo, tMin, tMax);
 
 		if (tSplit >= tMin)
 		{
 			if (tSplit > 0)
 			{
-				if (IntersectRay(nearNode, ray, hitInfo, std::min(maxDistance, tSplit), tMin, tMax))
-				{
-					// We should only return this intersection if the intersection point is inside the node...
-					if (hitInfo.distance <= tSplit)
-						return true;
-				}
+				// We should only return this intersection if the intersection point is inside the node...
+				if (IntersectRayRec(nearNode, ray, hitInfo, tMin, tSplit))
+					return true;
 
-				return IntersectRay(farNode, ray, hitInfo, maxDistance, tMin, tMax);
+				return IntersectRayRec(farNode, ray, hitInfo, tSplit, tMax);
 			}
 
-			return IntersectRay(nearNode, ray, hitInfo, maxDistance, tMin, tMax);
+			return IntersectRayRec(nearNode, ray, hitInfo, tSplit, tMax);
 		}
-		else
+		else // tSplit < tMin
 		{
 			if (tSplit > 0)
-				return IntersectRay(farNode, ray, hitInfo, maxDistance, tMin, tMax);
+				return IntersectRayRec(farNode, ray, hitInfo, tMin, tMax);
 
 			if (tSplit < 0)
-				return IntersectRay(nearNode, ray, hitInfo, maxDistance, tMin, tMax);
+				return IntersectRayRec(nearNode, ray, hitInfo, tMin, tMax);
 
 			if (ray.direction[axis] < 0)
-				return IntersectRay(farNode, ray, hitInfo, maxDistance, tMin, tMax);
+				return IntersectRayRec(farNode, ray, hitInfo, tMin, tMax);
 
-			return IntersectRay(nearNode, ray, hitInfo, maxDistance, tMin, tMax);
+			return IntersectRayRec(nearNode, ray, hitInfo, tMin, tMax);
 		}
 	}
 
+}
+
+bool KDTree::IntersectRaySec(const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const
+{
+	TraversalStack stack;
+	stack.Push(rootNode, tMin, tMax);
+
+	while (!stack.IsEmpty())
+	{
+		const StackNode& stackNode = stack.Pop();
+		const KDTreeNode* node = stackNode.node;
+
+		tMin = stackNode.tMin;
+		tMax = stackNode.tMax;
+
+		while (!node->IsLeaf())
+		{
+			int axis = node->GetAxis();
+			float splitPoint = node->GetSplitPoint();
+			
+			KDTreeNode* nearNode;
+			KDTreeNode* farNode;
+
+			if (ray.origin[axis] < splitPoint)
+			{
+				nearNode = node->GetLowerNode();
+				farNode = node->GetUpperNode();
+			}
+			else
+			{
+				nearNode = node->GetUpperNode();
+				farNode = node->GetLowerNode();
+			}
+
+			float tSplit = (splitPoint - ray.origin[axis]) * ray.invDirection[axis];
+
+			if (tSplit >= tMax || tSplit < 0)
+				node = nearNode;
+			else if (tSplit <= tMin)
+				node = farNode;
+			else
+			{
+				stack.Push(farNode, tSplit, tMax);
+
+				node = nearNode;
+				tMax = tSplit;
+			}
+		}
+
+		// The current node is a leaf node, this means we can check its contents
+		float closestDistance = tMax;
+		bool hit = false;
+
+		KDTreeNode::ElementList& elements = node->GetElements();
+		for (uint32_t elementIdx = 0, elementCount = elements.size(); elementIdx < elementCount; ++elementIdx)
+		{
+			const Shape& shape = elements[elementIdx]->GetShape();
+
+			// Perform the ray-triangle intersection
+			RaycastHit shapeHitInfo;
+			if (!shape.IntersectRay(ray, shapeHitInfo, closestDistance))
+				continue;
+
+			closestDistance = shapeHitInfo.distance;
+
+			hitInfo = shapeHitInfo;
+			hitInfo.element = elements[elementIdx];
+
+			hit = true;
+		}
+
+		if (hit)
+			return true;
+	}
+
+	return false;
 }
 
 
