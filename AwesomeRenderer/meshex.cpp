@@ -7,7 +7,7 @@
 
 using namespace AwesomeRenderer;
 
-MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(10, 20), worldMtx(), world2object()
+MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(20), worldMtx(), world2object()
 {
 	for (unsigned int cIndex = 0; cIndex < mesh.indices.size(); cIndex += 3)
 	{

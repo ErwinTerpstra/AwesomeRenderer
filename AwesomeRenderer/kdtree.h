@@ -17,12 +17,22 @@ namespace AwesomeRenderer
 		static const float TRAVERSAL_COST;
 		static const float INTERSECTION_COST;
 		static const float POSITION_EPSILON;
-		static const float PREVENT_SPLIT_MAX_OVERFLOW;
-		static const float PREVENT_SPLIT_OVERLAPPING_ELEMENTS;
 
 		KDTreeNode* rootNode;
 
 	private:
+		struct SplitPosition
+		{
+			enum Event
+			{
+				PRIMITIVE_START,
+				PRIMITIVE_END
+			};
+
+			float position;
+			Event event;
+		};
+
 		struct StackNode
 		{
 			KDTreeNode* node;
@@ -67,13 +77,10 @@ namespace AwesomeRenderer
 		};
 
 		AABB bounds;
-
-		uint32_t maxElementsPerLeaf;
 		uint32_t maxDepth;
-
-		std::vector<const TreeElement*> temporaryElementList;
+	
 	public:
-		KDTree(uint32_t maxElementsPerLeaf, uint32_t maxDepth);
+		KDTree(uint32_t maxDepth);
 		~KDTree();
 
 		void Optimize(const AABB& bounds);
@@ -88,6 +95,8 @@ namespace AwesomeRenderer
 		bool IntersectRaySec(const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const;
 
 		bool SplitSAH(KDTreeNode* node, const AABB& bounds);
+		void SplitSAH(KDTreeNode* node, int axis, const AABB& bounds, float& bestSplitPosition, float& lowestCost);
+
 		void SplitMode(KDTreeNode* node, const AABB& bounds);
 		bool SplitFast(KDTreeNode* node, const AABB& bounds);
 
@@ -98,6 +107,11 @@ namespace AwesomeRenderer
 
 		template<typename T>
 		void Free(T* block);
+
+		static bool SortSplitPosition(const SplitPosition& a, const SplitPosition& b)
+		{
+			return a.position < b.position;
+		}
 	};
 }
 

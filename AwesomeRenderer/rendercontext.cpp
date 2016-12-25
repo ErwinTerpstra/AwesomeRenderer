@@ -15,7 +15,7 @@ using namespace AwesomeRenderer;
 
 RenderContext::RenderContext() : 
 	camera(NULL), renderTarget(NULL), lightData(NULL), skybox(NULL), 
-	clearFlags(RenderTarget::BUFFER_ALL), tree(15, 10)
+	clearFlags(RenderTarget::BUFFER_ALL), tree(20)
 {
 
 }
