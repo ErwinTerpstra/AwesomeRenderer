@@ -100,6 +100,7 @@
     <ClCompile Include="pbrmaterial.cpp" />
     <ClCompile Include="phongmaterial.cpp" />
     <ClCompile Include="program_gl.cpp" />
+    <ClCompile Include="quad.cpp" />
     <ClCompile Include="raytracerdebug.cpp" />
     <ClCompile Include="renderable.cpp" />
     <ClCompile Include="renderjob.cpp" />
@@ -114,6 +115,7 @@
     </ClCompile>
     <ClCompile Include="surfaceintegrator.cpp" />
     <ClCompile Include="textmesh.cpp" />
+    <ClCompile Include="triangle3d.cpp" />
     <ClCompile Include="typedefs.cpp" />
     <ClCompile Include="unlitshader.cpp" />
     <ClCompile Include="random.cpp" />
@@ -154,7 +156,7 @@
     <ClCompile Include="threading.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="transformation.cpp" />
-    <ClCompile Include="triangle3d.cpp" />
+    <ClCompile Include="meshtriangle.cpp" />
     <ClCompile Include="triangle2d.cpp" />
     <ClCompile Include="window.cpp" />
     <ClCompile Include="jobgroup.cpp" />
@@ -184,6 +186,8 @@
     <ClInclude Include="blinnphong.h" />
     <ClInclude Include="phongmaterial.h" />
     <ClInclude Include="program_gl.h" />
+    <ClInclude Include="quad.h" />
+    <ClInclude Include="quaternionutil.h" />
     <ClInclude Include="random.h" />
     <ClInclude Include="raytracerdebug.h" />
     <ClInclude Include="renderable.h" />
@@ -239,13 +243,15 @@
     <ClInclude Include="transformation.h" />
     <ClInclude Include="treeelement.h" />
     <ClInclude Include="triangle.h" />
-    <ClInclude Include="triangle3d.h" />
+    <ClInclude Include="meshtriangle.h" />
     <ClInclude Include="triangle2d.h" />
+    <ClInclude Include="triangle3d.h" />
     <ClInclude Include="typedefs.h" />
     <ClInclude Include="awesomerenderer.h" />
     <ClInclude Include="unlitshader.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="util_gl.h" />
+    <ClInclude Include="vectorutil.h" />
     <ClInclude Include="whittedintegrator.h" />
     <ClInclude Include="window.h" />
     <ClInclude Include="window_gl.h" />

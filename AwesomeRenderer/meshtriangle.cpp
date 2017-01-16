@@ -1,28 +1,38 @@
 #include "stdafx.h"
 #include "awesomerenderer.h"
 
-#include "triangle3d.h"
+#include "meshtriangle.h"
 
 #include "plane.h"
 #include "aabb.h"
 
+#include "meshex.h"
+
 using namespace AwesomeRenderer;
 
-Triangle3D::Triangle3D(const Vector3& a, const Vector3& b, const Vector3& c) :
-	Triangle(a, b, c), Primitive()
+MeshTriangle::MeshTriangle(const MeshEx& mesh, uint32_t vIdx0, uint32_t vIdx1, uint32_t vIdx2) :
+	MeshTriangle(mesh.provider.vertices[vIdx0], mesh.provider.vertices[vIdx1], mesh.provider.vertices[vIdx2], vIdx0, vIdx1, vIdx2)
 {
-	vO[0] = a; vO[1] = b; vO[2] = c;
+}
+
+MeshTriangle::MeshTriangle(const Vector3& v0, const Vector3& v1, const Vector3& v2, uint32_t vIdx0, uint32_t vIdx1, uint32_t vIdx2) :
+	Triangle(v0, v1, v2), Primitive()
+{
+	vIdx[0] = vIdx0;
+	vIdx[1] = vIdx1;
+	vIdx[2] = vIdx2;
+
 	CalculateNormal();
 	PreCalculateBarycentric();
 }
 
-Triangle3D::Triangle3D(const Triangle3D& other) :
-	Triangle3D(other.v[0], other.v[1], other.v[2])
+MeshTriangle::MeshTriangle(const MeshTriangle& other) :
+	MeshTriangle(other.v[0], other.v[1], other.v[2], other.vIdx[0], other.vIdx[1], other.vIdx[2])
 {
-	
+
 }
 
-const Vector3& Triangle3D::CalculateNormal()
+const Vector3& MeshTriangle::CalculateNormal()
 {
 	// Calculate normal as a vector perpendicular to ab and ac
 	Vector3 ab = v[1] - v[0];
@@ -31,23 +41,30 @@ const Vector3& Triangle3D::CalculateNormal()
 	ab.normalize();
 	ac.normalize();
 
-	normal = cml::normalize(cml::cross(ac, ab));
-
+	normal = cml::cross(ac, ab);
+	normal.normalize();
+	
 	return normal;
 }
 
-void Triangle3D::Transform(const Matrix44& mtx)
+void MeshTriangle::Transform(const Matrix44& mtx)
 {
 	// Transform all vertices from object space by the given matrix
+	/*
 	v[0] = cml::transform_point(mtx, vO[0]);
 	v[1] = cml::transform_point(mtx, vO[1]);
 	v[2] = cml::transform_point(mtx, vO[2]);
 
 	CalculateNormal();
 	PreCalculateBarycentric();
+	*/
+
+	// TODO: Find a way to implement this without having to store additional data, which makes the path tracer slow
+	// Or make it possible to inherit from Shape without having to implement this method
+	assert(false && "Not implemented.");
 }
 
-bool Triangle3D::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance) const
+bool MeshTriangle::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance) const
 {
 	float dot = VectorUtil<3>::Dot(normal, ray.direction);
 
@@ -82,17 +99,16 @@ bool Triangle3D::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDist
 
 	if (u < 0.0f || v < 0.0f || u + v > 1.0f)
 		return false;
-
+		
 	// Fill the hit info struct with gathered data
 	hitInfo.point = pointOnPlane;
 	hitInfo.distance = t;
-	hitInfo.normal = normal;
 	hitInfo.barycentricCoords.set(1.0f - u - v, u, v);
-
+		
 	return true;
 }
 
-int Triangle3D::SideOfPlane(const Plane& plane) const
+int MeshTriangle::SideOfPlane(const Plane& plane) const
 {
 	int a = plane.SideOfPlane(v[0]);
 	int b = plane.SideOfPlane(v[1]);
@@ -103,7 +119,7 @@ int Triangle3D::SideOfPlane(const Plane& plane) const
 	return (a == b && a == c) ? a : 0;
 }
 
-int Triangle3D::SideOfAAPlane(int axis, float position) const
+int MeshTriangle::SideOfAAPlane(int axis, float position) const
 {
 	int a = Util::Sign(v[0][axis] - position);
 	int b = Util::Sign(v[1][axis] - position);
@@ -114,7 +130,7 @@ int Triangle3D::SideOfAAPlane(int axis, float position) const
 	return (a == b && a == c) ? a : 0;
 }
 
-void Triangle3D::CalculateBounds(AABB& bounds) const
+void MeshTriangle::CalculateBounds(AABB& bounds) const
 {
 	Vector3 lower, upper;
 	CalculateBounds(lower, upper);
@@ -122,7 +138,7 @@ void Triangle3D::CalculateBounds(AABB& bounds) const
 	bounds.Initialize(lower, upper);
 }
 
-float Triangle3D::Area() const
+float MeshTriangle::Area() const
 {
 	float b = v1.length();
 

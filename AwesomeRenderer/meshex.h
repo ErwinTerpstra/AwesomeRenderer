@@ -8,14 +8,14 @@
 
 namespace AwesomeRenderer
 {
-	class Triangle3D;
+	class MeshTriangle;
 
 	class MeshEx : public Shape, public Extension<Mesh, MeshEx>
 	{
 	public:
 		static const int ID;
 
-		std::vector<Triangle3D*> triangles;
+		std::vector<MeshTriangle*> triangles;
 
 		KDTree tree;
 

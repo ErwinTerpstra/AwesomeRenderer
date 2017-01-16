@@ -109,7 +109,7 @@ void RayTracerDebug::Update(float dt)
 
 		rayTracer.ResetFrame();
 	}
-
+	
 	bool plus = inputManager.GetKeyDown(VK_OEM_PLUS);
 	bool minus = inputManager.GetKeyDown(VK_OEM_MINUS);
 	bool shift = inputManager.GetKey(VK_SHIFT);

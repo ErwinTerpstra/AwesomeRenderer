@@ -157,7 +157,7 @@ int AABB::SideOfPlane(const Plane& plane) const
 	return side;
 }
 
-float AABB::CalculateSurfaceArea() const
+float AABB::Area() const
 {
 	return 2 * (Width() * Height() + Width() * Depth() + Height() * Depth());
 }

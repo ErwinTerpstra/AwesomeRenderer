@@ -34,7 +34,7 @@
 #include "aabb.h"
 #include "sphere.h"
 #include "triangle.h"
-#include "triangle3d.h"
+#include "meshtriangle.h"
 #include "triangle2d.h"
 
 // Input
@@ -235,10 +235,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Setup setup(context);
 	setup.SetupLighting();
 	setup.SetupScene();
-	//setup.SetupCornellBox();
+	setup.SetupCornellBox();
 	//setup.SetupSpheres();
 	//setup.SetupFractal();
-	setup.SetupSponza();
+	//setup.SetupSponza();
 	
 	// Camera controller
 	CameraController cameraController(camera);

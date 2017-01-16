@@ -260,7 +260,7 @@ void KDTree::SplitSAH(KDTreeNode* node, int axis, const AABB& bounds, float& bes
 	float width = max[upperAxis] - min[upperAxis];
 	float height = max[lowerAxis] - min[lowerAxis];
 	float depth = max[axis] - min[axis];
-	float rootArea = bounds.CalculateSurfaceArea();
+	float rootArea = bounds.Area();
 
 	int lowerObjectCount = 0;
 	int upperObjectCount = elements.size();

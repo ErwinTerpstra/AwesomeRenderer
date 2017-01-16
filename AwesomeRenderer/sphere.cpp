@@ -100,3 +100,41 @@ void Sphere::CalculateBounds(AABB& bounds) const
 	Vector3 extents(radiusTransformed, radiusTransformed, radiusTransformed);
 	bounds.Initialize(centerTransformed - extents, centerTransformed + extents);
 }
+
+float Sphere::Area() const
+{
+	return 4.0f * PI * radiusTransformed * radiusTransformed;
+}
+
+
+Vector3 Sphere::Sample(const Vector2& r, Vector3& normal) const
+{
+	normal = UniformSample(r);
+	return centerTransformed + normal * radiusTransformed;
+}
+
+Vector3 Sphere::Sample(const Vector3& p, const Vector2& r, Vector3& normal) const
+{
+	// TODO: Sample from the cone representing the visible part of the sphere, this way the backside of the sphere won't be sampled
+	return Sample(r, normal);
+
+	// Sample uniform for points inside the sphere
+	/*
+	if ((p - centerTransformed).length_squared() - radiusTransformed * radiusTransformed < 1e-3f)
+		return Sample(r, normal);
+
+	.. Create an angle which represents the offset from the vector (centerTransformed - p). Use this angle to create the sample vector. Use that vector to find the point on the sphere. ..
+
+	*/
+}
+
+Vector3 Sphere::UniformSample(const Vector2& r)
+{
+	float y = 1.0f - 2.0f * r[0];
+	float sinTheta = sqrtf(std::max(0.0f, 1.0f - y * y));
+	float phi = 2.0f * PI * r[1];
+	float x = sinTheta * cosf(phi);
+	float z = sinTheta * sinf(phi);
+
+	return Vector3(x, y, z);
+}

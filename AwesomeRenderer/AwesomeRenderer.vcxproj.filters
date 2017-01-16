@@ -141,9 +141,6 @@
     <ClCompile Include="triangle2d.cpp">
       <Filter>Source\Primitives</Filter>
     </ClCompile>
-    <ClCompile Include="triangle3d.cpp">
-      <Filter>Source\Primitives</Filter>
-    </ClCompile>
     <ClCompile Include="kdtree.cpp">
       <Filter>Source\Node</Filter>
     </ClCompile>
@@ -291,6 +288,15 @@
     <ClCompile Include="kdtreenode.cpp">
       <Filter>Source\Node</Filter>
     </ClCompile>
+    <ClCompile Include="quad.cpp">
+      <Filter>Source\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="meshtriangle.cpp">
+      <Filter>Source\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="triangle3d.cpp">
+      <Filter>Source\Primitives</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h">
@@ -372,9 +378,6 @@
       <Filter>Source\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="triangle2d.h">
-      <Filter>Source\Primitives</Filter>
-    </ClInclude>
-    <ClInclude Include="triangle3d.h">
       <Filter>Source\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="plane.h">
@@ -562,6 +565,21 @@
     </ClInclude>
     <ClInclude Include="kdtreenode.h">
       <Filter>Source\Node</Filter>
+    </ClInclude>
+    <ClInclude Include="quad.h">
+      <Filter>Source\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="meshtriangle.h">
+      <Filter>Source\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="triangle3d.h">
+      <Filter>Source\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="vectorutil.h">
+      <Filter>Source\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="quaternionutil.h">
+      <Filter>Source\Util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

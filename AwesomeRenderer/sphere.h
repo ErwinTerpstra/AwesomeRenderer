@@ -35,9 +35,16 @@ namespace AwesomeRenderer
 		int SideOfPlane(const Plane& plane) const;
 
 		void CalculateBounds(AABB& bounds) const;
+		float Area() const;
+
+		Vector3 Sample(const Vector2& r, Vector3& normal) const;
+
+		Vector3 Sample(const Vector3& p, const Vector2& r, Vector3& normal) const;
 
 		const Vector3& Center() { return centerTransformed; }
 		const float& Radius() { return radiusTransformed; }
+
+		static Vector3 UniformSample(const Vector2& r);
 	};
 }
 

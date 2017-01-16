@@ -1,5 +1,5 @@
-#ifndef _TRIANGLE_3D_H_
-#define _TRIANGLE_3D_H_
+#ifndef _MESH_TRIANGLE_H_
+#define _MESH_TRIANGLE_H_
 
 #include "awesomerenderer.h"
 #include "triangle.h"
@@ -9,9 +9,10 @@ namespace AwesomeRenderer
 {
 
 	class Ray;
+	class MeshEx;
 	struct RaycastHit;
-
-	class Triangle3D : public Triangle<Vector3>, public Primitive
+	
+	class MeshTriangle : public Triangle<Vector3>, public Primitive
 	{
 		using Triangle<Vector3>::CalculateBounds;
 		using Primitive::CalculateBounds;
@@ -20,14 +21,13 @@ namespace AwesomeRenderer
 		// Normal vector for this triangle (world space)
 		Vector3 normal;
 
-		// Vertices in object space
-		Vector3 vO[3];
-
+		uint32_t vIdx[3];
 	private:
 
 	public:
-		Triangle3D(const Vector3& a, const Vector3& b, const Vector3& c);
-		Triangle3D(const Triangle3D& other);
+		MeshTriangle(const MeshEx& mesh, uint32_t vIdx0, uint32_t vIdx1, uint32_t vIdx2);
+		MeshTriangle(const Vector3& v0, const Vector3& v1, const Vector3& v2, uint32_t vIdx0, uint32_t vIdx1, uint32_t vIdx2);
+		MeshTriangle(const MeshTriangle& other);
 
 		const Vector3& CalculateNormal();
 		
@@ -40,6 +40,7 @@ namespace AwesomeRenderer
 
 		void CalculateBounds(AABB& bounds) const;
 		float Area() const;
+
 	};
 }
 

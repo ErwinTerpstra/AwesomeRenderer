@@ -11,8 +11,9 @@
 #include "aabb.h"
 #include "sphere.h"
 #include "triangle.h"
-#include "triangle3d.h"
+#include "meshtriangle.h"
 #include "triangle2d.h"
+#include "quad.h"
 #include "node.h"
 
 // Rendering
@@ -131,7 +132,7 @@ void Setup::SetupCornellBox()
 	light.color = Color(0.78f, 0.78f, 0.78f);
 	light.intensity = 3.0f;
 
-	light.enabled = true;
+	//light.enabled = true;
 
 	// SKYBOX
 	SixSidedSkybox* skybox = new SixSidedSkybox();
@@ -181,17 +182,19 @@ void Setup::SetupCornellBox()
 	//*/
 
 	const bool showBox = true;
-	const bool showLight = false;
+	const bool showLight = true;
 	const bool showSpheres = true;
 	const bool showBunny = false;
-
+	
 	if (showBox)
 	{
 		// Left wall
 		Node* node = new Node();
 
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(-0.5f, 0.0f, 0.0f));
+		transform->SetPosition(Vector3(-0.5f, 0.5f, 0.5f));
+		transform->SetRotation(QuaternionUtil::AngleAxis(-HALF_PI, Vector3(0.0f, 0.0f, 1.0f)));
+		transform->SetScale(Vector3(2.0f, 2.0f, 2.0f));
 		node->AddComponent(transform);
 
 		PbrMaterial* material = new PbrMaterial(*(new Material()));
@@ -201,7 +204,7 @@ void Setup::SetupCornellBox()
 		material->roughness = wallRoughness;
 
 		Renderable* renderable = new Renderable();
-		renderable->shape = new Plane(0.0f, Vector3(1.0f, 0.0f, 0.0f));
+		renderable->shape = Quad::CreateUnitQuad();
 		renderable->material = &material->provider;
 
 		node->AddComponent(renderable);
@@ -215,7 +218,9 @@ void Setup::SetupCornellBox()
 		Node* node = new Node();
 
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(0.5f, 0.0f, 0.0f));
+		transform->SetPosition(Vector3(0.5f, 0.5f, 0.5f));
+		transform->SetRotation(QuaternionUtil::AngleAxis(HALF_PI, Vector3(0.0f, 0.0f, 1.0f)));
+		transform->SetScale(Vector3(2.0f, 2.0f, 2.0f));
 		node->AddComponent(transform);
 
 		PbrMaterial* material = new PbrMaterial(*(new Material()));
@@ -225,7 +230,7 @@ void Setup::SetupCornellBox()
 		material->roughness = wallRoughness;
 
 		Renderable* renderable = new Renderable();
-		renderable->shape = new Plane(0.0f, Vector3(-1.0f, 0.0f, 0.0f));
+		renderable->shape = Quad::CreateUnitQuad();
 		renderable->material = &material->provider;
 
 		node->AddComponent(renderable);
@@ -239,7 +244,8 @@ void Setup::SetupCornellBox()
 		Node* node = new Node();
 
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
+		transform->SetPosition(Vector3(0.0f, 0.0f, 0.5f));
+		transform->SetScale(Vector3(2.0f, 2.0f, 2.0f));
 		node->AddComponent(transform);
 
 		PbrMaterial* material = new PbrMaterial(*(new Material()));
@@ -249,7 +255,7 @@ void Setup::SetupCornellBox()
 		material->roughness = wallRoughness;
 
 		Renderable* renderable = new Renderable();
-		renderable->shape = new Plane(0.0f, Vector3(0.0f, 1.0f, 0.0f));
+		renderable->shape = Quad::CreateUnitQuad();
 		renderable->material = &material->provider;
 
 		node->AddComponent(renderable);
@@ -263,7 +269,9 @@ void Setup::SetupCornellBox()
 		Node* node = new Node();
 
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(0.0f, 1.0f, 0.0f));
+		transform->SetPosition(Vector3(0.0f, 1.0f, 0.5f));
+		transform->SetRotation(QuaternionUtil::AngleAxis(PI, Vector3(1.0f, 0.0f, 0.0f)));
+		transform->SetScale(Vector3(2.0f, 2.0f, 2.0f));
 		node->AddComponent(transform);
 
 		PbrMaterial* material = new PbrMaterial(*(new Material()));
@@ -273,7 +281,33 @@ void Setup::SetupCornellBox()
 		material->roughness = wallRoughness;
 
 		Renderable* renderable = new Renderable();
-		renderable->shape = new Plane(0.0f, Vector3(0.0f, -1.0f, 0.0f));
+		renderable->shape = Quad::CreateUnitQuad();
+		renderable->material = &material->provider;
+
+		node->AddComponent(renderable);
+
+		context.mainContext->nodes.push_back(node);
+	}
+
+	if (showBox)
+	{
+		// Back wall
+		Node* node = new Node();
+
+		Transformation* transform = new Transformation();
+		transform->SetPosition(Vector3(0.0f, 0.5f, 1.0f));
+		transform->SetRotation(QuaternionUtil::AngleAxis(-HALF_PI, Vector3(1.0f, 0.0f, 0.0f)));
+		transform->SetScale(Vector3(2.0f, 2.0f, 2.0f));
+		node->AddComponent(transform);
+
+		PbrMaterial* material = new PbrMaterial(*(new Material()));
+		material->albedo = wallWhite;
+		material->specular = wallSpecular;
+		material->metallic = 0;
+		material->roughness = wallRoughness;
+
+		Renderable* renderable = new Renderable();
+		renderable->shape = Quad::CreateUnitQuad();
 		renderable->material = &material->provider;
 
 		node->AddComponent(renderable);
@@ -288,16 +322,16 @@ void Setup::SetupCornellBox()
 
 		Transformation* transform = new Transformation();
 		transform->SetPosition(Vector3(0.0f, 1.0f - 1e-5f, 0.0f));
-		transform->SetScale(Vector3(0.5f, 1.0f, 0.5f));
 		node->AddComponent(transform);
 
 		PbrMaterial* material = new PbrMaterial(*(new Material()));
 		material->albedo = Color::BLACK;
 		material->specular = Color::BLACK;
 		material->metallic = 0;
-		material->roughness = wallRoughness;
-		material->provider.emission = Color(0.78f, 0.78f, 0.78f);
+		material->roughness = 0.0f;
+		material->provider.emission = Color::WHITE;
 
+		/*
 		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL));
 		mesh->AddQuad(Vector3(0.5f, 0.0f, -0.5f), Vector3(0.5f, 0.0f, 0.5f), Vector3(-0.5f, 0.0f, 0.5f), Vector3(-0.5f, 0.0f, -0.5f));
 		mesh->CalculateBounds();
@@ -312,34 +346,16 @@ void Setup::SetupCornellBox()
 		Renderable* renderable = new Renderable();
 		renderable->shape = modelEx->meshes[0];
 		renderable->material = &material->provider;
-
-		node->AddComponent(renderable);
-
-		context.mainContext->nodes.push_back(node);
-	}
-
-	if (showBox)
-	{
-		// Back wall
-		Node* node = new Node();
-
-		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(0.0f, 0.0f, 1.0f));
-		node->AddComponent(transform);
-
-		PbrMaterial* material = new PbrMaterial(*(new Material()));
-		material->albedo = wallWhite;
-		material->specular = wallSpecular;
-		material->metallic = 0;
-		material->roughness = wallRoughness;
+		*/
 
 		Renderable* renderable = new Renderable();
-		renderable->shape = new Plane(0.0f, Vector3(0.0f, 0.0f, -1.0f));
+		renderable->shape = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 0.2f);
 		renderable->material = &material->provider;
 
 		node->AddComponent(renderable);
 
 		context.mainContext->nodes.push_back(node);
+		context.mainContext->lightData->areaLights.push_back(renderable);
 	}
 
 	if (showSpheres)

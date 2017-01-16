@@ -22,5 +22,7 @@
 #include "color.h"
 
 #include "util.h"
+#include "vectorutil.h"
+#include "quaternionutil.h"
 
 #endif

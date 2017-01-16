@@ -39,7 +39,7 @@ namespace AwesomeRenderer
 		}
 
 		
-		Color(float r, float g, float b, float a = 1.0f) : Vector4(cml::clamp(r, 0.0f, 1.0f), cml::clamp(g, 0.0f, 1.0f), cml::clamp(b, 0.0f, 1.0f), cml::clamp(a, 0.0f, 1.0f))
+		Color(float r, float g, float b, float a = 1.0f) : Vector4(r, g, b, a)
 		{
 
 		}
@@ -71,30 +71,21 @@ namespace AwesomeRenderer
 
 		Color& operator*=(const float& rhs)
 		{
-			this->set(cml::clamp(this->operator[](0) * rhs, 0.0f, 1.0f),
-				      cml::clamp(this->operator[](1) * rhs, 0.0f, 1.0f),
-				      cml::clamp(this->operator[](2) * rhs, 0.0f, 1.0f),
-				      cml::clamp(this->operator[](3) * rhs, 0.0f, 1.0f));
+			this->set(this->operator[](0) * rhs, this->operator[](1) * rhs, this->operator[](2) * rhs, this->operator[](3) * rhs);
 
 			return *this;
 		}
 
 		Color& operator*=(const Color& rhs)
 		{
-			this->set(cml::clamp(this->operator[](0) * rhs[0], 0.0f, 1.0f),
-					  cml::clamp(this->operator[](1) * rhs[1], 0.0f, 1.0f),
-					  cml::clamp(this->operator[](2) * rhs[2], 0.0f, 1.0f),
-					  cml::clamp(this->operator[](3) * rhs[3], 0.0f, 1.0f));
+			this->set(this->operator[](0) * rhs[0], this->operator[](1) * rhs[1], this->operator[](2) * rhs[2], this->operator[](3) * rhs[3]);
 
 			return *this;
 		}
 
 		Color& operator+=(const Color& rhs)
 		{
-			this->set(cml::clamp(this->operator[](0) + rhs[0], 0.0f, 1.0f), 
-					  cml::clamp(this->operator[](1) + rhs[1], 0.0f, 1.0f),
-					  cml::clamp(this->operator[](2) + rhs[2], 0.0f, 1.0f),
-					  cml::clamp(this->operator[](3) + rhs[3], 0.0f, 1.0f));
+			this->set(this->operator[](0) + rhs[0], this->operator[](1) + rhs[1], this->operator[](2) + rhs[2], this->operator[](3) + rhs[3]);
 
 			return *this;
 		}

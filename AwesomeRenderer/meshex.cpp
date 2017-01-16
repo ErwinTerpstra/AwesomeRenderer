@@ -2,7 +2,7 @@
 #include "awesomerenderer.h"
 #include "meshex.h"
 #include "mesh.h"
-#include "triangle3d.h"
+#include "meshtriangle.h"
 #include "kdtreenode.h"
 
 using namespace AwesomeRenderer;
@@ -15,7 +15,7 @@ MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(20), worldMtx(), world2object
 		int vIdx0 = mesh.indices[cIndex], vIdx1 = mesh.indices[cIndex + 1], vIdx2 = mesh.indices[cIndex + 2];
 
 		// Create triangle object based on the vertex data
-		Triangle3D* triangle = new Triangle3D(*this, vIdx0, vIdx1, vIdx2);
+		MeshTriangle* triangle = new MeshTriangle(*this, vIdx0, vIdx1, vIdx2);
 		triangles.push_back(triangle);
 	}
 
@@ -68,7 +68,7 @@ bool MeshEx::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance
 	if (tree.IntersectRay(objectSpaceRay, hitInfo, maxDistance))
 	{
 		// Interpolate vertex attributes of the hit triangle
-		const Triangle3D* tri = dynamic_cast<const Triangle3D*>(hitInfo.element);
+		const MeshTriangle* tri = dynamic_cast<const MeshTriangle*>(hitInfo.element);
 
 		if (provider.HasAttribute(Mesh::VERTEX_NORMAL))
 		{

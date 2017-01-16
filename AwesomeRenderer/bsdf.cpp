@@ -22,21 +22,53 @@ BSDF::BSDF(BxDF* diffuse, BxDF* specular) : diffuse(diffuse), specular(specular)
 
 Vector3 BSDF::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material) const
 {
-	Vector3 diffuseRadiance(0.0f, 0.0f, 0.0f), specularRadiance(0.0f, 0.0f, 0.0f);
+	Vector3 diffuseReflection(0.0f, 0.0f, 0.0f), specularReflection(0.0f, 0.0f, 0.0f);
 
 	if (diffuse != NULL)
-		diffuseRadiance = diffuse->Sample(wo, wi, normal, hitInfo, material);
+		diffuseReflection = diffuse->Sample(wo, wi, normal, hitInfo, material);
 	
 	if (specular != NULL)
-		specularRadiance = specular->Sample(wo, wi, normal, hitInfo, material);
+		specularReflection = specular->Sample(wo, wi, normal, hitInfo, material);
 
-	return SpecularTradeoff(diffuseRadiance, specularRadiance, normal, cml::normalize(wo + wi), material);
+	Vector3 fresnel = FresnelSchlick(VectorUtil<3>::Dot(normal, cml::normalize(wo + wi)), GetF0(material));
+	return (diffuseReflection * (1.0f - fresnel)) + (specularReflection * fresnel);
 }
 
-Vector3 BSDF::SpecularTradeoff(const Vector3& diffuseRadiance, const Vector3& specularRadiance, const Vector3& n, const Vector3& v, const Material& material) const
+void BSDF::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vector3& normal, const Material& material, Vector3& wi) const
 {
-	Vector3 fresnel = FresnelSchlick(VectorUtil<3>::Dot(n, v), GetF0(material));
-	return (diffuseRadiance * (1.0f - fresnel)) + (specularRadiance * fresnel);
+	if (diffuse != NULL && specular != NULL)
+	{
+		Vector2 rl = r;
+
+		if (rl[0] < 0.5f)
+		{
+			rl[0] = 2.0f * rl[0];
+
+			diffuse->GenerateSampleVector(rl, wo, normal, material, wi);
+		}
+		else
+		{
+			rl[0] = 2.0f * (rl[0] - 0.5f);
+
+			specular->GenerateSampleVector(rl, wo, normal, material, wi);
+		}
+	}
+	else if (specular != NULL)
+		specular->GenerateSampleVector(r, wo, normal, material, wi);
+	else if (diffuse != NULL)
+		diffuse->GenerateSampleVector(r, wo, normal, material, wi);
+}
+
+float BSDF::CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const
+{
+	if (diffuse != NULL && specular != NULL)
+		return 0.5f * (diffuse->CalculatePDF(wo, wi, normal, material) + specular->CalculatePDF(wo, wi, normal, material));
+	else if (specular != NULL)
+		return specular->CalculatePDF(wo, wi, normal, material);
+	else if (diffuse != NULL)
+		return diffuse->CalculatePDF(wo, wi, normal, material);
+
+	return 0.0f;
 }
 
 // TODO: Generalize and remove
