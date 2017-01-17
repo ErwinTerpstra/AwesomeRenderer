@@ -128,13 +128,25 @@ Vector3 Sphere::Sample(const Vector3& p, const Vector2& r, Vector3& normal) cons
 	*/
 }
 
+float Sphere::CalculatePDF(const Vector3& p, const Vector3& wi) const
+{
+	Vector3 fromCenter = (p - centerTransformed);
+	float distanceSq = fromCenter.length_squared();
+	float r2 = radiusTransformed * radiusTransformed;
+	if (distanceSq - r2 < 1e-3f)
+		return Primitive::CalculatePDF(p, wi);
+
+	float sinThetaMax2 = r2 / distanceSq;
+	float cosThetaMax = sqrtf(std::max(0.0f, 1.0f - sinThetaMax2));
+
+	return 1.0f / (2.0f * PI * (1.0f - cosThetaMax));
+}
+
 Vector3 Sphere::UniformSample(const Vector2& r)
 {
-	float y = 1.0f - 2.0f * r[0];
-	float sinTheta = sqrtf(std::max(0.0f, 1.0f - y * y));
+	float cosTheta = 1.0f - 2.0f * r[0];
+	float sinTheta = sqrtf(std::max(0.0f, 1.0f - cosTheta * cosTheta));
 	float phi = 2.0f * PI * r[1];
-	float x = sinTheta * cosf(phi);
-	float z = sinTheta * sinf(phi);
 
-	return Vector3(x, y, z);
+	return Vector3(sinTheta * cosf(phi), cosTheta, sinTheta * sinf(phi));
 }

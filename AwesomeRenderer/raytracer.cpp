@@ -101,7 +101,6 @@ void RayTracer::PostRender()
 
 	renderingFrame = false;
 	renderedSamples += samplesPerPixel;
-	//renderedSamples = 0;
 
 	printf("[RayTracer]: Rendered frame in %.0fms, total samples rendered: %u.\n", time * 1000, renderedSamples);
 }
@@ -181,9 +180,7 @@ void RayTracer::Render(const Point2& pixel)
 	frameBuffer->GetPixel(pixel[0], pixel[1], color);
 
 	color *= renderedSamples;
-
-	//color = (color / (renderedSamples + samplesPerPixel)) * renderedSamples;
-	
+		
 	for (uint32_t sample = 0; sample < samplesPerPixel; ++sample)
 	{
 		Vector2 subPixel = pixel;
@@ -197,12 +194,11 @@ void RayTracer::Render(const Point2& pixel)
 		ShadingInfo shadingInfo;
 		CalculateShading(primaryRay, shadingInfo);
 
-		//shadingInfo.color /= (renderedSamples + samplesPerPixel);
-
 		color += shadingInfo.color;
 	}
 
 	color *= (1.0f / (renderedSamples + samplesPerPixel));
+	color[3] = 1.0f;
 
 	// Write to color buffer
 	frameBuffer->SetPixel(pixel[0], pixel[1], color);

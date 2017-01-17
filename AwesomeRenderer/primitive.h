@@ -51,7 +51,7 @@ namespace AwesomeRenderer
 				return 0.0f;
 
 			float projectedArea = VectorUtil<3>::Dot(hitInfo.normal, -wi) * Area();
-			if (projectedArea < 1e-3f)
+			if (projectedArea < 1e-5f)
 				return 0.0f;
 
 			float pdf = (hitInfo.point - p).length_squared() / projectedArea;

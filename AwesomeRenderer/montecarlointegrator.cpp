@@ -39,8 +39,6 @@ Vector3 MonteCarloIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, cons
 
 Vector3 MonteCarloIntegrator::Sample(const Vector3& p, const Vector3& wo, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, int depth)
 {
-	Vector2 r(random.NextFloat(), random.NextFloat());
-
 	const RenderContext& renderContext = rayTracer.GetRenderContext();
 	if (!renderContext.lightData->areaLights.empty())
 	{
@@ -52,24 +50,31 @@ Vector3 MonteCarloIntegrator::Sample(const Vector3& p, const Vector3& wo, const 
 		const Primitive& primitive = light->GetPrimitive();
 		
 		Vector3 lightNormal;
-		Vector3 pointOnLight = primitive.Sample(p, r, lightNormal);
+		Vector3 pointOnLight = primitive.Sample(p, Vector2(random.NextFloat(), random.NextFloat()), lightNormal);
 		
 		Vector3 lightSampleVector = cml::normalize(pointOnLight - p);
 		float lightPDF = primitive.CalculatePDF(p, lightSampleVector);
 
 		Vector3 bsdfSampleVector;
-		material.bsdf->GenerateSampleVector(r, wo, normal, material, bsdfSampleVector);
+		material.bsdf->GenerateSampleVector(Vector2(random.NextFloat(), random.NextFloat()), wo, normal, material, bsdfSampleVector);
 		float bsdfPDF = material.bsdf->CalculatePDF(wo, bsdfSampleVector, normal, material);
 
 		Vector3 radiance(0.0f, 0.0f, 0.0f);
-		radiance += Sample(p, wo, lightSampleVector, normal, hitInfo, material, depth, lightPDF) * BalanceHeuristic(1, lightPDF, 1, bsdfPDF);
-		radiance += Sample(p, wo, bsdfSampleVector, normal, hitInfo, material, depth, bsdfPDF) * BalanceHeuristic(1, bsdfPDF, 1, lightPDF);
+
+		// TODO: Intersect light directly, instead of traversing the whole scene
+		
+		//if (random.NextFloat() < 0.5f)
+			radiance += Sample(p, wo, lightSampleVector, normal, hitInfo, material, INT_MAX, lightPDF);// *BalanceHeuristic(1, lightPDF, 1, bsdfPDF);
+		//else
+			//radiance += Sample(p, wo, bsdfSampleVector, normal, hitInfo, material, depth, bsdfPDF);// *BalanceHeuristic(1, bsdfPDF, 1, lightPDF);
 
 		return radiance;
 	}
 	else
 	{
 		// Sample BSDF
+		Vector2 r(random.NextFloat(), random.NextFloat());
+
 		Vector3 sampleVector;
 		material.bsdf->GenerateSampleVector(r, wo, normal, material, sampleVector);
 		float pdf = material.bsdf->CalculatePDF(wo, sampleVector, normal, material);
@@ -90,7 +95,7 @@ Vector3 MonteCarloIntegrator::Sample(const Vector3& p, const Vector3& wo, const 
 
 	Vector3 h = cml::normalize(wo + wi);
 	
-	Vector3 reflectance = material.bsdf->Sample(wo, wi, normal, hitInfo, material) / pdf;
+	Vector3 reflectance = material.bsdf->Sample(wo, wi, normal, hitInfo, material);
 
 	if (reflectance.length_squared() < 1e-5f)
 		return Vector3(0.0f, 0.0f, 0.0f);
@@ -103,7 +108,7 @@ Vector3 MonteCarloIntegrator::Sample(const Vector3& p, const Vector3& wo, const 
 
 	Vector3 radiance = reflectionShading.color.subvector(3);
 
-	return reflectance * radiance * NoL;
+	return reflectance * radiance * NoL / pdf;
 }
 
 Vector3 MonteCarloIntegrator::Integrate(const Vector3& p, const Vector3& wo, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, uint32_t samples, int depth)

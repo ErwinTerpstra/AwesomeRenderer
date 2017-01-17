@@ -1,6 +1,8 @@
 #ifndef _COLOR_H_
 #define _COLOR_H_
 
+#include "util.h"
+
 namespace AwesomeRenderer
 {
 	class Color : public Vector4
@@ -38,7 +40,7 @@ namespace AwesomeRenderer
 
 		}
 
-		
+
 		Color(float r, float g, float b, float a = 1.0f) : Vector4(r, g, b, a)
 		{
 
@@ -48,7 +50,22 @@ namespace AwesomeRenderer
 		{
 
 		}
-		
+
+		void set(float r, float g, float b, float a)
+		{
+			Vector4::set(std::max(r, 0.0f), std::max(g, 0.0f), std::max(b, 0.0f), std::max(a, 0.0f));
+		}
+
+		Color Clamp()
+		{
+			return Color(
+				Util::Clamp01(this->operator[](0)),
+				Util::Clamp01(this->operator[](1)),
+				Util::Clamp01(this->operator[](2)),
+				Util::Clamp01(this->operator[](3))
+				);
+		}
+
 		Color& operator=(const Color &rhs)
 		{
 			if (this == &rhs)

@@ -41,6 +41,8 @@ namespace AwesomeRenderer
 
 		Vector3 Sample(const Vector3& p, const Vector2& r, Vector3& normal) const;
 
+		float CalculatePDF(const Vector3& p, const Vector3& wi) const;
+
 		const Vector3& Center() { return centerTransformed; }
 		const float& Radius() { return radiusTransformed; }
 

@@ -100,6 +100,11 @@ void RayTracerDebug::Setup()
 
 void RayTracerDebug::Update(float dt)
 {
+	const RenderContext* renderContext = &rayTracer.GetRenderContext();
+
+	if (renderContext == NULL)
+		return;
+
 	timeSinceUpdate += dt;
 
 	if (inputManager.GetKeyDown('G'))

@@ -138,29 +138,29 @@ void Buffer::EncodeColor(const Color& color, Encoding encoding, uchar* buffer)
 	switch (encoding)
 	{
 	case RGB24:
-		buffer[0] = (uchar)(color[0] * 255.0f);
-		buffer[1] = (uchar)(color[1] * 255.0f);
-		buffer[2] = (uchar)(color[2] * 255.0f);
+		buffer[0] = (uchar)(Util::Clamp01(color[0]) * 255.0f);
+		buffer[1] = (uchar)(Util::Clamp01(color[1]) * 255.0f);
+		buffer[2] = (uchar)(Util::Clamp01(color[2]) * 255.0f);
 		break;
 
 	case RGBA32:
-		buffer[0] = (uchar)(color[0] * 255.0f);
-		buffer[1] = (uchar)(color[1] * 255.0f);
-		buffer[2] = (uchar)(color[2] * 255.0f);
-		buffer[3] = (uchar)(color[3] * 255.0f);
+		buffer[0] = (uchar)(Util::Clamp01(color[0]) * 255.0f);
+		buffer[1] = (uchar)(Util::Clamp01(color[1]) * 255.0f);
+		buffer[2] = (uchar)(Util::Clamp01(color[2]) * 255.0f);
+		buffer[3] = (uchar)(Util::Clamp01(color[3]) * 255.0f);
 		break;
 
 	case BGR24:
-		buffer[0] = (uchar)(color[2] * 255.0f);
-		buffer[1] = (uchar)(color[1] * 255.0f);
-		buffer[2] = (uchar)(color[0] * 255.0f);
+		buffer[0] = (uchar)(Util::Clamp01(color[2]) * 255.0f);
+		buffer[1] = (uchar)(Util::Clamp01(color[1]) * 255.0f);
+		buffer[2] = (uchar)(Util::Clamp01(color[0]) * 255.0f);
 		break;
 
 	case BGRA32:
-		buffer[0] = (uchar)(color[2] * 255.0f);
-		buffer[1] = (uchar)(color[1] * 255.0f);
-		buffer[2] = (uchar)(color[0] * 255.0f);
-		buffer[3] = (uchar)(color[3] * 255.0f);
+		buffer[0] = (uchar)(Util::Clamp01(color[2]) * 255.0f);
+		buffer[1] = (uchar)(Util::Clamp01(color[1]) * 255.0f);
+		buffer[2] = (uchar)(Util::Clamp01(color[0]) * 255.0f);
+		buffer[3] = (uchar)(Util::Clamp01(color[3]) * 255.0f);
 		break;
 
 	default:
@@ -206,4 +206,5 @@ void Buffer::DecodeColor(const uchar* buffer, Encoding encoding, Color& color)
 		assert(false && "Encoding does not support color reading.");
 		break;
 	}
+
 }
