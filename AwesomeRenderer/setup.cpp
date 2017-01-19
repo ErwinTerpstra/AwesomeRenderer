@@ -132,7 +132,7 @@ void Setup::SetupCornellBox()
 	light.color = Color(0.78f, 0.78f, 0.78f);
 	light.intensity = 3.0f;
 
-	//light.enabled = true;
+	light.enabled = true;
 
 	// SKYBOX
 	SixSidedSkybox* skybox = new SixSidedSkybox();
@@ -182,7 +182,7 @@ void Setup::SetupCornellBox()
 	//*/
 
 	const bool showBox = true;
-	const bool showLight = true;
+	const bool showLight = false;
 	const bool showSpheres = true;
 	const bool showBunny = false;
 	

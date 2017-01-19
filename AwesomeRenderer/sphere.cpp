@@ -83,7 +83,7 @@ bool Sphere::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance
 	// Fill RaycastHit struct
 	hitInfo.distance = t0;
 	hitInfo.point = ray.origin + ray.direction * t0;
-	hitInfo.normal = cml::normalize(hitInfo.point - centerTransformed);
+	hitInfo.normal = VectorUtil<3>::Normalize(hitInfo.point - centerTransformed);
 	
 	return true;
 }
@@ -115,17 +115,35 @@ Vector3 Sphere::Sample(const Vector2& r, Vector3& normal) const
 
 Vector3 Sphere::Sample(const Vector3& p, const Vector2& r, Vector3& normal) const
 {
-	// TODO: Sample from the cone representing the visible part of the sphere, this way the backside of the sphere won't be sampled
-	return Sample(r, normal);
+	Vector3 toCenter = (centerTransformed - p);
+	float distanceSq = toCenter.length_squared();
+	float r2 = radiusTransformed * radiusTransformed;
 
-	// Sample uniform for points inside the sphere
-	/*
-	if ((p - centerTransformed).length_squared() - radiusTransformed * radiusTransformed < 1e-3f)
+	// If the origin point is inside the sphere, sample the whole sphere uniformly
+	if (distanceSq - r2 < 1e-3f)
 		return Sample(r, normal);
 
-	.. Create an angle which represents the offset from the vector (centerTransformed - p). Use this angle to create the sample vector. Use that vector to find the point on the sphere. ..
+	// Calculate the maximum subtended angle for the cone
+	float sinThetaMax2 = r2 / distanceSq;
+	float cosThetaMax = sqrtf(std::max(0.0f, 1.0f - sinThetaMax2));
 
-	*/
+	// Create a coordinate system around the vector from the point to the sphere center
+	Vector3 up = toCenter / sqrtf(distanceSq);
+	Vector3 right, forward;
+	VectorUtil<3>::OrthoNormalize(up, right, forward);
+
+	Vector3 ps;
+
+	// Create a ray with an random distribution inside the cone
+	Ray ray(p, UniformSampleCone(r, cosThetaMax, right, up, forward));
+	RaycastHit hitInfo;
+	if (IntersectRay(ray, hitInfo))
+		ps = hitInfo.point;
+	else
+		ps = ray.origin + ray.direction * VectorUtil<3>::Dot(toCenter, ray.direction);
+
+	normal = VectorUtil<3>::Normalize(ps - centerTransformed);
+	return ps;
 }
 
 float Sphere::CalculatePDF(const Vector3& p, const Vector3& wi) const
@@ -139,7 +157,7 @@ float Sphere::CalculatePDF(const Vector3& p, const Vector3& wi) const
 	float sinThetaMax2 = r2 / distanceSq;
 	float cosThetaMax = sqrtf(std::max(0.0f, 1.0f - sinThetaMax2));
 
-	return 1.0f / (2.0f * PI * (1.0f - cosThetaMax));
+	return UniformConePDF(cosThetaMax);
 }
 
 Vector3 Sphere::UniformSample(const Vector2& r)
@@ -149,4 +167,25 @@ Vector3 Sphere::UniformSample(const Vector2& r)
 	float phi = 2.0f * PI * r[1];
 
 	return Vector3(sinTheta * cosf(phi), cosTheta, sinTheta * sinf(phi));
+}
+
+float Sphere::UniformConePDF(float cosThetaMax)
+{
+	return 1.f / (2.f * PI * (1.f - cosThetaMax));
+}
+
+
+Vector3 Sphere::UniformSampleCone(const Vector2& r, float cosThetaMax)
+{
+	float cosTheta = (1.f - r[0]) + r[0] * cosThetaMax;
+	float sinTheta = sqrtf(1.f - cosTheta * cosTheta);
+	float phi = r[1] * 2.f * PI;
+	return Vector3(cosf(phi) * sinTheta, cosTheta, sinf(phi) * sinTheta);
+}
+
+
+Vector3 Sphere::UniformSampleCone(const Vector2& r, float cosThetaMax, const Vector3& x, const Vector3& y, const Vector3& z)
+{
+	Vector3 sample = UniformSampleCone(r, cosThetaMax);
+	return sample[0] * x + sample[1] * y + sample[2] * z;
 }

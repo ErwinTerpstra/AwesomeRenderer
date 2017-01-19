@@ -52,7 +52,7 @@ Vector3 MonteCarloIntegrator::Sample(const Vector3& p, const Vector3& wo, const 
 		Vector3 lightNormal;
 		Vector3 pointOnLight = primitive.Sample(p, Vector2(random.NextFloat(), random.NextFloat()), lightNormal);
 		
-		Vector3 lightSampleVector = cml::normalize(pointOnLight - p);
+		Vector3 lightSampleVector = VectorUtil<3>::Normalize(pointOnLight - p);
 		float lightPDF = primitive.CalculatePDF(p, lightSampleVector);
 
 		Vector3 bsdfSampleVector;

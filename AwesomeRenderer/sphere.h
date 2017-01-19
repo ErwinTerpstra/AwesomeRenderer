@@ -30,7 +30,7 @@ namespace AwesomeRenderer
 
 		void Transform(const Matrix44& mtx);
 		
-		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance) const;
+		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance = FLT_MAX) const;
 
 		int SideOfPlane(const Plane& plane) const;
 
@@ -47,6 +47,11 @@ namespace AwesomeRenderer
 		const float& Radius() { return radiusTransformed; }
 
 		static Vector3 UniformSample(const Vector2& r);
+
+		static float UniformConePDF(float cosThetaMax);
+
+		static Vector3 UniformSampleCone(const Vector2& r, float cosThetaMax);
+		static Vector3 UniformSampleCone(const Vector2& r, float cosThetaMax, const Vector3& x, const Vector3& y, const Vector3& z);
 	};
 }
 

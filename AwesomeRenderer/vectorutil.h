@@ -11,6 +11,11 @@ namespace AwesomeRenderer
 	{
 		typedef cml::vector<float, cml::fixed<Size> > Vector;
 
+		AR_FORCE_INLINE static Vector Normalize(const Vector& v)
+		{
+			return cml::normalize(v);
+		}
+
 		AR_FORCE_INLINE static bool IsNormalized(const Vector& v)
 		{
 			return abs(v.length_squared() - 1.0f) < 1e-5f;
