@@ -126,6 +126,8 @@ uint8_t Buffer::GetEncodingDepth(Encoding encoding)
 	case BGR24:			return 24;
 	case BGRA32:		return 32;
 	case FLOAT32:		return 32;
+	case FLOAT96:		return 96;
+	case FLOAT128:		return 128;
 	}
 
 	assert(false && "Encoding not supported.");
@@ -162,6 +164,25 @@ void Buffer::EncodeColor(const Color& color, Encoding encoding, uchar* buffer)
 		buffer[2] = (uchar)(Util::Clamp01(color[0]) * 255.0f);
 		buffer[3] = (uchar)(Util::Clamp01(color[3]) * 255.0f);
 		break;
+
+	case FLOAT96:
+	{
+		float* floatBuffer = reinterpret_cast<float*>(buffer);
+		floatBuffer[0] = color[0];
+		floatBuffer[1] = color[1];
+		floatBuffer[2] = color[2];
+		break;
+	}
+
+	case FLOAT128:
+	{
+		float* floatBuffer = reinterpret_cast<float*>(buffer);
+		floatBuffer[0] = color[0];
+		floatBuffer[1] = color[1];
+		floatBuffer[2] = color[2];
+		floatBuffer[3] = color[3];
+		break;
+	}
 
 	default:
 		assert(false && "Encoding does not support color writing.");
@@ -201,6 +222,25 @@ void Buffer::DecodeColor(const uchar* buffer, Encoding encoding, Color& color)
 		color[2] = buffer[0] / 255.0f;
 		color[3] = buffer[3] / 255.0f;
 		break;
+
+	case FLOAT96:
+	{
+		const float* floatBuffer = reinterpret_cast<const float*>(buffer);
+		color[0] = floatBuffer[0];
+		color[1] = floatBuffer[1];
+		color[2] = floatBuffer[2];
+		break;
+	}
+
+	case FLOAT128:
+	{
+		const float* floatBuffer = reinterpret_cast<const float*>(buffer);
+		color[0] = floatBuffer[0];
+		color[1] = floatBuffer[1];
+		color[2] = floatBuffer[2];
+		color[3] = floatBuffer[3];
+		break;
+	}
 
 	default:
 		assert(false && "Encoding does not support color reading.");

@@ -29,7 +29,6 @@ namespace AwesomeRenderer
 			Vector3 Sample(const Vector3& p, const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, int depth, float pdf);
 
 			Vector3 Integrate(const Vector3& p, const Vector3& wo, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, uint32_t samples, int depth);
-			Vector3 Integrate(const Ray& ray, const RaycastHit& hitInfo, const BxDF& bxdf, const Material& material, uint32_t samples, int depth);
 			
 			AR_INLINE float BalanceHeuristic(int nF, float pdfF, int nG, float pdfG)
 			{

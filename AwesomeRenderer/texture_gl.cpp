@@ -37,28 +37,33 @@ void TextureGL::Load()
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	);
 	
-	GLenum interalFormat;
+	GLenum internalFormat;
 	GLenum dataFormat;
 
 	switch (provider.encoding)
 	{
 	case Buffer::BGR24:
-		interalFormat = GL_RGB8;
+		internalFormat = GL_RGB8;
 		dataFormat = GL_BGR;
 		break;
 
 	case Buffer::BGRA32:
-		interalFormat = GL_RGBA8;
+		internalFormat = GL_RGBA8;
 		dataFormat = GL_BGRA;
 		break;
 
 	case Buffer::RGB24:
-		interalFormat = GL_RGB8;
+		internalFormat = GL_RGB8;
 		dataFormat = GL_RGB;
 		break;
 
 	case Buffer::RGBA32:
-		interalFormat = GL_RGBA8;
+		internalFormat = GL_RGBA8;
+		dataFormat = GL_RGBA;
+		break;
+
+	case Buffer::FLOAT128:
+		internalFormat = GL_RGBA_FLOAT32_ATI;
 		dataFormat = GL_RGBA;
 		break;
 
@@ -69,7 +74,7 @@ void TextureGL::Load()
 	}
 
 	// Setup storage
-	GL_CHECK_ERROR(glTexStorage2D(GL_TEXTURE_2D, provider.GetMipmapLevels(), interalFormat, provider.width, provider.height));
+	GL_CHECK_ERROR(glTexStorage2D(GL_TEXTURE_2D, provider.GetMipmapLevels(), internalFormat, provider.width, provider.height));
 
 	// Upload source image
 	GLint alignment = provider.alignment;

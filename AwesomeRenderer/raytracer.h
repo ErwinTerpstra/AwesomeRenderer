@@ -78,7 +78,7 @@ namespace AwesomeRenderer
 			void BreakOnDebugPixel(const Point2& pixel);
 
 			void Render(const Point2& pixel);
-			void CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int depth = 0) const;
+			bool CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int depth = 0) const;
 			bool RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance = FLT_MAX) const;
 
 			float GetProgress() const;

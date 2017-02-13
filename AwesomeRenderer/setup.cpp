@@ -128,9 +128,9 @@ void Setup::SetupCornellBox()
 	// LIGHTING
 	LightData::Light& light = context.mainContext->lightData->lights[0];
 	light.type = LightData::LightType::POINT;
-	light.position = Vector3(0.0f, 0.9f, 0.5f);
+	light.position = Vector3(0.0f, 0.99f, 0.5f);
 	light.color = Color(0.78f, 0.78f, 0.78f);
-	light.intensity = 3.0f;
+	light.intensity = PI;
 
 	light.enabled = true;
 
@@ -143,7 +143,7 @@ void Setup::SetupCornellBox()
 	skybox->back = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0005.bmp");
 	skybox->bottom = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0006.bmp");
 
-	context.mainContext->skybox = skybox;
+	//context.mainContext->skybox = skybox;
 
 	// GEOMETRY
 	const Color wallWhite = Color(0.725f, 0.71f, 0.68f);

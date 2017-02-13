@@ -143,11 +143,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Setup frame and depth buffers
 	printf("[AwesomeRenderer]: Initializing frame buffer...\n");
 
-	Texture frameBuffer(new GDIBufferAllocator(window.handle));
+	Texture frameBuffer(new MemoryBufferAllocator());
 	Texture depthBuffer(new MemoryBufferAllocator());
+	Texture windowBuffer(new GDIBufferAllocator(window.handle));
 	
-	frameBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, Buffer::BGR24);
+	frameBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, Buffer::FLOAT128);
 	depthBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, Buffer::FLOAT32);
+	windowBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, Buffer::BGR24);
 
 	// Render target
 	printf("[AwesomeRenderer]: Setting up render context...\n");
@@ -373,7 +375,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			softwareRenderer.Render();
 		}
 
-		window.DrawBuffer(frameBuffer, static_cast<const GDIBufferAllocator&>(frameBuffer.GetAllocator()));
+		windowBuffer.Blit(frameBuffer);
+
+		window.DrawBuffer(windowBuffer, static_cast<const GDIBufferAllocator&>(windowBuffer.GetAllocator()));
 
 		// Process Win32 messages
 		window.ProcessMessages();

@@ -15,7 +15,7 @@ namespace AwesomeRenderer
 	public:
 		enum Encoding
 		{
-			RGB24, RGBA32, BGR24, BGRA32, FLOAT32
+			RGB24, RGBA32, BGR24, BGRA32, FLOAT32, FLOAT96, FLOAT128
 		};
 
 		uint32_t width, height, stride, size;

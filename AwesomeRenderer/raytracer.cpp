@@ -180,7 +180,7 @@ void RayTracer::Render(const Point2& pixel)
 	frameBuffer->GetPixel(pixel[0], pixel[1], color);
 
 	color *= renderedSamples;
-		
+
 	for (uint32_t sample = 0; sample < samplesPerPixel; ++sample)
 	{
 		Vector2 subPixel = pixel;
@@ -214,27 +214,26 @@ void RayTracer::BreakOnDebugPixel(const Point2& pixel)
 
 }
 
-void RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int depth) const
+bool RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int depth) const
 {
 	const LightData& lightData = *renderContext->lightData;
 
 	// Perform the raycast to find out which node we've hit
-	RaycastHit hitInfo;
-	//if (depth > 0 || !RayCast(ray, hitInfo))
-	if (!RayCast(ray, hitInfo))
+	if (!RayCast(ray, shadingInfo.hitInfo))
 	{
 		if (renderContext->skybox != NULL)
 			renderContext->skybox->Sample(ray.direction, shadingInfo.color);
 
-		return;
+		return FALSE;
 	}
 
-	const Renderable* renderable = dynamic_cast<const Renderable*>(hitInfo.element);
+	const Renderable* renderable = dynamic_cast<const Renderable*>(shadingInfo.hitInfo.element);
 	const Material* material = renderable->material;
 
 	assert(material->bsdf != NULL);
 	
-	shadingInfo.color = Color(currentIntegrator->Li(ray, hitInfo, *material, *renderContext, depth), 1.0);
+	shadingInfo.color = Color(currentIntegrator->Li(ray, shadingInfo.hitInfo, *material, *renderContext, depth), 1.0);
+	return TRUE;
 }
 
 bool RayTracer::RayCast(const Ray& ray, RaycastHit& nearestHit, float maxDistance) const 

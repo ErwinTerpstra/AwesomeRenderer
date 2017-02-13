@@ -56,7 +56,7 @@ Vector3 SurfaceIntegrator::SampleDirectLight(const Ray& ray, const RaycastHit& h
 					intensity = 0;
 			}
 
-			//intensity /= (distanceToLight * distanceToLight);
+			intensity /= (light.constantAttenuation + light.lineairAttenuation * distanceToLight + light.quadricAttenuation * (distanceToLight * distanceToLight));
 		}
 		else
 		{
