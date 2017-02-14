@@ -52,6 +52,8 @@ namespace AwesomeRenderer
 
 		int numPixelLights;
 
+		float shadowDistance;
+
 	public:
 		LightData();
 	};

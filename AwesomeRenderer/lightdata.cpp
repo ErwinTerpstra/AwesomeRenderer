@@ -3,7 +3,7 @@
 
 using namespace AwesomeRenderer;
 
-LightData::LightData()
+LightData::LightData() : shadowDistance(100.0f)
 {
 
 }

@@ -61,8 +61,12 @@ Vector3 SurfaceIntegrator::SampleDirectLight(const Ray& ray, const RaycastHit& h
 		else
 		{
 			toLight = -light.direction;
-			distanceToLight = 10000.0f; // TODO: shadow distance render context parameter?
+			distanceToLight = context.lightData->shadowDistance;
 		}
+
+		float pdf = material.bsdf->CalculatePDF(viewVector, toLight, normal, material);
+		if (pdf <= 0.0f)
+			continue;
 
 		Ray shadowRay(hitInfo.point + hitInfo.normal * 1e-3f, toLight);
 
@@ -72,8 +76,8 @@ Vector3 SurfaceIntegrator::SampleDirectLight(const Ray& ray, const RaycastHit& h
 		
 		float NoL = std::max(VectorUtil<3>::Dot(normal, toLight), 0.0f);
 		Vector3 lightRadiance = light.color.subvector(3) * intensity;
-		
-		radiance += material.bsdf->Sample(viewVector, toLight, normal, hitInfo, material) * lightRadiance * NoL;
+
+		radiance += material.bsdf->Sample(viewVector, toLight, normal, hitInfo, material) * lightRadiance * NoL / pdf;
 	}
 	
 	return radiance;

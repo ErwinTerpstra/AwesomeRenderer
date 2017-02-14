@@ -127,9 +127,13 @@ void Setup::SetupCornellBox()
 	
 	// LIGHTING
 	LightData::Light& light = context.mainContext->lightData->lights[0];
+	
+	context.mainContext->lightData->shadowDistance = 0.5f;
+
 	light.type = LightData::LightType::POINT;
 	light.position = Vector3(0.0f, 0.99f, 0.5f);
 	light.color = Color(0.78f, 0.78f, 0.78f);
+
 	light.intensity = PI;
 
 	light.enabled = true;
@@ -151,7 +155,7 @@ void Setup::SetupCornellBox()
 	const float wallRoughness = 0.8f;
 
 	// Metal
-	//*
+	/*
 	const Color sphereDiffuse = Color::BLACK;
 	const Color sphereSpecular = Color::WHITE * 0.8f;
 	//const Color sphereSpecular = Color(245, 215, 121); // GOLD
@@ -162,7 +166,7 @@ void Setup::SetupCornellBox()
 	//*/
 
 	// Plastic
-	/*
+	//*
 	const Color sphereDiffuse(0.8f, 0.8f, 0.8f);
 	const Color sphereSpecular(0.1f, 0.1f, 0.1f);
 	const float sphereRoughness = 0.6f;

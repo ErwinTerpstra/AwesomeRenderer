@@ -22,8 +22,6 @@ BSDF::BSDF(BxDF* diffuse, BxDF* specular) : diffuse(diffuse), specular(specular)
 
 Vector3 BSDF::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material) const
 {
-	return specular->Sample(wo, wi, normal, hitInfo, material);
-
 	Vector3 diffuseReflection(0.0f, 0.0f, 0.0f), specularReflection(0.0f, 0.0f, 0.0f);
 
 	if (diffuse != NULL)
@@ -38,9 +36,6 @@ Vector3 BSDF::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal
 
 void BSDF::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vector3& normal, const Material& material, Vector3& wi) const
 {
-	specular->GenerateSampleVector(r, wo, normal, material, wi);
-	return;
-
 	if (diffuse != NULL && specular != NULL)
 	{
 		Vector2 rl = r;
@@ -66,8 +61,6 @@ void BSDF::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vecto
 
 float BSDF::CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const
 {
-	return specular->CalculatePDF(wo, wi, normal, material);
-
 	if (diffuse != NULL && specular != NULL)
 		return 0.5f * (diffuse->CalculatePDF(wo, wi, normal, material) + specular->CalculatePDF(wo, wi, normal, material));
 	else if (specular != NULL)

@@ -77,7 +77,7 @@ Vector3 MonteCarloIntegrator::Sample(const Vector3& p, const Vector3& wo, const 
 
 		Vector3 sampleVector;
 		material.bsdf->GenerateSampleVector(r, wo, normal, material, sampleVector);
-
+		
 		float pdf = material.bsdf->CalculatePDF(wo, sampleVector, normal, material);
 
 		return Sample(p, wo, sampleVector, normal, hitInfo, material, depth, pdf);
@@ -111,10 +111,10 @@ Vector3 MonteCarloIntegrator::Sample(const Vector3& p, const Vector3& wo, const 
 		distance = (p - reflectionShading.hitInfo.point).length();
 	else
 		distance = 0.0f;
-	
+
 	// Attenuate by distance
 	Vector3 radiance = reflectionShading.color.subvector(3) / (1.0f + distance * distance);
-	
+
 	return reflectance * radiance * NoL / pdf;
 }
 
