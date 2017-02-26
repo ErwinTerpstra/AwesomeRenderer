@@ -6,6 +6,8 @@
 #include "rendercontext.h"
 #include "material.h"
 #include "pbrmaterial.h"
+#include "bsdf.h"
+#include "bxdf.h"
 
 #include "raytracer.h"
 
@@ -19,7 +21,7 @@ SurfaceIntegrator::SurfaceIntegrator(RayTracer& rayTracer) : rayTracer(rayTracer
 
 Vector3 SurfaceIntegrator::SampleDirectLight(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& context)
 {
-	const Vector3 viewVector = -ray.direction;
+	const Vector3 wo = -ray.direction;
 	const Vector3& normal = hitInfo.normal;
 	
 	Vector3 radiance(0.0f, 0.0f, 0.0f);
@@ -33,21 +35,21 @@ Vector3 SurfaceIntegrator::SampleDirectLight(const Ray& ray, const RaycastHit& h
 			continue;
 
 		// Calculate light intensity
-		Vector3 toLight;
+		Vector3 wi;
 		float distanceToLight;
 
 		float intensity = light.intensity;
 
 		if (light.type != LightData::DIRECTIONAL)
 		{
-			toLight = light.position - hitInfo.point;
+			wi = light.position - hitInfo.point;
 
-			distanceToLight = toLight.length();
-			toLight.normalize();
+			distanceToLight = wi.length();
+			wi.normalize();
 
 			if (light.type == LightData::SPOT)
 			{
-				float angleTerm = VectorUtil<3>::Dot(light.direction, -toLight);
+				float angleTerm = VectorUtil<3>::Dot(light.direction, -wi);
 				float cosAngle = cos(light.angle);
 
 				if (angleTerm > cosAngle)
@@ -60,24 +62,20 @@ Vector3 SurfaceIntegrator::SampleDirectLight(const Ray& ray, const RaycastHit& h
 		}
 		else
 		{
-			toLight = -light.direction;
+			wi = -light.direction;
 			distanceToLight = context.lightData->shadowDistance;
 		}
 
-		float pdf = material.bsdf->CalculatePDF(viewVector, toLight, normal, material);
-		if (pdf <= 0.0f)
-			continue;
-
-		Ray shadowRay(hitInfo.point + hitInfo.normal * 1e-3f, toLight);
+		Ray shadowRay(hitInfo.point + hitInfo.normal * 1e-3f, wi);
 
 		RaycastHit shadowHitInfo;
 		if (rayTracer.RayCast(shadowRay, shadowHitInfo, distanceToLight))
 			continue;
 		
-		float NoL = std::max(VectorUtil<3>::Dot(normal, toLight), 0.0f);
+		float NoL = std::max(VectorUtil<3>::Dot(normal, wi), 0.0f);
 		Vector3 lightRadiance = light.color.subvector(3) * intensity;
-
-		radiance += material.bsdf->Sample(viewVector, toLight, normal, hitInfo, material) * lightRadiance * NoL / pdf;
+		
+		radiance += material.bsdf->Sample(wo, wi, normal, hitInfo, material, BSDF::BXDF_DIFFUSE) * lightRadiance * NoL;
 	}
 	
 	return radiance;

@@ -21,7 +21,7 @@ Vector3 Lambert::Sample(const Vector3& wo, const Vector3& wi, const Vector3& nor
 	PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
 
 	if (pbrMaterial != NULL)
-		return (pbrMaterial->albedo.subvector(3) * (1.0f - pbrMaterial->metallic)) / PI;
+		return (pbrMaterial->albedo.subvector(3) * (1.0f - pbrMaterial->metallic)) * INV_PI;
 
 	PhongMaterial* phongMaterial = material.As<PhongMaterial>();
 
@@ -32,7 +32,7 @@ Vector3 Lambert::Sample(const Vector3& wo, const Vector3& wi, const Vector3& nor
 		if (phongMaterial->diffuseMap != NULL)
 			result *= phongMaterial->diffuseMap->Sample(hitInfo.uv);
 
-		return result.subvector(3) / PI;
+		return result.subvector(3) * INV_PI;
 	}
 
 	return Vector3(0.0f, 0.0f, 0.0f);

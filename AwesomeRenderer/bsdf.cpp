@@ -20,22 +20,25 @@ BSDF::BSDF(BxDF* diffuse, BxDF* specular) : diffuse(diffuse), specular(specular)
 
 }
 
-Vector3 BSDF::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material) const
+Vector3 BSDF::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, BxDFTypes typeMask) const
 {
 	Vector3 diffuseReflection(0.0f, 0.0f, 0.0f), specularReflection(0.0f, 0.0f, 0.0f);
 
-	if (diffuse != NULL)
+	if (diffuse != NULL && (typeMask & BXDF_DIFFUSE) != 0)
 		diffuseReflection = diffuse->Sample(wo, wi, normal, hitInfo, material);
 	
-	if (specular != NULL)
+	if (specular != NULL && (typeMask & BXDF_SPECULAR) != 0)
 		specularReflection = specular->Sample(wo, wi, normal, hitInfo, material);
 
-	Vector3 fresnel = FresnelSchlick(VectorUtil<3>::Dot(normal, cml::normalize(wo + wi)), GetF0(material));
+	Vector3 fresnel = FresnelSchlick(VectorUtil<3>::Dot(wi, cml::normalize(wo + wi)), GetF0(material));
 	return (diffuseReflection * (1.0f - fresnel)) + (specularReflection * fresnel);
 }
 
 void BSDF::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vector3& normal, const Material& material, Vector3& wi) const
 {
+	diffuse->GenerateSampleVector(r, wo, normal, material, wi);
+	return;
+
 	if (diffuse != NULL && specular != NULL)
 	{
 		Vector2 rl = r;
@@ -61,6 +64,8 @@ void BSDF::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vecto
 
 float BSDF::CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const
 {
+	return diffuse->CalculatePDF(wo, wi, normal, material);
+
 	if (diffuse != NULL && specular != NULL)
 		return 0.5f * (diffuse->CalculatePDF(wo, wi, normal, material) + specular->CalculatePDF(wo, wi, normal, material));
 	else if (specular != NULL)
