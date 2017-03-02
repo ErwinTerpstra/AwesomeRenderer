@@ -229,9 +229,7 @@ bool RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int d
 
 	const Renderable* renderable = dynamic_cast<const Renderable*>(shadingInfo.hitInfo.element);
 	const Material* material = renderable->material;
-
-	assert(material->bsdf != NULL);
-	
+		
 	shadingInfo.color = Color(currentIntegrator->Li(ray, shadingInfo.hitInfo, *material, *renderContext, depth), 1.0);
 	return TRUE;
 }

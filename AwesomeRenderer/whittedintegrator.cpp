@@ -23,23 +23,26 @@ WhittedIntegrator::WhittedIntegrator(RayTracer& rayTracer) : SurfaceIntegrator(r
 
 Vector3 WhittedIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& context, int depth)
 {
-	Vector3 radiance = material.emission.subvector(3);
+	Vector3 radiance = material.emission.subvector(3) * PI;
 	
-	radiance += SampleDirectLight(ray, hitInfo, material, context);
-
-	if (depth < rayTracer.maxDepth)
+	if (material.bsdf != NULL)
 	{
-		Vector3 reflection = SampleReflection(ray, hitInfo, material, context, depth);
+		radiance += SampleDirectLight(ray, hitInfo, material, context);
 
-		if (material.translucent)
+		if (depth < rayTracer.maxDepth)
 		{
-			Vector3 refraction = SampleRefraction(ray, hitInfo, material, context, depth);
+			Vector3 reflection = SampleReflection(ray, hitInfo, material, context, depth);
 
-			float fresnel = Fresnel(ray.direction, hitInfo.normal, material.ior);
-			radiance += reflection * fresnel + refraction * (1.0f - fresnel);
+			if (material.translucent)
+			{
+				Vector3 refraction = SampleRefraction(ray, hitInfo, material, context, depth);
+
+				float fresnel = Fresnel(ray.direction, hitInfo.normal, material.ior);
+				radiance += reflection * fresnel + refraction * (1.0f - fresnel);
+			}
+			else
+				radiance += reflection;
 		}
-		else
-			radiance += reflection;
 	}
 
 	return radiance;

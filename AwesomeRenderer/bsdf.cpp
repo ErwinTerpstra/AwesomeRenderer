@@ -30,15 +30,11 @@ Vector3 BSDF::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal
 	if (specular != NULL && (typeMask & BXDF_SPECULAR) != 0)
 		specularReflection = specular->Sample(wo, wi, normal, hitInfo, material);
 
-	Vector3 fresnel = FresnelSchlick(VectorUtil<3>::Dot(wi, cml::normalize(wo + wi)), GetF0(material));
-	return (diffuseReflection * (1.0f - fresnel)) + (specularReflection * fresnel);
+	return diffuseReflection + specularReflection;
 }
 
 void BSDF::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vector3& normal, const Material& material, Vector3& wi) const
 {
-	diffuse->GenerateSampleVector(r, wo, normal, material, wi);
-	return;
-
 	if (diffuse != NULL && specular != NULL)
 	{
 		Vector2 rl = r;
@@ -64,8 +60,6 @@ void BSDF::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vecto
 
 float BSDF::CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const
 {
-	return diffuse->CalculatePDF(wo, wi, normal, material);
-
 	if (diffuse != NULL && specular != NULL)
 		return 0.5f * (diffuse->CalculatePDF(wo, wi, normal, material) + specular->CalculatePDF(wo, wi, normal, material));
 	else if (specular != NULL)
@@ -74,21 +68,4 @@ float BSDF::CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& no
 		return diffuse->CalculatePDF(wo, wi, normal, material);
 
 	return 0.0f;
-}
-
-// TODO: Generalize and remove
-Vector3 BSDF::GetF0(const Material& material) const
-{
-	PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
-
-	if (pbrMaterial != NULL)
-		return pbrMaterial->specular.subvector(3);
-
-	PhongMaterial* phongMaterial = material.As<PhongMaterial>();
-
-	if (phongMaterial != NULL)
-		return phongMaterial->specularColor.subvector(3);
-
-	return Vector3();
-
 }

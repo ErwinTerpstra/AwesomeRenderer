@@ -10,6 +10,8 @@ namespace AwesomeRenderer
 	class PbrMaterial : public Extension<Material, PbrMaterial>
 	{
 	public:
+		static RayTracing::BSDF metallicBSDF;
+		static RayTracing::BSDF dielectricBSDF;
 
 		float roughness;
 
@@ -21,7 +23,8 @@ namespace AwesomeRenderer
 
 	public:
 		PbrMaterial(Material& material);
-		PbrMaterial::PbrMaterial(RayTracing::BSDF& bsdf, Material& material);
+		PbrMaterial(RayTracing::BSDF& bsdf, Material& material);
+
 		~PbrMaterial();
 
 		static uint32_t ExtensionID() { return Material::MATERIAL_PBR; }

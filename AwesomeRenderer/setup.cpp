@@ -134,9 +134,10 @@ void Setup::SetupCornellBox()
 	light.position = Vector3(0.0f, 0.99f, 0.5f);
 	light.color = Color::WHITE;
 	light.constantAttenuation = 1.0f;
+	light.quadricAttenuation = 0.0f;
 	light.intensity = PI;
 
-	light.enabled = true;
+	light.enabled = false;
 
 	// SKYBOX
 	SixSidedSkybox* skybox = new SixSidedSkybox();
@@ -149,7 +150,13 @@ void Setup::SetupCornellBox()
 
 	//context.mainContext->skybox = skybox;
 
+
 	// GEOMETRY
+	const bool showBox = true;
+	const bool showLight = true;
+	const bool showSpheres = true;
+	const bool showBunny = false;
+
 	const Color wallWhite = Color(0.725f, 0.71f, 0.68f);
 	const Color wallSpecular = Color::WHITE * 0.2f;
 	const float wallRoughness = 0.8f;
@@ -185,11 +192,6 @@ void Setup::SetupCornellBox()
 	const bool sphereTranslucent = true;
 	//*/
 
-	const bool showBox = true;
-	const bool showLight = false;
-	const bool showSpheres = true;
-	const bool showBunny = false;
-	
 	if (showBox)
 	{
 		// Left wall
@@ -325,15 +327,11 @@ void Setup::SetupCornellBox()
 		Node* node = new Node();
 
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(0.0f, 1.0f - 1e-5f, 0.0f));
+		transform->SetPosition(Vector3(0.0f, 0.6f, 0.5f));
 		node->AddComponent(transform);
 
-		PbrMaterial* material = new PbrMaterial(*(new Material()));
-		material->albedo = Color::BLACK;
-		material->specular = Color::BLACK;
-		material->metallic = 0;
-		material->roughness = 0.0f;
-		material->provider.emission = Color::WHITE;
+		Material* material = new Material();
+		material->emission = Color::WHITE;
 
 		/*
 		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL));
@@ -354,7 +352,7 @@ void Setup::SetupCornellBox()
 
 		Renderable* renderable = new Renderable();
 		renderable->shape = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 0.2f);
-		renderable->material = &material->provider;
+		renderable->material = material;
 
 		node->AddComponent(renderable);
 
@@ -364,14 +362,8 @@ void Setup::SetupCornellBox()
 
 	if (showSpheres)
 	{
-		// Left sphere
-		Node* node = new Node();
 
-		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(-0.25f, 0.0f, 0.65f));
-		node->AddComponent(transform);
-
-		PbrMaterial* material = new PbrMaterial(*(new Material()));
+		PbrMaterial* material = new PbrMaterial(sphereMetallic > 0 ? PbrMaterial::metallicBSDF : PbrMaterial::dielectricBSDF, *(new Material()));
 		material->albedo = sphereDiffuse;
 		material->specular = sphereSpecular;
 		material->metallic = sphereMetallic;
@@ -379,40 +371,40 @@ void Setup::SetupCornellBox()
 		material->provider.ior = sphereIor;
 		material->provider.translucent = sphereTranslucent;
 
-		Renderable* renderable = new Renderable();
-		renderable->shape = new Sphere(Vector3(0.0f, 0.15f, 0.0f), 0.15f);
-		//renderable->shape = new AABB(Vector3(-0.15, 0.0f, -0.15f), Vector3(0.15f, 0.3f, 0.15f));
-		renderable->material = &material->provider;
+		{
+			// Left sphere
+			Node* node = new Node();
 
-		node->AddComponent(renderable);
+			Transformation* transform = new Transformation();
+			transform->SetPosition(Vector3(-0.25f, 0.0f, 0.65f));
+			node->AddComponent(transform);
 
-		context.mainContext->nodes.push_back(node);
-	}
+			Renderable* renderable = new Renderable();
+			renderable->shape = new Sphere(Vector3(0.0f, 0.15f, 0.0f), 0.15f);
+			//renderable->shape = new AABB(Vector3(-0.15, 0.0f, -0.15f), Vector3(0.15f, 0.3f, 0.15f));
+			renderable->material = &material->provider;
 
-	if (showSpheres)
-	{
-		// right sphere
-		Node* node = new Node();
+			node->AddComponent(renderable);
 
-		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(0.15f, 0.0f, 0.25f));
-		node->AddComponent(transform);
-		
-		PbrMaterial* material = new PbrMaterial(*(new Material()));
-		material->albedo = sphereDiffuse;
-		material->specular = sphereSpecular;
-		material->metallic = sphereMetallic;
-		material->roughness = sphereRoughness;
-		material->provider.ior = sphereIor;
-		material->provider.translucent = sphereTranslucent;
+			context.mainContext->nodes.push_back(node);
+		}
 
-		Renderable* renderable = new Renderable();
-		renderable->shape = new Sphere(Vector3(0.0f, 0.18f, 0.0f), 0.18f);
-		renderable->material = &material->provider;
+		{
+			// right sphere
+			Node* node = new Node();
 
-		node->AddComponent(renderable);
+			Transformation* transform = new Transformation();
+			transform->SetPosition(Vector3(0.15f, 0.0f, 0.25f));
+			node->AddComponent(transform);
 
-		context.mainContext->nodes.push_back(node);
+			Renderable* renderable = new Renderable();
+			renderable->shape = new Sphere(Vector3(0.0f, 0.18f, 0.0f), 0.18f);
+			renderable->material = &material->provider;
+
+			node->AddComponent(renderable);
+
+			context.mainContext->nodes.push_back(node);
+		}
 	}
 
 	if (showBunny)

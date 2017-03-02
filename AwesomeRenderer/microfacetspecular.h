@@ -18,7 +18,7 @@ namespace AwesomeRenderer
 			virtual float CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const;
 
 		private:
-			Vector3 SpecularCookTorrance(const Vector3& v, const Vector3& n, const Vector3& l, float roughness) const;
+			Vector3 SpecularCookTorrance(const Vector3& v, const Vector3& n, const Vector3& l, const Vector3& F0, float roughness) const;
 
 			float RoughnessToShininess(float a) const;
 
@@ -32,6 +32,12 @@ namespace AwesomeRenderer
 
 			float G1Schlick(const Vector3& v, const Vector3& n, float a) const;
 			float G1GGX(const Vector3& v, const Vector3& n, const Vector3& h, float a) const;
+
+			template<typename T>
+			static T FresnelSchlick(float cosT, T F0)
+			{
+				return F0 + (1.0f - F0) * pow(1 - cosT, 5);
+			};
 
 		};
 	}

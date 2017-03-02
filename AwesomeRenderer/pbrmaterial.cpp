@@ -8,9 +8,10 @@
 
 using namespace AwesomeRenderer;
 
-RayTracing::BSDF pbrBSDF(new RayTracing::Lambert(), new RayTracing::MicrofacetSpecular());
+RayTracing::BSDF PbrMaterial::metallicBSDF(NULL, new RayTracing::MicrofacetSpecular());
+RayTracing::BSDF PbrMaterial::dielectricBSDF(new RayTracing::Lambert(), new RayTracing::MicrofacetSpecular());
 
-PbrMaterial::PbrMaterial(Material& material) : PbrMaterial(pbrBSDF, material)
+PbrMaterial::PbrMaterial(Material& material) : PbrMaterial(dielectricBSDF, material)
 {
 
 }

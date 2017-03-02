@@ -34,6 +34,13 @@ namespace AwesomeRenderer
 			{
 				return (nF * pdfF) / (nF * pdfF + nG * pdfG);
 			}
+
+			AR_INLINE float PowerHeuristic(int nF, float pdfF, int nG, float pdfG)
+			{
+				float f = nF * pdfF, g = nG * pdfG;
+
+				return (f * f) / (f * f + g * g);
+			}
 		};
 	}
 }

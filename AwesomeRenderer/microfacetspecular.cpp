@@ -17,13 +17,14 @@ MicrofacetSpecular::MicrofacetSpecular()
 Vector3 MicrofacetSpecular::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material) const
 {
 	PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
-	return SpecularCookTorrance(wo, normal, wi, pbrMaterial->roughness);
+	return SpecularCookTorrance(wo, normal, wi, pbrMaterial->specular.subvector(3), pbrMaterial->roughness);
 }
 
 void MicrofacetSpecular::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vector3& normal, const Material& material, Vector3& wi) const
 {
 	const PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
-	float alpha2 = pbrMaterial->roughness * pbrMaterial->roughness;
+	
+	float alpha2 = pow(pbrMaterial->roughness, 4);// pbrMaterial->roughness * pbrMaterial->roughness;
 
 	float phi = 2.0f * PI * r[1];
 
@@ -45,14 +46,14 @@ float MicrofacetSpecular::CalculatePDF(const Vector3& wo, const Vector3& wi, con
 	Vector3 h = cml::normalize(wo + wi);
 
 	float cosTheta = VectorUtil<3>::Dot(normal, h);
-	//float sinTheta = sqrtf(std::max(0.0f, 1.0f - cosTheta * cosTheta));
+	float sinTheta = sqrtf(std::max(0.0f, 1.0f - cosTheta * cosTheta));
 	float denom = (cosTheta * cosTheta * (alpha2 - 1.0f)) + 1.0f;
 
-	float pdf = (alpha2 / std::max((float)PI * denom * denom, 1e-7f)) * cosTheta;
+	float pdf = (alpha2 / std::max((float)PI * denom * denom, 1e-7f));
 	return pdf / (4 * VectorUtil<3>::Dot(wo, h));
 }
 
-Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& v, const Vector3& n, const Vector3& l, float roughness) const
+Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& v, const Vector3& n, const Vector3& l, const Vector3& F0, float roughness) const
 {
 	assert(VectorUtil<3>::IsNormalized(v));
 	assert(VectorUtil<3>::IsNormalized(n));
@@ -62,6 +63,8 @@ Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& v, const Vector3
 
 	// Calculate the half vector
 	Vector3 h = cml::normalize(l + v);
+
+	Vector3 fresnel = FresnelSchlick(VectorUtil<3>::Dot(l, h), F0);
 
 	float distribution, geometry;
 
@@ -87,8 +90,7 @@ Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& v, const Vector3
 	float denominator = std::max(4 * Util::Clamp01(VectorUtil<3>::Dot(n, v)) * Util::Clamp01(VectorUtil<3>::Dot(n, l)), 1e-7f);
 
 	// Return the evaluated BRDF
-	float reflectance = (geometry * distribution) / denominator;
-	Vector3 result = Vector3(reflectance, reflectance, reflectance);
+	Vector3 result = (fresnel * geometry * distribution) / denominator;
 	
 	//result[0] = Util::Clamp01(result[0]);
 	//result[1] = Util::Clamp01(result[1]);

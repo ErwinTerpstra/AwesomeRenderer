@@ -33,11 +33,7 @@ void BlinnPhong::GenerateSampleVector(const Vector2& r, const Vector3& wo, const
 	Vector3 h;
 	SphericalToCartesian(phi, theta, h);
 	TransformSampleVector(normal, h, h);
-
-	float VoH = VectorUtil<3>::Dot(wo, h);
-	if (VoH < 0.0f)
-		h = -h;
-
+	
 	VectorUtil<3>::Reflect(wo, h, wi);
 }
 
