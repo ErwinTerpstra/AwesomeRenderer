@@ -13,6 +13,8 @@ namespace AwesomeRenderer
 	{
 
 	public:
+		const float DEFAULT_GAMMA = 2.0f;
+
 		enum Encoding
 		{
 			RGB24, RGBA32, BGR24, BGRA32, FLOAT32, FLOAT96, FLOAT128
@@ -44,7 +46,7 @@ namespace AwesomeRenderer
 		__inline void Clear() { memset(data, 0, size); }
 		void Clear(const Color& color);
 		
-		void Blit(const Buffer& src);
+		void Blit(const Buffer& src, bool adjustGamma);
 
 		float GetPixel(uint32_t x, uint32_t y) const;
 		void GetPixel(uint32_t x, uint32_t y, Color& color) const;
@@ -63,6 +65,10 @@ namespace AwesomeRenderer
 		static void EncodeColor(const Color& color, Encoding encoding, uchar* buffer);
 		static void DecodeColor(const uchar* buffer, Encoding encoding, Color& color);
 
+		bool IsHDR(Encoding encoding);
+		static void Tonemap(const Color& hdr, Color& ldr);
+		static float Tonemap(float x);
+		static void AdjustGamma(Color& color, float gamma);
 	};
 
 }

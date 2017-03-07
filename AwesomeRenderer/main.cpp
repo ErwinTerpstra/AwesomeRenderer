@@ -178,9 +178,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	cameraHud.SetOrthographic(SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 10.0f);
 	cameraHud.SetViewport(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT);
 
+	RenderTarget hudTarget;
+	hudTarget.SetupBuffers(&windowBuffer, &depthBuffer);
+
 	RenderContext hudContext;
 	hudContext.camera = &cameraHud;
-	hudContext.renderTarget = &renderTarget;
+	hudContext.renderTarget = &hudTarget;
 	hudContext.clearFlags = RenderTarget::BUFFER_DEPTH;
 	/**/
 
@@ -367,6 +370,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		mainContext.Update();
 		mainRenderer->SetRenderContext(&mainContext);
 		mainRenderer->Render();
+
+		windowBuffer.Blit(frameBuffer, true);
 		
 		if (inputManager.GetKey('H'))
 		{
@@ -374,8 +379,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			softwareRenderer.SetRenderContext(&hudContext);
 			softwareRenderer.Render();
 		}
-
-		windowBuffer.Blit(frameBuffer);
 
 		window.DrawBuffer(windowBuffer, static_cast<const GDIBufferAllocator&>(windowBuffer.GetAllocator()));
 

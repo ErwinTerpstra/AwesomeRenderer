@@ -26,6 +26,7 @@ namespace AwesomeRenderer
 		float ior;
 
 		Color emission;
+		float emissionIntensity;
 
 		// TODO: Move shader to SoftwareRenderer/OpenGL renderer specific material
 		Shader* shader;

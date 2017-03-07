@@ -27,7 +27,7 @@ MonteCarloIntegrator::MonteCarloIntegrator(RayTracer& rayTracer) : SurfaceIntegr
 
 Vector3 MonteCarloIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& context, int depth)
 {
-	Vector3 radiance = material.emission.subvector(3) * PI;
+	Vector3 radiance = material.emission.subvector(3) * material.emissionIntensity;
 	
 	if (material.bsdf != NULL)
 	{
@@ -63,13 +63,11 @@ Vector3 MonteCarloIntegrator::Sample(const Vector3& p, const Vector3& wo, const 
 		float bsdfPDF = material.bsdf->CalculatePDF(wo, bsdfSampleVector, normal, material);
 
 		Vector3 radiance(0.0f, 0.0f, 0.0f);
-				
-		/*
-		if (random.NextFloat() < 0.5f)
-			radiance += Sample(p, wo, lightSampleVector, normal, hitInfo, material, rayTracer.maxDepth, lightPDF);
-		else
-			radiance += Sample(p, wo, bsdfSampleVector, normal, hitInfo, material, depth, bsdfPDF);
-		*/
+			
+		//if (random.NextFloat() < 0.5f)
+			//radiance += Sample(p, wo, lightSampleVector, normal, hitInfo, material, rayTracer.maxDepth, lightPDF);
+		//else
+			//radiance += Sample(p, wo, bsdfSampleVector, normal, hitInfo, material, depth, bsdfPDF);
 
 		// TODO: Sample light directly, instead of traversing the whole scene. Perform only shadow test
 		radiance += Sample(p, wo, lightSampleVector, normal, hitInfo, material, rayTracer.maxDepth, lightPDF) * PowerHeuristic(1, lightPDF, 1, bsdfPDF);

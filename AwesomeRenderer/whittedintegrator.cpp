@@ -23,7 +23,7 @@ WhittedIntegrator::WhittedIntegrator(RayTracer& rayTracer) : SurfaceIntegrator(r
 
 Vector3 WhittedIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& context, int depth)
 {
-	Vector3 radiance = material.emission.subvector(3) * PI;
+	Vector3 radiance = material.emission.subvector(3) * material.emissionIntensity;
 	
 	if (material.bsdf != NULL)
 	{

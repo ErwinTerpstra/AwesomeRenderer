@@ -135,7 +135,7 @@ void Setup::SetupCornellBox()
 	light.color = Color::WHITE;
 	light.constantAttenuation = 1.0f;
 	light.quadricAttenuation = 0.0f;
-	light.intensity = PI;
+	light.intensity = 1.0f;
 
 	light.enabled = false;
 
@@ -166,7 +166,7 @@ void Setup::SetupCornellBox()
 	const Color sphereDiffuse = Color::BLACK;
 	const Color sphereSpecular = Color::WHITE * 0.8f;
 	//const Color sphereSpecular = Color(245, 215, 121); // GOLD
-	const float sphereRoughness = 0.2f;
+	const float sphereRoughness = 0.8f;
 	const float sphereMetallic = 1;
 	const float sphereIor = 1.0f;
 	const bool sphereTranslucent = false;
@@ -327,11 +327,12 @@ void Setup::SetupCornellBox()
 		Node* node = new Node();
 
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(0.0f, 0.6f, 0.5f));
+		transform->SetPosition(Vector3(0.0f, 1.0f, 0.0f));
 		node->AddComponent(transform);
 
 		Material* material = new Material();
 		material->emission = Color::WHITE;
+		material->emissionIntensity = 5.0f;
 
 		/*
 		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL));
@@ -418,7 +419,7 @@ void Setup::SetupCornellBox()
 		transform->SetRotation(q);
 		node->AddComponent(transform);
 
-		PbrMaterial* material = new PbrMaterial(*(new Material()));
+		PbrMaterial* material = new PbrMaterial(sphereMetallic > 0 ? PbrMaterial::metallicBSDF : PbrMaterial::dielectricBSDF, *(new Material()));
 		material->albedo = sphereDiffuse;
 		material->specular = sphereSpecular;
 		material->metallic = sphereMetallic;

@@ -5,6 +5,8 @@
 #include "buffer.h"
 #include "bufferallocator.h"
 
+#include "inputmanager.h"
+
 using namespace AwesomeRenderer;
 
 Buffer::Buffer(BufferAllocator* allocator) : allocator(allocator), data(NULL)
@@ -67,8 +69,9 @@ void Buffer::Clear(const Color& color)
 			SetPixel(x, y, color);
 }
 
-void Buffer::Blit(const Buffer& src)
+void Buffer::Blit(const Buffer& src, bool adjustGamma)
 {
+	bool tonemap = IsHDR(src.encoding) && !IsHDR(encoding) && !InputManager::Instance().GetKey('T');
 	Color color;
 
 	for (uint32_t y = 0; y < std::min(height, src.height); ++y)
@@ -76,6 +79,13 @@ void Buffer::Blit(const Buffer& src)
 		for (uint32_t x = 0; x < std::min(width, src.width); ++x)
 		{
 			src.GetPixel(x, y, color);
+
+			if (tonemap)
+				Tonemap(color, color);
+
+			if (adjustGamma && !InputManager::Instance().GetKey('Y'))
+				AdjustGamma(color, 1.0f / DEFAULT_GAMMA);
+
 			SetPixel(x, y, color);
 		}
 	}
@@ -247,4 +257,38 @@ void Buffer::DecodeColor(const uchar* buffer, Encoding encoding, Color& color)
 		break;
 	}
 
+}
+
+bool Buffer::IsHDR(Encoding encoding)
+{
+	return encoding == FLOAT96 || encoding == FLOAT128;
+}
+
+void Buffer::Tonemap(const Color& hdr, Color& ldr)
+{
+	ldr[0] = Tonemap(hdr[0]);
+	ldr[1] = Tonemap(hdr[1]);
+	ldr[2] = Tonemap(hdr[2]);
+	
+	ldr[3] = 1.0f;
+}
+
+float Buffer::Tonemap(float x)
+{
+	// Approximation of Aces filming tone mapping curve:
+	// https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
+	const float a = 2.51f;
+	const float b = 0.03f;
+	const float c = 2.43f;
+	const float d = 0.59f;
+	const float e = 0.14f;
+	
+	return Util::Clamp01((x*(a*x + b)) / (x*(c*x + d) + e));
+}
+
+void Buffer::AdjustGamma(Color& color, float gamma)
+{
+	color[0] = pow(color[0], gamma);
+	color[1] = pow(color[1], gamma);
+	color[2] = pow(color[2], gamma);
 }
