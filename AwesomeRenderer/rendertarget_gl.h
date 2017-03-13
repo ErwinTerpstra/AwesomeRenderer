@@ -26,7 +26,7 @@ namespace AwesomeRenderer
 		void Unbind();
 
 		void Read();
-
+		
 		static uint32_t ExtensionID() { return RenderTarget::RENDER_TARGET_GL; }
 	};
 }

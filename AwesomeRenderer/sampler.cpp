@@ -52,7 +52,7 @@ void Sampler::Sample(const Vector2& uv, Color& sample) const
 	switch (sampleMode)
 	{
 	case SM_POINT:
-		texture->GetPixel((uint32_t)ts[0], (uint32_t)ts[1], sample);
+		texture->GetPixel((uint32_t)ts[0], (uint32_t)ts[1], sample, Buffer::LINEAR);
 		break;
 
 	case SM_BILINEAR:
@@ -63,10 +63,10 @@ void Sampler::Sample(const Vector2& uv, Color& sample) const
 		float fractY = ts[1] - intY;
 
 		Color samples[4];
-		texture->GetPixel(intX    , intY    , samples[0]);
-		texture->GetPixel(intX + 1, intY    , samples[1]);
-		texture->GetPixel(intX    , intY + 1, samples[2]);
-		texture->GetPixel(intX + 1, intY + 1, samples[3]);
+		texture->GetPixel(intX    , intY    , samples[0], Buffer::LINEAR);
+		texture->GetPixel(intX + 1, intY    , samples[1], Buffer::LINEAR);
+		texture->GetPixel(intX    , intY + 1, samples[2], Buffer::LINEAR);
+		texture->GetPixel(intX + 1, intY + 1, samples[3], Buffer::LINEAR);
 		
 		// Interpolate in X direction
 		samples[0] = (samples[0] * (1.0f - fractX)) + (samples[1] * fractX);

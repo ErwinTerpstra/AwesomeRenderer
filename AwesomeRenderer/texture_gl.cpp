@@ -39,39 +39,8 @@ void TextureGL::Load()
 	
 	GLenum internalFormat;
 	GLenum dataFormat;
-
-	switch (provider.encoding)
-	{
-	case Buffer::BGR24:
-		internalFormat = GL_RGB8;
-		dataFormat = GL_BGR;
-		break;
-
-	case Buffer::BGRA32:
-		internalFormat = GL_RGBA8;
-		dataFormat = GL_BGRA;
-		break;
-
-	case Buffer::RGB24:
-		internalFormat = GL_RGB8;
-		dataFormat = GL_RGB;
-		break;
-
-	case Buffer::RGBA32:
-		internalFormat = GL_RGBA8;
-		dataFormat = GL_RGBA;
-		break;
-
-	case Buffer::FLOAT128:
-		internalFormat = GL_RGBA_FLOAT32_ATI;
-		dataFormat = GL_RGBA;
-		break;
-
-	default:
-		printf("[TextureGL]: Invalid source texture format\n");
-		assert(false);
-		break;
-	}
+	GLenum dataType;
+	GetEncodingParameters(provider.encoding, internalFormat, dataFormat, dataType);
 
 	// Setup storage
 	GL_CHECK_ERROR(glTexStorage2D(GL_TEXTURE_2D, provider.GetMipmapLevels(), internalFormat, provider.width, provider.height));
@@ -80,8 +49,7 @@ void TextureGL::Load()
 	GLint alignment = provider.alignment;
 	glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
 
-	//GL_CHECK_ERROR(glTexImage2D(GL_TEXTURE_2D, 0, interalFormat, provider.width, provider.height, 0, dataFormat, GL_UNSIGNED_BYTE, provider.data));
-	GL_CHECK_ERROR(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, provider.width, provider.height, dataFormat, GL_UNSIGNED_BYTE, provider.data));
+	GL_CHECK_ERROR(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, provider.width, provider.height, dataFormat, dataType, provider.data));
 
 	// Generate mipmaps
 	GL_CHECK_ERROR(glGenerateMipmap(GL_TEXTURE_2D));
@@ -97,4 +65,45 @@ void TextureGL::Bind()
 void TextureGL::ClearBoundTexture()
 {
 	GL_CHECK_ERROR(glBindTexture(GL_TEXTURE_2D, 0));
+}
+
+void TextureGL::GetEncodingParameters(Buffer::Encoding encoding, GLenum& internalFormat, GLenum& dataFormat, GLenum& dataType)
+{
+	switch (encoding)
+	{
+		case Buffer::BGR24:
+			internalFormat = GL_RGB8;
+			dataFormat = GL_BGR;
+			dataType = GL_UNSIGNED_BYTE;
+			break;
+
+		case Buffer::BGRA32:
+			internalFormat = GL_RGBA8;
+			dataFormat = GL_BGRA;
+			dataType = GL_UNSIGNED_BYTE;
+			break;
+
+		case Buffer::RGB24:
+			internalFormat = GL_RGB8;
+			dataFormat = GL_RGB;
+			dataType = GL_UNSIGNED_BYTE;
+			break;
+
+		case Buffer::RGBA32:
+			internalFormat = GL_RGBA8;
+			dataFormat = GL_RGBA;
+			dataType = GL_UNSIGNED_BYTE;
+			break;
+
+		case Buffer::FLOAT128:
+			internalFormat = GL_RGBA_FLOAT32_ATI;
+			dataFormat = GL_RGBA;
+			dataType = GL_FLOAT;
+			break;
+
+		default:
+			printf("[TextureGL]: Invalid source texture format\n");
+			assert(false);
+			break;
+	}
 }

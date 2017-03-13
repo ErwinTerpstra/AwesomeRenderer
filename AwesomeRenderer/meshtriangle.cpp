@@ -43,7 +43,7 @@ const Vector3& MeshTriangle::CalculateNormal()
 
 	normal = cml::cross(ac, ab);
 	normal.normalize();
-	
+		
 	return normal;
 }
 

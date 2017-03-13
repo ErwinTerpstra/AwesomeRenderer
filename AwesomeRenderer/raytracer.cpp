@@ -27,7 +27,7 @@
 using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
 
-const float RayTracer::MAX_FRAME_TIME = 0.05f;
+const uint32_t RayTracer::MAX_FRAME_TIME = 50;
 const uint32_t RayTracer::TILE_SIZE = 16;
 
 RayTracer::RayTracer(Scheduler& scheduler) : Renderer(), 

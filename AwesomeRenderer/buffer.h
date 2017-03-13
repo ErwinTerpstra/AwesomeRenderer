@@ -6,6 +6,7 @@
 namespace AwesomeRenderer
 {
 	class BufferAllocator;
+	class Sampler;
 
 	// TODO: Make this a generic buffer (void*) and move the "byte" functionality to a ByteBufer subclass
 	// Also split the color functionality to a ColorBuffer class
@@ -20,10 +21,17 @@ namespace AwesomeRenderer
 			RGB24, RGBA32, BGR24, BGRA32, FLOAT32, FLOAT96, FLOAT128
 		};
 
+		enum ColorSpace
+		{
+			LINEAR,
+			GAMMA
+		};
+
 		uint32_t width, height, stride, size;
 		uint8_t bpp, pixelStride, alignment;
 
 		Encoding encoding;
+		ColorSpace colorSpace;
 
 		uchar* data;
 
@@ -32,7 +40,7 @@ namespace AwesomeRenderer
 
 	public:
 
-		Buffer(BufferAllocator* allocator);
+		Buffer(BufferAllocator* allocator, ColorSpace colorSpace);
 		virtual ~Buffer();
 
 		const BufferAllocator& GetAllocator() const;
@@ -46,10 +54,12 @@ namespace AwesomeRenderer
 		__inline void Clear() { memset(data, 0, size); }
 		void Clear(const Color& color);
 		
-		void Blit(const Buffer& src, bool adjustGamma);
+		void Blit(const Buffer& src);
+		void Blit(const Sampler& sampler);
 
 		float GetPixel(uint32_t x, uint32_t y) const;
 		void GetPixel(uint32_t x, uint32_t y, Color& color) const;
+		void GetPixel(uint32_t x, uint32_t y, Color& color, ColorSpace colorSpace) const;
 
 		void SetPixel(uint32_t x, uint32_t y, const Color& color);
 		void SetPixel(uint32_t x, uint32_t y, const uchar* buffer);

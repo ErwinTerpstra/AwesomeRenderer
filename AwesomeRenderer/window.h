@@ -36,7 +36,7 @@ namespace AwesomeRenderer
 		Window(HINSTANCE instance, const char* className, bool createClass = true);
 		~Window();
 		
-		void Create(const char* title, int width, int height);
+		void Create(const char* title, int width, int height, bool resizable);
 		void Show(int command) const;
 		void SetClientSize(int width, int height);
 		

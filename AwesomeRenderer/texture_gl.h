@@ -23,6 +23,8 @@ namespace AwesomeRenderer
 
 		static void ClearBoundTexture();
 
+		static void GetEncodingParameters(Buffer::Encoding encoding, GLenum& internalFormat, GLenum& dataFormat, GLenum& dataType);
+
 		static uint32_t ExtensionID() { return Texture::TEXTURE_GL; }
 	};
 }

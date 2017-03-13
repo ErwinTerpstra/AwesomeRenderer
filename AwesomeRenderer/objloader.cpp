@@ -107,7 +107,9 @@ void ObjLoader::Load(const char* fileName, Model& model)
 					// Normal
 					if (sscanf_s(lineBuffer, "vn %f %f %f", &v[0], &v[1], &v[2]) > 0)
 					{
-						normalBuffer.push_back(Vector3(v[0], v[1], v[2]));
+						Vector3 normal(v[0], v[1], v[2]);
+						normal.normalize();
+						normalBuffer.push_back(normal);
 						break;
 					}
 

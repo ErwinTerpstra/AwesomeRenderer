@@ -81,6 +81,14 @@ namespace AwesomeRenderer
 			return (barycentricCoords[0] >= 0.0f) && (barycentricCoords[1] >= 0.0f) && (barycentricCoords[2] >= 0.0f);
 		}
 
+		bool IsLine() const
+		{
+			VectorType v0 = VectorUtil<VectorType::dimension>::Normalize(v[1] - v[0]);
+			VectorType v1 = VectorUtil<VectorType::dimension>::Normalize(v[2] - v[0]);
+
+			return (1.0f - fabs(VectorUtil<VectorType::dimension>::Dot(v0, v1))) < 1e-5f;
+		}
+
 		void PreCalculateBarycentric()
 		{ 
 			// Compute vectors from A -> C and A -> B

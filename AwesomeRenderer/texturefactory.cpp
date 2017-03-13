@@ -13,7 +13,7 @@ TextureFactory::TextureFactory()
 
 bool TextureFactory::Instantiate(Texture** instance) const
 {
-	new (*instance) Texture(new MemoryBufferAllocator());
+	new (*instance) Texture(new MemoryBufferAllocator(), Buffer::GAMMA);
 
 	return true;
 }

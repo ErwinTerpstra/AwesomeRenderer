@@ -22,7 +22,7 @@ namespace AwesomeRenderer
 		uint32_t mipmapLevels;
 
 	public:
-		Texture(BufferAllocator* allocator);
+		Texture(BufferAllocator* allocator, ColorSpace colorSpace);
 		
 		uint32_t GetMipmapLevels() const { return mipmapLevels; }
 

@@ -7,9 +7,13 @@
 
 #include "inputmanager.h"
 
+// TODO: move to color buffer cpp file
+#include "sampler.h"
+#include "texture.h"
+
 using namespace AwesomeRenderer;
 
-Buffer::Buffer(BufferAllocator* allocator) : allocator(allocator), data(NULL)
+Buffer::Buffer(BufferAllocator* allocator, ColorSpace colorSpace) : allocator(allocator), colorSpace(colorSpace), data(NULL)
 {
 	
 }
@@ -69,7 +73,7 @@ void Buffer::Clear(const Color& color)
 			SetPixel(x, y, color);
 }
 
-void Buffer::Blit(const Buffer& src, bool adjustGamma)
+void Buffer::Blit(const Buffer& src)
 {
 	bool tonemap = IsHDR(src.encoding) && !IsHDR(encoding) && !InputManager::Instance().GetKey('T');
 	Color color;
@@ -83,13 +87,37 @@ void Buffer::Blit(const Buffer& src, bool adjustGamma)
 			if (tonemap)
 				Tonemap(color, color);
 
-			if (adjustGamma && !InputManager::Instance().GetKey('Y'))
+			if (colorSpace == GAMMA && src.colorSpace == LINEAR)
+				AdjustGamma(color, 1.0f / DEFAULT_GAMMA);
+			else if (colorSpace == LINEAR && src.colorSpace == GAMMA)
+				AdjustGamma(color, DEFAULT_GAMMA);
+
+			SetPixel(x, y, color);
+		}
+	}
+}
+
+void Buffer::Blit(const Sampler& sampler)
+{
+	bool tonemap = IsHDR(sampler.texture->encoding) && !IsHDR(encoding) && !InputManager::Instance().GetKey('T');
+	Color color;
+
+	for (uint32_t y = 0; y < height; ++y)
+	{
+		for (uint32_t x = 0; x < width; ++x)
+		{
+			Vector2 uv(x / (float)width, y / (float)height);
+			sampler.Sample(uv, color);
+
+			if (tonemap)
+				Tonemap(color, color);
+
+			if (colorSpace == GAMMA)
 				AdjustGamma(color, 1.0f / DEFAULT_GAMMA);
 
 			SetPixel(x, y, color);
 		}
 	}
-
 }
 
 float Buffer::GetPixel(uint32_t x, uint32_t y) const
@@ -103,6 +131,16 @@ void Buffer::GetPixel(uint32_t x, uint32_t y, Color& color) const
 {
 	uchar* pixelBase = GetBase(x, y);
 	DecodeColor(pixelBase, encoding, color);
+}
+
+void Buffer::GetPixel(uint32_t x, uint32_t y, Color& color, ColorSpace colorSpace) const
+{
+	GetPixel(x, y, color);
+
+	if (colorSpace == GAMMA && this->colorSpace == LINEAR)
+		AdjustGamma(color, 1.0f / DEFAULT_GAMMA);
+	else if (colorSpace == LINEAR && this->colorSpace == GAMMA)
+		AdjustGamma(color, DEFAULT_GAMMA);
 }
 
 void Buffer::SetPixel(uint32_t x, uint32_t y, float f)

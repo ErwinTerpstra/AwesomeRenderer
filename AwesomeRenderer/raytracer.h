@@ -36,7 +36,7 @@ namespace AwesomeRenderer
 			friend class RenderJob;
 
 		private:
-			static const float MAX_FRAME_TIME;
+			static const uint32_t MAX_FRAME_TIME;
 			static const uint32_t TILE_SIZE;
 
 			Timer frameTimer;

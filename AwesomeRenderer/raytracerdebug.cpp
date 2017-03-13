@@ -208,9 +208,9 @@ void RayTracerDebug::Export()
 	// Save image
 	const Buffer& frameBuffer = *context.mainContext->renderTarget->frameBuffer;
 	
-	Buffer alignedBuffer(new MemoryBufferAllocator());
+	Buffer alignedBuffer(new MemoryBufferAllocator(), Buffer::GAMMA);
 	alignedBuffer.AllocateAligned(frameBuffer.width, frameBuffer.height, 4, Buffer::BGR24);
-	alignedBuffer.Blit(frameBuffer, true);
+	alignedBuffer.Blit(frameBuffer);
 
 	std::string imageFileName = RENDER_ROOT + "/" + identifier + ".bmp";
 	context.textureFactory->WriteBMP(imageFileName, alignedBuffer);

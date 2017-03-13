@@ -75,11 +75,15 @@ void RenderTargetGL::Read()
 {
 	if (provider.frameBuffer != NULL)
 	{
+		GLenum internalFormat;
+		GLenum dataFormat;
+		GLenum dataType;
+		TextureGL::GetEncodingParameters(provider.frameBuffer->encoding, internalFormat, dataFormat, dataType);
+
 		GL_CHECK_ERROR(glReadBuffer((GLenum)GL_COLOR_ATTACHMENT0_EXT));
-		GL_CHECK_ERROR(glReadPixels(0, 0, provider.frameBuffer->width, provider.frameBuffer->height, GL_BGR, GL_UNSIGNED_BYTE, (GLvoid*)provider.frameBuffer->data));
+		GL_CHECK_ERROR(glReadPixels(0, 0, provider.frameBuffer->width, provider.frameBuffer->height, dataFormat, dataType, (GLvoid*)provider.frameBuffer->data));
 	}
 
 	if (provider.depthBuffer != NULL)
 		GL_CHECK_ERROR(glReadPixels(0, 0, provider.depthBuffer->width, provider.depthBuffer->height, GL_DEPTH_COMPONENT, GL_FLOAT, (GLvoid*)provider.depthBuffer->data));
-
 }

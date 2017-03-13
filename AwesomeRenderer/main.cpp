@@ -1,7 +1,13 @@
 #include "stdafx.h"
 
-#define SCREEN_WIDTH 480
-#define SCREEN_HEIGHT 320
+#define RENDER_WIDTH 480
+#define RENDER_HEIGHT 320
+
+#define SCREEN_WIDTH 960
+#define SCREEN_HEIGHT 640
+
+//#define SCREEN_WIDTH 480
+//#define SCREEN_HEIGHT 320
 
 #include <stdio.h>
 #include <io.h>
@@ -123,7 +129,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	printf("[AwesomeRenderer]: Creating Win32 window...\n");
 	
 	Window window(hInstance, "AwesomeRendererWindow");
-	window.Create("Awesome Renderer!", 100, 100);
+	window.Create("Awesome Renderer!", 100, 100, false);
 	window.SetClientSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	printf("[AwesomeRenderer]: Creating OpenGL window...\n");
@@ -143,13 +149,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Setup frame and depth buffers
 	printf("[AwesomeRenderer]: Initializing frame buffer...\n");
 
-	Texture frameBuffer(new MemoryBufferAllocator());
-	Texture depthBuffer(new MemoryBufferAllocator());
-	Texture windowBuffer(new GDIBufferAllocator(window.handle));
+	Texture frameBuffer(new MemoryBufferAllocator(), Buffer::LINEAR);
+	Texture depthBuffer(new MemoryBufferAllocator(), Buffer::LINEAR);
+	Texture windowBuffer(new GDIBufferAllocator(window.handle), Buffer::GAMMA);
 	
-	frameBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, Buffer::FLOAT128);
-	depthBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, Buffer::FLOAT32);
+	frameBuffer.Allocate(RENDER_WIDTH, RENDER_HEIGHT, Buffer::FLOAT128);
+	depthBuffer.Allocate(RENDER_WIDTH, RENDER_HEIGHT, Buffer::FLOAT32);
 	windowBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, Buffer::BGR24);
+
+	Sampler frameBufferSampler;
+	frameBufferSampler.texture = &frameBuffer;
+	//frameBufferSampler.sampleMode = Sampler::SM_POINT;
 
 	// Render target
 	printf("[AwesomeRenderer]: Setting up render context...\n");
@@ -162,8 +172,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// Setup camera
 	Camera camera(cml::left_handed);
-	camera.SetPerspective(70.0f, ((float) SCREEN_WIDTH) / SCREEN_HEIGHT, 0.1f, 5000.0f);
-	camera.SetViewport(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT);
+	camera.SetPerspective(70.0f, ((float)RENDER_WIDTH) / RENDER_HEIGHT, 0.1f, 5000.0f);
+	camera.SetViewport(0.0f, 0.0f, RENDER_WIDTH, RENDER_HEIGHT);
 	
 	// Render context
 	RenderContext mainContext;
@@ -240,10 +250,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Setup setup(context);
 	setup.SetupLighting();
 	setup.SetupScene();
-	setup.SetupCornellBox();
+	//setup.SetupCornellBox();
 	//setup.SetupSpheres();
 	//setup.SetupFractal();
-	//setup.SetupSponza();
+	setup.SetupSponza();
 	
 	// Camera controller
 	CameraController cameraController(camera);
@@ -371,7 +381,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		mainRenderer->SetRenderContext(&mainContext);
 		mainRenderer->Render();
 
-		windowBuffer.Blit(frameBuffer, true);
+		windowBuffer.Blit(frameBufferSampler);
 		
 		if (inputManager.GetKey('H'))
 		{

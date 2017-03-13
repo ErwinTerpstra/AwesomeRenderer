@@ -94,6 +94,7 @@ void RendererGL::PreRender()
 	if ((renderContext->clearFlags & RenderTarget::BUFFER_DEPTH) != 0)
 		clearBits |= GL_DEPTH_BUFFER_BIT;
 
+	glViewport(0, 0, renderContext->renderTarget->frameBuffer->width, renderContext->renderTarget->frameBuffer->height);
 	glClear(clearBits);
 
 	if (cullMode != CULL_NONE)

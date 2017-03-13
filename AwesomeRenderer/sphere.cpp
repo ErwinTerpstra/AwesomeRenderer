@@ -156,6 +156,10 @@ float Sphere::CalculatePDF(const Vector3& p, const Vector3& wi) const
 
 	float sinThetaMax2 = r2 / distanceSq;
 	float cosThetaMax = sqrtf(std::max(0.0f, 1.0f - sinThetaMax2));
+	
+	fromCenter.normalize();
+	if (VectorUtil<3>::Dot(-wi, fromCenter) < cosThetaMax)
+		return 0.0f;
 
 	return UniformConePDF(cosThetaMax);
 }

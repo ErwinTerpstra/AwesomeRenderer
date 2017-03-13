@@ -166,7 +166,7 @@ void Setup::SetupCornellBox()
 	const Color sphereDiffuse = Color::BLACK;
 	const Color sphereSpecular = Color::WHITE * 0.8f;
 	//const Color sphereSpecular = Color(245, 215, 121); // GOLD
-	const float sphereRoughness = 0.8f;
+	const float sphereRoughness = 0.2f;
 	const float sphereMetallic = 1;
 	const float sphereIor = 1.0f;
 	const bool sphereTranslucent = false;
@@ -566,9 +566,9 @@ void Setup::SetupSponza()
 	// LIGHT
 	LightData::Light& light = context.mainContext->lightData->lights[0];
 	light.type = LightData::LightType::POINT;
-	light.position = Vector3(0.0f, 1.0f, 0.0f);
-	light.direction.normalize();
-	light.intensity = 1.0f;
+	light.position = cameraPosition + Vector3(10.0f, 5.0f, 0.0f);
+	light.intensity = 20.0f;
+	light.quadricAttenuation = 0.001f;
 	light.color = Color(255, 244, 214);
 
 	light.enabled = true;
@@ -582,7 +582,7 @@ void Setup::SetupSponza()
 	skybox->back = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0005.bmp");
 	skybox->bottom = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0006.bmp");
 
-	context.mainContext->skybox = skybox;
+	//context.mainContext->skybox = skybox;
 
 	// MODEL
 	Node* node = new Node();

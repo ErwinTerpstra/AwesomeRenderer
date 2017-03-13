@@ -44,7 +44,7 @@ void Window::RegisterClass() const
 	RegisterClassEx(&wc);
 }
 
-void Window::Create(const char* title, int width, int height)
+void Window::Create(const char* title, int width, int height, bool resizable)
 {
 	int borderWidth = GetSystemMetrics(SM_CXBORDER);
 	int borderHeight = GetSystemMetrics(SM_CYBORDER);
@@ -52,7 +52,7 @@ void Window::Create(const char* title, int width, int height)
 	int frameHeight = GetSystemMetrics(SM_CYFRAME);
 	int captionHeight = GetSystemMetrics(SM_CYSIZE);
 
-	handle = CreateWindowEx(WS_EX_CLIENTEDGE, className, title, WS_OVERLAPPEDWINDOW,
+	handle = CreateWindowEx(WS_EX_CLIENTEDGE, className, title, resizable ? WS_OVERLAPPEDWINDOW : (WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME),
 			 			    CW_USEDEFAULT, CW_USEDEFAULT, width , height, NULL, NULL, instance, NULL);
 	assert(handle != NULL);
 

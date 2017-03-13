@@ -16,6 +16,13 @@ MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(20), worldMtx(), world2object
 
 		// Create triangle object based on the vertex data
 		MeshTriangle* triangle = new MeshTriangle(*this, vIdx0, vIdx1, vIdx2);
+
+		if (triangle->IsLine())
+		{
+			delete triangle;
+			continue;
+		}
+
 		triangles.push_back(triangle);
 	}
 
@@ -70,7 +77,7 @@ bool MeshEx::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance
 		// Interpolate vertex attributes of the hit triangle
 		const MeshTriangle* tri = dynamic_cast<const MeshTriangle*>(hitInfo.element);
 
-		if (provider.HasAttribute(Mesh::VERTEX_NORMAL))
+		if (FALSE && provider.HasAttribute(Mesh::VERTEX_NORMAL))
 		{
 			VectorUtil<3>::Interpolate(
 				provider.normals[tri->vIdx[0]],
@@ -93,7 +100,7 @@ bool MeshEx::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance
 		hitInfo.point = cml::transform_point(worldMtx, hitInfo.point);
 		hitInfo.normal = cml::transform_vector(worldMtx, hitInfo.normal);
 		hitInfo.normal.normalize();
-
+		
 		// TODO: transform provided distance back to world space instead of recalculating?
 		hitInfo.distance = (hitInfo.point - ray.origin).length();
 

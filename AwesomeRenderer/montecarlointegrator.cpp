@@ -27,11 +27,21 @@ MonteCarloIntegrator::MonteCarloIntegrator(RayTracer& rayTracer) : SurfaceIntegr
 
 Vector3 MonteCarloIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& context, int depth)
 {
+	const RenderContext& renderContext = rayTracer.GetRenderContext();
 	Vector3 radiance = material.emission.subvector(3) * material.emissionIntensity;
 	
 	if (material.bsdf != NULL)
 	{
 		radiance += SampleDirectLight(ray, hitInfo, material, context);
+
+		if (!renderContext.lightData->areaLights.empty())
+		{
+			// Select light
+			int lightIdx = random.NextInt(0, renderContext.lightData->areaLights.size());
+
+			const Renderable* light = renderContext.lightData->areaLights[lightIdx];
+			radiance += SampleAreaLight(*light, hitInfo.point, -ray.direction, hitInfo.normal, hitInfo, material);
+		}
 
 		if (depth < rayTracer.maxDepth)
 			radiance += Sample(hitInfo.point, -ray.direction, hitInfo.normal, hitInfo, material, depth);
@@ -42,51 +52,15 @@ Vector3 MonteCarloIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, cons
 
 Vector3 MonteCarloIntegrator::Sample(const Vector3& p, const Vector3& wo, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, int depth)
 {
-	const RenderContext& renderContext = rayTracer.GetRenderContext();
-	if (!renderContext.lightData->areaLights.empty())
-	{
-		// Sample light
-		int lightIdx = random.NextInt(0, renderContext.lightData->areaLights.size());
-		assert(lightIdx >= 0 && lightIdx < renderContext.lightData->areaLights.size());
+	// Sample BSDF
+	Vector2 r(random.NextFloat(), random.NextFloat());
 
-		const Renderable* light = renderContext.lightData->areaLights[lightIdx];
-		const Primitive& primitive = light->GetPrimitive();
+	Vector3 sampleVector;
+	material.bsdf->GenerateSampleVector(r, wo, normal, material, sampleVector);
 		
-		Vector3 lightNormal;
-		Vector3 pointOnLight = primitive.Sample(p, Vector2(random.NextFloat(), random.NextFloat()), lightNormal);
-		
-		Vector3 lightSampleVector = VectorUtil<3>::Normalize(pointOnLight - p);
-		float lightPDF = primitive.CalculatePDF(p, lightSampleVector);
+	float pdf = material.bsdf->CalculatePDF(wo, sampleVector, normal, material);
 
-		Vector3 bsdfSampleVector;
-		material.bsdf->GenerateSampleVector(Vector2(random.NextFloat(), random.NextFloat()), wo, normal, material, bsdfSampleVector);
-		float bsdfPDF = material.bsdf->CalculatePDF(wo, bsdfSampleVector, normal, material);
-
-		Vector3 radiance(0.0f, 0.0f, 0.0f);
-			
-		//if (random.NextFloat() < 0.5f)
-			//radiance += Sample(p, wo, lightSampleVector, normal, hitInfo, material, rayTracer.maxDepth, lightPDF);
-		//else
-			//radiance += Sample(p, wo, bsdfSampleVector, normal, hitInfo, material, depth, bsdfPDF);
-
-		// TODO: Sample light directly, instead of traversing the whole scene. Perform only shadow test
-		radiance += Sample(p, wo, lightSampleVector, normal, hitInfo, material, rayTracer.maxDepth, lightPDF) * PowerHeuristic(1, lightPDF, 1, bsdfPDF);
-		radiance += Sample(p, wo, bsdfSampleVector, normal, hitInfo, material, depth, bsdfPDF) * PowerHeuristic(1, bsdfPDF, 1, lightPDF);
-
-		return radiance;
-	}
-	else
-	{
-		// Sample BSDF
-		Vector2 r(random.NextFloat(), random.NextFloat());
-
-		Vector3 sampleVector;
-		material.bsdf->GenerateSampleVector(r, wo, normal, material, sampleVector);
-		
-		float pdf = material.bsdf->CalculatePDF(wo, sampleVector, normal, material);
-
-		return Sample(p, wo, sampleVector, normal, hitInfo, material, depth, pdf);
-	}
+	return Sample(p, wo, sampleVector, normal, hitInfo, material, depth, pdf);
 }
 
 Vector3 MonteCarloIntegrator::Sample(const Vector3& p, const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, int depth, float pdf)
@@ -117,8 +91,7 @@ Vector3 MonteCarloIntegrator::Sample(const Vector3& p, const Vector3& wo, const 
 	else
 		distance = 0.0f;
 
-	// Attenuate by distance
-	Vector3 radiance = reflectionShading.color.subvector(3);// / (1.0f + distance * distance);
+	Vector3 radiance = reflectionShading.color.subvector(3);
 
 	return reflectance * radiance * NoL / pdf;
 }
@@ -133,4 +106,56 @@ Vector3 MonteCarloIntegrator::Integrate(const Vector3& p, const Vector3& wo, con
 	}
 
 	return radiance / samples;
+}
+
+Vector3 MonteCarloIntegrator::SampleAreaLight(const Renderable& light, const Vector3& p, const Vector3& wo, const Vector3& normal, const RaycastHit& hitInfo, const Material& material)
+{
+	Vector3 radiance(0.0f, 0.0f, 0.0f);
+
+	const Primitive& primitive = light.GetPrimitive();
+	Vector3 lightRadiance = light.material->emission.subvector(3) * light.material->emissionIntensity;
+
+	// Sample light
+	Vector3 lightNormal;
+	Vector3 pointOnLight = primitive.Sample(p, Vector2(random.NextFloat(), random.NextFloat()), lightNormal);
+	Vector3 lightSampleVector = VectorUtil<3>::Normalize(pointOnLight - p);
+	float lightPDF = primitive.CalculatePDF(p, lightSampleVector);
+	float bsdfPDF = material.bsdf->CalculatePDF(wo, lightSampleVector, normal, material);
+
+	// Shadow test
+	RaycastHit lightHit;
+	if (lightPDF > 0)
+	{
+		if (rayTracer.RayCast(Ray(p + lightSampleVector * 1e-3f, lightSampleVector), lightHit))
+		{
+			const Renderable* renderable = dynamic_cast<const Renderable*>(lightHit.element);
+			if (renderable == &light)
+			{
+				Vector3 reflectance = material.bsdf->Sample(wo, lightSampleVector, normal, hitInfo, material);
+				radiance += lightRadiance * reflectance * (VectorUtil<3>::Dot(normal, lightSampleVector) * PowerHeuristic(1, lightPDF, 1, bsdfPDF) / lightPDF);
+			}
+		}
+	}
+
+	// Sample BSDF
+	Vector3 bsdfSampleVector;
+	material.bsdf->GenerateSampleVector(Vector2(random.NextFloat(), random.NextFloat()), wo, normal, material, bsdfSampleVector);
+	lightPDF = primitive.CalculatePDF(p, bsdfSampleVector);
+	bsdfPDF = material.bsdf->CalculatePDF(wo, bsdfSampleVector, normal, material);
+
+	if (bsdfPDF > 0.0f)
+	{
+		// Shadow test
+		if (rayTracer.RayCast(Ray(p + bsdfSampleVector * 1e-3f, bsdfSampleVector), lightHit))
+		{
+			const Renderable* renderable = dynamic_cast<const Renderable*>(lightHit.element);
+			if (renderable == &light)
+			{
+				Vector3 reflectance = material.bsdf->Sample(wo, bsdfSampleVector, normal, hitInfo, material);
+				radiance += lightRadiance * reflectance * (VectorUtil<3>::Dot(normal, bsdfSampleVector) * PowerHeuristic(1, bsdfPDF, 1, lightPDF) / bsdfPDF);
+			}
+		}
+	}
+
+	return radiance;
 }

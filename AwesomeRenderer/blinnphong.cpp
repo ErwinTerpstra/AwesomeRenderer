@@ -4,6 +4,9 @@
 #include "material.h"
 #include "phongmaterial.h"
 
+#include "raycasthit.h"
+#include "sampler.h"
+
 using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
 
@@ -16,11 +19,15 @@ Vector3 BlinnPhong::Sample(const Vector3& wo, const Vector3& wi, const Vector3& 
 {
 	PhongMaterial* phongMaterial = material.As<PhongMaterial>();
 
+	Color specular = phongMaterial->specularColor;
+	if (phongMaterial->specularMap != NULL)
+		specular *= phongMaterial->specularMap->Sample(hitInfo.uv);
+
 	Vector3 halfVector = cml::normalize(wo + wi);
 	float specularTerm = std::pow(std::max(VectorUtil<3>::Dot(normal, halfVector), 0.0f), phongMaterial->shininess);
 	float normalization = (phongMaterial->shininess + 8) / (8 * PI);
-	
-	return Vector3(1.0f, 1.0f, 1.0f) * (normalization * specularTerm);
+
+	return specular.subvector(3) * (normalization * specularTerm);
 }
 
 void BlinnPhong::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vector3& normal, const Material& material, Vector3& wi) const

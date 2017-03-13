@@ -6,7 +6,7 @@
 
 using namespace AwesomeRenderer;
 
-Texture::Texture(BufferAllocator* allocator) : Buffer(allocator), mipmapLevels(DEFAULT_MIPMAP_LEVELS)
+Texture::Texture(BufferAllocator* allocator, ColorSpace colorSpace) : Buffer(allocator, colorSpace), mipmapLevels(DEFAULT_MIPMAP_LEVELS)
 {
 
 }
