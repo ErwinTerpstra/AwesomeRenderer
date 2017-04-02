@@ -53,6 +53,7 @@ namespace AwesomeRenderer
 		Sampler* CreateSampler(Texture* texture);
 		
 		Texture* MergeAlphaChannel(const Texture* albedo, const Texture* alpha);
+		Texture* ConvertHeightMapToNormalMap(const Texture* heightMap, float scale = 1.0f);
 
 		void WriteBMP(const std::string& fileName, const Buffer& buffer) const;
 

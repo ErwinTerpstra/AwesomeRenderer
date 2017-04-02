@@ -145,7 +145,7 @@ void Buffer::GetPixel(uint32_t x, uint32_t y, Color& color, ColorSpace colorSpac
 
 void Buffer::SetPixel(uint32_t x, uint32_t y, float f)
 {
-	assert(bpp == sizeof(float) * 8);
+	assert(encoding == FLOAT32);
 
 	memcpy(GetBase(x, y), reinterpret_cast<uchar*>(&f), sizeof(float));
 }

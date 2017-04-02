@@ -247,6 +247,11 @@ void ObjLoader::Load(const char* fileName, Model& model)
 		tris += mesh.indices.size() / 3;
 
 		mesh.CalculateBounds();
+
+		// If the mesh's material has a normal map, calculate tangent space basis vectors
+		PhongMaterial* material = model.materials[cMesh]->As<PhongMaterial>();
+		if (material != NULL && material->normalMap != NULL)
+			mesh.CalculateTangentBasis();
 	}
 
 	model.CalculateBounds();
@@ -359,6 +364,7 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 				{
 					case 's':
 						material->shininess = strtof(lineBuffer + 2, NULL);
+						material->specularColor[3] = material->shininess;
 						break;
 				}
 
@@ -404,6 +410,55 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 
 					break;
 				}
+
+
+				// Specular color map
+				if (line.compare(0, 6, "map_Ks") == 0)
+				{
+					// Create a filename relative to the filename of the material library
+					std::string textureFile = GetRelativeFileName(line.substr(7), fileName);
+
+					Sampler* sampler = textureFactory.GetTexture(textureFile);
+
+					if (sampler)
+						material->specularMap = sampler;
+					else
+						printf("[ObjLoader]: Failed to load specular map for material.\n");
+
+					break;
+				}
+
+				// Bump map
+				if (line.compare(0, 8, "map_bump") == 0)
+				{
+					// Create a filename relative to the filename of the material library
+					std::string textureFile = GetRelativeFileName(line.substr(9), fileName);
+
+					Texture* heightMap = NULL;
+				
+					if (textureFactory.GetAsset(textureFile, &heightMap))
+					{
+						Texture* normalMap = textureFactory.ConvertHeightMapToNormalMap(heightMap);
+
+						if (!normalMap)
+						{
+							printf("[ObjLoader]: Failed to convert height map to normal map.\n");
+							break;
+						}
+
+						Sampler* sampler = textureFactory.CreateSampler(normalMap);
+
+						if (sampler)
+							material->normalMap = sampler;
+						else
+							printf("[ObjLoader]: Failed to create sampler for normal map.\n");
+					}
+					else
+						printf("[ObjLoader]: Failed to load height map for material.\n");
+
+					break;
+				}
+
 
 				// Alpha map
 				if (line.compare(0, 5, "map_d") == 0)

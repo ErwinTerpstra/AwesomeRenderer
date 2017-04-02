@@ -43,9 +43,12 @@ void RendererGL::Initialize()
 	fileReader.Read(&buffer[0]);
 	fileReader.Close();
 	
+	bool result;
+
 	// Compile vertex shader
 	const char *vertexShaderSrc[] = { buffer };
-	defaultVertex.Compile(vertexShaderSrc, 1);
+	result = defaultVertex.Compile(vertexShaderSrc, 1);
+	assert(result && "Failed to compile vertex shader!");
 
 	// Read fragment shader
 	fileReader.Open("../Assets/fragment.glsl");
@@ -54,7 +57,8 @@ void RendererGL::Initialize()
 	
 	// Compile fragment shader
 	const char *fragmentShaderSrc[] = { buffer };
-	defaultFragment.Compile(fragmentShaderSrc, 1);
+	result = defaultFragment.Compile(fragmentShaderSrc, 1);
+	assert(result && "Failed to compile fragment shader!");
 
 	// Attach shaders to program
 	defaultShader.Attach(&defaultVertex);
@@ -64,6 +68,8 @@ void RendererGL::Initialize()
 	defaultShader.SetAttribLocation("inNormal",		MeshGL::ATTR_NORMAL);
 	defaultShader.SetAttribLocation("inColor",		MeshGL::ATTR_COLOR);
 	defaultShader.SetAttribLocation("inTexcoord",	MeshGL::ATTR_TEXCOORD);
+	defaultShader.SetAttribLocation("inTangent",	MeshGL::ATTR_TANGENT);
+	defaultShader.SetAttribLocation("inBitangent",	MeshGL::ATTR_BITANGENT);
 
 	defaultShader.Link();
 
@@ -260,6 +266,8 @@ void RendererGL::BeginDraw(const Matrix44& model, const Material& material)
 	shader->SetMatrix44("modelMtx", model);
 	shader->SetMatrix44("viewMtx", renderContext->camera->viewMtx);
 	shader->SetMatrix44("projMtx", renderContext->camera->projMtx);
+
+	shader->SetVector3("cameraPosition", renderContext->camera->position);
 
 	const PhongMaterial* phongMaterial = material.As<PhongMaterial>();
 

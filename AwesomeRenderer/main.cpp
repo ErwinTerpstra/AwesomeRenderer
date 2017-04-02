@@ -9,6 +9,8 @@
 //#define SCREEN_WIDTH 480
 //#define SCREEN_HEIGHT 320
 
+#define GL_NATIVE_DRAWING
+
 #include <stdio.h>
 #include <io.h>
 #include <fcntl.h>
@@ -159,16 +161,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	Sampler frameBufferSampler;
 	frameBufferSampler.texture = &frameBuffer;
-	//frameBufferSampler.sampleMode = Sampler::SM_POINT;
+	frameBufferSampler.sampleMode = Sampler::SM_POINT;
 
 	// Render target
 	printf("[AwesomeRenderer]: Setting up render context...\n");
 
 	RenderTarget renderTarget;
+#ifdef GL_NATIVE_DRAWING
+	renderTarget.SetupBuffers(&windowBuffer, &depthBuffer);
+#else
 	renderTarget.SetupBuffers(&frameBuffer, &depthBuffer);
 
 	RenderTargetGL renderTargetGL(renderTarget);
 	renderTargetGL.Load();
+#endif
+
 
 	// Setup camera
 	Camera camera(cml::left_handed);
@@ -381,7 +388,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		mainRenderer->SetRenderContext(&mainContext);
 		mainRenderer->Render();
 
+#ifndef GL_NATIVE_DRAWING
 		windowBuffer.Blit(frameBufferSampler);
+#endif
 		
 		if (inputManager.GetKey('H'))
 		{
@@ -390,7 +399,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			softwareRenderer.Render();
 		}
 
+#ifdef GL_NATIVE_DRAWING
+		mainRenderer->Present(window);
+#else
 		window.DrawBuffer(windowBuffer, static_cast<const GDIBufferAllocator&>(windowBuffer.GetAllocator()));
+#endif
 
 		// Process Win32 messages
 		window.ProcessMessages();

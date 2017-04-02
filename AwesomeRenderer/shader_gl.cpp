@@ -14,7 +14,7 @@ ShaderGL::~ShaderGL()
 
 }
 
-void ShaderGL::Compile(const char** source, int amount)
+bool ShaderGL::Compile(const char** source, int amount)
 {
 	glShaderSource(handle, amount, source, NULL);
 	glCompileShader(handle);
@@ -29,5 +29,9 @@ void ShaderGL::Compile(const char** source, int amount)
 		glGetShaderInfoLog(handle, 10239, &length, log);
 		
 		printf("[ShaderGL]: Compiler log : \n%s\n", log);
+
+		return FALSE;
 	}
+
+	return TRUE;
 }

@@ -18,6 +18,8 @@ namespace AwesomeRenderer
 			ATTR_NORMAL			= 1,
 			ATTR_TEXCOORD		= 2,
 			ATTR_COLOR			= 3,
+			ATTR_TANGENT		= 4,
+			ATTR_BITANGENT		= 5,
 		};
 
 		GLuint vertexArray;

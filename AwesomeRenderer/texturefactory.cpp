@@ -146,6 +146,57 @@ Texture* TextureFactory::MergeAlphaChannel(const Texture* albedo, const Texture*
 	return target;
 }
 
+Texture* TextureFactory::ConvertHeightMapToNormalMap(const Texture* heightMap, float scale)
+{
+	Texture* target;
+
+	if (!Allocate(&target))
+		return NULL;
+
+	target->AllocateAligned(heightMap->width, heightMap->height, heightMap->alignment, Texture::RGB24);
+
+	float s[9];
+
+	for (int32_t y = 0; y < heightMap->height; ++y)
+	{
+		for (int32_t x = 0; x < heightMap->width; ++x)
+		{
+			// Read all samples for the 3x3 convolution kernel
+			for (int32_t yOffset = -1; yOffset <= 1; ++yOffset)
+			{
+				for (int32_t xOffset = -1; xOffset <= 1; ++xOffset)
+				{
+					uint32_t sampleX = Util::Clamp(x + xOffset, 0, (int) heightMap->width - 1);
+					uint32_t sampleY = Util::Clamp(y + yOffset, 0, (int) heightMap->height - 1);
+
+					Color heightMapColor;
+					heightMap->GetPixel(sampleX, sampleY, heightMapColor);
+
+					// Use the red channel as height source
+					s[yOffset * 3 + xOffset] = heightMapColor[0] - 0.5f;
+				}
+			}
+
+			Vector3 normal;
+
+			normal[0] = scale * -(s[2] - s[0] + 2 * (s[5] - s[3]) + s[8] - s[6]);
+			normal[1] = scale * -(s[6] - s[0] + 2 * (s[7] - s[1]) + s[8] - s[2]);
+			normal[2] = 1.0;
+			
+			normal = VectorUtil<3>::Normalize(normal);
+
+			normal[0] = 0.5f + normal[0] / 2.0f;
+			normal[1] = 0.5f + normal[1] / 2.0f;
+			normal[2] = 0.5f + normal[2] / 2.0f;
+
+			target->SetPixel(x, y, Color(normal));
+		}
+
+	}
+
+	return target;
+}
+
 void TextureFactory::WriteBMP(const std::string& fileName, const Buffer& buffer) const
 {
 	assert(buffer.encoding == Buffer::BGR24 && "Unsupported bitmap encoding");

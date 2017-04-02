@@ -25,8 +25,10 @@ namespace AwesomeRenderer
 			VERTEX_COLOR		= 2,
 			VERTEX_TEXCOORD		= 4,
 			VERTEX_NORMAL		= 8,
+			VERTEX_TANGENTS		= 16,
+			VERTEX_BITANGENTS	= 32,
 
-			MAX_VERTEX_ATTRIBUTES = 4,
+			MAX_VERTEX_ATTRIBUTES = 6,
 
 			VERTEX_ALL			= 255
 		};
@@ -36,6 +38,8 @@ namespace AwesomeRenderer
 		std::vector<Color> colors;
 		std::vector<Vector2> texcoords;
 		std::vector<Vector3> normals;
+		std::vector<Vector3> tangents;
+		std::vector<Vector3> bitangents;
 
 		std::vector<uint32_t> indices;
 
@@ -54,6 +58,7 @@ namespace AwesomeRenderer
 
 		void CreateCube(const Vector3& center, float extents);
 		void CalculateBounds();
+		void CalculateTangentBasis();
 
 		__inline bool HasAttribute(VertexAttributes attribute) const { return (this->attributes & attribute) != 0; }
 

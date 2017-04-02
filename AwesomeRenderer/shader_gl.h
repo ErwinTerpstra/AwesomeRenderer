@@ -15,7 +15,7 @@ namespace AwesomeRenderer
 		ShaderGL(GLenum type);
 		~ShaderGL();
 		
-		void Compile(const char** source, int amount);
+		bool Compile(const char** source, int amount);
 
 	};
 }
