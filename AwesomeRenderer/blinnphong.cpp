@@ -27,7 +27,7 @@ Vector3 BlinnPhong::Sample(const Vector3& wo, const Vector3& wi, const Vector3& 
 	float NoV = std::max(VectorUtil<3>::Dot(normal, wo), 0.0f);
 	float NoH = std::max(VectorUtil<3>::Dot(normal, halfVector), 0.0f);
 
-	Vector3 fresnel = FresnelSchlick(NoH, specular.subvector(3));
+	Vector3 fresnel = FresnelSchlick(NoV, specular.subvector(3));
 
 	float specularTerm = std::pow(NoH, phongMaterial->shininess);
 	float normalization = (phongMaterial->shininess + 8) / (8 * PI);
