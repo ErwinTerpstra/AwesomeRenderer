@@ -1,5 +1,3 @@
-#version 330
-
 #define GAMMA 2.2
 
 layout(location = 0) out vec4 outColor;
@@ -26,19 +24,15 @@ const float lightIntensity = 1.0;
 
 void main() 
 {
+
+#ifdef USE_NORMAL_MAP
 	// Normal mapping
 	vec3 normal = texture(normalMap, texcoord).rgb;
-
-	if (dot(normal, normal) > 1e-5f)
-	{
-		normal = normalize(normal * 2.0 - 1.0);
-		normal = normalize(tbnMtx * normal);
-
-		outColor = vec4((tbnMtx[0] * 0.5 + 0.5), 1.0);
-		return;
-	}
-	else
-		normal = tbnMtx[2];
+	normal = normalize(normal * 2.0 - 1.0);
+	normal = normalize(tbnMtx * normal);
+#else
+	vec3 normal = tbnMtx[2];
+#endif
 
 	vec3 radiance = vec3(0, 0, 0);
 
@@ -61,8 +55,12 @@ void main()
 
 	radiance += specular.rgb * (lightColor * lightIntensity) *  pow(NdotH, specularColor.a);
 	
-	// Gamma correct & output
-	outColor = vec4(pow(radiance, vec3(1.0 / GAMMA)), diffuse.a);
+#ifndef OUTPUT_LINEAR
+	// Gamma correct
+	radiance = pow(radiance, vec3(1.0 / GAMMA));
+#endif
+
+	outColor = vec4(radiance, diffuse.a);
 
 	//outColor = vec4(specular.rgb, 1.0);
 	

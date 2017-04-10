@@ -20,12 +20,14 @@
 #include "texture_gl.h"
 #include "rendertarget_gl.h"
 
+#include "program_gl.h"
+
+#include "inputmanager.h"
+
 using namespace AwesomeRenderer;
 
 RendererGL::RendererGL() : Renderer(),
-	defaultShader(),
-	defaultVertex(GL_VERTEX_SHADER),
-	defaultFragment(GL_FRAGMENT_SHADER)
+	defaultShader()
 {
 	opaque.sortMode = FRONT_TO_BACK;
 	transparent.sortMode = BACK_TO_FRONT;
@@ -36,42 +38,20 @@ void RendererGL::Initialize()
 {
 	FileReader fileReader;
 
-	char buffer[1024 * 128];
+	char vertexShaderSource[1024 * 128];
+	char fragmentShaderSource[1024 * 128];
 
 	// Read vertex shader
 	fileReader.Open("../Assets/vertex.glsl");
-	fileReader.Read(&buffer[0]);
+	fileReader.Read(&vertexShaderSource[0]);
 	fileReader.Close();
-	
-	bool result;
-
-	// Compile vertex shader
-	const char *vertexShaderSrc[] = { buffer };
-	result = defaultVertex.Compile(vertexShaderSrc, 1);
-	assert(result && "Failed to compile vertex shader!");
 
 	// Read fragment shader
 	fileReader.Open("../Assets/fragment.glsl");
-	fileReader.Read(&buffer[0]);
+	fileReader.Read(&fragmentShaderSource[0]);
 	fileReader.Close();
 	
-	// Compile fragment shader
-	const char *fragmentShaderSrc[] = { buffer };
-	result = defaultFragment.Compile(fragmentShaderSrc, 1);
-	assert(result && "Failed to compile fragment shader!");
-
-	// Attach shaders to program
-	defaultShader.Attach(&defaultVertex);
-	defaultShader.Attach(&defaultFragment);
-
-	defaultShader.SetAttribLocation("inPosition",	MeshGL::ATTR_POSITION);
-	defaultShader.SetAttribLocation("inNormal",		MeshGL::ATTR_NORMAL);
-	defaultShader.SetAttribLocation("inColor",		MeshGL::ATTR_COLOR);
-	defaultShader.SetAttribLocation("inTexcoord",	MeshGL::ATTR_TEXCOORD);
-	defaultShader.SetAttribLocation("inTangent",	MeshGL::ATTR_TANGENT);
-	defaultShader.SetAttribLocation("inBitangent",	MeshGL::ATTR_BITANGENT);
-
-	defaultShader.Link();
+	defaultShader.SetSource(vertexShaderSource, fragmentShaderSource);
 
 	GL_CHECK_ERROR(
 		glEnable(GL_DEPTH_TEST);
@@ -258,7 +238,17 @@ void RendererGL::BeginDraw(const Matrix44& model, const Material& material)
 {
 	glDepthMask(material.translucent ? GL_FALSE : GL_TRUE);
 
-	ProgramGL* shader = &defaultShader;
+	const PhongMaterial* phongMaterial = material.As<PhongMaterial>();
+
+	TextureGL* diffuseTexture = phongMaterial->diffuseMap != NULL ? phongMaterial->diffuseMap->texture->As<TextureGL>() : NULL;
+	TextureGL* normalTexture = (phongMaterial->normalMap != NULL && !InputManager::Instance().GetKey('N')) ? phongMaterial->normalMap->texture->As<TextureGL>() : NULL;
+	TextureGL* specularTexture = phongMaterial->specularMap != NULL ? phongMaterial->specularMap->texture->As<TextureGL>() : NULL;
+
+	// Select the correct shader branch
+	defaultShader.SetKeyword("USE_NORMAL_MAP", normalTexture != NULL);
+	defaultShader.SetKeyword("OUTPUT_LINEAR", renderContext->renderTarget->frameBuffer->colorSpace == Buffer::LINEAR);
+
+	ProgramGL* shader = defaultShader.GetCurrentBranch();
 
 	shader->Prepare();
 
@@ -269,21 +259,15 @@ void RendererGL::BeginDraw(const Matrix44& model, const Material& material)
 
 	shader->SetVector3("cameraPosition", renderContext->camera->position);
 
-	const PhongMaterial* phongMaterial = material.As<PhongMaterial>();
-
+	// Material properties
 	shader->SetVector4("diffuseColor", phongMaterial->diffuseColor);
 	shader->SetVector4("specularColor", phongMaterial->specularColor);
 
 	// Load textures supplied by material
 	GLenum activeTexture = GL_TEXTURE0;
-
-	TextureGL* diffuseTexture = phongMaterial->diffuseMap != NULL ? phongMaterial->diffuseMap->texture->As<TextureGL>() : NULL;
-	shader->BindTexture(diffuseTexture, "diffuseMap", activeTexture++);
 	
-	TextureGL* normalTexture = phongMaterial->normalMap != NULL ? phongMaterial->normalMap->texture->As<TextureGL>() : NULL;
+	shader->BindTexture(diffuseTexture, "diffuseMap", activeTexture++);	
 	shader->BindTexture(normalTexture, "normalMap", activeTexture++);
-
-	TextureGL* specularTexture = phongMaterial->specularMap != NULL ? phongMaterial->specularMap->texture->As<TextureGL>() : NULL;
 	shader->BindTexture(specularTexture, "specularMap", activeTexture++);
 }
 

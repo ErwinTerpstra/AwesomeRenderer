@@ -3,8 +3,7 @@
 
 #include "awesomerenderer.h"
 #include "renderer.h"
-#include "program_gl.h"
-#include "shader_gl.h"
+#include "branchedshader.h"
 
 namespace AwesomeRenderer
 {
@@ -55,9 +54,7 @@ namespace AwesomeRenderer
 
 		RenderQueue opaque, transparent;
 
-		ProgramGL defaultShader;
-		ShaderGL defaultVertex;
-		ShaderGL defaultFragment;
+		BranchedShader defaultShader;
 
 	public:
 

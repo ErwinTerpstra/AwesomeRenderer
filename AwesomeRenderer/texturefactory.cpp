@@ -173,7 +173,7 @@ Texture* TextureFactory::ConvertHeightMapToNormalMap(const Texture* heightMap, f
 					heightMap->GetPixel(sampleX, sampleY, heightMapColor);
 
 					// Use the red channel as height source
-					s[yOffset * 3 + xOffset] = heightMapColor[0] - 0.5f;
+					s[(yOffset + 1) * 3 + (xOffset + 1)] = heightMapColor[0] - 0.5f;
 				}
 			}
 

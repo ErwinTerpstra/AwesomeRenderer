@@ -9,7 +9,7 @@
 //#define SCREEN_WIDTH 480
 //#define SCREEN_HEIGHT 320
 
-#define GL_NATIVE_DRAWING
+//#define GL_NATIVE_DRAWING
 
 #include <stdio.h>
 #include <io.h>

@@ -297,6 +297,9 @@
     <ClCompile Include="triangle3d.cpp">
       <Filter>Source\Primitives</Filter>
     </ClCompile>
+    <ClCompile Include="branchedshader.cpp">
+      <Filter>Source\Renderer\Shading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h">
@@ -580,6 +583,9 @@
     </ClInclude>
     <ClInclude Include="quaternionutil.h">
       <Filter>Source\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="branchedshader.h">
+      <Filter>Source\Renderer\Shading</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

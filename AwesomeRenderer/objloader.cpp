@@ -438,7 +438,7 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 				
 					if (textureFactory.GetAsset(textureFile, &heightMap))
 					{
-						Texture* normalMap = textureFactory.ConvertHeightMapToNormalMap(heightMap);
+						Texture* normalMap = textureFactory.ConvertHeightMapToNormalMap(heightMap, HEIGHT_MAP_NORMAL_STRENGTH);
 
 						if (!normalMap)
 						{

@@ -16,7 +16,6 @@ namespace AwesomeRenderer
 		std::map<std::string, GLint> uniformLocations;
 		std::map<std::string, GLint> attribLocations;
 
-	public:
 		GLuint handle;
 
 	public:
@@ -27,7 +26,7 @@ namespace AwesomeRenderer
 
 		void Attach(ShaderGL* shader);
 		void Link();
-		void Bind();
+		void Bind() const;
 
 		void BindTexture(TextureGL* texture, std::string uniformName, GLenum slot);
 		

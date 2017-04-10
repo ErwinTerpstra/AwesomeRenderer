@@ -1,5 +1,3 @@
-#version 330
-
 in vec3 inPosition;
 in vec3 inNormal;
 in vec2 inTexcoord;
@@ -25,6 +23,7 @@ void main()
     vec3 t = normalize(mat3(modelMtx) * inTangent);
     vec3 b = normalize(mat3(modelMtx) * inBitangent);
     vec3 n = normalize(mat3(modelMtx) * inNormal);
+
     tbnMtx = mat3(t, b, n);
 
     texcoord = inTexcoord;

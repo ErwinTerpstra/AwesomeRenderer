@@ -33,7 +33,7 @@ void ProgramGL::Link()
 	GL_CHECK_ERROR(glLinkProgram(handle));
 }
 
-void ProgramGL::Bind()
+void ProgramGL::Bind() const
 {
 	GL_CHECK_ERROR(glUseProgram(handle));
 }
