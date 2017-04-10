@@ -8,3 +8,4 @@ Release/
 ipch/
 *.VC.db
 *.opendb
+Renders/
