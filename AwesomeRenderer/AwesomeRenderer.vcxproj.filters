@@ -156,12 +156,6 @@
     <ClCompile Include="timer.cpp">
       <Filter>Source\Core</Filter>
     </ClCompile>
-    <ClCompile Include="program_gl.cpp">
-      <Filter>Source\Renderer\Shading</Filter>
-    </ClCompile>
-    <ClCompile Include="shader_gl.cpp">
-      <Filter>Source\Renderer\Shading</Filter>
-    </ClCompile>
     <ClCompile Include="window_gl.cpp">
       <Filter>Source\Window</Filter>
     </ClCompile>
@@ -182,9 +176,6 @@
     </ClCompile>
     <ClCompile Include="unlitshader.cpp">
       <Filter>Source\Renderer\SoftwareRendering\SoftwareShaders</Filter>
-    </ClCompile>
-    <ClCompile Include="mesh_gl.cpp">
-      <Filter>Source\Model</Filter>
     </ClCompile>
     <ClCompile Include="renderable.cpp">
       <Filter>Source\Node</Filter>
@@ -297,8 +288,17 @@
     <ClCompile Include="triangle3d.cpp">
       <Filter>Source\Primitives</Filter>
     </ClCompile>
+    <ClCompile Include="program_gl.cpp">
+      <Filter>Source\Renderer\OpenGL</Filter>
+    </ClCompile>
     <ClCompile Include="branchedshader.cpp">
-      <Filter>Source\Renderer\Shading</Filter>
+      <Filter>Source\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="shader_gl.cpp">
+      <Filter>Source\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh_gl.cpp">
+      <Filter>Source\Renderer\OpenGL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -403,15 +403,6 @@
     </ClInclude>
     <ClInclude Include="timer.h">
       <Filter>Source\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="program_gl.h">
-      <Filter>Source\Renderer\Shading</Filter>
-    </ClInclude>
-    <ClInclude Include="shader_gl.h">
-      <Filter>Source\Renderer\Shading</Filter>
-    </ClInclude>
-    <ClInclude Include="mesh_gl.h">
-      <Filter>Source\Model</Filter>
     </ClInclude>
     <ClInclude Include="window_gl.h">
       <Filter>Source\Window</Filter>
@@ -584,8 +575,17 @@
     <ClInclude Include="quaternionutil.h">
       <Filter>Source\Util</Filter>
     </ClInclude>
+    <ClInclude Include="program_gl.h">
+      <Filter>Source\Renderer\OpenGL</Filter>
+    </ClInclude>
     <ClInclude Include="branchedshader.h">
-      <Filter>Source\Renderer\Shading</Filter>
+      <Filter>Source\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="shader_gl.h">
+      <Filter>Source\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh_gl.h">
+      <Filter>Source\Renderer\OpenGL</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

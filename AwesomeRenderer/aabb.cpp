@@ -87,12 +87,14 @@ bool AABB::IntersectRay(const Ray& ray, float& tMin, float& tMax) const
 		cMin = (minTransformed[axis] - ray.origin[axis]) * ray.invDirection[axis];
 		cMax = (maxTransformed[axis] - ray.origin[axis]) * ray.invDirection[axis];
 
+		/*
 		// Correct NaN handling
-		//tMin = std::max(tMin, std::min(std::min(cMin, cMax), tMax));
-		//tMax = std::min(tMax, std::max(std::max(cMin, cMax), tMin));
-
+		tMin = std::max(tMin, std::min(std::min(cMin, cMax), tMax));
+		tMax = std::min(tMax, std::max(std::max(cMin, cMax), tMin));
+		/*/
 		tMin = std::max(tMin, std::min(cMin, cMax));
 		tMax = std::min(tMax, std::max(cMin, cMax));
+		//*/
 	}
 
 	return tMax > std::max(tMin, 0.0f);

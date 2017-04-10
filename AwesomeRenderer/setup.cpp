@@ -566,8 +566,8 @@ void Setup::SetupSponza()
 	// LIGHT
 	LightData::Light& light = context.mainContext->lightData->lights[0];
 	light.type = LightData::LightType::POINT;
-	light.position = cameraPosition + Vector3(10.0f, 5.0f, 0.0f);
-	light.intensity = 20.0f;
+	light.position = Vector3(0.0f, 80.0f, 0.0f);
+	light.intensity = 200.0f;
 	light.quadricAttenuation = 0.001f;
 	light.color = Color(255, 244, 214);
 

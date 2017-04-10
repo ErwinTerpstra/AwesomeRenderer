@@ -50,7 +50,7 @@ namespace AwesomeRenderer
 			void ResetIndex();
 		};
 	private:
-		const float HEIGHT_MAP_NORMAL_STRENGTH = 2.0f;
+		static const float HEIGHT_MAP_NORMAL_STRENGTH;
 
 		std::map<std::string, Material*> materialLib;
 

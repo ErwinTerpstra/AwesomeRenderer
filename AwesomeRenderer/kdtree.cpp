@@ -431,8 +431,9 @@ bool KDTree::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance
 	if (tMin > maxDistance)
 		return false;
 
-	//return IntersectRayRec(rootNode, ray, hitInfo, std::max(0.0f, tMin), std::min(maxDistance, tMax));
-	return IntersectRaySec(ray, hitInfo, std::max(0.0f, tMin), std::min(maxDistance, tMax));
+	// Somehow, if we use std::min(maxDistance, tMax) as max distance, this sometimes misses intersection.
+	// TODO: Test why this is.
+	return IntersectRaySec(ray, hitInfo, std::max(0.0f, tMin), maxDistance);
 }
 
 bool KDTree::IntersectRayRec(KDTreeNode* node, const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const

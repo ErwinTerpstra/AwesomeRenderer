@@ -27,6 +27,12 @@ namespace AwesomeRenderer
 
 			void SphericalToCartesian(float phi, float theta, Vector3& v) const;
 			void TransformSampleVector(const Vector3& n, const Vector3& in, Vector3& out) const;
+
+			template<typename T>
+			static T FresnelSchlick(float cosT, T F0)
+			{
+				return F0 + (1.0f - F0) * pow(1 - cosT, 5);
+			};
 		};
 	}
 }

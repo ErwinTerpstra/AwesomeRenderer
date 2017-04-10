@@ -77,7 +77,7 @@ bool MeshEx::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance
 		// Interpolate vertex attributes of the hit triangle
 		const MeshTriangle* tri = dynamic_cast<const MeshTriangle*>(hitInfo.element);
 
-		if (FALSE && provider.HasAttribute(Mesh::VERTEX_NORMAL))
+		if (provider.HasAttribute(Mesh::VERTEX_NORMAL))
 		{
 			VectorUtil<3>::Interpolate(
 				provider.normals[tri->vIdx[0]],

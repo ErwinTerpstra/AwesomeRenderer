@@ -24,10 +24,15 @@ Vector3 BlinnPhong::Sample(const Vector3& wo, const Vector3& wi, const Vector3& 
 		specular *= phongMaterial->specularMap->Sample(hitInfo.uv);
 
 	Vector3 halfVector = cml::normalize(wo + wi);
-	float specularTerm = std::pow(std::max(VectorUtil<3>::Dot(normal, halfVector), 0.0f), phongMaterial->shininess);
+	float NoV = std::max(VectorUtil<3>::Dot(normal, wo), 0.0f);
+	float NoH = std::max(VectorUtil<3>::Dot(normal, halfVector), 0.0f);
+
+	Vector3 fresnel = FresnelSchlick(NoH, specular.subvector(3));
+
+	float specularTerm = std::pow(NoH, phongMaterial->shininess);
 	float normalization = (phongMaterial->shininess + 8) / (8 * PI);
 
-	return specular.subvector(3) * (normalization * specularTerm);
+	return fresnel * (normalization * specularTerm);
 }
 
 void BlinnPhong::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vector3& normal, const Material& material, Vector3& wi) const

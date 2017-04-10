@@ -25,7 +25,7 @@ Vector3 DebugIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, const Mat
 {
 	PhongMaterial* phongMaterial = material.As<PhongMaterial>();
 
-	if (phongMaterial != NULL)
+	if (FALSE && phongMaterial != NULL)
 	{
 		Color color = phongMaterial->diffuseColor;
 
@@ -35,9 +35,14 @@ Vector3 DebugIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, const Mat
 		return color.subvector(3);
 	}
 
-	//return Vector3(hitInfo.uv, 0);
-	return hitInfo.normal;
+	// Depth
+	float depthColor = hitInfo.distance / 1000.0f;
+	return Vector3(depthColor, depthColor, depthColor);
 
+	// Normals
+	return Vector3(0.5f, 0.5f, 0.5f) + hitInfo.normal * 0.5f;
+
+	// Basic diffuse light
 	Vector3 lightDirection(1.0f, 1.0f, 0.0f);
 	cml::normalize(lightDirection);
 

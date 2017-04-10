@@ -11,6 +11,8 @@
 
 using namespace AwesomeRenderer;
 
+const float ObjLoader::HEIGHT_MAP_NORMAL_STRENGTH = 2.0f;
+
 ObjLoader::ObjLoader(TextureFactory& textureFactory) : textureFactory(textureFactory)
 {
 	defaultShader = new PhongShader();

@@ -33,12 +33,6 @@ namespace AwesomeRenderer
 			float G1Schlick(const Vector3& v, const Vector3& n, float a) const;
 			float G1GGX(const Vector3& v, const Vector3& n, const Vector3& h, float a) const;
 
-			template<typename T>
-			static T FresnelSchlick(float cosT, T F0)
-			{
-				return F0 + (1.0f - F0) * pow(1 - cosT, 5);
-			};
-
 		};
 	}
 }

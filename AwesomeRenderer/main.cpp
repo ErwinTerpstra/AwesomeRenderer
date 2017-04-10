@@ -224,7 +224,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		Renderer* renderer = renderers[rendererIdx];
 		renderer->Initialize();
 				
-		renderer->cullMode = Renderer::CULL_NONE;
+		renderer->cullMode = Renderer::CULL_BACK;
 		//renderer->drawMode = Renderer::DRAW_LINE;
 	}
 
