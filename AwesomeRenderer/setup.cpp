@@ -571,7 +571,29 @@ void Setup::SetupSponza()
 	light.quadricAttenuation = 0.001f;
 	light.color = Color(255, 244, 214);
 
-	light.enabled = true;
+	light.enabled = false;
+
+	{
+		// Light
+		Node* node = new Node();
+
+		Transformation* transform = new Transformation();
+		transform->SetPosition(Vector3(0.0f, 50.0f, 0.0f));
+		node->AddComponent(transform);
+
+		Material* material = new Material();
+		material->emission = Color(255, 244, 214);
+		material->emissionIntensity = 100.0f;
+
+		Renderable* renderable = new Renderable();
+		renderable->shape = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 15.0f);
+		renderable->material = material;
+
+		node->AddComponent(renderable);
+
+		context.mainContext->nodes.push_back(node);
+		context.mainContext->lightData->areaLights.push_back(renderable);
+	}
 
 	// SKYBOX
 	SixSidedSkybox* skybox = new SixSidedSkybox();
@@ -584,39 +606,37 @@ void Setup::SetupSponza()
 
 	//context.mainContext->skybox = skybox;
 
-	// MODEL
-	Node* node = new Node();
-	Model* model = new Model();
-
-	Transformation* transform = new Transformation();
-	transform->SetScale(Vector3(0.1f, 0.1f, 0.1f));
-
-	node->AddComponent(model);
-	node->AddComponent(transform);
-
-	//transform->SetScale(Vector3(0.1f, 0.1f, 0.1f));
-	//transform->SetScale(Vector3(0.2f, 0.2f, 0.2f));
-	//objLoader.Load("../Assets/Town/town.obj", *model);
-	context.objLoader->Load("../Assets/CrytekSponza/sponza.obj", *model);
-	//objLoader.Load("../Assets/Castle01/castle.obj", *model);
-
-	ModelEx* modelEx = new ModelEx(*model);
-	for (uint32_t meshIdx = 0; meshIdx < modelEx->meshes.size(); ++meshIdx)
 	{
-		Node* meshNode = new Node();
+		// MODEL
+		Node* node = new Node();
+		Model* model = new Model();
 
-		meshNode->AddComponent(transform);
+		Transformation* transform = new Transformation();
+		transform->SetScale(Vector3(0.1f, 0.1f, 0.1f));
 
-		Renderable* renderable = new Renderable();
-		renderable->shape = modelEx->meshes[meshIdx];
-		renderable->material = model->materials[meshIdx];
+		node->AddComponent(model);
+		node->AddComponent(transform);
 
-		meshNode->AddComponent(renderable);
+		context.objLoader->Load("../Assets/CrytekSponza/sponza.obj", *model);
 
-		context.mainContext->nodes.push_back(meshNode);
+		ModelEx* modelEx = new ModelEx(*model);
+		for (uint32_t meshIdx = 0; meshIdx < modelEx->meshes.size(); ++meshIdx)
+		{
+			Node* meshNode = new Node();
+
+			meshNode->AddComponent(transform);
+
+			Renderable* renderable = new Renderable();
+			renderable->shape = modelEx->meshes[meshIdx];
+			renderable->material = model->materials[meshIdx];
+
+			meshNode->AddComponent(renderable);
+
+			context.mainContext->nodes.push_back(meshNode);
+		}
+
+		context.mainContext->nodes.push_back(node);
 	}
-
-	context.mainContext->nodes.push_back(node);
 }
 
 void Mandelbulb(const Vector3& v, const Vector3& c, int n, Vector3& result)
