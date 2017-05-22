@@ -9,32 +9,30 @@ using namespace AwesomeRenderer;
 
 MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(20), worldMtx(), world2object()
 {
+	triangles.reserve(mesh.indices.size() / 3);
+
 	for (unsigned int cIndex = 0; cIndex < mesh.indices.size(); cIndex += 3)
 	{
 		// Retrieve vertex indices for this triangle
 		int vIdx0 = mesh.indices[cIndex], vIdx1 = mesh.indices[cIndex + 1], vIdx2 = mesh.indices[cIndex + 2];
 
 		// Create triangle object based on the vertex data
-		MeshTriangle* triangle = new MeshTriangle(*this, vIdx0, vIdx1, vIdx2);
+		MeshTriangle triangle(*this, vIdx0, vIdx1, vIdx2);
 
-		if (triangle->IsLine())
-		{
-			delete triangle;
+		if (triangle.IsLine())
 			continue;
-		}
 
 		triangles.push_back(triangle);
+		
+		// TODO: These references break if the vector decides to resize. Use simple array?
+		tree.elements.push_back(&triangles.back());
 	}
 
-	KDTreeNode::ElementList& elements = tree.rootNode->GetElements();
-	elements.insert(elements.end(), triangles.begin(), triangles.end());
+	//tree.elements.insert(tree.elements.end(), triangles.begin(), triangles.end());
 }
 
 MeshEx::~MeshEx()
 {
-	for (auto it = triangles.begin(); it != triangles.end(); ++it)
-		delete *it;
-
 	triangles.clear();
 }
 

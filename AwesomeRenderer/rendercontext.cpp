@@ -27,7 +27,6 @@ void RenderContext::Optimize()
 	Vector3 min(FLT_MAX, FLT_MAX, FLT_MAX);
 	Vector3 max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-	KDTreeNode::ElementList& elements = tree.rootNode->GetElements();
 	for (auto it = nodes.begin(); it != nodes.end(); ++it)
 	{
 		Renderable* renderable = (*it)->GetComponent<Renderable>();
@@ -49,7 +48,7 @@ void RenderContext::Optimize()
 			max[2] = std::max(max[2], boundsMax[2]);
 			//*/
 
-			elements.push_back(renderable);
+			tree.elements.push_back(renderable);
 		}
 	}
 	

@@ -7,27 +7,36 @@
 #define NEW(type, args) new (Allocate<type>()) type(args)
 
 using namespace AwesomeRenderer;
-const float KDTree::TRAVERSAL_COST = 0.2f;
-const float KDTree::INTERSECTION_COST = 1.0f;
+const float KDTree::TRAVERSAL_COST = 1.0f;
+const float KDTree::INTERSECTION_COST = 80.0f;
+const float KDTree::EMPTY_BONUS = 0.0f;
 const float KDTree::POSITION_EPSILON = 1e-5f;
 
-KDTree::KDTree(uint32_t maxDepth) : maxDepth(maxDepth)
+KDTree::KDTree(uint32_t maxDepth) : maxDepth(maxDepth), elements(), nodes(NULL), lastNode(0), availableNodes(0), elementBuffer(NULL)
 {
-	rootNode = NEW(KDTreeNode, NEW(KDTreeNode::ElementList));
+
 }
 
 KDTree::~KDTree()
 {
-	rootNode->~KDTreeNode();
+	if (nodes != NULL)
+		Free(nodes);
 
-	_aligned_free(rootNode);
+	if (elementBuffer != NULL)
+		Free(elementBuffer);
 }
 
 void KDTree::Optimize(const AABB& bounds)
 {
 	this->bounds = bounds;
 
-	Optimize(rootNode, bounds);
+	// Create the index buffer which holds a list of element indices in all nodes
+	elementBufferSize = elements.size() * maxDepth;
+	elementBufferOffset = 0;
+	elementBuffer = Allocate<TreeElement*>(elementBufferSize);
+	
+	// Create the root node and recursively build the tree
+	CreateNode(0, bounds, elements);
 }
 
 void KDTree::Analyze() const
@@ -48,7 +57,7 @@ void KDTree::Analyze() const
 	std::vector<ScheduledNode> nodesLeft;
 
 	ScheduledNode node;
-	node.ptr = rootNode;
+	node.ptr = nodes;
 	node.depth = 0;
 
 	nodesLeft.push_back(node);
@@ -62,7 +71,7 @@ void KDTree::Analyze() const
 		{
 			++leaves;
 
-			uint32_t elements = node.ptr->GetElements().size();
+			uint32_t elements = node.ptr->GetElementCount();
 			if (elements == 0)
 				++emptyLeaves;
 
@@ -76,10 +85,10 @@ void KDTree::Analyze() const
 			++node.depth;
 
 			const KDTreeNode* oldNode = node.ptr;
-			node.ptr = oldNode->GetUpperNode();
+			node.ptr = nodes + oldNode->GetUpperNode();
 			nodesLeft.push_back(node);
 
-			node.ptr = oldNode->GetLowerNode();
+			node.ptr = nodes + oldNode->GetUpperNode() + 1;
 			nodesLeft.push_back(node);
 		}
 	}
@@ -88,142 +97,139 @@ void KDTree::Analyze() const
 		leaves, emptyLeaves, largestLeafSize, totalElements, maxDepth);
 }
 
-void KDTree::Optimize(KDTreeNode* node, const AABB& bounds, int depth)
+void KDTree::CreateNode(uint32_t nodeIdx, const AABB& bounds, const std::vector<TreeElement*>& elements, int depth)
 {
-	assert(node->IsLeaf());
+	if (nodeIdx >= availableNodes)
+	{
+		uint32_t desiredNodes = std::max(2 * availableNodes, 512U);
+		KDTreeNode* newNodes = Allocate<KDTreeNode>(desiredNodes);
+		if (availableNodes > 0)
+		{
+			memcpy(newNodes, nodes, availableNodes * sizeof(KDTreeNode));
+			Free(nodes);
+		}
 
-	KDTreeNode::ElementList& elements = node->GetElements();
+		nodes = newNodes;
+		availableNodes = desiredNodes;
+	}
+	
+	KDTreeNode* node = nodes + nodeIdx;
 
-	// If we are within the maximum number of objects per leaf we can leave this node as is
+	if (nodeIdx > lastNode)
+		lastNode = nodeIdx;
+
+	// If we are at the maximum tree depth, this will always be a leaf node
 	if (depth >= maxDepth)
+	{
+		InitialiseLeaf(node, elements);
 		return;
-
-	// If the splitting algorithm can't find a split point which whill improve the tree, leave it as is
-	if (!SplitSAH(node, bounds))
+	}
+		
+	// If the splitting algorithm can't find a split point which whill improve the tree, create a leaf
+	int axis = depth % 3;
+	float splitPoint, splitCost;
+	//if (!SplitFast(elements, bounds, axis, splitPoint))
+	if (!SplitSAH(axis, elements, bounds, splitPoint, splitCost))
+	//if (!SplitSAH(elements, bounds, axis, splitPoint)) // Choose best axis to split this node
+	{
+		InitialiseLeaf(node, elements);
 		return;
+	}
 
-	KDTreeNode::ElementList* upperElements = NEW(KDTreeNode::ElementList);
-	KDTreeNode::ElementList* lowerElements = NEW(KDTreeNode::ElementList);
-
-	KDTreeNode* nodes = Allocate<KDTreeNode>(2);
-
-	KDTreeNode* upperNode = new (nodes) KDTreeNode(upperElements, node);
-	KDTreeNode* lowerNode = new (nodes + 1) KDTreeNode(lowerElements, node);
-
-	int axis = node->GetAxis();
-
-	float splitPoint = node->GetSplitPoint();
+	std::vector<TreeElement*> upperElements;
+	std::vector<TreeElement*> lowerElements;
 
 	// Relocate all objects in this leaf to the child nodes they intersect
-	for (auto it = elements.begin(); it != elements.end(); ++it)
+	uint32_t elementCount = elements.size();
+	for (uint32_t elementIdx = 0; elementIdx < elementCount; ++elementIdx)
 	{
-		const Primitive& primitive = (*it)->GetPrimitive();
+		const Primitive& primitive = elements[elementIdx]->GetPrimitive();
 
 		// Determine which side of the plane this object is
 		int side = primitive.SideOfAAPlane(axis, splitPoint);
 
 		if (side >= 0)
-			upperElements->push_back(*it);
+			upperElements.push_back(elements[elementIdx]);
 
 		if (side <= 0)
-			lowerElements->push_back(*it);
+			lowerElements.push_back(elements[elementIdx]);
 	}
-
-	node->SetLeaf(false);
-	node->SetUpperNode(upperNode);
-
-	// Clear object list since this is no longer a leaf
-	Free(&elements);
+	
+	uint32_t upperNodeIdx = lastNode + 1;
+	lastNode += 2;
+	node->InitialiseNonLeaf(splitPoint, axis, upperNodeIdx);
 
 	// Try to optimize child nodes
 	AABB upperBounds, lowerBounds;
-
 	CalculateBounds(bounds, axis, splitPoint, upperBounds, lowerBounds);
-	Optimize(upperNode, upperBounds, depth + 1);
-	Optimize(lowerNode, lowerBounds, depth + 1);
+	
+	CreateNode(upperNodeIdx, upperBounds, upperElements, depth + 1);
+	CreateNode(upperNodeIdx + 1, lowerBounds, lowerElements, depth + 1);
 }
 
-bool KDTree::SplitSAH(KDTreeNode* node, const AABB& bounds)
+void KDTree::InitialiseLeaf(KDTreeNode* node, const std::vector<TreeElement*>& elements)
 {
-	float dontSplitCost = KDTree::INTERSECTION_COST * node->GetElements().size();
+	uint32_t elementCount = elements.size();
 
-	int bestAxis = -1;
+	assert((elementBufferOffset + elementCount) < elementBufferSize);
+
+	// Reserve space in the element index bufer for all indices
+	TreeElement** nodeElements = elementBuffer + elementBufferOffset;
+	elementBufferOffset += elementCount;
+
+	// Copy indices to the buffer for the node
+	for (uint32_t elementIdx = 0; elementIdx < elementCount; ++elementIdx)
+		nodeElements[elementIdx] = elements[elementIdx];
+
+	node->InitialiseLeaf(nodeElements, elementCount);
+}
+
+bool KDTree::SplitSAH(const std::vector<TreeElement*>& elements, const AABB& bounds, int& bestAxis, float& bestSplitPosition)
+{
+	bool willSplit = false;
 	float lowestCost = FLT_MAX;
-	float bestSplitPosition;
 
 	const Vector3& min = bounds.Min();
 	const Vector3& max = bounds.Max();
 
-	/*
-	// Find the longest axis and use that as split axis
-	float dx = max[0] - min[0];
-	float dy = max[1] - min[1];
-	float dz = max[2] - min[2];
-
-	if (dx > dz)
-	{
-		if (dx > dy)
-			bestAxis = 0;
-		else
-			bestAxis = 1;
-	}
-	else
-	{
-		if (dz > dy)
-			bestAxis = 2;
-		else
-			bestAxis = 1;
-	}
-	*/
-
-	bestAxis = node->GetAxis();
-	SplitSAH(node, bestAxis, bounds, bestSplitPosition, lowestCost);
-
-	/*/
 	// Find the best axis to split along by calculating the split cost for each axis
 	for (int axis = 0; axis < 3; ++axis)
 	{
 		float splitPosition, cost;
-		SplitSAH(node, axis, bounds, splitPosition, cost);
-
-		if (cost < lowestCost)
+		if (SplitSAH(axis, elements, bounds, splitPosition, cost))
 		{
-			lowestCost = cost;
-			bestAxis = axis;
-			bestSplitPosition = splitPosition;
+			willSplit = true;
+
+			if (cost < lowestCost)
+			{
+				lowestCost = cost;
+				bestAxis = axis;
+				bestSplitPosition = splitPosition;
+			}
 		}
 	}
-
-	//*/
-
-	if (lowestCost <= dontSplitCost)
-	{
-		node->SetAxis(bestAxis);
-		node->SetSplitPoint(bestSplitPosition);
-
-		return true;
-	}
-	else
-		return false;
+	
+	return willSplit;
 }
 
-void KDTree::SplitSAH(KDTreeNode* node, int axis, const AABB& bounds, float& bestSplitPosition, float& lowestCost)
+bool KDTree::SplitSAH(int axis, const std::vector<TreeElement*>& elements, const AABB& bounds, float& bestSplitPosition, float& lowestCost)
 {
-	KDTreeNode::ElementList& elements = node->GetElements();
-
 	const Vector3& max = bounds.Max();
 	const Vector3& min = bounds.Min();
 
+	uint32_t elementCount = elements.size();
+	float dontSplitCost = KDTree::INTERSECTION_COST * elementCount;
+
 	// Initialize a potentional position list with two positions per object
 	std::vector<SplitPosition> splitPositions;
-	splitPositions.reserve(elements.size() * 2);
+	splitPositions.reserve(elementCount * 2);
 	
 	// Iterate through all objects in this leaf
-	for (auto it = elements.begin(); it != elements.end(); ++it)
+	for (uint32_t elementIdx = 0; elementIdx < elementCount; ++elementIdx)
 	{
 		// Calculate axis aligned boundaries for this shape
 		AABB objectBounds;
-		(*it)->GetPrimitive().CalculateBounds(objectBounds);
+		elements[elementIdx]->GetPrimitive().CalculateBounds(objectBounds);
 
 		// Save the minimum and maximum position for the bounds
 		SplitPosition splitPosition;
@@ -263,7 +269,7 @@ void KDTree::SplitSAH(KDTreeNode* node, int axis, const AABB& bounds, float& bes
 	float rootArea = bounds.Area();
 
 	int lowerObjectCount = 0;
-	int upperObjectCount = elements.size();
+	int upperObjectCount = elementCount;
 
 	bool addToLower = false;
 
@@ -293,19 +299,15 @@ void KDTree::SplitSAH(KDTreeNode* node, int axis, const AABB& bounds, float& bes
 		float lowerLength = splitPosition.position - min[axis];
 
 		assert(lowerObjectCount >= 0 && upperObjectCount >= 0);
-		assert(lowerObjectCount + upperObjectCount >= elements.size());
+		assert(lowerObjectCount + upperObjectCount >= elementCount);
 
 		// Calculate final cost for splitting at this point
-		
-		/*
-		float cost = KDTree::TRAVERSAL_COST + KDTree::INTERSECTION_COST * ((upperLength / rootLength) * upperObjectCount +
-																			(lowerLength / rootLength) * lowerObjectCount);
-		/*/
 		float upperArea = 2 * (width * height + height * upperLength + width * upperLength);
 		float lowerArea = 2 * (width * height + height * lowerLength + width * lowerLength);
-		float cost = KDTree::TRAVERSAL_COST + KDTree::INTERSECTION_COST * ((upperArea / rootArea) * upperObjectCount +
-																			(lowerArea / rootArea) * lowerObjectCount);
-		//*/
+		float emptyBonus = (lowerObjectCount == 0 || upperObjectCount == 0) ? KDTree::EMPTY_BONUS : 0.0f;
+
+		float cost = KDTree::TRAVERSAL_COST + KDTree::INTERSECTION_COST * (1.0f - emptyBonus) *
+												((upperArea / rootArea) * upperObjectCount + (lowerArea / rootArea) * lowerObjectCount);
 
 		assert(fabs(rootLength - (upperLength + lowerLength)) < 1e-3f);
 
@@ -316,62 +318,12 @@ void KDTree::SplitSAH(KDTreeNode* node, int axis, const AABB& bounds, float& bes
 			bestSplitPosition = splitPosition.position;
 		}
 	}
-	
+
+	return lowestCost < dontSplitCost;	
 }
 
-void KDTree::SplitMode(KDTreeNode* node, const AABB& bounds)
+bool KDTree::SplitFast(const std::vector<TreeElement*>& elements, const AABB& bounds, int& bestAxis, float& bestSplitPosition)
 {
-	KDTreeNode::ElementList& elements = node->GetElements();
-	int axis = node->GetAxis();
-
-	float median = 0.0f;
-
-	for (auto it = elements.begin(); it != elements.end(); ++it)
-	{
-		AABB elementBounds;
-		(*it)->GetPrimitive().CalculateBounds(elementBounds);
-
-		float center = (elementBounds.Min()[axis] + elementBounds.Max()[axis]) / 2;
-		median += center;
-	}
-
-	median /= elements.size();
-
-	float splitPoint;
-
-	// Find the element closest to the median
-	float closestDistance = FLT_MAX;
-	for (auto it = elements.begin(); it != elements.end(); ++it)
-	{
-		AABB elementBounds;
-		(*it)->GetPrimitive().CalculateBounds(elementBounds);
-
-		float min = elementBounds.Min()[axis];
-		float max = elementBounds.Max()[axis];
-
-		float dMin = fabs(median - min);
-		float dMax = fabs(median - max);
-
-		if (dMin < closestDistance)
-		{
-			splitPoint = min - KDTree::POSITION_EPSILON;
-			closestDistance = dMin;
-		}
-
-		if (dMax < closestDistance)
-		{
-			splitPoint = max + KDTree::POSITION_EPSILON;
-			closestDistance = dMax;
-		}
-	}
-
-	node->SetSplitPoint(splitPoint);
-}
-
-bool KDTree::SplitFast(KDTreeNode* node, const AABB& bounds)
-{
-	KDTreeNode::ElementList& elements = node->GetElements();
-	
 	if (elements.size() < 10)
 		return false;
 
@@ -400,10 +352,9 @@ bool KDTree::SplitFast(KDTreeNode* node, const AABB& bounds)
 	}
 
 	// The split point is halfway this axis
-	float splitPoint = (min[axis] + max[axis]) / 2.0f;
-	node->SetAxis(axis);
-	node->SetSplitPoint(splitPoint);
-	
+	bestAxis = axis;
+	bestSplitPosition = (min[axis] + max[axis]) / 2.0f;
+
 	return true;
 }
 
@@ -434,6 +385,7 @@ bool KDTree::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance
 	// Somehow, if we use std::min(maxDistance, tMax) as max distance, this sometimes misses intersection.
 	// TODO: Test why this is.
 	return IntersectRaySec(ray, hitInfo, std::max(0.0f, tMin), maxDistance);
+	//return IntersectRayRec(&nodes[0], ray, hitInfo, std::max(0.0f, tMin), maxDistance);
 }
 
 bool KDTree::IntersectRayRec(KDTreeNode* node, const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const
@@ -444,8 +396,8 @@ bool KDTree::IntersectRayRec(KDTreeNode* node, const Ray& ray, RaycastHit& hitIn
 		float closestDistance = tMax;
 		bool hit = false;
 
-		KDTreeNode::ElementList& elements = node->GetElements();
-		for (uint32_t elementIdx = 0, elementCount = elements.size(); elementIdx < elementCount; ++elementIdx)
+		TreeElement** elements = node->GetElements();
+		for (uint32_t elementIdx = 0, elementCount = node->GetElementCount(); elementIdx < elementCount; ++elementIdx)
 		{
 			const Shape& shape = elements[elementIdx]->GetShape();
 
@@ -474,13 +426,13 @@ bool KDTree::IntersectRayRec(KDTreeNode* node, const Ray& ray, RaycastHit& hitIn
 
 		if (ray.origin[axis] < splitPoint)
 		{
-			nearNode = node->GetLowerNode();
-			farNode = node->GetUpperNode();
+			farNode = nodes + node->GetUpperNode();
+			nearNode = farNode + 1;
 		}
 		else
 		{
-			nearNode = node->GetUpperNode();
-			farNode = node->GetLowerNode();
+			nearNode = nodes + node->GetUpperNode();
+			farNode = nearNode + 1;
 		}
 
 		float tSplit = (splitPoint - ray.origin[axis]) * ray.invDirection[axis];
@@ -521,7 +473,7 @@ bool KDTree::IntersectRayRec(KDTreeNode* node, const Ray& ray, RaycastHit& hitIn
 bool KDTree::IntersectRaySec(const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const
 {
 	TraversalStack stack;
-	stack.Push(rootNode, tMin, tMax);
+	stack.Push(nodes, tMin, tMax);
 
 	while (!stack.IsEmpty())
 	{
@@ -536,18 +488,18 @@ bool KDTree::IntersectRaySec(const Ray& ray, RaycastHit& hitInfo, float tMin, fl
 			int axis = node->GetAxis();
 			float splitPoint = node->GetSplitPoint();
 			
-			KDTreeNode* nearNode;
-			KDTreeNode* farNode;
+			const KDTreeNode* nearNode;
+			const KDTreeNode* farNode;
 
 			if (ray.origin[axis] < splitPoint)
 			{
-				nearNode = node->GetLowerNode();
-				farNode = node->GetUpperNode();
+				farNode = &nodes[node->GetUpperNode()];
+				nearNode = farNode + 1;
 			}
 			else
 			{
-				nearNode = node->GetUpperNode();
-				farNode = node->GetLowerNode();
+				nearNode = &nodes[node->GetUpperNode()];
+				farNode = nearNode + 1;
 			}
 
 			float tSplit = (splitPoint - ray.origin[axis]) * ray.invDirection[axis];
@@ -569,22 +521,23 @@ bool KDTree::IntersectRaySec(const Ray& ray, RaycastHit& hitInfo, float tMin, fl
 		float closestDistance = tMax;
 		bool hit = false;
 
-		KDTreeNode::ElementList& elements = node->GetElements();
-		for (uint32_t elementIdx = 0, elementCount = elements.size(); elementIdx < elementCount; ++elementIdx)
+		uint32_t elementCount = node->GetElementCount();
+		TreeElement** elements = node->GetElements();
+		for (uint32_t elementIdx = 0; elementIdx < elementCount; ++elementIdx)
 		{
-			const Shape& shape = elements[elementIdx]->GetShape();
+			const TreeElement* element = elements[elementIdx];
 
 			// Perform the ray-triangle intersection
 			RaycastHit shapeHitInfo;
-			if (!shape.IntersectRay(ray, shapeHitInfo, closestDistance))
-				continue;
+			if (element->GetShape().IntersectRay(ray, shapeHitInfo, closestDistance))
+			{
+				closestDistance = shapeHitInfo.distance;
 
-			closestDistance = shapeHitInfo.distance;
+				hitInfo = shapeHitInfo;
+				hitInfo.element = element;
 
-			hitInfo = shapeHitInfo;
-			hitInfo.element = elements[elementIdx];
-
-			hit = true;
+				hit = true;
+			}
 		}
 
 		if (hit)
@@ -598,7 +551,7 @@ bool KDTree::IntersectRaySec(const Ray& ray, RaycastHit& hitInfo, float tMin, fl
 template<typename T>
 T* KDTree::Allocate(uint32_t count) 
 {
-	return (T*) _aligned_malloc(sizeof(T) * count, sizeof(KDTreeNode));
+	return (T*) _aligned_malloc(sizeof(T) * count, 8);
 }
 
 template<typename T>

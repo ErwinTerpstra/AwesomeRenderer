@@ -5,19 +5,23 @@
 
 using namespace AwesomeRenderer;
 
-KDTreeNode::KDTreeNode(ElementList* elements, KDTreeNode* parent) : data(0)
+KDTreeNode::KDTreeNode() : data(0)
 {
-	SetLeaf(true);
-
-	if (parent)
-		SetAxis((parent->GetAxis() + 1) % 3);
-	else
-		SetAxis(0);
-
-	SetElements(*elements);
 }
 
 KDTreeNode::~KDTreeNode()
 {
 
+}
+
+void KDTreeNode::InitialiseLeaf(TreeElement** elements, uint32_t elementCount)
+{
+	data = (elementCount << 2) | 0x03;
+	elementList = elements;
+}
+
+void KDTreeNode::InitialiseNonLeaf(float splitPoint, uint32_t axis, uint32_t upperNode)
+{
+	this->splitPoint = splitPoint;
+	data = (upperNode << 2) | axis;
 }

@@ -9,3 +9,4 @@ ipch/
 *.VC.db
 *.opendb
 Renders/
+FastDebug/

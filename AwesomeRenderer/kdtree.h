@@ -16,9 +16,10 @@ namespace AwesomeRenderer
 		static const uint32_t MAX_DEPTH = 32;
 		static const float TRAVERSAL_COST;
 		static const float INTERSECTION_COST;
+		static const float EMPTY_BONUS;
 		static const float POSITION_EPSILON;
 
-		KDTreeNode* rootNode;
+		std::vector<TreeElement*> elements;
 
 	private:
 		struct SplitPosition
@@ -35,7 +36,7 @@ namespace AwesomeRenderer
 
 		struct StackNode
 		{
-			KDTreeNode* node;
+			const KDTreeNode* node;
 			float tMin, tMax;
 		};
 
@@ -52,7 +53,7 @@ namespace AwesomeRenderer
 
 			}
 
-			void Push(KDTreeNode* node, float tMin, float tMax)
+			void Push(const KDTreeNode* node, float tMin, float tMax)
 			{
 				assert(count < MAX_DEPTH);
 
@@ -78,6 +79,15 @@ namespace AwesomeRenderer
 
 		AABB bounds;
 		uint32_t maxDepth;
+		
+		KDTreeNode* nodes;
+		uint32_t lastNode;
+		uint32_t availableNodes;
+
+		TreeElement** elementBuffer;
+		uint32_t elementBufferSize;
+		uint32_t elementBufferOffset;
+		
 	
 	public:
 		KDTree(uint32_t maxDepth);
@@ -89,16 +99,16 @@ namespace AwesomeRenderer
 		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance = FLT_MAX) const;
 
 	private:
-		void Optimize(KDTreeNode* node, const AABB& bounds, int depth = 0);
+		void CreateNode(uint32_t nodeIdx, const AABB& bounds, const std::vector<TreeElement*>& elements, int depth = 0);
+		void InitialiseLeaf(KDTreeNode* node, const std::vector<TreeElement*>& elements);
 
 		bool IntersectRayRec(KDTreeNode* node, const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const;
 		bool IntersectRaySec(const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const;
 
-		bool SplitSAH(KDTreeNode* node, const AABB& bounds);
-		void SplitSAH(KDTreeNode* node, int axis, const AABB& bounds, float& bestSplitPosition, float& lowestCost);
+		bool SplitSAH(const std::vector<TreeElement*>& elements, const AABB& bounds, int& bestAxis, float& bestSplitPosition);
+		bool SplitSAH(int axis, const std::vector<TreeElement*>& elements, const AABB& bounds, float& bestSplitPosition, float& lowestCost);
 
-		void SplitMode(KDTreeNode* node, const AABB& bounds);
-		bool SplitFast(KDTreeNode* node, const AABB& bounds);
+		bool SplitFast(const std::vector<TreeElement*>& elements, const AABB& bounds, int& bestAxis, float& bestSplitPosition);
 
 		void CalculateBounds(const AABB& bounds, int axis, float splitPoint, AABB& upper, AABB& lower);
 

@@ -15,7 +15,7 @@ namespace AwesomeRenderer
 	public:
 		static const int ID;
 
-		std::vector<MeshTriangle*> triangles;
+		std::vector<MeshTriangle> triangles;
 
 		KDTree tree;
 
