@@ -67,6 +67,9 @@
     <Filter Include="Source\Renderer\RayTracing\BSDF">
       <UniqueIdentifier>{d60e87e1-de7e-49f6-bf45-0b8ffdb31975}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Memory">
+      <UniqueIdentifier>{7a4ab270-20b9-4f51-a0f7-32af5bf1705f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -586,6 +589,12 @@
     </ClInclude>
     <ClInclude Include="mesh_gl.h">
       <Filter>Source\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="memory.h">
+      <Filter>Source\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="alignmentallocator.h">
+      <Filter>Source\Memory</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

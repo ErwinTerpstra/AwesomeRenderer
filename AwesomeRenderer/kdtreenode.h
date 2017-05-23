@@ -12,9 +12,9 @@ namespace AwesomeRenderer
 	class KDTreeNode
 	{
 	private:
-		// The lowest bit always signifies whether this is a leaf
+		// The lowest two bits always signifies the split axis. A split axis of 3 indicates this is a leaf node
 		// For leaf nodes: The upper bytes are the number of elements in this leaf
-		// For non-leaf nodes: the 2nd and 3rd bits are the split axis and the upper bytes are the index of the upper element, the lower element is always allocated directly behind it
+		// For non-leaf nodes: Tthe upper bytes are the index of the upper element, the lower element is always allocated directly behind it
 		uint32_t data;
 
 		union

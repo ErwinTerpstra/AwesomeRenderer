@@ -4,8 +4,6 @@
 #include "kdtreenode.h"
 #include "treeelement.h"
 
-#define NEW(type, args) new (Allocate<type>()) type(args)
-
 using namespace AwesomeRenderer;
 const float KDTree::TRAVERSAL_COST = 1.0f;
 const float KDTree::INTERSECTION_COST = 80.0f;
@@ -20,10 +18,10 @@ KDTree::KDTree(uint32_t maxDepth) : maxDepth(maxDepth), elements(), nodes(NULL),
 KDTree::~KDTree()
 {
 	if (nodes != NULL)
-		Free(nodes);
+		FreeAligned(nodes);
 
 	if (elementBuffer != NULL)
-		Free(elementBuffer);
+		FreeAligned(elementBuffer);
 }
 
 void KDTree::Optimize(const AABB& bounds)
@@ -33,7 +31,7 @@ void KDTree::Optimize(const AABB& bounds)
 	// Create the index buffer which holds a list of element indices in all nodes
 	elementBufferSize = elements.size() * maxDepth;
 	elementBufferOffset = 0;
-	elementBuffer = Allocate<TreeElement*>(elementBufferSize);
+	elementBuffer = AllocateAligned<TreeElement*>(4, elementBufferSize);
 	
 	// Create the root node and recursively build the tree
 	CreateNode(0, bounds, elements);
@@ -102,11 +100,11 @@ void KDTree::CreateNode(uint32_t nodeIdx, const AABB& bounds, const std::vector<
 	if (nodeIdx >= availableNodes)
 	{
 		uint32_t desiredNodes = std::max(2 * availableNodes, 512U);
-		KDTreeNode* newNodes = Allocate<KDTreeNode>(desiredNodes);
+		KDTreeNode* newNodes = AllocateAligned<KDTreeNode>(8, desiredNodes);
 		if (availableNodes > 0)
 		{
 			memcpy(newNodes, nodes, availableNodes * sizeof(KDTreeNode));
-			Free(nodes);
+			FreeAligned(nodes);
 		}
 
 		nodes = newNodes;
@@ -547,17 +545,4 @@ bool KDTree::IntersectRaySec(const Ray& ray, RaycastHit& hitInfo, float tMin, fl
 	return false;
 }
 
-
-template<typename T>
-T* KDTree::Allocate(uint32_t count) 
-{
-	return (T*) _aligned_malloc(sizeof(T) * count, 8);
-}
-
-template<typename T>
-void KDTree::Free(T* instance)
-{
-	instance->~T();
-	_aligned_free(instance);
-}
 

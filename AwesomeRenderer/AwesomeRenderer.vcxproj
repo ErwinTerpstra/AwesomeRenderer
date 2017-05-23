@@ -199,6 +199,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aabb.h" />
+    <ClInclude Include="alignmentallocator.h" />
     <ClInclude Include="branchedshader.h" />
     <ClInclude Include="bsdf.h" />
     <ClInclude Include="buffer.h" />
@@ -215,6 +216,7 @@
     <ClInclude Include="kdtreenode.h" />
     <ClInclude Include="lambert.h" />
     <ClInclude Include="lightdata.h" />
+    <ClInclude Include="memory.h" />
     <ClInclude Include="microfacetspecular.h" />
     <ClInclude Include="montecarlointegrator.h" />
     <ClInclude Include="pbrmaterial.h" />

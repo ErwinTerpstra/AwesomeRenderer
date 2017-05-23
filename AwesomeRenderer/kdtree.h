@@ -112,12 +112,6 @@ namespace AwesomeRenderer
 
 		void CalculateBounds(const AABB& bounds, int axis, float splitPoint, AABB& upper, AABB& lower);
 
-		template<typename T>
-		T* Allocate(uint32_t count = 1);
-
-		template<typename T>
-		void Free(T* block);
-
 		static bool SortSplitPosition(const SplitPosition& a, const SplitPosition& b)
 		{
 			return a.position < b.position;

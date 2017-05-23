@@ -9,7 +9,7 @@
 namespace AwesomeRenderer
 {
 	class MeshTriangle;
-
+	
 	class MeshEx : public Shape, public Extension<Mesh, MeshEx>
 	{
 	public:
