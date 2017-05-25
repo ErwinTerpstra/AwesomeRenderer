@@ -138,7 +138,7 @@ void Setup::SetupCornellBox()
 	light.quadricAttenuation = 0.0f;
 	light.intensity = 1.0f;
 
-	light.enabled = false;
+	light.enabled = true;
 
 	// SKYBOX
 	SixSidedSkybox* skybox = new SixSidedSkybox();
@@ -154,7 +154,7 @@ void Setup::SetupCornellBox()
 
 	// GEOMETRY
 	const bool showBox = true;
-	const bool showLight = true;
+	const bool showLight = false;
 	const bool showSpheres = true;
 	const bool showBunny = false;
 
@@ -255,11 +255,18 @@ void Setup::SetupCornellBox()
 		transform->SetScale(Vector3(2.0f, 2.0f, 2.0f));
 		node->AddComponent(transform);
 
+		/*
 		PbrMaterial* material = new PbrMaterial(*(new Material()));
 		material->albedo = wallWhite;
 		material->specular = wallSpecular;
 		material->metallic = 0;
 		material->roughness = wallRoughness;
+		/*/
+		PhongMaterial* material = new PhongMaterial(*(new Material()));
+		material->diffuseColor = wallWhite;
+		material->specularColor = Color::WHITE;
+		material->shininess = 100.0f;
+		//*/
 
 		Renderable* renderable = new Renderable();
 		renderable->shape = Quad::CreateUnitQuad();
@@ -579,15 +586,15 @@ void Setup::SetupSponza()
 		Node* node = new Node();
 
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(0.0f, 120.0f, 30.0f));
+		transform->SetPosition(Vector3(0.0f, 200.0f, 35.0f));
 		node->AddComponent(transform);
 
 		Material* material = new Material();
 		material->emission = Color(255, 244, 214);
-		material->emissionIntensity = 60.0f;
+		material->emissionIntensity = 150.0f;
 
 		AreaLight* areaLight = new AreaLight();
-		areaLight->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 15.0f);
+		areaLight->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 20.0f);
 		areaLight->material = material;
 
 		node->AddComponent(areaLight);

@@ -76,7 +76,7 @@ Vector3 SurfaceIntegrator::SampleDirectLight(const Ray& ray, const RaycastHit& h
 		Vector3 lightRadiance = light.color.subvector(3) * intensity;
 		
 		// TODO: This gets weird when the microfacet NDF returns a value > 1. Not sure how to handle this yet
-		radiance += material.bsdf->Sample(wo, wi, normal, hitInfo, material, BSDF::BXDF_DIFFUSE) * lightRadiance * NoL;
+		radiance += material.bsdf->Sample(wo, wi, normal, hitInfo, material, BSDF::BXDF_ALL) * lightRadiance * NoL;
 	}
 	
 	return radiance;

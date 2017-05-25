@@ -84,12 +84,7 @@ Vector3 MonteCarloIntegrator::Sample(const Vector3& p, const Vector3& wo, const 
 	Ray reflectionRay(p + normal * 1e-3f, wi);
 
 	ShadingInfo reflectionShading;
-	float distance;
-
-	if (rayTracer.CalculateShading(reflectionRay, reflectionShading, depth + 1))
-		distance = (p - reflectionShading.hitInfo.point).length();
-	else
-		distance = 0.0f;
+	rayTracer.CalculateShading(reflectionRay, reflectionShading, depth + 1);
 
 	Vector3 radiance = reflectionShading.color.subvector(3);
 

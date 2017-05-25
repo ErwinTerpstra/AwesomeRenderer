@@ -31,6 +31,7 @@ Vector3 BlinnPhong::Sample(const Vector3& wo, const Vector3& wi, const Vector3& 
 
 	float specularTerm = std::pow(NoH, phongMaterial->shininess);
 	float normalization = (phongMaterial->shininess + 8) / (8 * PI);
+	//float normalization = (phongMaterial->shininess + 2) * INV_TWO_PI;
 
 	return fresnel * (normalization * specularTerm);
 }
@@ -39,8 +40,8 @@ void BlinnPhong::GenerateSampleVector(const Vector2& r, const Vector3& wo, const
 {
 	PhongMaterial* phongMaterial = material.As<PhongMaterial>();
 
-	float phi = 2.0f * PI * r[0];
-	float theta = acosf(pow(1.0f - r[1], 1.0f / (phongMaterial->shininess + 1.0f)));
+	float phi = 2.0f * PI * r[1];
+	float theta = acosf(pow(r[0], 1.0f / (phongMaterial->shininess + 1.0f)));
 
 	Vector3 h;
 	SphericalToCartesian(phi, theta, h);
@@ -56,5 +57,6 @@ float BlinnPhong::CalculatePDF(const Vector3& wo, const Vector3& wi, const Vecto
 	Vector3 h = cml::normalize(wo + wi);
 	float cosTheta = VectorUtil<3>::Dot(normal, h);
 
-	return ((phongMaterial->shininess + 1) * pow(cosTheta, phongMaterial->shininess)) / (2.0f * PI * 4.0f * VectorUtil<3>::Dot(wo, h));
+	float pdf = (phongMaterial->shininess + 1) * INV_TWO_PI * pow(cosTheta, phongMaterial->shininess);
+	return pdf / (4.0f * VectorUtil<3>::Dot(wo, h));
 }
