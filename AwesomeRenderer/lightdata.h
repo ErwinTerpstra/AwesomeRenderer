@@ -5,7 +5,7 @@
 
 namespace AwesomeRenderer
 {
-	class Renderable;
+	class AreaLight;
 
 	class LightData
 	{
@@ -46,7 +46,7 @@ namespace AwesomeRenderer
 
 		Light lights[MAX_LIGHTS];
 
-		std::vector<Renderable*> areaLights;
+		std::vector<AreaLight*> areaLights;
 
 		Color ambient;
 

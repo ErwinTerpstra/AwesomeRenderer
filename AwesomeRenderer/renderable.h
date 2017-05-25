@@ -5,11 +5,10 @@
 #include "component.h"
 #include "treeelement.h"
 
-#include "shape.h"
+#include "primitive.h"
 
 namespace AwesomeRenderer
 {
-	class Primitive;
 	class Material;
 
 	class Renderable : public Component, public TreeElement

@@ -9,6 +9,7 @@
 #include "model.h"
 #include "mesh.h"
 #include "renderable.h"
+#include "arealight.h"
 #include "kdtreenode.h"
 
 using namespace AwesomeRenderer;
@@ -33,7 +34,6 @@ void RenderContext::Optimize()
 
 		if (renderable != NULL)
 		{
-			//*
 			AABB bounds;
 			renderable->GetPrimitive().CalculateBounds(bounds);
 
@@ -46,17 +46,11 @@ void RenderContext::Optimize()
 			max[0] = std::max(max[0], boundsMax[0]);
 			max[1] = std::max(max[1], boundsMax[1]);
 			max[2] = std::max(max[2], boundsMax[2]);
-			//*/
 
 			tree.elements.push_back(renderable);
 		}
 	}
 	
-	/*
-	min = Vector3(-5.0f, -5.0f, -5.0f);
-	max = Vector3( 5.0f,  5.0f,  5.0f);
-	//*/
-
 	Vector3 epsilon(0.1f, 0.1f, 0.1f);
 	min -= epsilon;
 	max += epsilon;
@@ -94,5 +88,15 @@ void RenderContext::Update()
 			if (renderable->shape != NULL)
 				renderable->shape->Transform(transform->WorldMtx());
 		}
+
+		// Update area lights
+		AreaLight* areaLight = node.GetComponent<AreaLight>();
+
+		if (areaLight != NULL)
+		{
+			if (areaLight->primitive != NULL)
+				areaLight->primitive->Transform(transform->WorldMtx());
+		}
 	}
+
 }

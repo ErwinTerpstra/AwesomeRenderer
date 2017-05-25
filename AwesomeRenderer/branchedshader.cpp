@@ -18,6 +18,24 @@ BranchedShader::BranchedShader() : vertexSource(NULL), fragmentSource(NULL), cur
 		keywordSource[keywordIdx] = NULL;
 }
 
+BranchedShader::~BranchedShader()
+{
+	if (vertexSource != NULL)
+		delete vertexSource;
+
+	if (fragmentSource != NULL)
+		delete fragmentSource;
+
+	for (uint32_t keywordIdx = 0; keywordIdx < MAX_KEYWORDS; ++keywordIdx)
+	{
+		if (keywordSource[keywordIdx] != NULL)
+			delete keywordSource[keywordIdx];
+	}
+
+	for (auto it = branches.begin(); it != branches.end(); ++it)
+		delete it->second;
+}
+
 void BranchedShader::SetSource(const char* vertexSource, const char* fragmentSource)
 {
 	// Create buffers to hold the vertex and fragment shader source and copy them to the new buffer

@@ -11,9 +11,10 @@ namespace AwesomeRenderer
 	class RenderTargetGL : public Extension<RenderTarget, RenderTargetGL>
 	{
 
-	private:
+	public:
 		TextureGL* frameBuffer;
-
+	
+	private:
 		GLuint renderTargetID;
 		GLuint depthBufferID;
 
@@ -26,6 +27,7 @@ namespace AwesomeRenderer
 		void Unbind();
 
 		void Read();
+		void Write();
 		
 		static uint32_t ExtensionID() { return RenderTarget::RENDER_TARGET_GL; }
 	};

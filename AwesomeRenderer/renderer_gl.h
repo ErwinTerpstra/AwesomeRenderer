@@ -4,6 +4,8 @@
 #include "awesomerenderer.h"
 #include "renderer.h"
 #include "branchedshader.h"
+#include "program_gl.h"
+#include "shader_gl.h"
 
 namespace AwesomeRenderer
 {
@@ -55,6 +57,11 @@ namespace AwesomeRenderer
 		RenderQueue opaque, transparent;
 
 		BranchedShader defaultShader;
+		
+		ProgramGL imageShader;
+		ShaderGL imageVertex, imageFragment;
+
+		GLuint quadArray, quadBuffer;
 
 	public:
 
@@ -64,6 +71,8 @@ namespace AwesomeRenderer
 		void Render();
 		void Present(Window& window);
 		void Cleanup();
+
+		void DrawImage(TextureGL& texture, uint32_t width, uint32_t height);
 
 	private:
 		void PreRender();

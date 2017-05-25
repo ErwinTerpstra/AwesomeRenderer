@@ -5,6 +5,9 @@
 #include "window.h"
 
 #include "util_gl.h"
+#include "filereader.h"
+
+#include "texture_gl.h"
 
 using namespace AwesomeRenderer;
 
@@ -88,7 +91,7 @@ bool WindowGL::Setup()
 	printf("[WindowGL]: Using OpenGL: %d.%d\n", glVersion[0], glVersion[1]);
 
 	GL_CHECK_ERROR(glEnableClientState(GL_VERTEX_ARRAY));
-
+	
 	return true;
 }
 

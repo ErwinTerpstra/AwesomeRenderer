@@ -129,70 +129,67 @@ void ObjLoader::Load(const char* fileName, Model& model)
 				IndexReader reader;
 				uint32_t vertices = reader.Parse(lineBuffer, 2, line.length() - 2);
 
-				if (vertices == 3 || vertices == 4)
+				assert(vertices == 3 || vertices == 4);
+
+				for (uint32_t vertexIdx = 0; vertexIdx < vertices; ++vertexIdx)
 				{
-					for (uint32_t vertexIdx = 0; vertexIdx < vertices; ++vertexIdx)
+					IndexReader::VertexIndices& vi = reader.vertexIndices[vertexIdx];
+
+					// Negative indices are relative to the buffer arrays
+					// Others are index in the buffer array + 1
+
+					if (vi.vertexIdx < 0)
+						vi.vertexIdx = vertexBuffer.size() + vi.vertexIdx;
+					else
+						--vi.vertexIdx;
+
+					if (vi.normalIdx < 0)
+						vi.normalIdx = normalBuffer.size() + vi.normalIdx;
+					else
+						--vi.normalIdx;
+
+					if (vi.texcoordIdx < 0)
+						vi.texcoordIdx = texcoordBuffer.size() + vi.texcoordIdx;
+					else
+						--vi.texcoordIdx;
+				}
+
+				// Triangle indices
+				const uint32_t triangles[] =
+				{
+					0, 1, 2,
+					0, 2, 3
+				};
+
+				// Iterate through all vertices of the face
+				for (uint32_t triIdx = 0; triIdx < (vertices - 2); ++triIdx)
+				{
+					//for (uint32_t vertexIdx = 0; vertexIdx < 3; ++vertexIdx)
+					for (int32_t vertexIdx = 2; vertexIdx >= 0; --vertexIdx)
 					{
-						IndexReader::VertexIndices& vi = reader.vertexIndices[vertexIdx];
-
-						// Negative indices are relative to the buffer arrays
-						// Others are index in the buffer array + 1
-
-						if (vi.vertexIdx < 0)
-							vi.vertexIdx = vertexBuffer.size() + vi.vertexIdx;
-						else
-							--vi.vertexIdx;
-
-						if (vi.normalIdx < 0)
-							vi.normalIdx = normalBuffer.size() + vi.normalIdx;
-						else
-							--vi.normalIdx;
-
-						if (vi.texcoordIdx < 0)
-							vi.texcoordIdx = texcoordBuffer.size() + vi.texcoordIdx;
-						else
-							--vi.texcoordIdx;
-					}
-
-					// Triangle indices
-					const uint32_t triangles[] =
-					{
-						0, 1, 2,
-						0, 2, 3
-					};
-
-					// Iterate through all vertices of the face
-					for (uint32_t triIdx = 0; triIdx < (vertices - 2); ++triIdx)
-					{
-						//for (uint32_t vertexIdx = 0; vertexIdx < 3; ++vertexIdx)
-						for (int32_t vertexIdx = 2; vertexIdx >= 0; --vertexIdx)
+						IndexReader::VertexIndices& vi = reader.vertexIndices[triangles[triIdx * 3 + vertexIdx]];
+							
+						if (vi.vertexIdx >= 0)
 						{
-							IndexReader::VertexIndices& vi = reader.vertexIndices[triangles[triIdx * 3 + vertexIdx]];
-							
-							if (vi.vertexIdx >= 0)
-							{
-								mesh->vertices.push_back(vertexBuffer[vi.vertexIdx]);
-								mesh->attributes = (Mesh::VertexAttributes) (mesh->attributes | Mesh::VERTEX_POSITION);
-							}
-
-							if (vi.texcoordIdx >= 0)
-							{
-								mesh->texcoords.push_back(texcoordBuffer[vi.texcoordIdx]);
-								mesh->attributes = (Mesh::VertexAttributes) (mesh->attributes | Mesh::VERTEX_TEXCOORD);
-							}
-
-							if (vi.normalIdx >= 0)
-							{
-								mesh->normals.push_back(normalBuffer[vi.normalIdx]);
-								mesh->attributes = (Mesh::VertexAttributes) (mesh->attributes | Mesh::VERTEX_NORMAL);
-							}
-							
-							mesh->indices.push_back(mesh->vertices.size() - 1);
+							mesh->vertices.push_back(vertexBuffer[vi.vertexIdx]);
+							mesh->attributes = (Mesh::VertexAttributes) (mesh->attributes | Mesh::VERTEX_POSITION);
 						}
+
+						if (vi.texcoordIdx >= 0)
+						{
+							mesh->texcoords.push_back(texcoordBuffer[vi.texcoordIdx]);
+							mesh->attributes = (Mesh::VertexAttributes) (mesh->attributes | Mesh::VERTEX_TEXCOORD);
+						}
+
+						if (vi.normalIdx >= 0)
+						{
+							mesh->normals.push_back(normalBuffer[vi.normalIdx]);
+							mesh->attributes = (Mesh::VertexAttributes) (mesh->attributes | Mesh::VERTEX_NORMAL);
+						}
+							
+						mesh->indices.push_back(mesh->vertices.size() - 1);
 					}
 				}
-				else
-					printf("[ObjLoader]: Warning! face definition with %d vertices (\"%s\")\n", vertices, lineBuffer);
 
 
 				break;
@@ -211,6 +208,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 				if (line.compare(0, 6, "usemtl") == 0)
 				{
 					std::string name = line.substr(7);
+
 					Material* linkedMaterial = materialLib[name];
 					
 					if (material != NULL)

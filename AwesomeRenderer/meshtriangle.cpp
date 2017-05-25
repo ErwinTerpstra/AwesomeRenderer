@@ -10,24 +10,15 @@
 
 using namespace AwesomeRenderer;
 
-MeshTriangle::MeshTriangle(const MeshEx& mesh, uint32_t vIdx0, uint32_t vIdx1, uint32_t vIdx2) :
-	MeshTriangle(mesh.provider.vertices[vIdx0], mesh.provider.vertices[vIdx1], mesh.provider.vertices[vIdx2], vIdx0, vIdx1, vIdx2)
+MeshTriangle::MeshTriangle(const Vector3& v0, const Vector3& v1, const Vector3& v2, uint32_t faceIdx) : Triangle(v0, v1, v2), Primitive(), faceIdx(faceIdx)
 {
-}
-
-MeshTriangle::MeshTriangle(const Vector3& v0, const Vector3& v1, const Vector3& v2, uint32_t vIdx0, uint32_t vIdx1, uint32_t vIdx2) :
-	Triangle(v0, v1, v2), Primitive()
-{
-	vIdx[0] = vIdx0;
-	vIdx[1] = vIdx1;
-	vIdx[2] = vIdx2;
-
 	CalculateNormal();
 	PreCalculateBarycentric();
+
 }
 
 MeshTriangle::MeshTriangle(const MeshTriangle& other) :
-	MeshTriangle(other.v[0], other.v[1], other.v[2], other.vIdx[0], other.vIdx[1], other.vIdx[2])
+	MeshTriangle(other.v[0], other.v[1], other.v[2], other.faceIdx)
 {
 
 }

@@ -7,7 +7,7 @@
 
 using namespace AwesomeRenderer;
 
-RenderTargetGL::RenderTargetGL(RenderTarget& renderTarget) : Extension(renderTarget), renderTargetID(0), depthBufferID(0)
+RenderTargetGL::RenderTargetGL(RenderTarget& renderTarget) : Extension(renderTarget), renderTargetID(0), depthBufferID(0), frameBuffer(NULL)
 {
 
 }
@@ -19,6 +19,9 @@ RenderTargetGL::~RenderTargetGL()
 
 	if (depthBufferID != 0)
 		glDeleteRenderbuffers(1, &depthBufferID);
+
+	if (frameBuffer != NULL)
+		delete frameBuffer;
 }
 
 void RenderTargetGL::Load()
@@ -30,6 +33,7 @@ void RenderTargetGL::Load()
 	if (provider.frameBuffer != NULL)
 	{
 		frameBuffer = new TextureGL(*provider.frameBuffer);
+		frameBuffer->Create();
 		frameBuffer->Load();
 
 		// Bind the frame buffer as COLOR_ATTACHMENT0
@@ -86,4 +90,9 @@ void RenderTargetGL::Read()
 
 	if (provider.depthBuffer != NULL)
 		GL_CHECK_ERROR(glReadPixels(0, 0, provider.depthBuffer->width, provider.depthBuffer->height, GL_DEPTH_COMPONENT, GL_FLOAT, (GLvoid*)provider.depthBuffer->data));
+}
+
+void RenderTargetGL::Write()
+{
+	frameBuffer->Load();
 }

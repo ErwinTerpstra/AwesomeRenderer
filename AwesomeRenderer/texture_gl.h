@@ -18,6 +18,7 @@ namespace AwesomeRenderer
 		TextureGL(Texture& texture);
 		~TextureGL();
 
+		void Create();
 		void Load();
 		void Bind();
 

@@ -2,13 +2,10 @@
 #define _KD_TREE_NODE_H_
 
 #include "awesomerenderer.h"
-#include "aabb.h"
 
 namespace AwesomeRenderer
 {
-	class TreeElement;
-	class KDTree;
-
+	template <typename ElementType>
 	class KDTreeNode
 	{
 	private:
@@ -20,15 +17,32 @@ namespace AwesomeRenderer
 		union
 		{
 			float splitPoint;
-			TreeElement** elementList;
+			ElementType** elementList;
 		};
 
 	public:
-		KDTreeNode();
-		~KDTreeNode();
+		KDTreeNode() : data(0)
+		{
 
-		void InitialiseLeaf(TreeElement** elements, uint32_t elementCount);
-		void InitialiseNonLeaf(float splitPoint, uint32_t axis, uint32_t upperNode);
+		}
+
+		~KDTreeNode()
+		{
+
+		}
+
+		void InitialiseLeaf(ElementType** elements, uint32_t elementCount)
+		{
+			data = (elementCount << 2) | 0x03;
+			elementList = elements;
+		}
+
+		void InitialiseNonLeaf(float splitPoint, uint32_t axis, uint32_t upperNode)
+		{
+			this->splitPoint = splitPoint;
+			data = (upperNode << 2) | axis;
+		}
+
 
 		float GetSplitPoint() const { return splitPoint; }
 
@@ -38,7 +52,7 @@ namespace AwesomeRenderer
 
 		AR_FORCE_INLINE uint32_t GetUpperNode() const { return (data >> 2); }
 		
-		TreeElement** GetElements() const { return elementList; }
+		ElementType** GetElements() const { return elementList; }
 		uint32_t GetElementCount() const { return (data >> 2); }
 		
 	private:

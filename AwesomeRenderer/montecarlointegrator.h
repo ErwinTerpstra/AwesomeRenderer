@@ -6,6 +6,7 @@
 namespace AwesomeRenderer
 {
 	class Random;
+	class AreaLight;
 
 	namespace RayTracing
 	{
@@ -28,7 +29,7 @@ namespace AwesomeRenderer
 			Vector3 Sample(const Vector3& p, const Vector3& wo, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, int depth);
 			Vector3 Sample(const Vector3& p, const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, int depth, float pdf);
 			
-			Vector3 SampleAreaLight(const Renderable& light, const Vector3& p, const Vector3& wo, const Vector3& normal, const RaycastHit& hitInfo, const Material& material);
+			Vector3 SampleAreaLight(const AreaLight& light, const Vector3& p, const Vector3& wo, const Vector3& normal, const RaycastHit& hitInfo, const Material& material);
 
 			Vector3 Integrate(const Vector3& p, const Vector3& wo, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, uint32_t samples, int depth);
 			

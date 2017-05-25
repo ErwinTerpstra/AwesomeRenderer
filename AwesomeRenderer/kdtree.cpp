@@ -2,20 +2,30 @@
 #include "awesomerenderer.h"
 #include "kdtree.h"
 #include "kdtreenode.h"
-#include "treeelement.h"
 
 using namespace AwesomeRenderer;
-const float KDTree::TRAVERSAL_COST = 1.0f;
-const float KDTree::INTERSECTION_COST = 80.0f;
-const float KDTree::EMPTY_BONUS = 0.0f;
-const float KDTree::POSITION_EPSILON = 1e-5f;
 
-KDTree::KDTree(uint32_t maxDepth) : maxDepth(maxDepth), elements(), nodes(NULL), lastNode(0), availableNodes(0), elementBuffer(NULL)
+template <typename ElementType>
+const float KDTree<ElementType>::TRAVERSAL_COST = 1.0f;
+
+template <typename ElementType>
+const float KDTree<ElementType>::INTERSECTION_COST = 80.0f;
+
+template <typename ElementType>
+const float KDTree<ElementType>::EMPTY_BONUS = 0.0f;
+
+template <typename ElementType>
+const float KDTree<ElementType>::POSITION_EPSILON = 1e-5f;
+
+
+template <typename ElementType>
+KDTree<ElementType>::KDTree(uint32_t maxDepth) : maxDepth(maxDepth), elements(), nodes(NULL), lastNode(0), availableNodes(0), elementBuffer(NULL)
 {
 
 }
 
-KDTree::~KDTree()
+template <typename ElementType>
+KDTree<ElementType>::~KDTree()
 {
 	if (nodes != NULL)
 		FreeAligned(nodes);
@@ -24,20 +34,22 @@ KDTree::~KDTree()
 		FreeAligned(elementBuffer);
 }
 
-void KDTree::Optimize(const AABB& bounds)
+template <typename ElementType>
+void KDTree<ElementType>::Optimize(const AABB& bounds)
 {
 	this->bounds = bounds;
 
 	// Create the index buffer which holds a list of element indices in all nodes
 	elementBufferSize = elements.size() * maxDepth;
 	elementBufferOffset = 0;
-	elementBuffer = AllocateAligned<TreeElement*>(4, elementBufferSize);
+	elementBuffer = AllocateAligned<ElementType*>(4, elementBufferSize);
 	
 	// Create the root node and recursively build the tree
 	CreateNode(0, bounds, elements);
 }
 
-void KDTree::Analyze() const
+template <typename ElementType>
+void KDTree<ElementType>::Analyze() const
 {
 	uint32_t leaves = 0;
 	uint32_t emptyLeaves = 0;
@@ -47,7 +59,7 @@ void KDTree::Analyze() const
 
 	struct ScheduledNode
 	{
-		const KDTreeNode* ptr;
+		const KDTreeNode<ElementType>* ptr;
 		uint32_t depth;
 	};
 
@@ -82,7 +94,7 @@ void KDTree::Analyze() const
 		{
 			++node.depth;
 
-			const KDTreeNode* oldNode = node.ptr;
+			const KDTreeNode<ElementType>* oldNode = node.ptr;
 			node.ptr = nodes + oldNode->GetUpperNode();
 			nodesLeft.push_back(node);
 
@@ -95,15 +107,16 @@ void KDTree::Analyze() const
 		leaves, emptyLeaves, largestLeafSize, totalElements, maxDepth);
 }
 
-void KDTree::CreateNode(uint32_t nodeIdx, const AABB& bounds, const std::vector<TreeElement*>& elements, int depth)
+template <typename ElementType>
+void KDTree<ElementType>::CreateNode(uint32_t nodeIdx, const AABB& bounds, const std::vector<ElementType*>& elements, int depth)
 {
 	if (nodeIdx >= availableNodes)
 	{
 		uint32_t desiredNodes = std::max(2 * availableNodes, 512U);
-		KDTreeNode* newNodes = AllocateAligned<KDTreeNode>(8, desiredNodes);
+		KDTreeNode<ElementType>* newNodes = AllocateAligned<KDTreeNode<ElementType>>(8, desiredNodes);
 		if (availableNodes > 0)
 		{
-			memcpy(newNodes, nodes, availableNodes * sizeof(KDTreeNode));
+			memcpy(newNodes, nodes, availableNodes * sizeof(KDTreeNode<ElementType>));
 			FreeAligned(nodes);
 		}
 
@@ -111,13 +124,21 @@ void KDTree::CreateNode(uint32_t nodeIdx, const AABB& bounds, const std::vector<
 		availableNodes = desiredNodes;
 	}
 	
-	KDTreeNode* node = nodes + nodeIdx;
+	KDTreeNode<ElementType>* node = nodes + nodeIdx;
 
 	if (nodeIdx > lastNode)
 		lastNode = nodeIdx;
 
 	// If we are at the maximum tree depth, this will always be a leaf node
 	if (depth >= maxDepth)
+	{
+		InitialiseLeaf(node, elements);
+		return;
+	}
+
+	// TODO: check if this is necessary
+	float volume = bounds.Width() * bounds.Height() * bounds.Depth();
+	if (volume < 1e-3f)
 	{
 		InitialiseLeaf(node, elements);
 		return;
@@ -134,8 +155,8 @@ void KDTree::CreateNode(uint32_t nodeIdx, const AABB& bounds, const std::vector<
 		return;
 	}
 
-	std::vector<TreeElement*> upperElements;
-	std::vector<TreeElement*> lowerElements;
+	std::vector<ElementType*> upperElements;
+	std::vector<ElementType*> lowerElements;
 
 	// Relocate all objects in this leaf to the child nodes they intersect
 	uint32_t elementCount = elements.size();
@@ -165,14 +186,15 @@ void KDTree::CreateNode(uint32_t nodeIdx, const AABB& bounds, const std::vector<
 	CreateNode(upperNodeIdx + 1, lowerBounds, lowerElements, depth + 1);
 }
 
-void KDTree::InitialiseLeaf(KDTreeNode* node, const std::vector<TreeElement*>& elements)
+template <typename ElementType>
+void KDTree<ElementType>::InitialiseLeaf(KDTreeNode<ElementType>* node, const std::vector<ElementType*>& elements)
 {
 	uint32_t elementCount = elements.size();
 
 	assert((elementBufferOffset + elementCount) < elementBufferSize);
 
 	// Reserve space in the element index bufer for all indices
-	TreeElement** nodeElements = elementBuffer + elementBufferOffset;
+	ElementType** nodeElements = elementBuffer + elementBufferOffset;
 	elementBufferOffset += elementCount;
 
 	// Copy indices to the buffer for the node
@@ -182,7 +204,8 @@ void KDTree::InitialiseLeaf(KDTreeNode* node, const std::vector<TreeElement*>& e
 	node->InitialiseLeaf(nodeElements, elementCount);
 }
 
-bool KDTree::SplitSAH(const std::vector<TreeElement*>& elements, const AABB& bounds, int& bestAxis, float& bestSplitPosition)
+template <typename ElementType>
+bool KDTree<ElementType>::SplitSAH(const std::vector<ElementType*>& elements, const AABB& bounds, int& bestAxis, float& bestSplitPosition)
 {
 	bool willSplit = false;
 	float lowestCost = FLT_MAX;
@@ -210,16 +233,18 @@ bool KDTree::SplitSAH(const std::vector<TreeElement*>& elements, const AABB& bou
 	return willSplit;
 }
 
-bool KDTree::SplitSAH(int axis, const std::vector<TreeElement*>& elements, const AABB& bounds, float& bestSplitPosition, float& lowestCost)
+
+template <typename ElementType>
+bool KDTree<ElementType>::SplitSAH(int axis, const std::vector<ElementType*>& elements, const AABB& bounds, float& bestSplitPosition, float& lowestCost)
 {
 	const Vector3& max = bounds.Max();
 	const Vector3& min = bounds.Min();
 
 	uint32_t elementCount = elements.size();
-	float dontSplitCost = KDTree::INTERSECTION_COST * elementCount;
+	float dontSplitCost = KDTree<ElementType>::INTERSECTION_COST * elementCount;
 
 	// Initialize a potentional position list with two positions per object
-	std::vector<SplitPosition> splitPositions;
+	splitPositions.clear();
 	splitPositions.reserve(elementCount * 2);
 	
 	// Iterate through all objects in this leaf
@@ -232,15 +257,15 @@ bool KDTree::SplitSAH(int axis, const std::vector<TreeElement*>& elements, const
 		// Save the minimum and maximum position for the bounds
 		SplitPosition splitPosition;
 
-		float oMin = objectBounds.Min()[axis] - KDTree::POSITION_EPSILON;
-		float oMax = objectBounds.Max()[axis] + KDTree::POSITION_EPSILON;
+		float oMin = objectBounds.Min()[axis] - KDTree<ElementType>::POSITION_EPSILON;
+		float oMax = objectBounds.Max()[axis] + KDTree<ElementType>::POSITION_EPSILON;
 
 		// If the primitive intersects the outer bounds, skip it
 		if (oMin <= min[axis] || oMax >= max[axis])
 			continue;
 
 		// If the primitive has zero length on this axis, skip it
-		if (fabs(oMin - oMax) < KDTree::POSITION_EPSILON)
+		if (fabs(oMin - oMax) < KDTree<ElementType>::POSITION_EPSILON)
 			continue;
 
 		splitPosition.position = oMin;
@@ -260,7 +285,7 @@ bool KDTree::SplitSAH(int axis, const std::vector<TreeElement*>& elements, const
 
 	// Calculate the surface of this node
 	int upperAxis = (axis + 1) % 3;
-	int lowerAxis = axis == 0 ? 2 : axis - 1;
+	int lowerAxis = (axis + 2) % 3; 
 	float width = max[upperAxis] - min[upperAxis];
 	float height = max[lowerAxis] - min[lowerAxis];
 	float depth = max[axis] - min[axis];
@@ -302,9 +327,9 @@ bool KDTree::SplitSAH(int axis, const std::vector<TreeElement*>& elements, const
 		// Calculate final cost for splitting at this point
 		float upperArea = 2 * (width * height + height * upperLength + width * upperLength);
 		float lowerArea = 2 * (width * height + height * lowerLength + width * lowerLength);
-		float emptyBonus = (lowerObjectCount == 0 || upperObjectCount == 0) ? KDTree::EMPTY_BONUS : 0.0f;
+		float emptyBonus = (lowerObjectCount == 0 || upperObjectCount == 0) ? KDTree<ElementType>::EMPTY_BONUS : 0.0f;
 
-		float cost = KDTree::TRAVERSAL_COST + KDTree::INTERSECTION_COST * (1.0f - emptyBonus) *
+		float cost = KDTree<ElementType>::TRAVERSAL_COST + KDTree<ElementType>::INTERSECTION_COST * (1.0f - emptyBonus) *
 												((upperArea / rootArea) * upperObjectCount + (lowerArea / rootArea) * lowerObjectCount);
 
 		assert(fabs(rootLength - (upperLength + lowerLength)) < 1e-3f);
@@ -320,9 +345,10 @@ bool KDTree::SplitSAH(int axis, const std::vector<TreeElement*>& elements, const
 	return lowestCost < dontSplitCost;	
 }
 
-bool KDTree::SplitFast(const std::vector<TreeElement*>& elements, const AABB& bounds, int& bestAxis, float& bestSplitPosition)
+template <typename ElementType>
+bool KDTree<ElementType>::SplitFast(const std::vector<ElementType*>& elements, const AABB& bounds, int& bestAxis, float& bestSplitPosition)
 {
-	if (elements.size() < 10)
+	if (elements.size() < 25)
 		return false;
 
 	const Vector3& min = bounds.Min();
@@ -356,7 +382,8 @@ bool KDTree::SplitFast(const std::vector<TreeElement*>& elements, const AABB& bo
 	return true;
 }
 
-void KDTree::CalculateBounds(const AABB& bounds, int axis, float splitPoint, AABB& upper, AABB& lower)
+template <typename ElementType>
+void KDTree<ElementType>::CalculateBounds(const AABB& bounds, int axis, float splitPoint, AABB& upper, AABB& lower)
 {
 	const Vector3& min = bounds.Min();
 	const Vector3& max = bounds.Max();
@@ -371,7 +398,8 @@ void KDTree::CalculateBounds(const AABB& bounds, int axis, float splitPoint, AAB
 	upper.Initialize(minSplit, max);
 }
 
-bool KDTree::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance) const
+template <typename ElementType>
+bool KDTree<ElementType>::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance) const
 {
 	float tMax, tMin;
 	if (!bounds.IntersectRay(ray, tMin, tMax))
@@ -386,7 +414,8 @@ bool KDTree::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance
 	//return IntersectRayRec(&nodes[0], ray, hitInfo, std::max(0.0f, tMin), maxDistance);
 }
 
-bool KDTree::IntersectRayRec(KDTreeNode* node, const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const
+template <typename ElementType>
+bool KDTree<ElementType>::IntersectRayRec(KDTreeNode<ElementType>* node, const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const
 {
 	// The current node is a leaf node, this means we can check its contents
 	if (node->IsLeaf())
@@ -394,7 +423,7 @@ bool KDTree::IntersectRayRec(KDTreeNode* node, const Ray& ray, RaycastHit& hitIn
 		float closestDistance = tMax;
 		bool hit = false;
 
-		TreeElement** elements = node->GetElements();
+		ElementType** elements = node->GetElements();
 		for (uint32_t elementIdx = 0, elementCount = node->GetElementCount(); elementIdx < elementCount; ++elementIdx)
 		{
 			const Shape& shape = elements[elementIdx]->GetShape();
@@ -419,8 +448,8 @@ bool KDTree::IntersectRayRec(KDTreeNode* node, const Ray& ray, RaycastHit& hitIn
 		int axis = node->GetAxis();
 		float splitPoint = node->GetSplitPoint();
 
-		KDTreeNode* nearNode;
-		KDTreeNode* farNode;
+		KDTreeNode<ElementType>* nearNode;
+		KDTreeNode<ElementType>* farNode;
 
 		if (ray.origin[axis] < splitPoint)
 		{
@@ -468,7 +497,8 @@ bool KDTree::IntersectRayRec(KDTreeNode* node, const Ray& ray, RaycastHit& hitIn
 
 }
 
-bool KDTree::IntersectRaySec(const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const
+template <typename ElementType>
+bool KDTree<ElementType>::IntersectRaySec(const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const
 {
 	TraversalStack stack;
 	stack.Push(nodes, tMin, tMax);
@@ -476,7 +506,7 @@ bool KDTree::IntersectRaySec(const Ray& ray, RaycastHit& hitInfo, float tMin, fl
 	while (!stack.IsEmpty())
 	{
 		const StackNode& stackNode = stack.Pop();
-		const KDTreeNode* node = stackNode.node;
+		const KDTreeNode<ElementType>* node = stackNode.node;
 
 		tMin = stackNode.tMin;
 		tMax = stackNode.tMax;
@@ -486,8 +516,8 @@ bool KDTree::IntersectRaySec(const Ray& ray, RaycastHit& hitInfo, float tMin, fl
 			int axis = node->GetAxis();
 			float splitPoint = node->GetSplitPoint();
 			
-			const KDTreeNode* nearNode;
-			const KDTreeNode* farNode;
+			const KDTreeNode<ElementType>* nearNode;
+			const KDTreeNode<ElementType>* farNode;
 
 			if (ray.origin[axis] < splitPoint)
 			{
@@ -520,20 +550,17 @@ bool KDTree::IntersectRaySec(const Ray& ray, RaycastHit& hitInfo, float tMin, fl
 		bool hit = false;
 
 		uint32_t elementCount = node->GetElementCount();
-		TreeElement** elements = node->GetElements();
+		ElementType** elements = node->GetElements();
 		for (uint32_t elementIdx = 0; elementIdx < elementCount; ++elementIdx)
 		{
-			const TreeElement* element = elements[elementIdx];
+			const ElementType* element = elements[elementIdx];
 
 			// Perform the ray-triangle intersection
-			RaycastHit shapeHitInfo;
-			if (element->GetShape().IntersectRay(ray, shapeHitInfo, closestDistance))
+			if (element->GetShape().IntersectRay(ray, hitInfo, closestDistance))
 			{
-				closestDistance = shapeHitInfo.distance;
-
-				hitInfo = shapeHitInfo;
 				hitInfo.element = element;
 
+				closestDistance = hitInfo.distance;
 				hit = true;
 			}
 		}
@@ -545,4 +572,84 @@ bool KDTree::IntersectRaySec(const Ray& ray, RaycastHit& hitInfo, float tMin, fl
 	return false;
 }
 
+#include "renderable.h"
+template KDTree<Renderable>;
 
+#include "meshtriangle.h"
+
+template<>
+bool KDTree<MeshTriangle>::IntersectRaySec(const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const
+{
+	TraversalStack stack;
+	stack.Push(nodes, tMin, tMax);
+
+	while (!stack.IsEmpty())
+	{
+		const StackNode& stackNode = stack.Pop();
+		const KDTreeNode<MeshTriangle>* node = stackNode.node;
+
+		tMin = stackNode.tMin;
+		tMax = stackNode.tMax;
+
+		while (!node->IsLeaf())
+		{
+			int axis = node->GetAxis();
+			float splitPoint = node->GetSplitPoint();
+
+			const KDTreeNode<MeshTriangle>* nearNode;
+			const KDTreeNode<MeshTriangle>* farNode;
+
+			if (ray.origin[axis] < splitPoint)
+			{
+				farNode = &nodes[node->GetUpperNode()];
+				nearNode = farNode + 1;
+			}
+			else
+			{
+				nearNode = &nodes[node->GetUpperNode()];
+				farNode = nearNode + 1;
+			}
+
+			float tSplit = (splitPoint - ray.origin[axis]) * ray.invDirection[axis];
+
+			if (tSplit >= tMax || tSplit < 0)
+				node = nearNode;
+			else if (tSplit <= tMin)
+				node = farNode;
+			else
+			{
+				stack.Push(farNode, tSplit, tMax);
+
+				node = nearNode;
+				tMax = tSplit;
+			}
+		}
+
+		// The current node is a leaf node, this means we can check its contents
+		hitInfo.distance = tMax;
+		bool hit = false;
+
+		uint32_t elementCount = node->GetElementCount();
+		MeshTriangle** elements = node->GetElements();
+		for (uint32_t elementIdx = 0; elementIdx < elementCount; ++elementIdx)
+		{
+			const MeshTriangle* element = elements[elementIdx];
+
+			// Perform the ray-triangle intersection
+			if (element->IntersectRay(ray, hitInfo, hitInfo.distance))
+			{
+				hitInfo.element = element;
+
+				//closestDistance = hitInfo.distance;
+				hit = true;
+			}
+		}
+
+		if (hit)
+			return true;
+	}
+
+	return false;
+}
+
+template KDTree<MeshTriangle>;

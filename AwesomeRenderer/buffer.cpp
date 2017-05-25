@@ -314,7 +314,7 @@ void Buffer::Tonemap(const Color& hdr, Color& ldr)
 float Buffer::Tonemap(float x)
 {
 	// Very basic reinhard tonemapping
-	return x / (x + 1);
+	//return x / (x + 1);
 
 	// Approximation of Aces filming tonemapping curve:
 	// https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/

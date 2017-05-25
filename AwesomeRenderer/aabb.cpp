@@ -97,7 +97,7 @@ bool AABB::IntersectRay(const Ray& ray, float& tMin, float& tMax) const
 		//*/
 	}
 
-	return tMax > std::max(tMin, 0.0f);
+	return tMax >= std::max(tMin, 0.0f);
 }
 
 bool AABB::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance) const

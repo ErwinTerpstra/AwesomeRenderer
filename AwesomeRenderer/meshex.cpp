@@ -7,6 +7,8 @@
 
 using namespace AwesomeRenderer;
 
+template class KDTree<MeshTriangle>;
+
 MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(20), worldMtx(), world2object()
 {
 	triangles.reserve(mesh.indices.size() / 3);
@@ -14,11 +16,18 @@ MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(20), worldMtx(), world2object
 	for (unsigned int cIndex = 0; cIndex < mesh.indices.size(); cIndex += 3)
 	{
 		// Retrieve vertex indices for this triangle
-		int vIdx0 = mesh.indices[cIndex], vIdx1 = mesh.indices[cIndex + 1], vIdx2 = mesh.indices[cIndex + 2];
+		int vIdx0 = mesh.indices[cIndex];
+		int vIdx1 = mesh.indices[cIndex + 1];
+		int vIdx2 = mesh.indices[cIndex + 2];
+
+		// Retrieve vertex positions for this triangle
+		Vector3 v0 = mesh.vertices[vIdx0];
+		Vector3 v1 = mesh.vertices[vIdx1];
+		Vector3 v2 = mesh.vertices[vIdx2];
 
 		// Create triangle object based on the vertex data
-		MeshTriangle triangle(*this, vIdx0, vIdx1, vIdx2);
-
+		MeshTriangle triangle(v0, v1, v2, cIndex / 3);
+		
 		if (triangle.IsLine())
 			continue;
 
@@ -75,12 +84,17 @@ bool MeshEx::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance
 		// Interpolate vertex attributes of the hit triangle
 		const MeshTriangle* tri = dynamic_cast<const MeshTriangle*>(hitInfo.element);
 
+		// Retrieve the vertex indices of this triangle
+		int vIdx0 = provider.indices[tri->faceIdx * 3];
+		int vIdx1 = provider.indices[tri->faceIdx * 3 + 1];
+		int vIdx2 = provider.indices[tri->faceIdx * 3 + 2];
+
 		if (provider.HasAttribute(Mesh::VERTEX_NORMAL))
 		{
 			VectorUtil<3>::Interpolate(
-				provider.normals[tri->vIdx[0]],
-				provider.normals[tri->vIdx[1]],
-				provider.normals[tri->vIdx[2]],
+				provider.normals[vIdx0],
+				provider.normals[vIdx1],
+				provider.normals[vIdx2],
 				hitInfo.barycentricCoords, hitInfo.normal);
 		}
 		else
@@ -89,9 +103,9 @@ bool MeshEx::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance
 		if (provider.HasAttribute(Mesh::VERTEX_TEXCOORD))
 		{
 			VectorUtil<2>::Interpolate(
-				provider.texcoords[tri->vIdx[0]],
-				provider.texcoords[tri->vIdx[1]],
-				provider.texcoords[tri->vIdx[2]],
+				provider.texcoords[vIdx0],
+				provider.texcoords[vIdx1],
+				provider.texcoords[vIdx2],
 				hitInfo.barycentricCoords, hitInfo.uv);
 		}
 
@@ -101,15 +115,9 @@ bool MeshEx::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance
 		
 		// TODO: transform provided distance back to world space instead of recalculating?
 		hitInfo.distance = (hitInfo.point - ray.origin).length();
-
-
+		
 		return true;
 	}
 
 	return false;
-}
-
-const Primitive& MeshEx::GetPrimitive() const
-{
-	return provider.bounds;
 }

@@ -19,10 +19,10 @@ TextureGL::~TextureGL()
 		glDeleteTextures(1, &id);
 }
 
-void TextureGL::Load()
+void TextureGL::Create()
 {
 	GL_CHECK_ERROR(glGenTextures(1, &id));
-	
+
 	Bind();
 
 	GL_CHECK_ERROR(glEnable(GL_TEXTURE_2D));
@@ -36,7 +36,7 @@ void TextureGL::Load()
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	);
-	
+
 	GLenum internalFormat;
 	GLenum dataFormat;
 	GLenum dataType;
@@ -44,6 +44,18 @@ void TextureGL::Load()
 
 	// Setup storage
 	GL_CHECK_ERROR(glTexStorage2D(GL_TEXTURE_2D, provider.GetMipmapLevels(), internalFormat, provider.width, provider.height));
+	
+	ClearBoundTexture();
+}
+
+void TextureGL::Load()
+{	
+	Bind();
+		
+	GLenum internalFormat;
+	GLenum dataFormat;
+	GLenum dataType;
+	GetEncodingParameters(provider.encoding, internalFormat, dataFormat, dataType);
 
 	// Upload source image
 	GLint alignment = provider.alignment;

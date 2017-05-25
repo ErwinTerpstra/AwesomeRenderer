@@ -13,6 +13,7 @@ namespace AwesomeRenderer
 	class Node;
 	class LightData;
 	class Skybox;
+	class Renderable;
 
 	class RenderContext
 	{
@@ -29,7 +30,7 @@ namespace AwesomeRenderer
 
 		// TODO: move this to a Scene class?
 		std::vector<Node*> nodes;
-		KDTree tree;
+		KDTree<Renderable> tree;
 
 	public:
 

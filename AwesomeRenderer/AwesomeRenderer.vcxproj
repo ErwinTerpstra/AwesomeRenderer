@@ -88,6 +88,7 @@
       <PreprocessorDefinitions>_WIN32;AR_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -118,6 +119,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="aabb.cpp" />
+    <ClCompile Include="arealight.cpp" />
     <ClCompile Include="blinnphong.cpp" />
     <ClCompile Include="branchedshader.cpp" />
     <ClCompile Include="bsdf.cpp" />
@@ -126,7 +128,6 @@
     <ClCompile Include="cameracontroller.cpp" />
     <ClCompile Include="components.cpp" />
     <ClCompile Include="debugintegrator.cpp" />
-    <ClCompile Include="kdtreenode.cpp" />
     <ClCompile Include="lambert.cpp" />
     <ClCompile Include="lightdata.cpp" />
     <ClCompile Include="microfacetspecular.cpp" />
@@ -200,6 +201,7 @@
   <ItemGroup>
     <ClInclude Include="aabb.h" />
     <ClInclude Include="alignmentallocator.h" />
+    <ClInclude Include="arealight.h" />
     <ClInclude Include="branchedshader.h" />
     <ClInclude Include="bsdf.h" />
     <ClInclude Include="buffer.h" />

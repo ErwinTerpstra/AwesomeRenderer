@@ -24,10 +24,23 @@
 
 #include "inputmanager.h"
 
+
+GLfloat quadVertices[] =
+{
+	// Positions   // TexCoords
+	-1.0f,  1.0f,  0.0f, 1.0f,
+	-1.0f, -1.0f,  0.0f, 0.0f,
+	1.0f, -1.0f,  1.0f, 0.0f,
+
+	-1.0f,  1.0f,  0.0f, 1.0f,
+	1.0f, -1.0f,  1.0f, 0.0f,
+	1.0f,  1.0f,  1.0f, 1.0f
+};
+
 using namespace AwesomeRenderer;
 
 RendererGL::RendererGL() : Renderer(),
-	defaultShader()
+	defaultShader(), imageVertex(GL_VERTEX_SHADER), imageFragment(GL_FRAGMENT_SHADER)
 {
 	opaque.sortMode = FRONT_TO_BACK;
 	transparent.sortMode = BACK_TO_FRONT;
@@ -42,26 +55,54 @@ void RendererGL::Initialize()
 	char fragmentShaderSource[1024 * 128];
 
 	// Read vertex shader
-	fileReader.Open("../Assets/vertex.glsl");
+	fileReader.Open("../Assets/Shaders/default_vertex.glsl");
 	fileReader.Read(&vertexShaderSource[0]);
 	fileReader.Close();
 
 	// Read fragment shader
-	fileReader.Open("../Assets/fragment.glsl");
+	fileReader.Open("../Assets/Shaders/default_fragment.glsl");
 	fileReader.Read(&fragmentShaderSource[0]);
 	fileReader.Close();
 	
 	defaultShader.SetSource(vertexShaderSource, fragmentShaderSource);
 
-	GL_CHECK_ERROR(
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_TEXTURE_2D);
-		glEnable(GL_BLEND);
-		glDepthFunc(GL_LEQUAL);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	);
+	// Read vertex shader
+	fileReader.Open("../Assets/Shaders/image_vertex.glsl");
+	fileReader.Read(&vertexShaderSource[0]);
+	fileReader.Close();
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	// Read fragment shader
+	fileReader.Open("../Assets/Shaders/image_fragment.glsl");
+	fileReader.Read(&fragmentShaderSource[0]);
+	fileReader.Close();
+
+	char* vertexSource = &vertexShaderSource[0];
+	char* fragmentSource = &fragmentShaderSource[0];
+	imageVertex.Compile((const char**) &vertexSource, 1);
+	imageFragment.Compile((const char**) &fragmentSource, 1);
+
+	imageShader.Attach(&imageVertex);
+	imageShader.Attach(&imageFragment);
+	imageShader.Link();
+
+	/**/
+	glGenVertexArrays(1, &quadArray);
+	glGenBuffers(1, &quadBuffer);
+	
+	glBindVertexArray(quadArray);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, quadBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+	
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), NULL);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (GLvoid*)(2 * sizeof(GLfloat)));
+
+	glBindVertexArray(0);
+	/**/
+
 
 }
 
@@ -72,6 +113,16 @@ void RendererGL::PreRender()
 	if (renderTargetGL != NULL)
 		renderTargetGL->Bind();
 
+	glViewport(0, 0, renderContext->renderTarget->frameBuffer->width, renderContext->renderTarget->frameBuffer->height);
+
+	GL_CHECK_ERROR(
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
+		glDepthFunc(GL_LEQUAL);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	);
+
 	uint32_t clearBits = 0;
 
 	if ((renderContext->clearFlags & RenderTarget::BUFFER_COLOR) != 0)
@@ -80,7 +131,7 @@ void RendererGL::PreRender()
 	if ((renderContext->clearFlags & RenderTarget::BUFFER_DEPTH) != 0)
 		clearBits |= GL_DEPTH_BUFFER_BIT;
 
-	glViewport(0, 0, renderContext->renderTarget->frameBuffer->width, renderContext->renderTarget->frameBuffer->height);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(clearBits);
 
 	if (cullMode != CULL_NONE)
@@ -105,6 +156,26 @@ void RendererGL::PostRender()
 	}
 
 	GL_CHECK_ERROR("PostRender");
+}
+
+void RendererGL::DrawImage(TextureGL& texture, uint32_t width, uint32_t height)
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glDisable(GL_DEPTH_TEST);
+
+	glViewport(0, 0, width, height);
+
+	imageShader.Prepare();
+	imageShader.BindTexture(&texture, "image", GL_TEXTURE0);
+	
+	glEnableClientState(GL_VERTEX_ARRAY);
+
+	glBindVertexArray(quadArray);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glBindVertexArray(0);
+
+	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 void RendererGL::Present(Window& window)

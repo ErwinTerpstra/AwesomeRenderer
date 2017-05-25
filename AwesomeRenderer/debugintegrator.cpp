@@ -25,7 +25,7 @@ Vector3 DebugIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, const Mat
 {
 	PhongMaterial* phongMaterial = material.As<PhongMaterial>();
 
-	if (FALSE && phongMaterial != NULL)
+	if (phongMaterial != NULL)
 	{
 		Color color = phongMaterial->diffuseColor;
 

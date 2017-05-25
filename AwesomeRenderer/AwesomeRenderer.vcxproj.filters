@@ -279,9 +279,6 @@
     <ClCompile Include="texture_gl.cpp">
       <Filter>Source\Renderer\OpenGL</Filter>
     </ClCompile>
-    <ClCompile Include="kdtreenode.cpp">
-      <Filter>Source\Node</Filter>
-    </ClCompile>
     <ClCompile Include="quad.cpp">
       <Filter>Source\Primitives</Filter>
     </ClCompile>
@@ -302,6 +299,9 @@
     </ClCompile>
     <ClCompile Include="mesh_gl.cpp">
       <Filter>Source\Renderer\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="arealight.cpp">
+      <Filter>Source\Renderer\Shading</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -433,9 +433,6 @@
     </ClInclude>
     <ClInclude Include="softwareshader.h">
       <Filter>Source\Renderer\SoftwareRendering\SoftwareShaders</Filter>
-    </ClInclude>
-    <ClInclude Include="renderable.h">
-      <Filter>Source\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="lightdata.h">
       <Filter>Source\Renderer\Shading</Filter>
@@ -595,6 +592,12 @@
     </ClInclude>
     <ClInclude Include="alignmentallocator.h">
       <Filter>Source\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="renderable.h">
+      <Filter>Source\Node</Filter>
+    </ClInclude>
+    <ClInclude Include="arealight.h">
+      <Filter>Source\Renderer\Shading</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

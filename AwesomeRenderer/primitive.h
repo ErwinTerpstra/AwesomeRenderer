@@ -12,7 +12,7 @@ namespace AwesomeRenderer
 	class Plane;
 	class AABB;
 
-	class Primitive : public virtual Shape
+	class Primitive : public Shape
 	{
 
 	public:
@@ -59,7 +59,7 @@ namespace AwesomeRenderer
 			return pdf;
 		}
 
-		virtual const Primitive& GetPrimitive() const { return *this; }
+		AR_FORCE_INLINE virtual const Primitive& GetPrimitive() const { return *this; }
 	};
 }
 

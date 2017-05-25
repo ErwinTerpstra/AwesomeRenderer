@@ -6,20 +6,20 @@
 
 namespace AwesomeRenderer
 {
+	template<typename ElementType>
 	class KDTreeNode;
 
+	template <typename ElementType>
 	class KDTree
 	{
-		friend class KDTreeNode;
-
 	public:
-		static const uint32_t MAX_DEPTH = 32;
+		static const uint32_t MAX_DEPTH = 20;
 		static const float TRAVERSAL_COST;
 		static const float INTERSECTION_COST;
 		static const float EMPTY_BONUS;
 		static const float POSITION_EPSILON;
 
-		std::vector<TreeElement*> elements;
+		std::vector<ElementType*> elements;
 
 	private:
 		struct SplitPosition
@@ -36,7 +36,7 @@ namespace AwesomeRenderer
 
 		struct StackNode
 		{
-			const KDTreeNode* node;
+			const KDTreeNode<ElementType>* node;
 			float tMin, tMax;
 		};
 
@@ -53,7 +53,7 @@ namespace AwesomeRenderer
 
 			}
 
-			void Push(const KDTreeNode* node, float tMin, float tMax)
+			void Push(const KDTreeNode<ElementType>* node, float tMin, float tMax)
 			{
 				assert(count < MAX_DEPTH);
 
@@ -79,12 +79,14 @@ namespace AwesomeRenderer
 
 		AABB bounds;
 		uint32_t maxDepth;
-		
-		KDTreeNode* nodes;
+
+		std::vector<SplitPosition> splitPositions;
+
+		KDTreeNode<ElementType>* nodes;
 		uint32_t lastNode;
 		uint32_t availableNodes;
 
-		TreeElement** elementBuffer;
+		ElementType** elementBuffer;
 		uint32_t elementBufferSize;
 		uint32_t elementBufferOffset;
 		
@@ -99,16 +101,16 @@ namespace AwesomeRenderer
 		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance = FLT_MAX) const;
 
 	private:
-		void CreateNode(uint32_t nodeIdx, const AABB& bounds, const std::vector<TreeElement*>& elements, int depth = 0);
-		void InitialiseLeaf(KDTreeNode* node, const std::vector<TreeElement*>& elements);
+		void CreateNode(uint32_t nodeIdx, const AABB& bounds, const std::vector<ElementType*>& elements, int depth = 0);
+		void InitialiseLeaf(KDTreeNode<ElementType>* node, const std::vector<ElementType*>& elements);
 
-		bool IntersectRayRec(KDTreeNode* node, const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const;
+		bool IntersectRayRec(KDTreeNode<ElementType>* node, const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const;
 		bool IntersectRaySec(const Ray& ray, RaycastHit& hitInfo, float tMin, float tMax) const;
 
-		bool SplitSAH(const std::vector<TreeElement*>& elements, const AABB& bounds, int& bestAxis, float& bestSplitPosition);
-		bool SplitSAH(int axis, const std::vector<TreeElement*>& elements, const AABB& bounds, float& bestSplitPosition, float& lowestCost);
+		bool SplitSAH(const std::vector<ElementType*>& elements, const AABB& bounds, int& bestAxis, float& bestSplitPosition);
+		bool SplitSAH(int axis, const std::vector<ElementType*>& elements, const AABB& bounds, float& bestSplitPosition, float& lowestCost);
 
-		bool SplitFast(const std::vector<TreeElement*>& elements, const AABB& bounds, int& bestAxis, float& bestSplitPosition);
+		bool SplitFast(const std::vector<ElementType*>& elements, const AABB& bounds, int& bestAxis, float& bestSplitPosition);
 
 		void CalculateBounds(const AABB& bounds, int axis, float splitPoint, AABB& upper, AABB& lower);
 
@@ -117,6 +119,7 @@ namespace AwesomeRenderer
 			return a.position < b.position;
 		}
 	};
+
 }
 
 #endif

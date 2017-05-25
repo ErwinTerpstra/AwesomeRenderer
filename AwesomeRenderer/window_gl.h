@@ -6,6 +6,8 @@
 
 namespace AwesomeRenderer
 {
+	class TextureGL;
+
 	class WindowGL : public Extension<Window, WindowGL>
 	{
 
@@ -13,13 +15,15 @@ namespace AwesomeRenderer
 		HDC deviceContext;
 
 		HGLRC renderContext;
-
+		
 	public:
 		WindowGL(Window& window);
 		~WindowGL();
 
 		bool Setup();
 		void Draw();
+
+		void DrawImage(TextureGL& texture);
 
 		static uint32_t ExtensionID() { return Window::WINDOW_GL; }
 	};

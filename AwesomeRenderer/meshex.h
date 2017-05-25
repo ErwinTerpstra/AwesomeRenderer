@@ -17,7 +17,7 @@ namespace AwesomeRenderer
 
 		std::vector<MeshTriangle> triangles;
 
-		KDTree tree;
+		KDTree<MeshTriangle> tree;
 
 		Matrix44 worldMtx;
 		Matrix44 world2object;
@@ -32,7 +32,7 @@ namespace AwesomeRenderer
 
 		bool IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance) const;
 
-		const Primitive& GetPrimitive() const;
+		const Primitive& GetPrimitive() const { return provider.bounds; }
 
 		static uint32_t ExtensionID() { return Mesh::MESH_EX; }
 	};

@@ -11,7 +11,8 @@
 //#define SCREEN_WIDTH 480
 //#define SCREEN_HEIGHT 320
 
-//#define GL_NATIVE_DRAWING
+#define USE_FRAMEBUFFER true
+#define WIN32_DRAWING false
 
 #include <stdio.h>
 #include <io.h>
@@ -153,31 +154,39 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Setup frame and depth buffers
 	printf("[AwesomeRenderer]: Initializing frame buffer...\n");
 
-	Texture frameBuffer(new MemoryBufferAllocator(), Buffer::LINEAR);
-	Texture depthBuffer(new MemoryBufferAllocator(), Buffer::LINEAR);
-	Texture windowBuffer(new GDIBufferAllocator(window.handle), Buffer::GAMMA);
-	
-	frameBuffer.Allocate(RENDER_WIDTH, RENDER_HEIGHT, Buffer::FLOAT128);
+	Texture depthBuffer(new MemoryBufferAllocator(), Buffer::LINEAR);	
 	depthBuffer.Allocate(RENDER_WIDTH, RENDER_HEIGHT, Buffer::FLOAT32);
-	windowBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, Buffer::BGR24);
-
-	Sampler frameBufferSampler;
-	frameBufferSampler.texture = &frameBuffer;
-	frameBufferSampler.sampleMode = Sampler::SM_POINT;
-
+		
 	// Render target
 	printf("[AwesomeRenderer]: Setting up render context...\n");
 
 	RenderTarget renderTarget;
-#ifdef GL_NATIVE_DRAWING
-	renderTarget.SetupBuffers(&windowBuffer, &depthBuffer);
-#else
+
+#if USE_FRAMEBUFFER 
+	Texture frameBuffer(new MemoryBufferAllocator(), Buffer::LINEAR);
+	frameBuffer.Allocate(RENDER_WIDTH, RENDER_HEIGHT, Buffer::FLOAT128);
+
 	renderTarget.SetupBuffers(&frameBuffer, &depthBuffer);
 
 	RenderTargetGL renderTargetGL(renderTarget);
 	renderTargetGL.Load();
 #endif
 
+#if WIN32_DRAWING
+	Texture windowBuffer(new GDIBufferAllocator(window.handle), Buffer::GAMMA);
+	windowBuffer.Allocate(SCREEN_WIDTH, SCREEN_HEIGHT, Buffer::BGR24);
+
+	renderTarget.SetupBuffers(&windowBuffer, &depthBuffer);
+
+#if USE_FRAMEBUFFER
+	Sampler frameBufferSampler;
+	frameBufferSampler.texture = &frameBuffer;
+	frameBufferSampler.sampleMode = Sampler::SM_POINT;
+#endif
+
+#else
+	Texture& windowBuffer = frameBuffer;
+#endif
 
 	// Setup camera
 	Camera camera(cml::left_handed);
@@ -305,18 +314,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				if (material->diffuseMap != NULL)
 				{
 					texture = new TextureGL(*material->diffuseMap->texture);
+					texture->Create();
 					texture->Load();
 				}
 
 				if (material->normalMap != NULL)
 				{
 					texture = new TextureGL(*material->normalMap->texture);
+					texture->Create();
 					texture->Load();
 				}
 
 				if (material->specularMap != NULL)
 				{
 					texture = new TextureGL(*material->specularMap->texture);
+					texture->Create();
 					texture->Load();
 				}
 			}
@@ -390,7 +402,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		mainRenderer->SetRenderContext(&mainContext);
 		mainRenderer->Render();
 
-#ifndef GL_NATIVE_DRAWING
+#if WIN32_DRAWING
 		windowBuffer.Blit(frameBufferSampler);
 #endif
 		
@@ -401,8 +413,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			softwareRenderer.Render();
 		}
 
-#ifdef GL_NATIVE_DRAWING
-		mainRenderer->Present(window);
+#if !WIN32_DRAWING
+
+#if USE_FRAMEBUFFER
+		renderTargetGL.Write();
+		rendererGL.DrawImage(*renderTargetGL.frameBuffer, SCREEN_WIDTH, SCREEN_HEIGHT);
+#endif
+		rendererGL.Present(window);
+
 #else
 		window.DrawBuffer(windowBuffer, static_cast<const GDIBufferAllocator&>(windowBuffer.GetAllocator()));
 #endif

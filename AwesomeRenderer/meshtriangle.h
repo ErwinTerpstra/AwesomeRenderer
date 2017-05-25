@@ -21,12 +21,11 @@ namespace AwesomeRenderer
 		// Normal vector for this triangle (world space)
 		Vector3 normal;
 
-		uint32_t vIdx[3];
+		uint32_t faceIdx;
 	private:
 
 	public:
-		MeshTriangle(const MeshEx& mesh, uint32_t vIdx0, uint32_t vIdx1, uint32_t vIdx2);
-		MeshTriangle(const Vector3& v0, const Vector3& v1, const Vector3& v2, uint32_t vIdx0, uint32_t vIdx1, uint32_t vIdx2);
+		MeshTriangle(const Vector3& v0, const Vector3& v1, const Vector3& v2, uint32_t faceIdx);
 		MeshTriangle(const MeshTriangle& other);
 
 		const Vector3& CalculateNormal();

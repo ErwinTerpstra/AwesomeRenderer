@@ -10,11 +10,11 @@ namespace AwesomeRenderer
 	public:
 		
 		// The three positions making this triangle
-		VectorType v[3];
+		VectorType v[3]; // 36 bytes
 
 		// Precalculated values for barycentric coordinates
-		VectorType v0, v1;
-		float dot00, dot01, dot11, invDenom;
+		VectorType v0, v1; // 24 bytes
+		float dot00, dot01, dot11, invDenom; // 16 bytes
 
 	public:
 		Triangle(const VectorType& a, const VectorType& b, const VectorType& c)
@@ -49,9 +49,7 @@ namespace AwesomeRenderer
 
 			invDenom = other.invDenom;
 		}
-
-		virtual ~Triangle() { }
-		
+				
 		const VectorType& operator[](int idx) const
 		{
 			return v[idx];

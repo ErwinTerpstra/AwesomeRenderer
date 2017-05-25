@@ -32,6 +32,7 @@ namespace AwesomeRenderer
 
 	public:
 		BranchedShader();
+		~BranchedShader();
 
 		void SetSource(const char* vertexSource, const char* fragmentSource);
 		void SetKeyword(const char* keyword, bool state);

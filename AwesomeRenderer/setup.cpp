@@ -37,6 +37,7 @@
 #include "camera.h"
 
 #include "renderable.h"
+#include "arealight.h"
 
 // Renderer
 #include "lightdata.h"
@@ -166,7 +167,7 @@ void Setup::SetupCornellBox()
 	const Color sphereDiffuse = Color::BLACK;
 	const Color sphereSpecular = Color::WHITE * 0.8f;
 	//const Color sphereSpecular = Color(245, 215, 121); // GOLD
-	const float sphereRoughness = 0.2f;
+	const float sphereRoughness = 0.5f;
 	const float sphereMetallic = 1;
 	const float sphereIor = 1.0f;
 	const bool sphereTranslucent = false;
@@ -351,14 +352,14 @@ void Setup::SetupCornellBox()
 		renderable->material = &material->provider;
 		*/
 
-		Renderable* renderable = new Renderable();
-		renderable->shape = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 0.2f);
-		renderable->material = material;
+		AreaLight* areaLight = new AreaLight();
+		areaLight->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 0.2f);
+		areaLight->material = material;
 
-		node->AddComponent(renderable);
+		node->AddComponent(areaLight);
 
 		context.mainContext->nodes.push_back(node);
-		context.mainContext->lightData->areaLights.push_back(renderable);
+		context.mainContext->lightData->areaLights.push_back(areaLight);
 	}
 
 	if (showSpheres)
@@ -574,25 +575,25 @@ void Setup::SetupSponza()
 	light.enabled = false;
 
 	{
-		// Light
+		// Area light
 		Node* node = new Node();
 
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(0.0f, 50.0f, 0.0f));
+		transform->SetPosition(Vector3(0.0f, 120.0f, 30.0f));
 		node->AddComponent(transform);
 
 		Material* material = new Material();
 		material->emission = Color(255, 244, 214);
-		material->emissionIntensity = 100.0f;
+		material->emissionIntensity = 60.0f;
 
-		Renderable* renderable = new Renderable();
-		renderable->shape = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 15.0f);
-		renderable->material = material;
+		AreaLight* areaLight = new AreaLight();
+		areaLight->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 15.0f);
+		areaLight->material = material;
 
-		node->AddComponent(renderable);
+		node->AddComponent(areaLight);
 
 		context.mainContext->nodes.push_back(node);
-		context.mainContext->lightData->areaLights.push_back(renderable);
+		context.mainContext->lightData->areaLights.push_back(areaLight);
 	}
 
 	// SKYBOX
@@ -604,7 +605,7 @@ void Setup::SetupSponza()
 	skybox->back = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0005.bmp");
 	skybox->bottom = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0006.bmp");
 
-	//context.mainContext->skybox = skybox;
+	context.mainContext->skybox = skybox;
 
 	{
 		// MODEL
