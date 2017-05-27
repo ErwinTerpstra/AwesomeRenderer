@@ -11,7 +11,7 @@ namespace AwesomeRenderer
 	class Texture : public Buffer, public ExtensionProvider<Texture>
 	{
 	public:
-		const uint32_t DEFAULT_MIPMAP_LEVELS = 4;
+		static const uint32_t DEFAULT_MIPMAP_LEVELS = 5;
 
 		enum Extensions
 		{
@@ -21,10 +21,17 @@ namespace AwesomeRenderer
 	private:
 		uint32_t mipmapLevels;
 
+		Buffer** mipChain;
+
 	public:
 		Texture(BufferAllocator* allocator, ColorSpace colorSpace);
+		~Texture();
+
+		void GenerateMipMaps();
+		Buffer* GetMipLevel(uint32_t mipLevel);
 		
 		uint32_t GetMipmapLevels() const { return mipmapLevels; }
+		bool HasMipmaps() const { return mipmapLevels > 0 && mipChain != NULL; }
 
 	};
 

@@ -5,11 +5,13 @@
 
 namespace AwesomeRenderer
 {
+	class Buffer;
 	class Texture;
 
 	class Sampler
 	{
 	public:
+		static const float DEFAULT_MIP_DISTANCE_SCALE;
 
 		enum WrapMode
 		{
@@ -23,6 +25,7 @@ namespace AwesomeRenderer
 		{
 			SM_POINT,
 			SM_BILINEAR,
+			SM_TRILINEAR,
 
 			SM_DEFAULT = SM_BILINEAR
 		};
@@ -31,11 +34,21 @@ namespace AwesomeRenderer
 		SampleMode sampleMode;
 		Texture* texture;
 
-	public:
-		Sampler();
+		float mipDistanceScale;
 
-		Color Sample(const Vector2& uv) const;
-		void Sample(const Vector2& uv, Color& sample) const;
+	public:
+		Sampler(Texture* texture = NULL);
+
+		Color Sample(const Vector2& uv, uint32_t mipLevel = 0) const;
+		void Sample(const Vector2& uv, Color& sample, uint32_t mipLevel = 0) const;
+
+		Color Sample(const Vector2& uv, float distance) const;
+
+
+	private:
+		float CalculateMipLevel(float distance) const;
+
+		static void SampleBuffer(const Buffer* buffer, const Vector2& uv, SampleMode sampleMode, Color& sample);
 
 	};
 

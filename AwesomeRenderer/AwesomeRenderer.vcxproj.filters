@@ -599,5 +599,8 @@
     <ClInclude Include="arealight.h">
       <Filter>Source\Renderer\Shading</Filter>
     </ClInclude>
+    <ClInclude Include="ShadingRay.h">
+      <Filter>Source\Renderer\RayTracing</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

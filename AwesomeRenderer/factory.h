@@ -106,6 +106,8 @@ namespace AwesomeRenderer
 						return false;
 					}
 
+					PostProcessAsset(*instance);
+
 					CacheAsset(fileName, *instance);
 
 					return true;
@@ -120,6 +122,8 @@ namespace AwesomeRenderer
 	protected:
 
 		virtual bool Instantiate(AssetType** instance) const = 0;
+
+		virtual void PostProcessAsset(AssetType* instance) { };
 
 		void CacheAsset(const std::string& fileName, AssetType* instance)
 		{

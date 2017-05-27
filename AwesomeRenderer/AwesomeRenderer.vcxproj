@@ -238,6 +238,7 @@
     <ClInclude Include="kdtree.h" />
     <ClInclude Include="mesh_gl.h" />
     <ClInclude Include="shadinginfo.h" />
+    <ClInclude Include="ShadingRay.h" />
     <ClInclude Include="shape.h" />
     <ClInclude Include="renderer_gl.h" />
     <ClInclude Include="phongshader.h" />

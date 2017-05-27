@@ -156,6 +156,19 @@ void Buffer::SetPixel(uint32_t x, uint32_t y, const Color& color)
 	EncodeColor(color, encoding, pixelBase);
 }
 
+void Buffer::SetPixel(uint32_t x, uint32_t y, const Color& color, ColorSpace colorSpace)
+{
+	Color correctedColor = color;
+
+	if (colorSpace == GAMMA && this->colorSpace == LINEAR)
+		AdjustGamma(correctedColor, DEFAULT_GAMMA);
+	else if (colorSpace == LINEAR && this->colorSpace == GAMMA)
+		AdjustGamma(correctedColor, 1.0f / DEFAULT_GAMMA);
+
+	SetPixel(x, y, correctedColor);
+}
+
+
 void Buffer::SetPixel(uint32_t x, uint32_t y, const uchar* buffer)
 {
 	uchar* pixelBase = GetBase(x, y);

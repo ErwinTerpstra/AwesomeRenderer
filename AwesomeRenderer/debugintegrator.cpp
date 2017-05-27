@@ -30,7 +30,7 @@ Vector3 DebugIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, const Mat
 		Color color = phongMaterial->diffuseColor;
 
 		if (phongMaterial->diffuseMap != NULL)
-			color *= phongMaterial->diffuseMap->Sample(hitInfo.uv);
+			color *= phongMaterial->diffuseMap->Sample(hitInfo.uv, hitInfo.distance);
 
 		return color.subvector(3);
 	}

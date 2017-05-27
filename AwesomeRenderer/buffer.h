@@ -14,7 +14,7 @@ namespace AwesomeRenderer
 	{
 
 	public:
-		const float DEFAULT_GAMMA = 2.0f;
+		const float DEFAULT_GAMMA = 2.2f;
 
 		enum Encoding
 		{
@@ -62,6 +62,7 @@ namespace AwesomeRenderer
 		void GetPixel(uint32_t x, uint32_t y, Color& color, ColorSpace colorSpace) const;
 
 		void SetPixel(uint32_t x, uint32_t y, const Color& color);
+		void SetPixel(uint32_t x, uint32_t y, const Color& color, ColorSpace colorSpace);
 		void SetPixel(uint32_t x, uint32_t y, const uchar* buffer);
 		void SetPixel(uint32_t x, uint32_t y, float f);
 		

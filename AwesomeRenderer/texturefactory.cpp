@@ -96,6 +96,11 @@ bool TextureFactory::LoadBmp(const std::string& fileName, Texture** texture) con
 	return true;
 }
 
+void TextureFactory::PostProcessAsset(Texture* instance)
+{
+	//instance->GenerateMipMaps();
+}
+
 Sampler* TextureFactory::GetTexture(const std::string& fileName)
 {
 	Texture* texture = NULL;
@@ -109,7 +114,7 @@ Sampler* TextureFactory::GetTexture(const std::string& fileName)
 Sampler* TextureFactory::CreateSampler(Texture* texture)
 {
 	Sampler* sampler = new Sampler();
-	sampler->sampleMode = Sampler::SM_BILINEAR;
+	sampler->sampleMode = texture->HasMipmaps() ? Sampler::SM_TRILINEAR : Sampler::SM_BILINEAR;
 	sampler->wrapMode = Sampler::WM_REPEAT;
 	sampler->texture = texture;
 

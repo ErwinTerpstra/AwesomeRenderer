@@ -483,6 +483,9 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 							break;
 						}
 
+						if (material->diffuseMap->texture->HasMipmaps())
+							mergedTexture->GenerateMipMaps();
+
 						material->diffuseMap->texture = mergedTexture;
 						material->provider.translucent = TRUE;
 					}
