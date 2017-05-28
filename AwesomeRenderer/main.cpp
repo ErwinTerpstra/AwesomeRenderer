@@ -96,6 +96,9 @@
 #include "raytracer.h"
 #include "raytracerdebug.h"
 
+#include "lambert.h"
+#include "blinnphong.h"
+
 // Assets
 #include "factory.h"
 #include "filereader.h"
@@ -129,7 +132,7 @@ int main()
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	srand(time(0));
-
+	
 	// Open window
 	printf("[AwesomeRenderer]: Creating Win32 window...\n");
 	

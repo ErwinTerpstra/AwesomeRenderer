@@ -132,7 +132,7 @@ void Setup::SetupCornellBox()
 	context.mainContext->lightData->shadowDistance = 0.5f;
 
 	light.type = LightData::LightType::POINT;
-	light.position = Vector3(0.0f, 0.99f, 0.5f);
+	light.position = Vector3(0.0f, 0.3f, 0.8f);
 	light.color = Color::WHITE;
 	light.constantAttenuation = 1.0f;
 	light.quadricAttenuation = 0.0f;
@@ -155,7 +155,7 @@ void Setup::SetupCornellBox()
 	// GEOMETRY
 	const bool showBox = true;
 	const bool showLight = false;
-	const bool showSpheres = true;
+	const bool showSpheres = false;
 	const bool showBunny = false;
 
 	const Color wallWhite = Color(0.725f, 0.71f, 0.68f);
@@ -591,7 +591,7 @@ void Setup::SetupSponza()
 
 		Material* material = new Material();
 		material->emission = Color(255, 244, 214);
-		material->emissionIntensity = 150.0f;
+		material->emissionIntensity = 200.0f;
 
 		AreaLight* areaLight = new AreaLight();
 		areaLight->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 20.0f);

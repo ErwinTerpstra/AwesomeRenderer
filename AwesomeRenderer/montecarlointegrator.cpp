@@ -60,7 +60,7 @@ Vector3 MonteCarloIntegrator::Sample(const Vector3& p, const Vector3& wo, const 
 		
 	float pdf = material.bsdf->CalculatePDF(wo, sampleVector, normal, material);
 
-	return Sample(p, wo, sampleVector, normal, hitInfo, material, depth, pdf);
+ 	return Sample(p, wo, sampleVector, normal, hitInfo, material, depth, pdf);
 }
 
 Vector3 MonteCarloIntegrator::Sample(const Vector3& p, const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, int depth, float pdf)
@@ -73,15 +73,13 @@ Vector3 MonteCarloIntegrator::Sample(const Vector3& p, const Vector3& wo, const 
 	if (NoL <= 0.0f)
 		return Vector3(0.0f, 0.0f, 0.0f);
 	
-	Vector3 h = cml::normalize(wo + wi);
-	
 	Vector3 reflectance = material.bsdf->Sample(wo, wi, normal, hitInfo, material);
 	
 	if (reflectance.length_squared() < 1e-5f)
 		return Vector3(0.0f, 0.0f, 0.0f);
 
 	// Calculate incoming light along this sample vector
-	Ray reflectionRay(p + normal * 1e-3f, wi);
+	Ray reflectionRay(p + wi * 1e-3f, wi);
 
 	ShadingInfo reflectionShading;
 	rayTracer.CalculateShading(reflectionRay, reflectionShading, depth + 1);
