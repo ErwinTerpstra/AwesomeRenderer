@@ -36,7 +36,13 @@ RayTracer::RayTracer(Scheduler& scheduler) : Renderer(),
 {
 	currentIntegrator = &debugIntegrator;
 	
-	jobGroup = scheduler.CreateJobGroup(4);
+	/**/
+	uint32_t cores = std::thread::hardware_concurrency();
+	if (!cores)
+		cores = 4;
+	/**/
+
+	jobGroup = scheduler.CreateJobGroup(cores);
 }
 
 void RayTracer::Initialize()

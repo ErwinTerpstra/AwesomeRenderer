@@ -25,15 +25,24 @@ Vector3 BlinnPhong::Sample(const Vector3& wo, const Vector3& wi, const Vector3& 
 
 	Vector3 halfVector = cml::normalize(wo + wi);
 	float NoV = std::max(VectorUtil<3>::Dot(normal, wo), 0.0f);
+	float NoL = std::max(VectorUtil<3>::Dot(normal, wi), 0.0f);
 	float NoH = std::max(VectorUtil<3>::Dot(normal, halfVector), 0.0f);
+
+	if (NoV == 0.0f || NoL == 0.0f)
+		return Vector3(0.0f, 0.0f, 0.0f);
 
 	Vector3 fresnel = FresnelSchlick(NoV, specular.subvector(3));
 
 	float specularTerm = std::powf(NoH, phongMaterial->shininess);
-	float normalization = (phongMaterial->shininess + 8) / (8 * PI);
-	//float normalization = (phongMaterial->shininess + 2) * INV_TWO_PI;
+	
+	float normalization = (phongMaterial->shininess + 2) * INV_TWO_PI;
 
-	return fresnel * (normalization * specularTerm);
+	// Not sure why some sources cite this as the correct normalization factor for Blinn specular, it seems too dark
+	//float normalization = (phongMaterial->shininess + 8) / (8 * PI);
+
+	// Also not sure if the denominator is neccesary for normalization. It is present in the Microfacet BRDF so it probably should be present here?
+	// It makes the reflection intensity look better for smooth surfaces but might be inaccurate for the lack of the implicit geometry term
+	return (fresnel * (normalization * specularTerm)) / 4;// / (4 * NoL * NoV);
 }
 
 void BlinnPhong::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vector3& normal, const Material& material, Vector3& wi) const

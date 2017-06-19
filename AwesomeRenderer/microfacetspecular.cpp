@@ -59,6 +59,12 @@ Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& v, const Vector3
 	assert(VectorUtil<3>::IsNormalized(n));
 	assert(VectorUtil<3>::IsNormalized(l));
 
+	float NoV = std::max(VectorUtil<3>::Dot(n, v), 0.0f);
+	float NoL = std::max(VectorUtil<3>::Dot(n, l), 0.0f);
+
+	if (NoV == 0.0f || NoL == 0.0f)
+		return Vector3(0.0f, 0.0f, 0.0f);
+
 	roughness = roughness * roughness;
 
 	// Calculate the half vector
@@ -86,16 +92,9 @@ Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& v, const Vector3
 	distribution = std::max(distribution, 0.0f);
 	geometry = std::max(geometry, 0.0f);
 
-	// Calculate the Cook-Torrance denominator
-	float denominator = std::max(4 * Util::Clamp01(VectorUtil<3>::Dot(n, v)) * Util::Clamp01(VectorUtil<3>::Dot(n, l)), 1e-7f);
-
 	// Return the evaluated BRDF
-	Vector3 result = (fresnel * geometry * distribution) / denominator;
+	Vector3 result = (fresnel * geometry * distribution) / (4 * NoL * NoV);
 	
-	//result[0] = Util::Clamp01(result[0]);
-	//result[1] = Util::Clamp01(result[1]);
-	//result[2] = Util::Clamp01(result[2]);
-
 	result[0] = std::max(result[0], 0.0f);
 	result[1] = std::max(result[1], 0.0f);
 	result[2] = std::max(result[2], 0.0f);

@@ -30,7 +30,7 @@ Vector3 BSDF::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal
 	if (specular != NULL && (typeMask & BXDF_SPECULAR) != 0)
 		specularReflection = specular->Sample(wo, wi, normal, hitInfo, material);
 
-	return diffuseReflection + specularReflection;
+	return (diffuseReflection * (1.0 - specularReflection)) + specularReflection;
 }
 
 void BSDF::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vector3& normal, const Material& material, Vector3& wi) const
