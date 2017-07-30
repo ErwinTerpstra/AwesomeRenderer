@@ -24,6 +24,7 @@
 #include "util.h"
 #include "vectorutil.h"
 #include "quaternionutil.h"
+#include "sampleutil.h"
 
 #include "memory.h"
 #include "alignmentallocator.h"

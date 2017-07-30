@@ -49,3 +49,14 @@ void BxDF::TransformSampleVector(const Vector3& n, const Vector3& in, Vector3& o
 
 	assert(VectorUtil<3>::IsNormalized(out));
 }
+
+bool BxDF::CalculateHalfVector(const Vector3& wo, const Vector3& wi, Vector3& h)
+{
+	h = wo + wi;
+
+	if (h.length_squared() < 1e-5f)
+		return false;
+
+	h = VectorUtil<3>::Normalize(h);
+	return true;
+}

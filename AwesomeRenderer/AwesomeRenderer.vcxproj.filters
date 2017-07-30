@@ -602,5 +602,8 @@
     <ClInclude Include="ShadingRay.h">
       <Filter>Source\Renderer\RayTracing</Filter>
     </ClInclude>
+    <ClInclude Include="sampleutil.h">
+      <Filter>Source\Util</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -232,6 +232,7 @@
     <ClInclude Include="renderable.h" />
     <ClInclude Include="renderjob.h" />
     <ClInclude Include="rendertarget_gl.h" />
+    <ClInclude Include="sampleutil.h" />
     <ClInclude Include="scheduler.h" />
     <ClInclude Include="setup.h" />
     <ClInclude Include="shader_gl.h" />

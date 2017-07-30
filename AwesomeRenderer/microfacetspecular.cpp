@@ -43,7 +43,9 @@ float MicrofacetSpecular::CalculatePDF(const Vector3& wo, const Vector3& wi, con
 	const PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
 	float alpha2 = pow(pbrMaterial->roughness, 4);
 
-	Vector3 h = cml::normalize(wo + wi);
+	Vector3 h;
+	if (!CalculateHalfVector(wo, wi, h))
+		return 0.0;
 
 	float cosTheta = VectorUtil<3>::Dot(normal, h);
 	float sinTheta = sqrtf(std::max(0.0f, 1.0f - cosTheta * cosTheta));

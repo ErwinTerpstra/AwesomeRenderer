@@ -255,16 +255,16 @@ void Setup::SetupCornellBox()
 		transform->SetScale(Vector3(2.0f, 2.0f, 2.0f));
 		node->AddComponent(transform);
 
-		//*
+		/*
 		PbrMaterial* material = new PbrMaterial(*(new Material()));
 		material->albedo = wallWhite;
-		material->specular = wallSpecular;
+		material->specular = Color::WHITE;// wallSpecular;
 		material->metallic = 1;
 		material->roughness = 0.1f;//wallRoughness;
 		/*/
 		PhongMaterial* material = new PhongMaterial(*(new Material()));
 		material->diffuseColor = wallWhite;
-		material->specularColor = Color::WHITE;//Color(0.4f, 0.4f, 0.4f, 1.0f);
+		material->specularColor = Color(0.4f, 0.4f, 0.4f, 1.0f);
 		material->shininess = 1000.0f;
 		//*/
 

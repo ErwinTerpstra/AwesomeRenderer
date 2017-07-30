@@ -40,8 +40,8 @@ Vector3 Lambert::Sample(const Vector3& wo, const Vector3& wi, const Vector3& nor
 
 void Lambert::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vector3& normal, const Material& material, Vector3& wi) const
 {
-	float phi = 2 * PI * r[1];
-	float theta = acosf(sqrtf(std::max(0.0f, 1 - sqrtf(r[0]))));
+	float phi, theta;
+	SampleUtil::CosineWeightedHemisphere(r, phi, theta);
 
 	Vector3 v;
 	SphericalToCartesian(phi, theta, v);
@@ -50,5 +50,5 @@ void Lambert::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Ve
 
 float Lambert::CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const
 {
-	return VectorUtil<3>::Dot(normal, wi) * INV_PI;
+	return SampleUtil::CosineWeightedHemispherePDF(normal, wi);
 }

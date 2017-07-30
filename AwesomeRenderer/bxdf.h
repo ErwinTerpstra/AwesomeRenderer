@@ -31,6 +31,8 @@ namespace AwesomeRenderer
 			{
 				return F0 + (1.0f - F0) * pow(1 - cosT, 5);
 			};
+
+			static bool CalculateHalfVector(const Vector3& wo, const Vector3& wi, Vector3& h);
 		};
 	}
 }
