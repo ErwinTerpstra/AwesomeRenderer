@@ -1,97 +1,77 @@
 #include "stdafx.h"
 #include "microfacetspecular.h"
+#include "microfacetdistribution.h"
 
 #include "inputmanager.h"
 
 #include "material.h"
 #include "pbrmaterial.h"
 
+#include "ggxdistribution.h"
+
 using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
 
 MicrofacetSpecular::MicrofacetSpecular()
 {
+	normalDistribution = new GGXDistribution();
+}
 
+MicrofacetSpecular::~MicrofacetSpecular()
+{
+	delete normalDistribution;
 }
 
 Vector3 MicrofacetSpecular::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material) const
 {
 	PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
-	return SpecularCookTorrance(wo, normal, wi, pbrMaterial->specular.subvector(3), pbrMaterial->roughness);
+	return SpecularCookTorrance(wo, normal, wi, pbrMaterial->specular.subvector(3), *pbrMaterial);
 }
 
 void MicrofacetSpecular::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vector3& normal, const Material& material, Vector3& wi) const
 {
 	const PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
-	
-	float alpha2 = pow(pbrMaterial->roughness, 4);// pbrMaterial->roughness * pbrMaterial->roughness;
-
-	float phi = 2.0f * PI * r[1];
-
-	float cosTheta = r[0] < 1.0f ? sqrt((1.0f - r[0]) / ((alpha2 - 1.0f) * r[0] + 1.0f)) : 0.0f;
-	float theta = acos(cosTheta);
-
-	Vector3 h;
-	SphericalToCartesian(phi, theta, h);
-	TransformSampleVector(normal, h, h);
-	
-	VectorUtil<3>::Reflect(wo, h, wi);
+	normalDistribution->GenerateSampleVector(r, wo, normal, *pbrMaterial, wi);
 }
 
 float MicrofacetSpecular::CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const
 {
 	const PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
-	float alpha2 = pow(pbrMaterial->roughness, 4);
-
-	Vector3 h;
-	if (!CalculateHalfVector(wo, wi, h))
-		return 0.0;
-
-	float cosTheta = VectorUtil<3>::Dot(normal, h);
-	float sinTheta = sqrtf(std::max(0.0f, 1.0f - cosTheta * cosTheta));
-	float denom = (cosTheta * cosTheta * (alpha2 - 1.0f)) + 1.0f;
-
-	float pdf = (alpha2 / std::max((float)PI * denom * denom, 1e-7f));
-	return pdf / (4 * VectorUtil<3>::Dot(wo, h));
+	return normalDistribution->CalculatePDF(wo, wi, normal, *pbrMaterial);
 }
 
-Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& v, const Vector3& n, const Vector3& l, const Vector3& F0, float roughness) const
+Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& wo, const Vector3& normal, const Vector3& wi, const Vector3& F0, const PbrMaterial& material) const
 {
-	assert(VectorUtil<3>::IsNormalized(v));
-	assert(VectorUtil<3>::IsNormalized(n));
-	assert(VectorUtil<3>::IsNormalized(l));
+	assert(VectorUtil<3>::IsNormalized(wo));
+	assert(VectorUtil<3>::IsNormalized(normal));
+	assert(VectorUtil<3>::IsNormalized(wi));
 
-	float NoV = std::max(VectorUtil<3>::Dot(n, v), 0.0f);
-	float NoL = std::max(VectorUtil<3>::Dot(n, l), 0.0f);
+	float NoV = std::max(VectorUtil<3>::Dot(normal, wo), 0.0f);
+	float NoL = std::max(VectorUtil<3>::Dot(normal, wi), 0.0f);
 
 	if (NoV == 0.0f || NoL == 0.0f)
 		return Vector3(0.0f, 0.0f, 0.0f);
-
-	roughness = roughness * roughness;
-
+	
 	// Calculate the half vector
-	Vector3 h = cml::normalize(l + v);
+	Vector3 h = cml::normalize(wi + wo);
 
-	Vector3 fresnel = FresnelSchlick(VectorUtil<3>::Dot(v, h), F0);
+	Vector3 fresnel = FresnelSchlick(VectorUtil<3>::Dot(wo, h), F0);
 
-	float distribution, geometry;
 
-	// Normal distribution & geometry term
-	if (InputManager::Instance().GetKey('X'))
-	{
-		distribution = DistributionBlinn(n, h, RoughnessToShininess(roughness));
-		geometry = GeometrySmith(v, l, n, h, roughness);
-	}
-	else
-	{
-		distribution = DistributionGGX(n, h, roughness);
-		geometry = GeometryGGX(v, l, n, h, roughness);
-	}
-
-	if (InputManager::Instance().GetKey('C'))
-		geometry = GeometryImplicit(v, l, n, h);
-
+	// Normal distribution
+	float distribution = normalDistribution->Sample(wo, wi, normal, material);
 	distribution = std::max(distribution, 0.0f);
+
+	// Geometry term
+	float alpha = material.roughness * material.roughness;
+	float geometry;
+	if (InputManager::Instance().GetKey('X'))
+		geometry = GeometrySmith(wo, wi, normal, h, alpha);
+	else if (InputManager::Instance().GetKey('C'))
+		geometry = GeometryImplicit(wo, wi, normal, h);
+	else
+		geometry = GeometryGGX(wo, wi, normal, h, alpha);
+	
 	geometry = std::max(geometry, 0.0f);
 
 	// Return the evaluated BRDF
@@ -114,14 +94,6 @@ float MicrofacetSpecular::DistributionBlinn(const Vector3 & n, const Vector3& h,
 	float NoH = Util::Clamp01(VectorUtil<3>::Dot(n, h));
 
 	return ((e + 2) * INV_TWO_PI) * std::pow(NoH, e);
-}
-
-float MicrofacetSpecular::DistributionGGX(const Vector3& n, const Vector3& h, float alpha) const
-{
-	float alpha2 = alpha * alpha;
-	float NoH = Util::Clamp01(VectorUtil<3>::Dot(n, h));
-	float denom = (NoH * NoH * (alpha2 - 1.0f)) + 1.0f;
-	return alpha2 / std::max((float)PI * denom * denom, 1e-7f);
 }
 
 float MicrofacetSpecular::GeometryImplicit(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h) const

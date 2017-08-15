@@ -1,10 +1,5 @@
 #include "stdafx.h"
-#include "bxdf.h"
+#include "microfacetdistribution.h"
 
 using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
-
-BxDF::BxDF()
-{
-
-}

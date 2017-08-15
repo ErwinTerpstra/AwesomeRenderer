@@ -5,25 +5,31 @@
 
 namespace AwesomeRenderer
 {
+	class PbrMaterial;
+
 	namespace RayTracing
 	{
+		class MicrofacetDistribution;
+
 		class MicrofacetSpecular : public BxDF
 		{
+		private:
+			MicrofacetDistribution* normalDistribution;
 
 		public:
 			MicrofacetSpecular();
+			~MicrofacetSpecular();
 
 			virtual Vector3 Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material) const;
 			virtual void GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vector3& normal, const Material& material, Vector3& wi) const;
 			virtual float CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const;
 
 		private:
-			Vector3 SpecularCookTorrance(const Vector3& v, const Vector3& n, const Vector3& l, const Vector3& F0, float roughness) const;
+			Vector3 SpecularCookTorrance(const Vector3& wo, const Vector3& normal, const Vector3& wi, const Vector3& F0, const PbrMaterial& material) const;
 
 			float RoughnessToShininess(float a) const;
-
+			
 			float DistributionBlinn(const Vector3& n, const Vector3& h, float e) const;
-			float DistributionGGX(const Vector3& n, const Vector3& h, float alpha) const;
 
 			float GeometryImplicit(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h) const;
 			float GeometryCookTorrance(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h) const;

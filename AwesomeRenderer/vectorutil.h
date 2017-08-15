@@ -42,6 +42,18 @@ namespace AwesomeRenderer
 			}
 		}
 
+		AR_FORCE_INLINE static bool CalculateHalfVector(const Vector3& wo, const Vector3& wi, Vector3& h)
+		{
+			h = wo + wi;
+
+			if (h.length_squared() < 1e-5f)
+				return false;
+
+			h = Normalize(h);
+
+			return true;
+		}
+
 	};
 
 	template<int Size>
@@ -62,7 +74,7 @@ namespace AwesomeRenderer
 
 		static void OrthoNormalize(const Vector3& up, const Vector3& forwardHint, Vector3& right, Vector3& forward)
 		{
-			if (1.0f - std::fabs(VectorUtil<3>::Dot(up, forwardHint)) < 1e-5f)
+			if (1.0f - std::fabs(Dot(up, forwardHint)) < 1e-5f)
 			{
 				OrthoNormalize(up, right, forward);
 				return;
@@ -74,7 +86,7 @@ namespace AwesomeRenderer
 
 		static void Reflect(const Vector3& v, const Vector3& normal, Vector3& out)
 		{
-			out = -v + 2 * VectorUtil<3>::Dot(v, normal) * normal;
+			out = -v + 2 * Dot(v, normal) * normal;
 		}
 
 		static void Refract(const Vector3& v, const Vector3& normal, float ior, Vector3& out)
@@ -82,7 +94,7 @@ namespace AwesomeRenderer
 			assert(IsNormalized(v));
 			assert(IsNormalized(normal));
 
-			float cosi = VectorUtil<3>::Dot(v, normal);
+			float cosi = Dot(v, normal);
 			float etai = 1, etat = ior;
 			Vector3 n = normal;
 
@@ -111,6 +123,48 @@ namespace AwesomeRenderer
 		AR_FORCE_INLINE static float Dot(const Vector3& a, const Vector3& b)
 		{
 			return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+		}
+
+
+		static void SphericalToCartesian(float phi, float theta, Vector3& v)
+		{
+			// Convert to cartesian coordinates
+			float sinTheta = sinf(theta);
+			float x = sinTheta * cosf(phi);
+			float z = sinTheta * sinf(phi);
+
+			v = Vector3(x, cosf(theta), z);
+
+			assert(IsNormalized(v));
+		}
+
+		static void TransformSampleVector(const Vector3& n, const Vector3& in, Vector3& out)
+		{
+			assert(IsNormalized(in));
+			assert(IsNormalized(n));
+
+			// Create an orientation matrix that aligns with the surface normal
+			Vector3 right, forward;
+			//OrthoNormalize(n, in, right, forward);
+			OrthoNormalize(n, right, forward);
+
+			assert(IsNormalized(right));
+			assert(IsNormalized(forward));
+
+			assert(fabs(Dot(n, forward)) < 1e-5f);
+			assert(fabs(Dot(n, right)) < 1e-5f);
+			assert(fabs(Dot(right, forward)) < 1e-5f);
+
+			Matrix33 transform(
+				right[0], right[1], right[2],
+				n[0], n[1], n[2],
+				forward[0], forward[1], forward[2]
+			);
+
+			// Transform the sample to world space
+			out = transform_vector(transform, in);
+
+			assert(IsNormalized(out));
 		}
 	};
 

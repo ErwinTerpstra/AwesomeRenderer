@@ -128,8 +128,10 @@
     <ClCompile Include="cameracontroller.cpp" />
     <ClCompile Include="components.cpp" />
     <ClCompile Include="debugintegrator.cpp" />
+    <ClCompile Include="ggxdistribution.cpp" />
     <ClCompile Include="lambert.cpp" />
     <ClCompile Include="lightdata.cpp" />
+    <ClCompile Include="microfacetdistribution.cpp" />
     <ClCompile Include="microfacetspecular.cpp" />
     <ClCompile Include="montecarlointegrator.cpp" />
     <ClCompile Include="pbrmaterial.cpp" />
@@ -202,6 +204,7 @@
     <ClInclude Include="aabb.h" />
     <ClInclude Include="alignmentallocator.h" />
     <ClInclude Include="arealight.h" />
+    <ClInclude Include="blinndistribution.h" />
     <ClInclude Include="branchedshader.h" />
     <ClInclude Include="bsdf.h" />
     <ClInclude Include="buffer.h" />
@@ -215,10 +218,12 @@
     <ClInclude Include="extensionprovider.h" />
     <ClInclude Include="extension.h" />
     <ClInclude Include="factory.h" />
+    <ClInclude Include="ggxdistribution.h" />
     <ClInclude Include="kdtreenode.h" />
     <ClInclude Include="lambert.h" />
     <ClInclude Include="lightdata.h" />
     <ClInclude Include="memory.h" />
+    <ClInclude Include="microfacetdistribution.h" />
     <ClInclude Include="microfacetspecular.h" />
     <ClInclude Include="montecarlointegrator.h" />
     <ClInclude Include="pbrmaterial.h" />

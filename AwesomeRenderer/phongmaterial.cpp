@@ -7,7 +7,7 @@
 
 using namespace AwesomeRenderer;
 
-RayTracing::BSDF phongBSDF(new RayTracing::Lambert(), new RayTracing::BlinnPhong());
+RayTracing::BSDF phongBSDF(/*new RayTracing::Lambert()*/ NULL, new RayTracing::BlinnPhong());
 
 PhongMaterial::PhongMaterial(Material& material) : Extension(material), 
 diffuseMap(NULL), specularMap(NULL), normalMap(NULL),

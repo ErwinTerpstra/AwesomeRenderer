@@ -70,6 +70,9 @@
     <Filter Include="Source\Memory">
       <UniqueIdentifier>{7a4ab270-20b9-4f51-a0f7-32af5bf1705f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Renderer\RayTracing\BSDF\Microfacet">
+      <UniqueIdentifier>{3de32b15-ef39-4713-899c-1f5f160aaf36}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -234,9 +237,6 @@
     <ClCompile Include="whittedintegrator.cpp">
       <Filter>Source\Renderer\RayTracing\Integrators</Filter>
     </ClCompile>
-    <ClCompile Include="microfacetspecular.cpp">
-      <Filter>Source\Renderer\RayTracing\BSDF</Filter>
-    </ClCompile>
     <ClCompile Include="blinnphong.cpp">
       <Filter>Source\Renderer\RayTracing\BSDF</Filter>
     </ClCompile>
@@ -302,6 +302,15 @@
     </ClCompile>
     <ClCompile Include="arealight.cpp">
       <Filter>Source\Renderer\Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="microfacetspecular.cpp">
+      <Filter>Source\Renderer\RayTracing\BSDF\Microfacet</Filter>
+    </ClCompile>
+    <ClCompile Include="ggxdistribution.cpp">
+      <Filter>Source\Renderer\RayTracing\BSDF\Microfacet</Filter>
+    </ClCompile>
+    <ClCompile Include="microfacetdistribution.cpp">
+      <Filter>Source\Renderer\RayTracing\BSDF\Microfacet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -506,9 +515,6 @@
     <ClInclude Include="shadinginfo.h">
       <Filter>Source\Renderer\RayTracing</Filter>
     </ClInclude>
-    <ClInclude Include="microfacetspecular.h">
-      <Filter>Source\Renderer\RayTracing\BSDF</Filter>
-    </ClInclude>
     <ClInclude Include="blinnphong.h">
       <Filter>Source\Renderer\RayTracing\BSDF</Filter>
     </ClInclude>
@@ -604,6 +610,18 @@
     </ClInclude>
     <ClInclude Include="sampleutil.h">
       <Filter>Source\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="microfacetspecular.h">
+      <Filter>Source\Renderer\RayTracing\BSDF\Microfacet</Filter>
+    </ClInclude>
+    <ClInclude Include="microfacetdistribution.h">
+      <Filter>Source\Renderer\RayTracing\BSDF\Microfacet</Filter>
+    </ClInclude>
+    <ClInclude Include="blinndistribution.h">
+      <Filter>Source\Renderer\RayTracing\BSDF\Microfacet</Filter>
+    </ClInclude>
+    <ClInclude Include="ggxdistribution.h">
+      <Filter>Source\Renderer\RayTracing\BSDF\Microfacet</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

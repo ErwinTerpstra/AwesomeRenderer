@@ -39,7 +39,7 @@ Vector3 BlinnPhong::Sample(const Vector3& wo, const Vector3& wi, const Vector3& 
 	
 	float normalization = 1.0f;
 
-	//normalization = ((e + 2) * (e + 4)) / (8 * PI * (powf(2, -e / 2) + e));
+	normalization = Util::Clamp(((e + 2) * (e + 4)) / (8 * PI * (powf(2, -e / 2) + e)), (e + 6) / (8 * PI), (e + 8) / (8 * PI));
 
 	// This is the correct normalization form to use when using (N dot H) ^ shininess
 	//normalization = (e + 8) / (8 * PI);
@@ -67,8 +67,8 @@ void BlinnPhong::GenerateSampleVector(const Vector2& r, const Vector3& wo, const
 	float theta = acosf(powf(r[0], 1.0f / (phongMaterial->shininess + 1.0f)));
 
 	Vector3 h;
-	SphericalToCartesian(phi, theta, h);
-	TransformSampleVector(normal, h, h);
+	VectorUtil<3>::SphericalToCartesian(phi, theta, h);
+	VectorUtil<3>::TransformSampleVector(normal, h, h);
 	
 	VectorUtil<3>::Reflect(wo, h, wi);
 
@@ -89,10 +89,11 @@ float BlinnPhong::CalculatePDF(const Vector3& wo, const Vector3& wi, const Vecto
 	PhongMaterial* phongMaterial = material.As<PhongMaterial>();
 
 	Vector3 h;
-	if (!CalculateHalfVector(wo, wi, h))
+	if (!VectorUtil<3>::CalculateHalfVector(wo, wi, h))
 		return 0.0;
 
 	float NoH = std::max(VectorUtil<3>::Dot(normal, h), 0.0f);
+
 	float pdf = ((phongMaterial->shininess + 1) * powf(NoH, phongMaterial->shininess)) * INV_TWO_PI;
 
 	return powf(NoH, phongMaterial->shininess) * INV_TWO_PI;

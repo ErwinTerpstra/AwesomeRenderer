@@ -132,10 +132,10 @@ void Setup::SetupCornellBox()
 	context.mainContext->lightData->shadowDistance = 0.5f;
 
 	light.type = LightData::LightType::POINT;
-	light.position = Vector3(0.0f, 0.99f, 0.8f);
+	light.position = Vector3(0.0f, 0.9f, 0.8f);
 	light.color = Color::WHITE;
 	light.constantAttenuation = 1.0f;
-	light.quadricAttenuation = 0.0f;
+	light.quadricAttenuation = 1.0f;
 	light.intensity = 1.0f;
 
 	light.enabled = true;
@@ -255,17 +255,17 @@ void Setup::SetupCornellBox()
 		transform->SetScale(Vector3(2.0f, 2.0f, 2.0f));
 		node->AddComponent(transform);
 
-		/*
-		PbrMaterial* material = new PbrMaterial(*(new Material()));
+		//*
+		PbrMaterial* material = new PbrMaterial(PbrMaterial::metallicBSDF, *(new Material()));
 		material->albedo = wallWhite;
 		material->specular = Color::WHITE;// wallSpecular;
 		material->metallic = 1;
-		material->roughness = 0.1f;//wallRoughness;
+		material->roughness = 0.6;//wallRoughness;
 		/*/
 		PhongMaterial* material = new PhongMaterial(*(new Material()));
 		material->diffuseColor = wallWhite;
-		material->specularColor = Color(0.4f, 0.4f, 0.4f, 1.0f);
-		material->shininess = 1000.0f;
+		material->specularColor = Color(0.2f, 0.2f, 0.2f, 1.0f);
+		material->shininess = 10.0f;
 		//*/
 
 		Renderable* renderable = new Renderable();

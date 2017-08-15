@@ -44,8 +44,8 @@ void Lambert::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Ve
 	SampleUtil::CosineWeightedHemisphere(r, phi, theta);
 
 	Vector3 v;
-	SphericalToCartesian(phi, theta, v);
-	TransformSampleVector(normal, v, wi);
+	VectorUtil<3>::SphericalToCartesian(phi, theta, v);
+	VectorUtil<3>::TransformSampleVector(normal, v, wi);
 }
 
 float Lambert::CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const
