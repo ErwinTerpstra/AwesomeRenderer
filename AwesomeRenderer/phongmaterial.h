@@ -10,6 +10,7 @@ namespace AwesomeRenderer
 	class PhongMaterial : public Extension<Material, PhongMaterial>
 	{
 	public:
+		static RayTracing::BSDF bsdf;
 
 		Sampler* diffuseMap;
 		Sampler* specularMap;

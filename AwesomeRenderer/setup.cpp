@@ -22,7 +22,7 @@
 
 #include "material.h"
 #include "phongmaterial.h"
-#include "pbrmaterial.h"
+#include "microfacetmaterial.h"
 #include "bsdf.h"
 #include "microfacetspecular.h"
 
@@ -138,7 +138,7 @@ void Setup::SetupCornellBox()
 	light.quadricAttenuation = 1.0f;
 	light.intensity = 1.0f;
 
-	light.enabled = true;
+	light.enabled = false;
 
 	// SKYBOX
 	SixSidedSkybox* skybox = new SixSidedSkybox();
@@ -154,13 +154,13 @@ void Setup::SetupCornellBox()
 
 	// GEOMETRY
 	const bool showBox = true;
-	const bool showLight = false;
-	const bool showSpheres = false;
+	const bool showLight = true;
+	const bool showSpheres = true;
 	const bool showBunny = false;
 
 	const Color wallWhite = Color(0.725f, 0.71f, 0.68f);
-	const Color wallSpecular = Color::WHITE * 0.2f;
-	const float wallRoughness = 0.8f;
+	const Color wallSpecular = Color::WHITE * 0.1f;
+	const float wallRoughness = 0.6f;
 
 	// Metal
 	//*
@@ -204,7 +204,7 @@ void Setup::SetupCornellBox()
 		transform->SetScale(Vector3(2.0f, 2.0f, 2.0f));
 		node->AddComponent(transform);
 
-		PbrMaterial* material = new PbrMaterial(*(new Material()));
+		MicrofacetMaterial* material = new MicrofacetMaterial(*(new Material()));
 		material->albedo = Color(0.63f, 0.0065f, 0.05f);
 		material->specular = wallSpecular;
 		material->metallic = 0;
@@ -230,7 +230,7 @@ void Setup::SetupCornellBox()
 		transform->SetScale(Vector3(2.0f, 2.0f, 2.0f));
 		node->AddComponent(transform);
 
-		PbrMaterial* material = new PbrMaterial(*(new Material()));
+		MicrofacetMaterial* material = new MicrofacetMaterial(*(new Material()));
 		material->albedo = Color(0.14f, 0.45f, 0.091f);
 		material->specular = wallSpecular;
 		material->metallic = 0;
@@ -255,18 +255,11 @@ void Setup::SetupCornellBox()
 		transform->SetScale(Vector3(2.0f, 2.0f, 2.0f));
 		node->AddComponent(transform);
 
-		//*
-		PbrMaterial* material = new PbrMaterial(PbrMaterial::metallicBSDF, *(new Material()));
+		MicrofacetMaterial* material = new MicrofacetMaterial(*(new Material()));
 		material->albedo = wallWhite;
-		material->specular = Color::WHITE;// wallSpecular;
-		material->metallic = 1;
-		material->roughness = 0.6;//wallRoughness;
-		/*/
-		PhongMaterial* material = new PhongMaterial(*(new Material()));
-		material->diffuseColor = wallWhite;
-		material->specularColor = Color(0.2f, 0.2f, 0.2f, 1.0f);
-		material->shininess = 10.0f;
-		//*/
+		material->specular = wallSpecular;
+		material->metallic = 0;
+		material->roughness = wallRoughness;
 
 		Renderable* renderable = new Renderable();
 		renderable->shape = Quad::CreateUnitQuad();
@@ -288,7 +281,7 @@ void Setup::SetupCornellBox()
 		transform->SetScale(Vector3(2.0f, 2.0f, 2.0f));
 		node->AddComponent(transform);
 
-		PbrMaterial* material = new PbrMaterial(*(new Material()));
+		MicrofacetMaterial* material = new MicrofacetMaterial(*(new Material()));
 		material->albedo = wallWhite;
 		material->specular = wallSpecular;
 		material->metallic = 0;
@@ -314,7 +307,7 @@ void Setup::SetupCornellBox()
 		transform->SetScale(Vector3(2.0f, 2.0f, 2.0f));
 		node->AddComponent(transform);
 
-		PbrMaterial* material = new PbrMaterial(*(new Material()));
+		MicrofacetMaterial* material = new MicrofacetMaterial(*(new Material()));
 		material->albedo = wallWhite;
 		material->specular = wallSpecular;
 		material->metallic = 0;
@@ -340,7 +333,7 @@ void Setup::SetupCornellBox()
 
 		Material* material = new Material();
 		material->emission = Color::WHITE;
-		material->emissionIntensity = 5.0f;
+		material->emissionIntensity = 4.0f;
 
 		/*
 		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL));
@@ -372,7 +365,7 @@ void Setup::SetupCornellBox()
 	if (showSpheres)
 	{
 
-		PbrMaterial* material = new PbrMaterial(sphereMetallic > 0 ? PbrMaterial::metallicBSDF : PbrMaterial::dielectricBSDF, *(new Material()));
+		MicrofacetMaterial* material = new MicrofacetMaterial(sphereMetallic > 0 ? MicrofacetMaterial::metallicBSDF : MicrofacetMaterial::dielectricBSDF, *(new Material()));
 		material->albedo = sphereDiffuse;
 		material->specular = sphereSpecular;
 		material->metallic = sphereMetallic;
@@ -427,7 +420,7 @@ void Setup::SetupCornellBox()
 		transform->SetRotation(q);
 		node->AddComponent(transform);
 
-		PbrMaterial* material = new PbrMaterial(sphereMetallic > 0 ? PbrMaterial::metallicBSDF : PbrMaterial::dielectricBSDF, *(new Material()));
+		MicrofacetMaterial* material = new MicrofacetMaterial(sphereMetallic > 0 ? MicrofacetMaterial::metallicBSDF : MicrofacetMaterial::dielectricBSDF, *(new Material()));
 		material->albedo = sphereDiffuse;
 		material->specular = sphereSpecular;
 		material->metallic = sphereMetallic;
@@ -536,7 +529,7 @@ void Setup::SetupSpheres()
 			transform->SetPosition(position);
 			node->AddComponent(transform);
 
-			PbrMaterial* material = new PbrMaterial(*(new Material()));
+			MicrofacetMaterial* material = new MicrofacetMaterial(*(new Material()));
 			material->roughness = MIN_ROUGHNESS + (sphereIdx / (float)(SPHERES_PER_ROW - 1.0f)) * (1.0f - MIN_ROUGHNESS);
 
 			if (row == 0)
@@ -667,14 +660,14 @@ void Setup::SetupFractal()
 	const Vector3 cameraPosition = Vector3(3.2f, 1.8f, 9.0f);
 	context.mainCamera->SetLookAt(cameraPosition, cameraPosition - Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0));
 	
-	PbrMaterial* defaultMaterial = new PbrMaterial(*(new Material()));
+	MicrofacetMaterial* defaultMaterial = new MicrofacetMaterial(*(new Material()));
 	defaultMaterial->roughness = 0.0f;
 	defaultMaterial->albedo = Color::WHITE * 0.6f;
 	defaultMaterial->specular = Color::BLACK;
 	defaultMaterial->metallic = 0;
 	defaultMaterial->provider.emission = Color::WHITE * 0.05f;
 
-	PbrMaterial* emissiveMaterial = new PbrMaterial(*(new Material()));
+	MicrofacetMaterial* emissiveMaterial = new MicrofacetMaterial(*(new Material()));
 	emissiveMaterial->roughness = 0.0f;
 	emissiveMaterial->albedo = Color::BLACK;
 	emissiveMaterial->provider.emission = Color::GREEN * 0.8f;

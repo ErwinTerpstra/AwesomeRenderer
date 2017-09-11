@@ -71,17 +71,6 @@ void BlinnPhong::GenerateSampleVector(const Vector2& r, const Vector3& wo, const
 	VectorUtil<3>::TransformSampleVector(normal, h, h);
 	
 	VectorUtil<3>::Reflect(wo, h, wi);
-
-	// Make sure the sample vector is inthe same hemisphere as the normal
-	if (VectorUtil<3>::Dot(normal, wi) <= 0.0f)
-	{
-		// Calculate the perfect specular direction
-		Vector3 wr;
-		VectorUtil<3>::Reflect(wo, normal, wr);
-
-		// Reflect the sample direction around the perfect specular direction to make sure it is in the upper hemisphere
-		VectorUtil<3>::Reflect(wi, wr, wi);
-	}
 }
 
 float BlinnPhong::CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const
@@ -93,11 +82,11 @@ float BlinnPhong::CalculatePDF(const Vector3& wo, const Vector3& wi, const Vecto
 		return 0.0;
 
 	float NoH = std::max(VectorUtil<3>::Dot(normal, h), 0.0f);
+	float HoV = VectorUtil<3>::Dot(wo, h);
+
+	if (HoV <= 0.0f)
+		return 0.0;
 
 	float pdf = ((phongMaterial->shininess + 1) * powf(NoH, phongMaterial->shininess)) * INV_TWO_PI;
-
-	return powf(NoH, phongMaterial->shininess) * INV_TWO_PI;
-
-	float HoV = VectorUtil<3>::Dot(wo, h);
 	return pdf / (4.0f * HoV);
 }

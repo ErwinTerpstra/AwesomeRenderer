@@ -7,7 +7,7 @@
 #include "raycasthit.h"
 
 #include "material.h"
-#include "pbrmaterial.h"
+#include "microfacetmaterial.h"
 
 #include "bxdf.h"
 #include "bsdf.h"
@@ -20,7 +20,7 @@
 using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
 
-MonteCarloIntegrator::MonteCarloIntegrator(RayTracer& rayTracer) : SurfaceIntegrator(rayTracer), sampleCount(1), random(Random::instance)
+MonteCarloIntegrator::MonteCarloIntegrator(RayTracer& rayTracer) : SurfaceIntegrator(rayTracer), random(Random::instance)
 {
 
 }
@@ -79,7 +79,7 @@ Vector3 MonteCarloIntegrator::Sample(const Vector3& p, const Vector3& wo, const 
 		return Vector3(0.0f, 0.0f, 0.0f);
 
 	// Calculate incoming light along this sample vector
-	Ray reflectionRay(p + wi * 1e-3f, wi);
+	Ray reflectionRay(p + wi * 1e-5f, wi);
 
 	ShadingInfo reflectionShading;
 	rayTracer.CalculateShading(reflectionRay, reflectionShading, depth + 1);
@@ -87,18 +87,6 @@ Vector3 MonteCarloIntegrator::Sample(const Vector3& p, const Vector3& wo, const 
 	Vector3 radiance = reflectionShading.color.subvector(3);
 
 	return reflectance * radiance * NoL / pdf;
-}
-
-Vector3 MonteCarloIntegrator::Integrate(const Vector3& p, const Vector3& wo, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, uint32_t samples, int depth)
-{
-	Vector3 radiance(0.0f, 0.0f, 0.0f);
-		
-	for (uint32_t sampleIdx = 0; sampleIdx < samples; ++sampleIdx)
-	{
-		radiance += Sample(p, wo, normal, hitInfo, material, depth);
-	}
-
-	return radiance / samples;
 }
 
 Vector3 MonteCarloIntegrator::SampleAreaLight(const AreaLight& light, const Vector3& p, const Vector3& wo, const Vector3& normal, const RaycastHit& hitInfo, const Material& material)
@@ -121,7 +109,7 @@ Vector3 MonteCarloIntegrator::SampleAreaLight(const AreaLight& light, const Vect
 	RaycastHit lightHit;
 	if (lightPDF > 0)
 	{
-		bool obstructed = rayTracer.RayCast(Ray(p + lightSampleVector * 1e-3f, lightSampleVector), lightHit, distanceToLight - 1e-3f);
+		bool obstructed = rayTracer.RayCast(Ray(p + lightSampleVector * 1e-5f, lightSampleVector), lightHit, distanceToLight - 1e-5f);
 
 		if (obstructed)
 		{
@@ -144,7 +132,7 @@ Vector3 MonteCarloIntegrator::SampleAreaLight(const AreaLight& light, const Vect
 
 	if (bsdfPDF > 0.0f)
 	{
-		Ray bsdfRay(p + bsdfSampleVector * 1e-3f, bsdfSampleVector);
+		Ray bsdfRay(p + bsdfSampleVector * 1e-5f, bsdfSampleVector);
 
 		if (light.primitive->IntersectRay(bsdfRay, lightHit))
 		{

@@ -195,9 +195,6 @@
     <ClCompile Include="phongmaterial.cpp">
       <Filter>Source\Renderer\Shading\Materials</Filter>
     </ClCompile>
-    <ClCompile Include="pbrmaterial.cpp">
-      <Filter>Source\Renderer\Shading\Materials</Filter>
-    </ClCompile>
     <ClCompile Include="typedefs.cpp">
       <Filter>Source\Core</Filter>
     </ClCompile>
@@ -311,6 +308,12 @@
     </ClCompile>
     <ClCompile Include="microfacetdistribution.cpp">
       <Filter>Source\Renderer\RayTracing\BSDF\Microfacet</Filter>
+    </ClCompile>
+    <ClCompile Include="blinndistribution.cpp">
+      <Filter>Source\Renderer\RayTracing\BSDF\Microfacet</Filter>
+    </ClCompile>
+    <ClCompile Include="microfacetmaterial.cpp">
+      <Filter>Source\Renderer\Shading\Materials</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -457,9 +460,6 @@
     </ClInclude>
     <ClInclude Include="util.h">
       <Filter>Source\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="pbrmaterial.h">
-      <Filter>Source\Renderer\Shading\Materials</Filter>
     </ClInclude>
     <ClInclude Include="skybox.h">
       <Filter>Source\Renderer\Shading\Skybox</Filter>
@@ -622,6 +622,9 @@
     </ClInclude>
     <ClInclude Include="ggxdistribution.h">
       <Filter>Source\Renderer\RayTracing\BSDF\Microfacet</Filter>
+    </ClInclude>
+    <ClInclude Include="microfacetmaterial.h">
+      <Filter>Source\Renderer\Shading\Materials</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

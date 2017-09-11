@@ -1,6 +1,8 @@
 #ifndef _SAMPLE_UTIL_H_
 #define _SAMPLE_UTIL_H_
 
+#include "random.h"
+
 namespace AwesomeRenderer
 {
 	class SampleUtil
@@ -28,6 +30,17 @@ namespace AwesomeRenderer
 		static float CosineWeightedHemispherePDF(const Vector3& n, const Vector3& wi)
 		{
 			return VectorUtil<3>::Dot(n, wi) * INV_PI;
+		}
+
+		static float StratifiedSample(uint32_t x, uint32_t n)
+		{
+			return StratifiedSample(x, n, Random::instance);
+		}
+
+		static float StratifiedSample(uint32_t x, uint32_t n, Random& random)
+		{
+			float step = 1.0f / n;
+			return (x * step) + random.NextFloat() * step;
 		}
 
 	};

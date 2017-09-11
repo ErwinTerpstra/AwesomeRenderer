@@ -4,17 +4,21 @@
 
 #include "inputmanager.h"
 
+#include "sampler.h"
+#include "raycasthit.h"
+
 #include "material.h"
-#include "pbrmaterial.h"
+#include "microfacetmaterial.h"
 
 #include "ggxdistribution.h"
+#include "blinndistribution.h"
 
 using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
 
 MicrofacetSpecular::MicrofacetSpecular()
 {
-	normalDistribution = new GGXDistribution();
+	normalDistribution = new BlinnDistribution();
 }
 
 MicrofacetSpecular::~MicrofacetSpecular()
@@ -24,23 +28,29 @@ MicrofacetSpecular::~MicrofacetSpecular()
 
 Vector3 MicrofacetSpecular::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material) const
 {
-	PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
-	return SpecularCookTorrance(wo, normal, wi, pbrMaterial->specular.subvector(3), *pbrMaterial);
+	MicrofacetMaterial* microfacetMaterial = material.As<MicrofacetMaterial>();
+
+	Color F0 = microfacetMaterial->specular;
+
+	if (microfacetMaterial->specularMap != NULL)
+		F0 *= microfacetMaterial->specularMap->Sample(hitInfo.uv);
+
+	return SpecularCookTorrance(wo, normal, wi, F0.subvector(3), *microfacetMaterial);
 }
 
 void MicrofacetSpecular::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vector3& normal, const Material& material, Vector3& wi) const
 {
-	const PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
+	const MicrofacetMaterial* pbrMaterial = material.As<MicrofacetMaterial>();
 	normalDistribution->GenerateSampleVector(r, wo, normal, *pbrMaterial, wi);
 }
 
 float MicrofacetSpecular::CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const
 {
-	const PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
+	const MicrofacetMaterial* pbrMaterial = material.As<MicrofacetMaterial>();
 	return normalDistribution->CalculatePDF(wo, wi, normal, *pbrMaterial);
 }
 
-Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& wo, const Vector3& normal, const Vector3& wi, const Vector3& F0, const PbrMaterial& material) const
+Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& wo, const Vector3& normal, const Vector3& wi, const Vector3& F0, const MicrofacetMaterial& material) const
 {
 	assert(VectorUtil<3>::IsNormalized(wo));
 	assert(VectorUtil<3>::IsNormalized(normal));
@@ -56,8 +66,7 @@ Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& wo, const Vector
 	Vector3 h = cml::normalize(wi + wo);
 
 	Vector3 fresnel = FresnelSchlick(VectorUtil<3>::Dot(wo, h), F0);
-
-
+	
 	// Normal distribution
 	float distribution = normalDistribution->Sample(wo, wi, normal, material);
 	distribution = std::max(distribution, 0.0f);
@@ -82,18 +91,6 @@ Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& wo, const Vector
 	result[2] = std::max(result[2], 0.0f);
 
 	return result;
-}
-
-float MicrofacetSpecular::RoughnessToShininess(float a) const
-{
-	return std::max((2.0f / (a * a)) - 2.0f, 1e-7f);
-}
-
-float MicrofacetSpecular::DistributionBlinn(const Vector3 & n, const Vector3& h, float e) const
-{
-	float NoH = Util::Clamp01(VectorUtil<3>::Dot(n, h));
-
-	return ((e + 2) * INV_TWO_PI) * std::pow(NoH, e);
 }
 
 float MicrofacetSpecular::GeometryImplicit(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h) const

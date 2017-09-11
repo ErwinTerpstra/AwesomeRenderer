@@ -7,7 +7,7 @@
 #include "raycasthit.h"
 
 #include "material.h"
-#include "pbrmaterial.h"
+#include "microfacetmaterial.h"
 
 #include "shadinginfo.h"
 

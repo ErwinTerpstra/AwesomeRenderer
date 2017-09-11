@@ -2,7 +2,7 @@
 #include "bsdf.h"
 #include "bxdf.h"
 
-#include "pbrmaterial.h"
+#include "microfacetmaterial.h"
 #include "phongmaterial.h"
 
 #include "raycasthit.h"
@@ -35,6 +35,7 @@ Vector3 BSDF::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal
 
 void BSDF::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vector3& normal, const Material& material, Vector3& wi) const
 {
+	// Select the BSDF to generate a sample vector from
 	if (diffuse != NULL && specular != NULL)
 	{
 		Vector2 rl = r;
@@ -56,6 +57,17 @@ void BSDF::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vecto
 		specular->GenerateSampleVector(r, wo, normal, material, wi);
 	else if (diffuse != NULL)
 		diffuse->GenerateSampleVector(r, wo, normal, material, wi);
+	
+	// Make sure the sample vector is in the same hemisphere as the normal
+	if (VectorUtil<3>::Dot(normal, wi) < 0.0f)
+	{
+		// Calculate the perfect specular direction
+		Vector3 wr;
+		VectorUtil<3>::Reflect(wo, normal, wr);
+
+		// Reflect the sample direction around the perfect specular direction to make sure it is in the upper hemisphere
+		VectorUtil<3>::Reflect(wi, wr, wi);
+	}
 }
 
 float BSDF::CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const

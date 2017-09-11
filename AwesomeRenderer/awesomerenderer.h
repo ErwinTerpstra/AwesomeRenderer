@@ -21,6 +21,7 @@
 #include "typedefs.h"
 #include "color.h"
 
+#include "random.h"
 #include "util.h"
 #include "vectorutil.h"
 #include "quaternionutil.h"

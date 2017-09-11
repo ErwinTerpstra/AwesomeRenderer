@@ -13,7 +13,7 @@
 #include "renderable.h"
 #include "material.h"
 #include "phongmaterial.h"
-#include "pbrmaterial.h"
+#include "microfacetmaterial.h"
 #include "lightdata.h"
 #include "skybox.h"
 #include "random.h"
@@ -29,6 +29,7 @@ using namespace AwesomeRenderer::RayTracing;
 
 const uint32_t RayTracer::MAX_FRAME_TIME = 50;
 const uint32_t RayTracer::TILE_SIZE = 16;
+const uint32_t RayTracer::SUBPIXEL_STRATIFICATION_SIZE = 32;
 
 RayTracer::RayTracer(Scheduler& scheduler) : Renderer(), 
 	debugIntegrator(*this), whittedIntegrator(*this), monteCarloIntegrator(*this), renderingFrame(false), random(Random::instance),
@@ -189,9 +190,11 @@ void RayTracer::Render(const Point2& pixel)
 
 	for (uint32_t sample = 0; sample < samplesPerPixel; ++sample)
 	{
+		uint32_t stratificationIndex = (renderedSamples + sample) % SUBPIXEL_STRATIFICATION_SIZE;
+
 		Vector2 subPixel = pixel;
-		subPixel[0] += -0.5f + random.NextFloat();
-		subPixel[1] += -0.5f + random.NextFloat();
+		subPixel[0] += -0.5f + SampleUtil::StratifiedSample(stratificationIndex, SUBPIXEL_STRATIFICATION_SIZE, random);
+		subPixel[1] += -0.5f + SampleUtil::StratifiedSample(stratificationIndex, SUBPIXEL_STRATIFICATION_SIZE, random);
 
 		// Create a ray from the camera near plane through this pixel
 		Ray primaryRay;

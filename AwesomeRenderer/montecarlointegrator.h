@@ -14,9 +14,6 @@ namespace AwesomeRenderer
 
 		class MonteCarloIntegrator : public SurfaceIntegrator
 		{
-		public:
-			uint32_t sampleCount;
-
 		private:
 			Random& random;
 
@@ -31,8 +28,6 @@ namespace AwesomeRenderer
 			
 			Vector3 SampleAreaLight(const AreaLight& light, const Vector3& p, const Vector3& wo, const Vector3& normal, const RaycastHit& hitInfo, const Material& material);
 
-			Vector3 Integrate(const Vector3& p, const Vector3& wo, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, uint32_t samples, int depth);
-			
 			AR_INLINE float BalanceHeuristic(int nF, float pdfF, int nG, float pdfG)
 			{
 				return (nF * pdfF) / (nF * pdfF + nG * pdfG);

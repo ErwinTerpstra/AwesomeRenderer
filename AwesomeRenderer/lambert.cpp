@@ -5,7 +5,7 @@
 #include "phongmaterial.h"
 #include "sampler.h"
 
-#include "pbrmaterial.h"
+#include "microfacetmaterial.h"
 #include "raycasthit.h"
 
 using namespace AwesomeRenderer;
@@ -18,10 +18,17 @@ Lambert::Lambert()
 
 Vector3 Lambert::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material) const
 {
-	PbrMaterial* pbrMaterial = material.As<PbrMaterial>();
+	MicrofacetMaterial* pbrMaterial = material.As<MicrofacetMaterial>();
 
 	if (pbrMaterial != NULL)
-		return (pbrMaterial->albedo.subvector(3) * (1.0f - pbrMaterial->metallic)) * INV_PI;
+	{
+		Color result = pbrMaterial->albedo;
+		
+		if (pbrMaterial->albedoMap != NULL)
+			result *= pbrMaterial->albedoMap->Sample(hitInfo.uv);
+		
+		return result.subvector(3) * (1.0f - pbrMaterial->metallic) * INV_PI;
+	}
 
 	PhongMaterial* phongMaterial = material.As<PhongMaterial>();
 

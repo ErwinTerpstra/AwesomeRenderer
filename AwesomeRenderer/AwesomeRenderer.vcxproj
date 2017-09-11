@@ -120,6 +120,7 @@
   <ItemGroup>
     <ClCompile Include="aabb.cpp" />
     <ClCompile Include="arealight.cpp" />
+    <ClCompile Include="blinndistribution.cpp" />
     <ClCompile Include="blinnphong.cpp" />
     <ClCompile Include="branchedshader.cpp" />
     <ClCompile Include="bsdf.cpp" />
@@ -134,7 +135,7 @@
     <ClCompile Include="microfacetdistribution.cpp" />
     <ClCompile Include="microfacetspecular.cpp" />
     <ClCompile Include="montecarlointegrator.cpp" />
-    <ClCompile Include="pbrmaterial.cpp" />
+    <ClCompile Include="microfacetmaterial.cpp" />
     <ClCompile Include="phongmaterial.cpp" />
     <ClCompile Include="program_gl.cpp" />
     <ClCompile Include="quad.cpp" />
@@ -226,7 +227,7 @@
     <ClInclude Include="microfacetdistribution.h" />
     <ClInclude Include="microfacetspecular.h" />
     <ClInclude Include="montecarlointegrator.h" />
-    <ClInclude Include="pbrmaterial.h" />
+    <ClInclude Include="microfacetmaterial.h" />
     <ClInclude Include="blinnphong.h" />
     <ClInclude Include="phongmaterial.h" />
     <ClInclude Include="program_gl.h" />

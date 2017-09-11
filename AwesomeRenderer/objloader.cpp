@@ -6,8 +6,10 @@
 #include "filereader.h"
 #include "mesh.h"
 #include "phongmaterial.h"
+#include "microfacetmaterial.h"
 #include "phongshader.h"
 #include "sampler.h"
+#include "blinndistribution.h"
 
 using namespace AwesomeRenderer;
 
@@ -278,7 +280,9 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 		return;
 	}
 
-	PhongMaterial* material = NULL;
+	Material* material = NULL;
+	PhongMaterial* phongMaterial = NULL;
+	MicrofacetMaterial* microfacetMaterial = NULL;
 	
 	int32_t lineLength;
 	char* lineBuffer;
@@ -335,12 +339,24 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 						break;
 
 					case 'd':
-						ParseColor(lineBuffer + 2, material->diffuseColor);
+					{
+						Color color;
+						ParseColor(lineBuffer + 2, color);
+
+						phongMaterial->diffuseColor = color;
+						microfacetMaterial->albedo = color;
 						break;
+					}
 
 					case 's':
-						ParseColor(lineBuffer + 2, material->specularColor);
+					{
+						Color color;
+						ParseColor(lineBuffer + 2, color);
+
+						phongMaterial->specularColor = color;
+						microfacetMaterial->specular = color;
 						break;
+					}
 
 				}
 
@@ -363,8 +379,12 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 				switch (lineBuffer[1])
 				{
 					case 's':
-						material->shininess = strtof(lineBuffer + 2, NULL);
-						material->specularColor[3] = material->shininess;
+						float shininess = strtof(lineBuffer + 2, NULL);
+
+						phongMaterial->shininess = shininess;
+						phongMaterial->specularColor[3] = shininess;
+
+						microfacetMaterial->roughness = RayTracing::BlinnDistribution::ShininessToRoughness(shininess);
 						break;
 				}
 
@@ -373,10 +393,11 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 			case 'd':
 			{
 				float alpha = strtof(lineBuffer + 1, NULL);
-				material->diffuseColor[3] = alpha;
+				phongMaterial->diffuseColor[3] = alpha;
+				microfacetMaterial->albedo[3] = alpha;
 
 				if (alpha < 1.0f)
-					material->provider.translucent = TRUE;
+					material->translucent = TRUE;
 
 				break;
 			}
@@ -387,11 +408,14 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 				if (line.compare(0, 6, "newmtl") == 0)
 				{					
 					// TODO: Move memory allocation to somewhere else
-					material = new PhongMaterial(*(new Material()));
-					material->provider.name = line.substr(7);
-					material->provider.shader = defaultShader;
+					material = new Material();
+					material->name = line.substr(7);
+					material->shader = defaultShader;
 
-					materialLib[material->provider.name] = &material->provider;
+					phongMaterial = new PhongMaterial(*material);
+					microfacetMaterial = new MicrofacetMaterial(*material);
+					
+					materialLib[material->name] = material;
 					break;
 				}
 
@@ -404,7 +428,10 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 					Sampler* sampler = textureFactory.GetTexture(textureFile);
 					
 					if (sampler)
-						material->diffuseMap = sampler;
+					{
+						phongMaterial->diffuseMap = sampler;
+						microfacetMaterial->albedoMap = sampler;
+					}
 					else
 						printf("[ObjLoader]: Failed to load diffuse map for material.\n");
 
@@ -421,7 +448,10 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 					Sampler* sampler = textureFactory.GetTexture(textureFile);
 
 					if (sampler)
-						material->specularMap = sampler;
+					{
+						phongMaterial->specularMap = sampler;
+						microfacetMaterial->specularMap = sampler;
+					}
 					else
 						printf("[ObjLoader]: Failed to load specular map for material.\n");
 
@@ -449,7 +479,10 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 						Sampler* sampler = textureFactory.CreateSampler(normalMap);
 
 						if (sampler)
-							material->normalMap = sampler;
+						{
+							phongMaterial->normalMap = sampler;
+							microfacetMaterial->normalMap = sampler;
+						}
 						else
 							printf("[ObjLoader]: Failed to create sampler for normal map.\n");
 					}
@@ -463,7 +496,9 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 				// Alpha map
 				if (line.compare(0, 5, "map_d") == 0)
 				{
-					if (material->diffuseMap == NULL)
+					Sampler* diffuseMap = phongMaterial->diffuseMap;
+
+					if (diffuseMap == NULL)
 					{
 						printf("[ObjLoader]: Expected diffuse map before alpha map.\n");
 						break;
@@ -475,7 +510,7 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 					Texture* alphaTexture = NULL;
 					if (textureFactory.GetAsset(textureFile, &alphaTexture))
 					{
-						Texture* mergedTexture = textureFactory.MergeAlphaChannel(material->diffuseMap->texture, alphaTexture);
+						Texture* mergedTexture = textureFactory.MergeAlphaChannel(diffuseMap->texture, alphaTexture);
 
 						if (!mergedTexture)
 						{
@@ -483,11 +518,11 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 							break;
 						}
 
-						if (material->diffuseMap->texture->HasMipmaps())
+						if (diffuseMap->texture->HasMipmaps())
 							mergedTexture->GenerateMipMaps();
 
-						material->diffuseMap->texture = mergedTexture;
-						material->provider.translucent = TRUE;
+						diffuseMap->texture = mergedTexture;
+						material->translucent = TRUE;
 					}
 					else
 						printf("[ObjLoader]: Failed to load alpha map for material.\n");

@@ -1,5 +1,5 @@
-#ifndef _PBR_MATERIAL_H_
-#define _PBR_MATERIAL_H_
+#ifndef _MICROFACET_MATERIAL_H_
+#define _MICROFACET_MATERIAL_H_
 
 #include "awesomerenderer.h"
 #include "material.h"
@@ -7,7 +7,7 @@
 namespace AwesomeRenderer
 {
 
-	class PbrMaterial : public Extension<Material, PbrMaterial>
+	class MicrofacetMaterial : public Extension<Material, MicrofacetMaterial>
 	{
 	public:
 		static RayTracing::BSDF metallicBSDF;
@@ -21,11 +21,15 @@ namespace AwesomeRenderer
 
 		Color specular;
 
-	public:
-		PbrMaterial(Material& material);
-		PbrMaterial(RayTracing::BSDF& bsdf, Material& material);
+		Sampler* albedoMap;
+		Sampler* specularMap;
+		Sampler* normalMap;
 
-		~PbrMaterial();
+	public:
+		MicrofacetMaterial(Material& material);
+		MicrofacetMaterial(RayTracing::BSDF& bsdf, Material& material);
+
+		~MicrofacetMaterial();
 
 		static uint32_t ExtensionID() { return Material::MATERIAL_PBR; }
 

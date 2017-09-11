@@ -20,7 +20,7 @@ namespace AwesomeRenderer
 	class Random;
 
 	class PhongMaterial;
-	class PbrMaterial;
+	class MicrofacetMaterial;
 
 	class Scheduler;
 	class JobGroup;
@@ -38,6 +38,7 @@ namespace AwesomeRenderer
 		private:
 			static const uint32_t MAX_FRAME_TIME;
 			static const uint32_t TILE_SIZE;
+			static const uint32_t SUBPIXEL_STRATIFICATION_SIZE;
 
 			Timer frameTimer;
 

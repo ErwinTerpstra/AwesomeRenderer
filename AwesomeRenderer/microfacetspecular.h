@@ -5,7 +5,7 @@
 
 namespace AwesomeRenderer
 {
-	class PbrMaterial;
+	class MicrofacetMaterial;
 
 	namespace RayTracing
 	{
@@ -25,12 +25,8 @@ namespace AwesomeRenderer
 			virtual float CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const;
 
 		private:
-			Vector3 SpecularCookTorrance(const Vector3& wo, const Vector3& normal, const Vector3& wi, const Vector3& F0, const PbrMaterial& material) const;
-
-			float RoughnessToShininess(float a) const;
+			Vector3 SpecularCookTorrance(const Vector3& wo, const Vector3& normal, const Vector3& wi, const Vector3& F0, const MicrofacetMaterial& material) const;
 			
-			float DistributionBlinn(const Vector3& n, const Vector3& h, float e) const;
-
 			float GeometryImplicit(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h) const;
 			float GeometryCookTorrance(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h) const;
 			float GeometrySmith(const Vector3& v, const Vector3& l, const Vector3& n, const Vector3& h, float a) const;

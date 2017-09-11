@@ -5,7 +5,7 @@
 #include "lightdata.h"
 #include "rendercontext.h"
 #include "material.h"
-#include "pbrmaterial.h"
+#include "microfacetmaterial.h"
 #include "bsdf.h"
 #include "bxdf.h"
 

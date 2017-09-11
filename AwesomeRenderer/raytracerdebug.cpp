@@ -21,7 +21,7 @@
 #include "random.h"
 #include "lambert.h"
 #include "microfacetspecular.h"
-#include "pbrmaterial.h"
+#include "microfacetmaterial.h"
 
 #include <WinUser.h>
 

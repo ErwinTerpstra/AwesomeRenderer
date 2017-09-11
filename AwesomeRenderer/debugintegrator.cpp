@@ -8,7 +8,7 @@
 #include "raycasthit.h"
 
 #include "material.h"
-#include "pbrmaterial.h"
+#include "microfacetmaterial.h"
 #include "phongmaterial.h"
 #include "sampler.h"
 

@@ -69,7 +69,7 @@
 
 #include "material.h"
 #include "phongmaterial.h"
-#include "pbrmaterial.h"
+#include "microfacetmaterial.h"
 
 #include "mesh.h"
 #include "model.h"
