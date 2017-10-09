@@ -412,6 +412,8 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 					material->name = line.substr(7);
 					material->shader = defaultShader;
 
+					// Note: The order of these instantiations decides which material BSDF is used for raytracing.
+					// At the moment the last instantiated material overrides the BSDF
 					phongMaterial = new PhongMaterial(*material);
 					microfacetMaterial = new MicrofacetMaterial(*material);
 					

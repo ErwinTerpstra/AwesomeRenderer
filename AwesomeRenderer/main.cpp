@@ -1,18 +1,12 @@
 #include "stdafx.h"
 
-#define RENDER_WIDTH 480
-#define RENDER_HEIGHT 320
+#define SCREEN_SCALE 1
 
-#define RENDER_WIDTH 240
-#define RENDER_HEIGHT 160
+#define SCREEN_WIDTH 960
+#define SCREEN_HEIGHT 640
 
-//#define RENDER_WIDTH 960
-//#define RENDER_HEIGHT 640
-
-#define SCREEN_SCALE 4
-
-#define SCREEN_WIDTH (RENDER_WIDTH * SCREEN_SCALE)
-#define SCREEN_HEIGHT (RENDER_HEIGHT * SCREEN_SCALE)
+#define RENDER_WIDTH (SCREEN_WIDTH / SCREEN_SCALE)
+#define RENDER_HEIGHT (SCREEN_HEIGHT / SCREEN_SCALE)
 
 //#define SCREEN_WIDTH 480
 //#define SCREEN_HEIGHT 320
@@ -277,10 +271,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Setup setup(context);
 	setup.SetupLighting();
 	setup.SetupScene();
-	setup.SetupCornellBox();
+	//setup.SetupCornellBox();
 	//setup.SetupSpheres();
 	//setup.SetupFractal();
-	//setup.SetupSponza();
+	setup.SetupSponza();
 	
 	// Camera controller
 	CameraController cameraController(camera);

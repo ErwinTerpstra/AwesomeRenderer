@@ -54,6 +54,25 @@ namespace AwesomeRenderer
 			return true;
 		}
 
+		static Vector Max(const Vector& v, float x)
+		{
+			Vector result;
+
+			for (int i = 0; i < Size; ++i)
+				result[i] = std::max(v[i], x);
+
+			return result;
+		}
+
+		static Vector Min(const Vector& v, float x)
+		{
+			Vector result;
+
+			for (int i = 0; i < Size; ++i)
+				result[i] = std::min(v[i], x);
+
+			return result;
+		}
 	};
 
 	template<int Size>
