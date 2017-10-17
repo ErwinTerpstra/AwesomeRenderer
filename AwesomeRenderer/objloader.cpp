@@ -415,7 +415,14 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 					// Note: The order of these instantiations decides which material BSDF is used for raytracing.
 					// At the moment the last instantiated material overrides the BSDF
 					phongMaterial = new PhongMaterial(*material);
-					microfacetMaterial = new MicrofacetMaterial(*material);
+
+					if (material->name == "floor")
+					{
+						microfacetMaterial = new MicrofacetMaterial(MicrofacetMaterial::metallicBSDF, *material);
+						microfacetMaterial->metallic = 1.0f;
+					}
+					else
+						microfacetMaterial = new MicrofacetMaterial(*material);
 					
 					materialLib[material->name] = material;
 					break;

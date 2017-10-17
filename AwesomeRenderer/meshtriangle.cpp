@@ -14,7 +14,6 @@ MeshTriangle::MeshTriangle(const Vector3& v0, const Vector3& v1, const Vector3& 
 {
 	CalculateNormal();
 	PreCalculateBarycentric();
-
 }
 
 MeshTriangle::MeshTriangle(const MeshTriangle& other) :
@@ -40,16 +39,6 @@ const Vector3& MeshTriangle::CalculateNormal()
 
 void MeshTriangle::Transform(const Matrix44& mtx)
 {
-	// Transform all vertices from object space by the given matrix
-	/*
-	v[0] = cml::transform_point(mtx, vO[0]);
-	v[1] = cml::transform_point(mtx, vO[1]);
-	v[2] = cml::transform_point(mtx, vO[2]);
-
-	CalculateNormal();
-	PreCalculateBarycentric();
-	*/
-
 	// TODO: Find a way to implement this without having to store additional data, which makes the path tracer slow
 	// Or make it possible to inherit from Shape without having to implement this method
 	assert(false && "Not implemented.");
@@ -131,9 +120,7 @@ void MeshTriangle::CalculateBounds(AABB& bounds) const
 
 float MeshTriangle::Area() const
 {
-	float b = v1.length();
-
-	Vector3 p = v[0] + cml::dot(v1, v0) * (v1 / b);
+	Vector3 p = v[0] + (VectorUtil<3>::Dot(v0, v1) * VectorUtil<3>::Normalize(v1));
 
 	return 0.5f * v1.length() * (v[1] - p).length();
 }

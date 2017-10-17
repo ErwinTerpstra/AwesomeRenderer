@@ -66,7 +66,7 @@ Vector3 WhittedIntegrator::SampleReflection(const Ray& ray, const RaycastHit& hi
 
 	float pdf = material.bsdf->CalculatePDF(-ray.direction, reflectionDirection, hitInfo.normal, material);
 
-	return material.bsdf->Sample(-ray.direction, reflectionDirection, hitInfo.normal, hitInfo, material) * lightRadiance * NoL / pdf;
+	return material.bsdf->Sample(-ray.direction, reflectionDirection, hitInfo.normal, hitInfo, material, rayTracer.GetRenderContext()) * lightRadiance * NoL / pdf;
 }
 
 Vector3 WhittedIntegrator::SampleRefraction(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& context, int depth)

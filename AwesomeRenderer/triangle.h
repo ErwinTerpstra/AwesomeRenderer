@@ -120,6 +120,25 @@ namespace AwesomeRenderer
 			}
 		}
 
+		static float Area(const VectorType& v0, const VectorType& v1, const VectorType& v2)
+		{
+			/*
+			float a = VectorUtil<VectorType::dimension>::Dot(v0, v0);
+			float b = VectorUtil<VectorType::dimension>::Dot(v1, v1);
+			float c = VectorUtil<VectorType::dimension>::Dot(v2, v2);
+
+			return sqrtf(((2 * a * b) + (2 * b * c) + (2 * c * a) - (a * a) - (b * b) - (c * c)) / 16);
+			*/
+
+			float a = (v1 - v0).length();
+			float b = (v2 - v0).length();
+			float c = (v2 - v1).length();
+
+			float s = 0.5f * (a + b + c);
+
+			return sqrtf(s * (s - a) * (s - b) * (s - c));
+		}
+
 	};
 
 }

@@ -20,15 +20,15 @@ BSDF::BSDF(BxDF* diffuse, BxDF* specular) : diffuse(diffuse), specular(specular)
 
 }
 
-Vector3 BSDF::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, BxDFTypes typeMask) const
+Vector3 BSDF::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, const RenderContext& renderContext, BxDFTypes typeMask) const
 {
 	Vector3 diffuseReflection(0.0f, 0.0f, 0.0f), specularReflection(0.0f, 0.0f, 0.0f);
 
 	if (diffuse != NULL && (typeMask & BXDF_DIFFUSE) != 0)
-		diffuseReflection = diffuse->Sample(wo, wi, normal, hitInfo, material);
+		diffuseReflection = diffuse->Sample(wo, wi, normal, hitInfo, material, renderContext);
 	
 	if (specular != NULL && (typeMask & BXDF_SPECULAR) != 0)
-		specularReflection = specular->Sample(wo, wi, normal, hitInfo, material);
+		specularReflection = specular->Sample(wo, wi, normal, hitInfo, material, renderContext);
 
 	return diffuseReflection + specularReflection;
 }
@@ -57,7 +57,7 @@ void BSDF::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vecto
 		specular->GenerateSampleVector(r, wo, normal, material, wi);
 	else if (diffuse != NULL)
 		diffuse->GenerateSampleVector(r, wo, normal, material, wi);
-	
+
 	// Make sure the sample vector is in the same hemisphere as the normal
 	if (VectorUtil<3>::Dot(normal, wi) < 0.0f)
 	{

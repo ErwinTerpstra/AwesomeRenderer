@@ -9,7 +9,7 @@ namespace AwesomeRenderer
 	{
 
 	public:
-
+		
 		static void UniformHemisphere(const Vector2& r, float& phi, float& theta)
 		{
 			phi = 2 * PI * r[1];

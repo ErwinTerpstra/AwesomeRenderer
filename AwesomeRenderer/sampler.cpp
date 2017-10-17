@@ -7,9 +7,7 @@
 
 using namespace AwesomeRenderer;
 
-const float Sampler::DEFAULT_MIP_DISTANCE_SCALE = 2000.0f;
-
-Sampler::Sampler(Texture* texture) : texture(texture), wrapMode(WM_DEFAULT), sampleMode(SM_DEFAULT), mipDistanceScale(DEFAULT_MIP_DISTANCE_SCALE)
+Sampler::Sampler(Texture* texture) : texture(texture), wrapMode(WM_DEFAULT), sampleMode(SM_DEFAULT)
 {
 
 }
@@ -50,48 +48,46 @@ void Sampler::Sample(const Vector2& uv, Color& sample, uint32_t mipLevel) const
 	SampleBuffer(texture->GetMipLevel(mipLevel), ts, sampleMode, sample);
 }
 
-Color Sampler::Sample(const Vector2& uv, float distance) const
+Color Sampler::Sample(const Vector2& uv, float mipLevel) const
 {
+	if (!texture->HasMipmaps())
+		return Sample(uv, 0U);
+
 	Color sample;
 
-	float mipLevel = CalculateMipLevel(distance);
+	mipLevel = Util::Clamp(mipLevel, 0.0f, (float) texture->GetMipmapLevels());
 
 	switch (sampleMode)
 	{
 		case SM_POINT:
 		case SM_BILINEAR:
-			Sample(uv, sample, round(mipLevel * texture->GetMipmapLevels()));
+			Sample(uv, sample, floor(mipLevel));
 			break;
 
 		case SM_TRILINEAR:
-			mipLevel *= (texture->GetMipmapLevels() + 1);
-
-			uint32_t roundedMipLevel = mipLevel;
-			float fraction = mipLevel - roundedMipLevel;
+			uint32_t intMipLevel = mipLevel;
+			float fractMipLevel = mipLevel - intMipLevel;
 
 			Color samples[2];
-			Sample(uv, samples[0], roundedMipLevel);
-			Sample(uv, samples[1], roundedMipLevel + (roundedMipLevel < texture->GetMipmapLevels() ? 1 : 0));
+			Sample(uv, samples[0], intMipLevel);
+			Sample(uv, samples[1], intMipLevel + (intMipLevel < texture->GetMipmapLevels() ? 1 : 0));
 			
-			sample = samples[0] * (1.0f - fraction) + samples[1] * fraction;
+			sample = samples[0] * (1.0f - fractMipLevel) + samples[1] * fractMipLevel;
 			break;
 	}
 
 	return sample;
 }
 
-float Sampler::CalculateMipLevel(float distance) const
+Color Sampler::SampleMipMaps(const Vector2& uv, float distance, double texelToSurfaceAreaRatio, float screenResolution)
 {
-	float mipLevel;
-	if (texture->HasMipmaps() && distance > 0)
-	{
-		float distanceFactor = 1.0f / (1.0f + (distance / mipDistanceScale));
-		mipLevel = (1.0f - distanceFactor);
-	}
-	else
-		mipLevel = 0;
+	float textureResolution = texture->GetResolution();
+	float screenToTextureRatio = textureResolution / screenResolution;
 
-	return mipLevel;
+	float log2IdealDistance = 0.5f * log2(texelToSurfaceAreaRatio * textureResolution * screenToTextureRatio);
+	float mipLevel = log2(distance) - log2IdealDistance;
+
+	return Sample(uv, mipLevel);
 }
 
 void Sampler::SampleBuffer(const Buffer* buffer, const Vector2& uv, SampleMode sampleMode, Color& sample)
@@ -115,14 +111,19 @@ void Sampler::SampleBuffer(const Buffer* buffer, const Vector2& uv, SampleMode s
 		{
 			uint32_t intX = (uint32_t)ts[0];
 			uint32_t intY = (uint32_t)ts[1];
+
+			// TODO: If the wrap mode is WM_REPEAT, these coordinates should wrap instead of clamp
+			uint32_t neighbourX = std::min(intX + 1, buffer->width - 1);
+			uint32_t neighbourY = std::min(intY + 1, buffer->height - 1);
+
 			float fractX = ts[0] - intX;
 			float fractY = ts[1] - intY;
 
 			Color samples[4];
-			buffer->GetPixel(intX, intY, samples[0], Buffer::LINEAR);
-			buffer->GetPixel(intX + 1, intY, samples[1], Buffer::LINEAR);
-			buffer->GetPixel(intX, intY + 1, samples[2], Buffer::LINEAR);
-			buffer->GetPixel(intX + 1, intY + 1, samples[3], Buffer::LINEAR);
+			buffer->GetPixel(intX,			intY,		samples[0], Buffer::LINEAR);
+			buffer->GetPixel(neighbourX,	intY,		samples[1], Buffer::LINEAR);
+			buffer->GetPixel(intX,			neighbourY, samples[2], Buffer::LINEAR);
+			buffer->GetPixel(neighbourX,	neighbourY, samples[3], Buffer::LINEAR);
 
 			// Interpolate in X direction
 			samples[0] = (samples[0] * (1.0f - fractX)) + (samples[1] * fractX);

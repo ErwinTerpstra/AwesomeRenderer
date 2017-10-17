@@ -22,8 +22,7 @@ namespace AwesomeRenderer
 		Vector3 normal;
 
 		uint32_t faceIdx;
-	private:
-
+	
 	public:
 		MeshTriangle(const Vector3& v0, const Vector3& v1, const Vector3& v2, uint32_t faceIdx);
 		MeshTriangle(const MeshTriangle& other);

@@ -148,7 +148,7 @@ newmtl column_a
 	bump textures\sponza_column_a_bump.bmp
 
 newmtl floor
-	Ns 1000.0000
+	Ns 500.0000
 	Ni 1.5000
 	d 1.0000
 	Tr 0.0000
@@ -156,7 +156,7 @@ newmtl floor
 	illum 2
 	Ka 0.5880 0.5880 0.5880
 	Kd 0.5880 0.5880 0.5880
-	Ks 1.0 1.0 1.0
+	Ks 0.5000 0.5000 0.5000
 	Ke 0.0000 0.0000 0.0000
 	map_Ka textures\sponza_floor_a_diff.bmp
 	map_Kd textures\sponza_floor_a_diff.bmp

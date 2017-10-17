@@ -7,6 +7,9 @@
 #include "ray.h"
 #include "raycasthit.h"
 
+#include "rendercontext.h"
+#include "texture.h"
+
 #include "material.h"
 #include "microfacetmaterial.h"
 #include "phongmaterial.h"
@@ -30,7 +33,7 @@ Vector3 DebugIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, const Mat
 		Color color = phongMaterial->diffuseColor;
 
 		if (phongMaterial->diffuseMap != NULL)
-			color *= phongMaterial->diffuseMap->Sample(hitInfo.uv, hitInfo.distance);
+			color *= phongMaterial->diffuseMap->SampleMipMaps(hitInfo.uv, hitInfo.distance, hitInfo.texelToSurfaceAreaRatio, context.renderTarget->frameBuffer->GetResolution());
 
 		return color.subvector(3);
 	}

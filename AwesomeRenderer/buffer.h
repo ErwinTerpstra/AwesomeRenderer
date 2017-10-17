@@ -51,7 +51,7 @@ namespace AwesomeRenderer
 		uint32_t CalculateStride(uint32_t width, uint8_t bitDepth, uint8_t alignment);
 		void Destroy();
 		
-		__inline void Clear() { memset(data, 0, size); }
+		AR_FORCE_INLINE void Clear() { memset(data, 0, size); }
 		void Clear(const Color& color);
 		
 		void Blit(const Buffer& src);
@@ -66,9 +66,14 @@ namespace AwesomeRenderer
 		void SetPixel(uint32_t x, uint32_t y, const uchar* buffer);
 		void SetPixel(uint32_t x, uint32_t y, float f);
 		
-		__inline uchar* GetBase(uint32_t x, uint32_t y) const
+		AR_FORCE_INLINE uchar* GetBase(uint32_t x, uint32_t y) const
 		{ 
 			return data + y * stride + x * pixelStride;
+		}
+
+		AR_FORCE_INLINE uint32_t GetResolution() const
+		{
+			return width * height;
 		}
 
 		static uint8_t GetEncodingDepth(Encoding encoding);

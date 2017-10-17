@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "blinnphong.h"
 
+#include "rendercontext.h"
+#include "texture.h"
+
 #include "material.h"
 #include "phongmaterial.h"
 
@@ -15,13 +18,13 @@ BlinnPhong::BlinnPhong()
 
 }
 
-Vector3 BlinnPhong::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material) const
+Vector3 BlinnPhong::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, const RenderContext& renderContext) const
 {
 	PhongMaterial* phongMaterial = material.As<PhongMaterial>();
 
 	Color specular = phongMaterial->specularColor;
 	if (phongMaterial->specularMap != NULL)
-		specular *= phongMaterial->specularMap->Sample(hitInfo.uv);
+		specular *= phongMaterial->specularMap->SampleMipMaps(hitInfo.uv, hitInfo.distance, hitInfo.texelToSurfaceAreaRatio, renderContext.renderTarget->frameBuffer->GetResolution());
 
 	Vector3 halfVector = cml::normalize(wo + wi);
 	float NoV = std::max(VectorUtil<3>::Dot(normal, wo), 0.0f);

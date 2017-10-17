@@ -5,6 +5,9 @@
 #include "phongmaterial.h"
 #include "sampler.h"
 
+#include "rendercontext.h"
+#include "texture.h"
+
 #include "microfacetmaterial.h"
 #include "raycasthit.h"
 
@@ -16,7 +19,7 @@ Lambert::Lambert()
 
 }
 
-Vector3 Lambert::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material) const
+Vector3 Lambert::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, const RenderContext& renderContext) const
 {
 	MicrofacetMaterial* pbrMaterial = material.As<MicrofacetMaterial>();
 
@@ -25,7 +28,7 @@ Vector3 Lambert::Sample(const Vector3& wo, const Vector3& wi, const Vector3& nor
 		Color result = pbrMaterial->albedo;
 		
 		if (pbrMaterial->albedoMap != NULL)
-			result *= pbrMaterial->albedoMap->Sample(hitInfo.uv);
+			result *= pbrMaterial->albedoMap->SampleMipMaps(hitInfo.uv, hitInfo.distance, hitInfo.texelToSurfaceAreaRatio, renderContext.renderTarget->frameBuffer->GetResolution());
 		
 		return result.subvector(3) * (1.0f - pbrMaterial->metallic) * INV_PI;
 	}
@@ -37,7 +40,7 @@ Vector3 Lambert::Sample(const Vector3& wo, const Vector3& wi, const Vector3& nor
 		Color result = phongMaterial->diffuseColor;
 
 		if (phongMaterial->diffuseMap != NULL)
-			result *= phongMaterial->diffuseMap->Sample(hitInfo.uv);
+			result *= phongMaterial->diffuseMap->SampleMipMaps(hitInfo.uv, hitInfo.distance, hitInfo.texelToSurfaceAreaRatio, renderContext.renderTarget->frameBuffer->GetResolution());
 
 		return result.subvector(3) * INV_PI;
 	}

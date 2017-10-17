@@ -569,7 +569,7 @@ void Setup::SetupSponza()
 	light.type = LightData::LightType::DIRECTIONAL;
 	light.direction = VectorUtil<3>::Normalize(Vector3(0, -1.0f, -0.3f));
 	light.position = Vector3(0.0f, 50.0f, 0.0f);
-	light.intensity = 5.0f;
+	light.intensity = 8.0f;
 	light.quadricAttenuation = 0.0001f;
 	light.color = Color(255, 244, 214);
 
@@ -580,15 +580,15 @@ void Setup::SetupSponza()
 		Node* node = new Node();
 
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(0.0f, 200.0f, 35.0f));
+		transform->SetPosition(Vector3(-50.0f, 80.0f, 0.0f));
 		node->AddComponent(transform);
 
 		Material* material = new Material();
 		material->emission = Color(255, 244, 214);
-		material->emissionIntensity = 5000.0f;
+		material->emissionIntensity = 600.0f;
 
 		AreaLight* areaLight = new AreaLight();
-		areaLight->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 5.0f);
+		areaLight->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 6.0f);
 		areaLight->material = material;
 
 		node->AddComponent(areaLight);

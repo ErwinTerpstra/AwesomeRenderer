@@ -98,7 +98,7 @@ bool TextureFactory::LoadBmp(const std::string& fileName, Texture** texture) con
 
 void TextureFactory::PostProcessAsset(Texture* instance)
 {
-	//instance->GenerateMipMaps();
+	instance->GenerateMipMaps();
 }
 
 Sampler* TextureFactory::GetTexture(const std::string& fileName)

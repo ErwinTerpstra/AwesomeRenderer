@@ -7,6 +7,9 @@
 #include "sampler.h"
 #include "raycasthit.h"
 
+#include "rendercontext.h"
+#include "texture.h"
+
 #include "material.h"
 #include "microfacetmaterial.h"
 
@@ -26,14 +29,14 @@ MicrofacetSpecular::~MicrofacetSpecular()
 	delete normalDistribution;
 }
 
-Vector3 MicrofacetSpecular::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material) const
+Vector3 MicrofacetSpecular::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, const RenderContext& renderContext) const
 {
 	MicrofacetMaterial* microfacetMaterial = material.As<MicrofacetMaterial>();
-
+	
 	Color F0 = microfacetMaterial->specular;
 
 	if (microfacetMaterial->specularMap != NULL)
-		F0 *= microfacetMaterial->specularMap->Sample(hitInfo.uv);
+		F0 *= microfacetMaterial->specularMap->SampleMipMaps(hitInfo.uv, hitInfo.distance, hitInfo.texelToSurfaceAreaRatio, renderContext.renderTarget->frameBuffer->GetResolution());
 
 	return SpecularCookTorrance(wo, normal, wi, F0.subvector(3), *microfacetMaterial);
 }
@@ -70,7 +73,7 @@ Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& wo, const Vector
 	// Normal distribution
 	float distribution = normalDistribution->Sample(wo, wi, normal, material);
 	distribution = std::max(distribution, 0.0f);
-
+	
 	// Geometry term
 	float alpha = material.roughness * material.roughness;
 	float geometry;

@@ -11,7 +11,6 @@ namespace AwesomeRenderer
 	class Sampler
 	{
 	public:
-		static const float DEFAULT_MIP_DISTANCE_SCALE;
 
 		enum WrapMode
 		{
@@ -34,20 +33,17 @@ namespace AwesomeRenderer
 		SampleMode sampleMode;
 		Texture* texture;
 
-		float mipDistanceScale;
-
 	public:
 		Sampler(Texture* texture = NULL);
 
 		Color Sample(const Vector2& uv, uint32_t mipLevel = 0) const;
 		void Sample(const Vector2& uv, Color& sample, uint32_t mipLevel = 0) const;
 
-		Color Sample(const Vector2& uv, float distance) const;
+		Color Sample(const Vector2& uv, float mipLevel) const;
+		Color SampleMipMaps(const Vector2& uv, float distance, double texelToSurfaceAreaRatio, float screenResolution);
 
 
 	private:
-		float CalculateMipLevel(float distance) const;
-
 		static void SampleBuffer(const Buffer* buffer, const Vector2& uv, SampleMode sampleMode, Color& sample);
 
 	};

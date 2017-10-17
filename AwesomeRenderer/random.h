@@ -31,7 +31,7 @@ namespace AwesomeRenderer
 		int NextInt(int min, int max) 
 		{
 			assert(max >= min);
-			return min + (int) floor(NextFloat() * (max - min)); 
+			return min + (int) floor((NextFloat() - 1e-5f) * (max - min)); 
 		}
 	};
 
