@@ -24,7 +24,7 @@ Vector3 BlinnPhong::Sample(const Vector3& wo, const Vector3& wi, const Vector3& 
 
 	Color specular = phongMaterial->specularColor;
 	if (phongMaterial->specularMap != NULL)
-		specular *= phongMaterial->specularMap->SampleMipMaps(hitInfo.uv, hitInfo.distance, hitInfo.texelToSurfaceAreaRatio, renderContext.renderTarget->frameBuffer->GetResolution());
+		specular *= phongMaterial->specularMap->SampleMipMaps(hitInfo.uv, hitInfo.distance, hitInfo.surfaceAreaToTextureRatio, renderContext.renderTarget->frameBuffer->GetResolution());
 
 	Vector3 halfVector = cml::normalize(wo + wi);
 	float NoV = std::max(VectorUtil<3>::Dot(normal, wo), 0.0f);

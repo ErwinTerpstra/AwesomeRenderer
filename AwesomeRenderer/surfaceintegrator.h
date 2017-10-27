@@ -28,12 +28,13 @@ namespace AwesomeRenderer
 			
 		public:
 			SurfaceIntegrator(RayTracer& rayTracer);
-
+			
+			virtual Vector3 Li(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& context, int depth) = 0;
+			
+		protected:
 			Vector3 SampleDirectLight(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& context);
 			Vector3 SampleAreaLight(const Renderable* light);
-
-			virtual Vector3 Li(const Ray& ray, const RaycastHit& hitInfo, const Material& material, const RenderContext& context, int depth) = 0;
-
+			
 		};
 	}
 }

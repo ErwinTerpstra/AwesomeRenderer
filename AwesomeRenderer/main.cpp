@@ -193,7 +193,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// Setup camera
 	Camera camera(cml::left_handed);
-	camera.SetPerspective(70.0f, ((float)RENDER_WIDTH) / RENDER_HEIGHT, 0.1f, 5000.0f);
+	camera.SetPerspective(45.0f, ((float)RENDER_WIDTH) / RENDER_HEIGHT, 0.1f, 5000.0f);
 	camera.SetViewport(0.0f, 0.0f, RENDER_WIDTH, RENDER_HEIGHT);
 	
 	// Render context

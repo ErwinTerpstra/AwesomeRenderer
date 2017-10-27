@@ -21,31 +21,7 @@ Lambert::Lambert()
 
 Vector3 Lambert::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, const RenderContext& renderContext) const
 {
-	MicrofacetMaterial* pbrMaterial = material.As<MicrofacetMaterial>();
-
-	if (pbrMaterial != NULL)
-	{
-		Color result = pbrMaterial->albedo;
-		
-		if (pbrMaterial->albedoMap != NULL)
-			result *= pbrMaterial->albedoMap->SampleMipMaps(hitInfo.uv, hitInfo.distance, hitInfo.texelToSurfaceAreaRatio, renderContext.renderTarget->frameBuffer->GetResolution());
-		
-		return result.subvector(3) * (1.0f - pbrMaterial->metallic) * INV_PI;
-	}
-
-	PhongMaterial* phongMaterial = material.As<PhongMaterial>();
-
-	if (phongMaterial != NULL)
-	{
-		Color result = phongMaterial->diffuseColor;
-
-		if (phongMaterial->diffuseMap != NULL)
-			result *= phongMaterial->diffuseMap->SampleMipMaps(hitInfo.uv, hitInfo.distance, hitInfo.texelToSurfaceAreaRatio, renderContext.renderTarget->frameBuffer->GetResolution());
-
-		return result.subvector(3) * INV_PI;
-	}
-
-	return Vector3(0.0f, 0.0f, 0.0f);
+	return SampleAlbedo(hitInfo, material, renderContext).subvector(3) * INV_PI;
 }
 
 void Lambert::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vector3& normal, const Material& material, Vector3& wi) const
@@ -61,4 +37,32 @@ void Lambert::GenerateSampleVector(const Vector2& r, const Vector3& wo, const Ve
 float Lambert::CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const
 {
 	return SampleUtil::CosineWeightedHemispherePDF(normal, wi);
+}
+
+Color Lambert::SampleAlbedo(const RaycastHit& hitInfo, const Material& material, const RenderContext& renderContext)
+{
+	Color albedo = Color::BLACK;
+	Sampler* albedoMap = NULL;
+
+	PhongMaterial* phongMaterial = material.As<PhongMaterial>();
+	MicrofacetMaterial* microfacetMaterial = material.As<MicrofacetMaterial>();
+	
+	if (phongMaterial != NULL)
+	{
+		albedo = phongMaterial->diffuseColor;
+		albedoMap = phongMaterial->diffuseMap;
+	}
+
+	if (microfacetMaterial != NULL)
+	{
+		albedo = microfacetMaterial->albedo;
+		albedoMap = microfacetMaterial->albedoMap;
+
+		albedo = Color(albedo.subvector(3) *  (1.0f - microfacetMaterial->metallic), albedo[3]);
+	}
+
+	if (albedoMap != NULL)
+		albedo *= albedoMap->SampleMipMaps(hitInfo.uv, hitInfo.distance, hitInfo.surfaceAreaToTextureRatio, renderContext.renderTarget->frameBuffer->GetResolution());
+
+	return albedo;
 }

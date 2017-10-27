@@ -11,21 +11,21 @@ namespace AwesomeRenderer
 		Vector3 normal;
 
 		float distance;
-		double texelToSurfaceAreaRatio;
+		double surfaceAreaToTextureRatio;
 
 		Vector3 barycentricCoords;
 		Vector2 uv;
 
 		const TreeElement* element;
 
-		RaycastHit() : distance(FLT_MAX), texelToSurfaceAreaRatio(1.0), element(NULL)
+		RaycastHit() : distance(FLT_MAX), surfaceAreaToTextureRatio(1.0), element(NULL)
 		{
 
 		}
 
 		RaycastHit(const RaycastHit& other) :
 			point(other.point), normal(other.normal), 
-			distance(other.distance), texelToSurfaceAreaRatio(other.texelToSurfaceAreaRatio),
+			distance(other.distance), surfaceAreaToTextureRatio(other.surfaceAreaToTextureRatio),
 			barycentricCoords(other.barycentricCoords), uv(other.uv),
 			element(other.element)
 		{

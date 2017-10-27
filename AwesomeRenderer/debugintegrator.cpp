@@ -14,6 +14,9 @@
 #include "microfacetmaterial.h"
 #include "phongmaterial.h"
 #include "sampler.h"
+#include "shadinginfo.h"
+
+#include "inputmanager.h"
 
 using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
@@ -33,7 +36,21 @@ Vector3 DebugIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, const Mat
 		Color color = phongMaterial->diffuseColor;
 
 		if (phongMaterial->diffuseMap != NULL)
-			color *= phongMaterial->diffuseMap->SampleMipMaps(hitInfo.uv, hitInfo.distance, hitInfo.texelToSurfaceAreaRatio, context.renderTarget->frameBuffer->GetResolution());
+		{
+			if (InputManager::Instance().GetKey('M'))
+				color *= phongMaterial->diffuseMap->Sample(hitInfo.uv, 0U);
+			else
+				color *= phongMaterial->diffuseMap->SampleMipMaps(hitInfo.uv, hitInfo.distance, hitInfo.surfaceAreaToTextureRatio, context.renderTarget->frameBuffer->GetResolution());
+		}
+
+		if (material.translucent)
+		{
+			Ray refractionRay(hitInfo.point + ray.direction *1e-3f, ray.direction);
+			ShadingInfo refractionShading;
+			rayTracer.CalculateShading(refractionRay, refractionShading, depth);
+
+			ColorUtil::Blend(color, refractionShading.color, color);
+		}
 
 		return color.subvector(3);
 	}

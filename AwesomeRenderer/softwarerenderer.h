@@ -129,7 +129,6 @@ namespace AwesomeRenderer
 			return workerData->renderer->StartWorker(workerData->thread);
 		}
 
-		static void Blend(const Color& src, const Color& dst, Color& out);
 		static void SortTriangle(SoftwareShader::VertexToPixel* vtp, uint32_t axis);
 		static void SortTriangle(SoftwareShader::VertexToPixel** a, SoftwareShader::VertexToPixel** b, SoftwareShader::VertexToPixel** c, uint32_t axis);
 

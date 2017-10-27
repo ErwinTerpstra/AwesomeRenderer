@@ -626,5 +626,8 @@
     <ClInclude Include="microfacetmaterial.h">
       <Filter>Source\Renderer\Shading\Materials</Filter>
     </ClInclude>
+    <ClInclude Include="colorutil.h">
+      <Filter>Source\Util</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

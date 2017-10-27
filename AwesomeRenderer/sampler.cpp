@@ -79,12 +79,15 @@ Color Sampler::Sample(const Vector2& uv, float mipLevel) const
 	return sample;
 }
 
-Color Sampler::SampleMipMaps(const Vector2& uv, float distance, double texelToSurfaceAreaRatio, float screenResolution)
+Color Sampler::SampleMipMaps(const Vector2& uv, float distance, double surfaceAreaToTextureRatio, float screenResolution)
 {
 	float textureResolution = texture->GetResolution();
-	float screenToTextureRatio = textureResolution / screenResolution;
 
-	float log2IdealDistance = 0.5f * log2(texelToSurfaceAreaRatio * textureResolution * screenToTextureRatio);
+	float textureToScreenRatio = textureResolution / screenResolution;
+
+	//float log2IdealDistance = 0.5f * log2(surfaceAreaToTextureRatio  / textureToScreenRatio);
+	float log2IdealDistance = log2(surfaceAreaToTextureRatio / textureToScreenRatio);
+
 	float mipLevel = log2(distance) - log2IdealDistance;
 
 	return Sample(uv, mipLevel);

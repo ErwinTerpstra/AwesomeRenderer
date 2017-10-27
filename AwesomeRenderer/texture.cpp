@@ -27,6 +27,7 @@ void Texture::GenerateMipMaps()
 {
 	assert(data != NULL);
 
+	const Buffer::ColorSpace colorSpace = Buffer::LINEAR;
 	Buffer* previousLevel = this;
 	Color samples[4];
 
@@ -44,13 +45,13 @@ void Texture::GenerateMipMaps()
 				// Sample the four pixels used for this level evenly from the previous buffer
 				uint32_t baseX = x << 1;
 				uint32_t baseY = y << 1;
-				previousLevel->GetPixel(baseX, baseY, samples[0], Buffer::LINEAR);
-				previousLevel->GetPixel(baseX + 1, baseY, samples[1], Buffer::LINEAR);
-				previousLevel->GetPixel(baseX, baseY + 1, samples[2], Buffer::LINEAR);
-				previousLevel->GetPixel(baseX + 1, baseY + 1, samples[3], Buffer::LINEAR);
+				previousLevel->GetPixel(baseX, baseY, samples[0], colorSpace);
+				previousLevel->GetPixel(baseX + 1, baseY, samples[1], colorSpace);
+				previousLevel->GetPixel(baseX, baseY + 1, samples[2], colorSpace);
+				previousLevel->GetPixel(baseX + 1, baseY + 1, samples[3], colorSpace);
 
 				Color sample = (samples[0] + samples[1] + samples[2] + samples[3]) * 0.25f;
-				mipBuffer->SetPixel(x, y, sample, Buffer::LINEAR);
+				mipBuffer->SetPixel(x, y, sample, colorSpace);
 			}
 		}
 

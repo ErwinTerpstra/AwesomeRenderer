@@ -108,12 +108,15 @@ bool MeshEx::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance
 
 			VectorUtil<2>::Interpolate(uv0, uv1, uv2, hitInfo.barycentricCoords, hitInfo.uv);
 
-			float surfaceArea = tri->Area();
+			float surfaceArea = Triangle<Vector3>::Area(cml::transform_point(worldMtx, tri->v[0]),
+														cml::transform_point(worldMtx, tri->v[1]),
+														cml::transform_point(worldMtx, tri->v[2]));
 			float texels = Triangle<Vector2>::Area(uv0, uv1, uv2);
 			
 			assert(surfaceArea > 0.0f);
 
-			hitInfo.texelToSurfaceAreaRatio = texels / surfaceArea;
+			if (texels > 0.0f)
+				hitInfo.surfaceAreaToTextureRatio = surfaceArea / texels;
 		}
 
 		hitInfo.point = cml::transform_point(worldMtx, hitInfo.point);

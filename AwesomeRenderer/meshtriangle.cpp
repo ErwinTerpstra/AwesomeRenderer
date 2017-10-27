@@ -120,7 +120,7 @@ void MeshTriangle::CalculateBounds(AABB& bounds) const
 
 float MeshTriangle::Area() const
 {
-	Vector3 p = v[0] + (VectorUtil<3>::Dot(v0, v1) * VectorUtil<3>::Normalize(v1));
+	Vector3 p = v[0] + (dot01 * VectorUtil<3>::Normalize(v1));
 
 	return 0.5f * v1.length() * (v[1] - p).length();
 }

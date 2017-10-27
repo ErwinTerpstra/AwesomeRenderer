@@ -36,7 +36,7 @@ Vector3 MicrofacetSpecular::Sample(const Vector3& wo, const Vector3& wi, const V
 	Color F0 = microfacetMaterial->specular;
 
 	if (microfacetMaterial->specularMap != NULL)
-		F0 *= microfacetMaterial->specularMap->SampleMipMaps(hitInfo.uv, hitInfo.distance, hitInfo.texelToSurfaceAreaRatio, renderContext.renderTarget->frameBuffer->GetResolution());
+		F0 *= microfacetMaterial->specularMap->SampleMipMaps(hitInfo.uv, hitInfo.distance, hitInfo.surfaceAreaToTextureRatio, renderContext.renderTarget->frameBuffer->GetResolution());
 
 	return SpecularCookTorrance(wo, normal, wi, F0.subvector(3), *microfacetMaterial);
 }

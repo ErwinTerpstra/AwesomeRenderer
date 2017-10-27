@@ -18,6 +18,9 @@ namespace AwesomeRenderer
 			virtual Vector3 Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal, const RaycastHit& hitInfo, const Material& material, const RenderContext& renderContext) const;
 			virtual void GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vector3& normal, const Material& material, Vector3& wi) const;
 			virtual float CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const;
+
+		public:
+			static Color SampleAlbedo(const RaycastHit& hitInfo, const Material& material, const RenderContext& renderContext);
 		};
 
 

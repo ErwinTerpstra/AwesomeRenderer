@@ -517,7 +517,7 @@ void SoftwareRenderer::DrawTileFill(uint32_t tileX, uint32_t tileY)
 					Color color;
 					frameBuffer->GetPixel(x, y, color);
 
-					Blend(pixelInfo.color, color, color);
+					ColorUtil::Blend(pixelInfo.color, color, color);
 					frameBuffer->SetPixel(x, y, color);
 				}
 				else
@@ -747,13 +747,6 @@ void SoftwareRenderer::WorkerThread::Stop()
 	// Signal we are shutting down
 	running = false;
 	available = false;
-}
-
-void SoftwareRenderer::Blend(const Color& src, const Color& dst, Color& out)
-{
-	for (uint8_t channel = 0; channel < 3; ++channel)
-		out[channel] = (src[channel] * src[3]) + (dst[channel] * (1.0 - src[3]));
-
 }
 
 void SoftwareRenderer::SortTriangle(SoftwareShader::VertexToPixel* vtp, uint32_t axis)

@@ -216,6 +216,7 @@
     <ClInclude Include="bufferallocator.h" />
     <ClInclude Include="bxdf.h" />
     <ClInclude Include="coloredskybox.h" />
+    <ClInclude Include="colorutil.h" />
     <ClInclude Include="component.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="context.h" />

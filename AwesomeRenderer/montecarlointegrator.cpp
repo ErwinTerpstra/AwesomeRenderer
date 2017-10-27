@@ -12,6 +12,8 @@
 #include "bxdf.h"
 #include "bsdf.h"
 
+#include "lambert.h"
+
 #include "shadinginfo.h"
 #include "lightdata.h"
 #include "arealight.h"
@@ -46,6 +48,23 @@ Vector3 MonteCarloIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, cons
 
 		if (depth < rayTracer.maxDepth)
 			radiance += Sample(hitInfo.point, -ray.direction, hitInfo.normal, hitInfo, material, depth);
+	}
+
+	if (material.translucent)
+	{
+		// Sample albedo because we need the surface alpha
+		Color albedo = Lambert::SampleAlbedo(hitInfo, material, renderContext);
+
+		// Create a 'refraction' ray, which actually just passes through the surface
+		Ray refractionRay(hitInfo.point + ray.direction *1e-3f, ray.direction);
+		ShadingInfo refractionShading;
+		rayTracer.CalculateShading(refractionRay, refractionShading, depth);
+
+		// Blend radiance for this surface with the refracted radiance
+		Color color = Color(radiance, albedo[3]);
+		ColorUtil::Blend(color, refractionShading.color, color);
+
+		radiance = color.subvector(3);
 	}
 	
 	return radiance;

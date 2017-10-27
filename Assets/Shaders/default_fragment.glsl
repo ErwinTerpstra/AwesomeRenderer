@@ -39,15 +39,17 @@ void main()
 	vec3 light = lightAmbient + (lightColor * lightIntensity);
 
 	// Diffuse
-	vec4 diffuse = texture(diffuseMap, texcoord) * diffuseColor;
+	vec4 diffuse = texture(diffuseMap, texcoord);
 	diffuse.rgb = pow(diffuse.rgb, vec3(GAMMA));
+	diffuse *= diffuseColor;
 
 	float NdotL = max(dot(-lightDirection, normal), 0.0);
 	radiance += diffuse.rgb * (lightAmbient + (lightColor * lightIntensity) * NdotL);
 
 	// Specular
-	vec4 specular = texture(specularMap, texcoord) * specularColor;
+	vec4 specular = texture(specularMap, texcoord);
 	specular.rgb = pow(specular.rgb, vec3(GAMMA));
+	specular *= specularColor;
 
 	vec3 v = normalize(cameraPosition - (worldPos.xyz / worldPos.w));
 	vec3 h = normalize(-lightDirection + v);
@@ -55,6 +57,8 @@ void main()
 
 	radiance += specular.rgb * (lightColor * lightIntensity) *  pow(NdotH, specularColor.a);
 	
+	radiance = diffuse.rgb;
+
 #ifndef OUTPUT_LINEAR
 	// Gamma correct
 	radiance = pow(radiance, vec3(1.0 / GAMMA));

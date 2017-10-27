@@ -71,9 +71,9 @@ namespace AwesomeRenderer
 			return data + y * stride + x * pixelStride;
 		}
 
-		AR_FORCE_INLINE uint32_t GetResolution() const
+		AR_FORCE_INLINE float GetResolution() const
 		{
-			return width * height;
+			return width * height / (width / (float) height);
 		}
 
 		static uint8_t GetEncodingDepth(Encoding encoding);
