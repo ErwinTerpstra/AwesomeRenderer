@@ -197,8 +197,16 @@ void RayTracer::Render(const Point2& pixel)
 		subPixel[1] += -0.5f + SampleUtil::StratifiedSample(stratificationIndex, SUBPIXEL_STRATIFICATION_SIZE, random);
 
 		// Create a ray from the camera near plane through this pixel
-		Ray primaryRay;
-		renderContext->camera->ViewportToRay(pixel, primaryRay);
+		Ray centerRay;
+		renderContext->camera->ViewportToRay(pixel, centerRay);
+
+		Vector3 focalPoint = centerRay.origin + centerRay.direction * renderContext->camera->focalDistance;
+		
+		Vector2 apertureOffset;
+		SampleUtil::UniformSampleDisc(Vector2(random.NextFloat(), random.NextFloat()), apertureOffset);
+
+		Vector3 rayOrigin = cml::transform_point(cml::inverse(renderContext->camera->viewMtx), Vector3(apertureOffset[0], apertureOffset[1], 0.0f) * renderContext->camera->apertureSize);
+		Ray primaryRay(rayOrigin, (focalPoint - rayOrigin).normalize());
 
 		ShadingInfo shadingInfo;
 		CalculateShading(primaryRay, shadingInfo);

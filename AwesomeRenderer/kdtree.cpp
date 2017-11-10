@@ -38,9 +38,9 @@ template <typename ElementType>
 void KDTree<ElementType>::Optimize(const AABB& bounds)
 {
 	this->bounds = bounds;
-
+	
 	// Create the index buffer which holds a list of element indices in all nodes
-	elementBufferSize = elements.size() * maxDepth;
+	elementBufferSize = elements.size() * maxDepth * 2;
 	elementBufferOffset = 0;
 	elementBuffer = AllocateAligned<ElementType*>(4, elementBufferSize);
 	

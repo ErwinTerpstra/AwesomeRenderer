@@ -18,6 +18,8 @@ namespace AwesomeRenderer
 
 		float nearPlane, farPlane, fov, aspect;
 
+		float apertureSize, focalDistance;
+
 	private:
 		cml::Handedness handedness;
 

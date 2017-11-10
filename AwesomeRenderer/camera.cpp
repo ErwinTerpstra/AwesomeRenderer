@@ -7,6 +7,7 @@ using namespace AwesomeRenderer;
 
 Camera::Camera(cml::Handedness handedness) :
 	position(0.0f, 0.0f, 0.0f), lookAt(0.0f, 0.0f, 1.0f), up(0.0f, 1.0f, 0.0f),
+	apertureSize(0.0f), focalDistance(1.0f),
 	handedness(handedness)
 {
 	UpdateViewMtx();

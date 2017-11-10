@@ -10,6 +10,14 @@ namespace AwesomeRenderer
 
 	public:
 		
+		static void UniformSampleDisc(const Vector2& r, Vector2& p)
+		{
+			float d = sqrtf(r[0]);
+			float theta = r[1] * TWO_PI;
+			p[0] = d * cosf(theta);
+			p[1] = d * sinf(theta);
+		}
+
 		static void UniformHemisphere(const Vector2& r, float& phi, float& theta)
 		{
 			phi = 2 * PI * r[1];

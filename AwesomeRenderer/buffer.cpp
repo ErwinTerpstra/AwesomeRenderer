@@ -82,17 +82,12 @@ void Buffer::Blit(const Buffer& src)
 	{
 		for (uint32_t x = 0; x < std::min(width, src.width); ++x)
 		{
-			src.GetPixel(x, y, color);
+			src.GetPixel(x, y, color, ColorSpace::LINEAR);
 
 			if (tonemap)
 				Tonemap(color, color);
 
-			if (colorSpace == GAMMA && src.colorSpace == LINEAR)
-				AdjustGamma(color, 1.0f / DEFAULT_GAMMA);
-			else if (colorSpace == LINEAR && src.colorSpace == GAMMA)
-				AdjustGamma(color, DEFAULT_GAMMA);
-
-			SetPixel(x, y, color);
+			SetPixel(x, y, color, ColorSpace::LINEAR);
 		}
 	}
 }
@@ -112,10 +107,7 @@ void Buffer::Blit(const Sampler& sampler)
 			if (tonemap)
 				Tonemap(color, color);
 
-			if (colorSpace == GAMMA)
-				AdjustGamma(color, 1.0f / DEFAULT_GAMMA);
-
-			SetPixel(x, y, color);
+			SetPixel(x, y, color, ColorSpace::LINEAR);
 		}
 	}
 }

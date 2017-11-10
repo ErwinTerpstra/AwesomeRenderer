@@ -126,6 +126,9 @@ void Setup::SetupCornellBox()
 	const Vector3 cameraPosition = Vector3(0.0f, 0.5f, -1.5f);
 	context.mainCamera->SetLookAt(cameraPosition, cameraPosition + Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0));
 	
+	context.mainCamera->focalDistance = 0.8f;
+	context.mainCamera->apertureSize = 0.008f;
+
 	// LIGHTING
 	LightData::Light& light = context.mainContext->lightData->lights[0];
 	
@@ -135,10 +138,10 @@ void Setup::SetupCornellBox()
 	light.position = Vector3(0.0f, 0.9f, 0.8f);
 	light.color = Color::WHITE;
 	light.constantAttenuation = 1.0f;
-	light.quadricAttenuation = 1.0f;
-	light.intensity = 1.0f;
+	light.quadricAttenuation = 0.1f;
+	light.intensity = 2.0f;
 
-	light.enabled = false;
+	light.enabled = true;
 
 	// SKYBOX
 	SixSidedSkybox* skybox = new SixSidedSkybox();
@@ -154,20 +157,20 @@ void Setup::SetupCornellBox()
 
 	// GEOMETRY
 	const bool showBox = true;
-	const bool showLight = true;
+	const bool showLight = false;
 	const bool showSpheres = true;
 	const bool showBunny = false;
 
 	const Color wallWhite = Color(0.725f, 0.71f, 0.68f);
-	const Color wallSpecular = Color::WHITE * 0.1f;
-	const float wallRoughness = 0.6f;
+	const Color wallSpecular = Color::WHITE * 0.01f;
+	const float wallRoughness = 0.8f;
 
 	// Metal
 	//*
 	const Color sphereDiffuse = Color::BLACK;
 	const Color sphereSpecular = Color::WHITE * 0.8f;
 	//const Color sphereSpecular = Color(245, 215, 121); // GOLD
-	const float sphereRoughness = 0.5f;
+	const float sphereRoughness = 0.3f;
 	const float sphereMetallic = 1;
 	const float sphereIor = 1.0f;
 	const bool sphereTranslucent = false;
@@ -333,7 +336,7 @@ void Setup::SetupCornellBox()
 
 		Material* material = new Material();
 		material->emission = Color::WHITE;
-		material->emissionIntensity = 4.0f;
+		material->emissionIntensity = 80.0f;
 
 		/*
 		Mesh* mesh = new Mesh((Mesh::VertexAttributes) (Mesh::VERTEX_POSITION | Mesh::VERTEX_NORMAL));
@@ -353,7 +356,7 @@ void Setup::SetupCornellBox()
 		*/
 
 		AreaLight* areaLight = new AreaLight();
-		areaLight->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 0.2f);
+		areaLight->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 0.05f);
 		areaLight->material = material;
 
 		node->AddComponent(areaLight);
@@ -563,6 +566,14 @@ void Setup::SetupSponza()
 	const Vector3 cameraPosition = Vector3(-124.449127f, 22.0583744f, -3.47746253f);
 	const Vector3 cameraLookAt = Vector3(-123.449951f, 22.0319462f, -3.44655204f);
 	context.mainCamera->SetLookAt(cameraPosition, cameraLookAt, Vector3(0.0f, 1.0f, 0.0));
+
+	// Focus end of hallway
+	//context.mainCamera->focalDistance = 150.0f;
+	//context.mainCamera->apertureSize = 0.50f;
+
+	// Focus halway hallway
+	context.mainCamera->focalDistance = 100.0f;
+	context.mainCamera->apertureSize = 0.30f;
 
 	// LIGHT
 	LightData::Light& light = context.mainContext->lightData->lights[0];
