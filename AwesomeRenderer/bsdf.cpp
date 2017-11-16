@@ -4,7 +4,11 @@
 
 #include "microfacetmaterial.h"
 #include "phongmaterial.h"
+#include "sampler.h"
+#include "texture.h"
 
+#include "rendercontext.h"
+#include "rendertarget.h"
 #include "raycasthit.h"
 
 using namespace AwesomeRenderer;
@@ -28,7 +32,24 @@ Vector3 BSDF::Sample(const Vector3& wo, const Vector3& wi, const Vector3& normal
 		diffuseReflection = diffuse->Sample(wo, wi, normal, hitInfo, material, renderContext);
 	
 	if (specular != NULL && (typeMask & BXDF_SPECULAR) != 0)
+	{
+		MicrofacetMaterial* microfacetMaterial = material.As<MicrofacetMaterial>();
+
+		if (microfacetMaterial != NULL)
+		{
+			Color F0 = microfacetMaterial->specular;
+
+			if (microfacetMaterial->specularMap != NULL)
+				F0 *= microfacetMaterial->specularMap->SampleMipMaps(hitInfo.uv, hitInfo.distance, hitInfo.surfaceAreaToTextureRatio, renderContext.renderTarget->frameBuffer->GetResolution());
+
+			Vector3 h = VectorUtil<3>::Normalize(wo + wi);
+			Vector3 fresnel = Vector3(1.0f, 1.0f, 1.0f) - RenderUtil::FresnelSchlick(VectorUtil<3>::Dot(wo, h), F0.subvector(3));
+
+			diffuseReflection = diffuseReflection * fresnel * (1.0f - microfacetMaterial->metallic);
+		}
+
 		specularReflection = specular->Sample(wo, wi, normal, hitInfo, material, renderContext);
+	}
 
 	return diffuseReflection + specularReflection;
 }

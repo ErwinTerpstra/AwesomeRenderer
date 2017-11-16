@@ -57,8 +57,6 @@ void main()
 
 	radiance += specular.rgb * (lightColor * lightIntensity) *  pow(NdotH, specularColor.a);
 	
-	radiance = diffuse.rgb;
-
 #ifndef OUTPUT_LINEAR
 	// Gamma correct
 	radiance = pow(radiance, vec3(1.0 / GAMMA));
@@ -66,8 +64,11 @@ void main()
 
 	outColor = vec4(radiance, diffuse.a);
 
+	outColor = diffuse;
+
 	//outColor = vec4(specular.rgb, 1.0);
 	
 	//outColor = vec4(texcoord.x, texcoord.y, 0, 1);
-	//outColor = vec4(normal, 1);
+	//outColor = vec4(0.5 + normal * 0.5, 1);
+	//outColor = vec4(0.5 + tbnMtx[0] * 0.5, 1);
 }

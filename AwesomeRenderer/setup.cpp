@@ -568,13 +568,21 @@ void Setup::SetupSponza()
 	context.mainCamera->SetLookAt(cameraPosition, cameraLookAt, Vector3(0.0f, 1.0f, 0.0));
 
 	// Focus end of hallway
-	//context.mainCamera->focalDistance = 150.0f;
-	//context.mainCamera->apertureSize = 0.50f;
+	//context.mainCamera->focalDistance = 180.0f;
+	//context.mainCamera->apertureSize = 0.8f;
 
-	// Focus halway hallway
-	context.mainCamera->focalDistance = 100.0f;
-	context.mainCamera->apertureSize = 0.30f;
+	// Focus halfway hallway
+	//context.mainCamera->focalDistance = 100.0f;
+	//context.mainCamera->apertureSize = 0.30f;
 
+	// Focus ground from balcony
+	//context.mainCamera->focalDistance = 200.0f;
+	//context.mainCamera->apertureSize = 0.45f;
+
+	// Focus balcony corridor
+	context.mainCamera->focalDistance = 50.0f;
+	context.mainCamera->apertureSize = 0.4f;
+	
 	// LIGHT
 	LightData::Light& light = context.mainContext->lightData->lights[0];
 	light.type = LightData::LightType::DIRECTIONAL;
@@ -589,20 +597,42 @@ void Setup::SetupSponza()
 	{
 		// Area light
 		Node* node = new Node();
+		
+		// Center of hallway
+		//Vector3 position(-80.0f, 140.0f, 15.0f);
+		//float size = 6.0f;
+		//float intensity = 600.0f;
+		
+		// High in corner
+		//Vector3 position(-80.0f, 140.0f, 15.0f);
+		//float size = 6.0f;
+		//float intensity = 600.0f;
+
+		// Sun
+		Vector3 position(1000.0f, 3000.0f, 1500.0f);
+		float size = 100.0f;
+		float intensity = 100000.0f;
 
 		Transformation* transform = new Transformation();
-		transform->SetPosition(Vector3(-50.0f, 80.0f, 0.0f));
+		transform->SetPosition(position); 
 		node->AddComponent(transform);
 
 		Material* material = new Material();
 		material->emission = Color(255, 244, 214);
-		material->emissionIntensity = 600.0f;
+		material->emissionIntensity = intensity;
 
 		AreaLight* areaLight = new AreaLight();
-		areaLight->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), 6.0f);
+		areaLight->primitive = new Sphere(Vector3(0.0f, 0.0f, 0.0f), size);
 		areaLight->material = material;
-
 		node->AddComponent(areaLight);
+
+		PhongMaterial* phongMaterial = new PhongMaterial(*(new Material()));
+		phongMaterial->diffuseColor = Color::WHITE;
+
+		Renderable* renderable = new Renderable();
+		renderable->shape = areaLight->primitive;
+		renderable->material = &phongMaterial->provider;
+		node->AddComponent(renderable);
 
 		context.mainContext->nodes.push_back(node);
 		context.mainContext->lightData->areaLights.push_back(areaLight);
@@ -610,14 +640,14 @@ void Setup::SetupSponza()
 
 	// SKYBOX
 	SixSidedSkybox* skybox = new SixSidedSkybox();
-	skybox->right = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0001.bmp");
-	skybox->front = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0002.bmp");
-	skybox->top = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0003.bmp");
-	skybox->left = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0004.bmp");
-	skybox->back = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0005.bmp");
-	skybox->bottom = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0006.bmp");
+	skybox->right = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0001.bmp");
+	skybox->front = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0002.bmp");
+	skybox->top = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0003.bmp");
+	skybox->left = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0004.bmp");
+	skybox->back = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0005.bmp");
+	skybox->bottom = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0006.bmp");
 
-	//context.mainContext->skybox = skybox;
+	context.mainContext->skybox = skybox;
 
 	{
 		// MODEL

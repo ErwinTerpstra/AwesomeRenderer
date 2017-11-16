@@ -251,7 +251,7 @@ void ObjLoader::Load(const char* fileName, Model& model)
 		mesh.CalculateBounds();
 
 		// If the mesh's material has a normal map, calculate tangent space basis vectors
-		PhongMaterial* material = model.materials[cMesh]->As<PhongMaterial>();
+		Material* material = model.materials[cMesh];
 		if (material != NULL && material->normalMap != NULL)
 			mesh.CalculateTangentBasis();
 	}
@@ -416,7 +416,7 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 					// At the moment the last instantiated material overrides the BSDF
 					phongMaterial = new PhongMaterial(*material);
 
-					if (material->name == "floor")
+					if (material->name == "floora")
 					{
 						microfacetMaterial = new MicrofacetMaterial(MicrofacetMaterial::metallicBSDF, *material);
 						microfacetMaterial->metallic = 1.0f;
@@ -478,7 +478,7 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 					if (textureFactory.GetAsset(textureFile, &heightMap))
 					{
 						Texture* normalMap = textureFactory.ConvertHeightMapToNormalMap(heightMap, HEIGHT_MAP_NORMAL_STRENGTH);
-
+						
 						if (!normalMap)
 						{
 							printf("[ObjLoader]: Failed to convert height map to normal map.\n");
@@ -488,10 +488,7 @@ void ObjLoader::LoadMaterialLib(const char* fileName)
 						Sampler* sampler = textureFactory.CreateSampler(normalMap);
 
 						if (sampler)
-						{
-							phongMaterial->normalMap = sampler;
-							microfacetMaterial->normalMap = sampler;
-						}
+							material->normalMap = sampler;
 						else
 							printf("[ObjLoader]: Failed to create sampler for normal map.\n");
 					}

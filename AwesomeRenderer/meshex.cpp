@@ -119,6 +119,31 @@ bool MeshEx::IntersectRay(const Ray& ray, RaycastHit& hitInfo, float maxDistance
 				hitInfo.surfaceAreaToTextureRatio = surfaceArea / texels;
 		}
 
+		if (provider.HasAttribute(Mesh::VERTEX_TANGENTS))
+		{
+			VectorUtil<3>::Interpolate(
+				provider.tangents[vIdx0],
+				provider.tangents[vIdx1],
+				provider.tangents[vIdx2],
+				hitInfo.barycentricCoords, hitInfo.tangent);
+
+			hitInfo.tangent = cml::transform_vector(worldMtx, hitInfo.tangent);
+			hitInfo.tangent.normalize();
+		}
+
+
+		if (provider.HasAttribute(Mesh::VERTEX_BITANGENTS))
+		{
+			VectorUtil<3>::Interpolate(
+				provider.bitangents[vIdx0],
+				provider.bitangents[vIdx1],
+				provider.bitangents[vIdx2],
+				hitInfo.barycentricCoords, hitInfo.bitangent);
+			
+			hitInfo.bitangent = cml::transform_vector(worldMtx, hitInfo.bitangent);
+			hitInfo.bitangent.normalize();
+		}
+
 		hitInfo.point = cml::transform_point(worldMtx, hitInfo.point);
 		hitInfo.normal = cml::transform_vector(worldMtx, hitInfo.normal);
 		hitInfo.normal.normalize();

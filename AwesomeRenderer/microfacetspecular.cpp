@@ -68,7 +68,7 @@ Vector3 MicrofacetSpecular::SpecularCookTorrance(const Vector3& wo, const Vector
 	// Calculate the half vector
 	Vector3 h = cml::normalize(wi + wo);
 
-	Vector3 fresnel = FresnelSchlick(VectorUtil<3>::Dot(wo, h), F0);
+	Vector3 fresnel = RenderUtil::FresnelSchlick(VectorUtil<3>::Dot(wo, h), F0);
 	
 	// Normal distribution
 	float distribution = normalDistribution->Sample(wo, wi, normal, material);

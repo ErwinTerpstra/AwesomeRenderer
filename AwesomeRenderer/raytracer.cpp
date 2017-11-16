@@ -21,6 +21,7 @@
 #include "renderjob.h"
 #include "scheduler.h"
 #include "jobgroup.h"
+#include "sampler.h"
 
 #include "inputmanager.h"
 
@@ -197,19 +198,22 @@ void RayTracer::Render(const Point2& pixel)
 		subPixel[1] += -0.5f + SampleUtil::StratifiedSample(stratificationIndex, SUBPIXEL_STRATIFICATION_SIZE, random);
 
 		// Create a ray from the camera near plane through this pixel
-		Ray centerRay;
-		renderContext->camera->ViewportToRay(pixel, centerRay);
+		Ray ray;
+		renderContext->camera->ViewportToRay(pixel, ray);
 
-		Vector3 focalPoint = centerRay.origin + centerRay.direction * renderContext->camera->focalDistance;
-		
-		Vector2 apertureOffset;
-		SampleUtil::UniformSampleDisc(Vector2(random.NextFloat(), random.NextFloat()), apertureOffset);
+		if (!InputManager::Instance().GetKey('B'))
+		{
+			Vector3 focalPoint = ray.origin + ray.direction * renderContext->camera->focalDistance;
 
-		Vector3 rayOrigin = cml::transform_point(cml::inverse(renderContext->camera->viewMtx), Vector3(apertureOffset[0], apertureOffset[1], 0.0f) * renderContext->camera->apertureSize);
-		Ray primaryRay(rayOrigin, (focalPoint - rayOrigin).normalize());
+			Vector2 apertureOffset;
+			SampleUtil::UniformSampleDisc(Vector2(random.NextFloat(), random.NextFloat()), apertureOffset);
+
+			Vector3 rayOrigin = cml::transform_point(cml::inverse(renderContext->camera->viewMtx), Vector3(apertureOffset[0], apertureOffset[1], 0.0f) * renderContext->camera->apertureSize);
+			ray = Ray(rayOrigin, (focalPoint - rayOrigin).normalize());
+		}
 
 		ShadingInfo shadingInfo;
-		CalculateShading(primaryRay, shadingInfo);
+		CalculateShading(ray, shadingInfo);
 
 		color += shadingInfo.color;
 	}
@@ -246,7 +250,29 @@ bool RayTracer::CalculateShading(const Ray& ray, ShadingInfo& shadingInfo, int d
 
 	const Renderable* renderable = dynamic_cast<const Renderable*>(shadingInfo.hitInfo.element);
 	const Material* material = renderable->material;
+	
+	if (material->normalMap != NULL && !InputManager::Instance().GetKey('N'))
+	{
+		const Vector3& t = shadingInfo.hitInfo.tangent;
+		const Vector3& n = shadingInfo.hitInfo.normal;
+		const Vector3& b = shadingInfo.hitInfo.bitangent;
+
+		Matrix33 tbn(	t[0], t[1], t[2], 
+						b[0], b[1], b[2],
+						n[0], n[1], n[2]);
+
+		Color normalSample;
+		material->normalMap->Sample(shadingInfo.hitInfo.uv, normalSample);
 		
+		Vector3 normal = normalSample.subvector(3) * 2.0f - Vector3(1.0f, 1.0f, 1.0f);
+
+		normal = cml::transform_vector(tbn, normal);
+		normal.normalize();
+
+		shadingInfo.hitInfo.normal = normal;
+		//shadingInfo.hitInfo.normal = shadingInfo.hitInfo.tangent * 0.5f + Vector3(0.5f, 0.5f, 0.5f);
+	}
+
 	shadingInfo.color = Color(currentIntegrator->Li(ray, shadingInfo.hitInfo, *material, *renderContext, depth), 1.0);
 	return TRUE;
 }

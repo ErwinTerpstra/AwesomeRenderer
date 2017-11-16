@@ -158,6 +158,7 @@ Texture* TextureFactory::ConvertHeightMapToNormalMap(const Texture* heightMap, f
 	if (!Allocate(&target))
 		return NULL;
 
+	target->colorSpace = Buffer::LINEAR;
 	target->AllocateAligned(heightMap->width, heightMap->height, heightMap->alignment, Texture::RGB24);
 
 	float s[9];

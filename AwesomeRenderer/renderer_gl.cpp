@@ -312,8 +312,8 @@ void RendererGL::BeginDraw(const Matrix44& model, const Material& material)
 	const PhongMaterial* phongMaterial = material.As<PhongMaterial>();
 
 	TextureGL* diffuseTexture = phongMaterial->diffuseMap != NULL ? phongMaterial->diffuseMap->texture->As<TextureGL>() : NULL;
-	TextureGL* normalTexture = (phongMaterial->normalMap != NULL && !InputManager::Instance().GetKey('N')) ? phongMaterial->normalMap->texture->As<TextureGL>() : NULL;
 	TextureGL* specularTexture = phongMaterial->specularMap != NULL ? phongMaterial->specularMap->texture->As<TextureGL>() : NULL;
+	TextureGL* normalTexture = material.normalMap != NULL && !InputManager::Instance().GetKey('N') ? material.normalMap->texture->As<TextureGL>() : NULL;
 
 	// Select the correct shader branch
 	defaultShader.SetKeyword("USE_NORMAL_MAP", normalTexture != NULL);

@@ -14,7 +14,6 @@ namespace AwesomeRenderer
 
 		Sampler* diffuseMap;
 		Sampler* specularMap;
-		Sampler* normalMap;
 
 		Color diffuseColor;
 		Color specularColor;

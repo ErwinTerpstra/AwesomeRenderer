@@ -34,7 +34,7 @@ Vector3 BlinnPhong::Sample(const Vector3& wo, const Vector3& wi, const Vector3& 
 	//if (NoV == 0.0f || NoL == 0.0f)
 		//return Vector3(0.0f, 0.0f, 0.0f);
 
-	Vector3 fresnel = FresnelSchlick(NoV, specular.subvector(3));
+	Vector3 fresnel = RenderUtil::FresnelSchlick(NoV, specular.subvector(3));
 
 	float e = phongMaterial->shininess;
 

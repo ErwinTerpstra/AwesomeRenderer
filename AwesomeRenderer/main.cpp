@@ -11,8 +11,8 @@
 //#define SCREEN_WIDTH 800
 //#define SCREEN_HEIGHT 600
 
-#define RENDER_WIDTH (SCREEN_WIDTH / SCREEN_SCALE)
-#define RENDER_HEIGHT (SCREEN_HEIGHT / SCREEN_SCALE)
+#define RENDER_WIDTH 1200
+#define RENDER_HEIGHT 800
 
 #define USE_FRAMEBUFFER true
 #define WIN32_DRAWING false
@@ -310,16 +310,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			for (auto materialIt = model->materials.begin(); materialIt != model->materials.end(); ++materialIt)
 			{
 				// TODO: create texture map in base Material class so that this can work on the base class
-				PhongMaterial* material = (*materialIt)->As<PhongMaterial>();
+				Material* material = *materialIt;
+				PhongMaterial* phongMaterial = material->As<PhongMaterial>();
 
-				if (material == NULL)
+				if (phongMaterial == NULL)
 					continue;
 
 				TextureGL* texture;
 
-				if (material->diffuseMap != NULL)
+				if (phongMaterial->diffuseMap != NULL)
 				{
-					texture = new TextureGL(*material->diffuseMap->texture);
+					texture = new TextureGL(*phongMaterial->diffuseMap->texture);
+					texture->Create();
+					texture->Load();
+				}
+
+				if (phongMaterial->specularMap != NULL)
+				{
+					texture = new TextureGL(*phongMaterial->specularMap->texture);
 					texture->Create();
 					texture->Load();
 				}
@@ -327,13 +335,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				if (material->normalMap != NULL)
 				{
 					texture = new TextureGL(*material->normalMap->texture);
-					texture->Create();
-					texture->Load();
-				}
-
-				if (material->specularMap != NULL)
-				{
-					texture = new TextureGL(*material->specularMap->texture);
 					texture->Create();
 					texture->Load();
 				}

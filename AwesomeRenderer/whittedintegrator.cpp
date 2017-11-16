@@ -37,7 +37,7 @@ Vector3 WhittedIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, const M
 			{
 				Vector3 refraction = SampleRefraction(ray, hitInfo, material, context, depth);
 
-				float fresnel = Fresnel(ray.direction, hitInfo.normal, material.ior);
+				float fresnel = RenderUtil::Fresnel(ray.direction, hitInfo.normal, material.ior);
 				radiance += reflection * fresnel + refraction * (1.0f - fresnel);
 			}
 			else
@@ -108,28 +108,4 @@ Vector3 WhittedIntegrator::SampleRefraction(const Ray& ray, const RaycastHit& hi
 	rayTracer.CalculateShading(refractionRay, refractionShading, depth + 1);
 
 	return refractionShading.color.subvector(3);
-}
-
-float WhittedIntegrator::Fresnel(const Vector3& v, const Vector3& normal, float ior) const
-{
-	float cosi = VectorUtil<3>::Dot(v, normal);
-	float etai = 1, etat = ior;
-
-	if (cosi > 0)
-		std::swap(etai, etat);
-
-	// Compute sini using Snell's law
-	float sint = etai / etat * sqrtf(std::max(0.f, 1 - cosi * cosi));
-
-	// Total internal reflection
-	if (sint >= 1)
-		return 1.0f;
-
-	float cost = sqrtf(std::max(0.f, 1 - sint * sint));
-	cosi = fabsf(cosi);
-
-	float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
-	float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
-
-	return (Rs * Rs + Rp * Rp) / 2;
 }

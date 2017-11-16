@@ -21,6 +21,8 @@ namespace AwesomeRenderer
 
 		std::string name;
 
+		Sampler* normalMap;
+
 		bool translucent;
 
 		float ior;

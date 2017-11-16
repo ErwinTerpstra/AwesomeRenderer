@@ -629,5 +629,8 @@
     <ClInclude Include="colorutil.h">
       <Filter>Source\Util</Filter>
     </ClInclude>
+    <ClInclude Include="renderutil.h">
+      <Filter>Source\Util</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

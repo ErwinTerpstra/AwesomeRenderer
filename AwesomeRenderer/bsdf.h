@@ -37,12 +37,6 @@ namespace AwesomeRenderer
 			void GenerateSampleVector(const Vector2& r, const Vector3& wo, const Vector3& normal, const Material& material, Vector3& wi) const;
 			float CalculatePDF(const Vector3& wo, const Vector3& wi, const Vector3& normal, const Material& material) const;
 
-		public:
-			template<typename T>
-			static T FresnelSchlick(float cosT, T F0)
-			{
-				return F0 + (1.0f - F0) * pow(1 - cosT, 5);
-			};
 		};
 	}
 }

@@ -56,7 +56,8 @@ Vector3 MonteCarloIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, cons
 		Color albedo = Lambert::SampleAlbedo(hitInfo, material, renderContext);
 
 		// Create a 'refraction' ray, which actually just passes through the surface
-		Ray refractionRay(hitInfo.point + ray.direction *1e-3f, ray.direction);
+		// Note: this is quite a bit epsilon value to add to the origin. This is to prevent infinitely hitting the same surface
+		Ray refractionRay(hitInfo.point + ray.direction * 0.05f, ray.direction);
 		ShadingInfo refractionShading;
 		rayTracer.CalculateShading(refractionRay, refractionShading, depth);
 
