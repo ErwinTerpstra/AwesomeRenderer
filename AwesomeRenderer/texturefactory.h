@@ -57,6 +57,8 @@ namespace AwesomeRenderer
 
 		void WriteBMP(const std::string& fileName, const Buffer& buffer) const;
 
+		bool LoadRAW(const std::string& fileName, Buffer& buffer) const;
+
 	protected:
 
 		bool Instantiate(Texture** instance) const;

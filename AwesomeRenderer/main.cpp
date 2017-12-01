@@ -287,6 +287,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	RayTracerDebug rayTracerDebug(context, rayTracer);
 	rayTracerDebug.Setup();
 
+	// Export previous render
+	//textureFactory.LoadRAW("../Renders/previous.raw", frameBuffer);
+	//rayTracerDebug.Export();
+
 	// Convert all meshes to OpenGL meshes
 	std::vector<RenderContext*> contexts = { &mainContext };
 	

@@ -56,11 +56,11 @@ namespace AwesomeRenderer
 			void Setup();
 			void Update(float dt);
 
+			void Export();
+
 		private:
 			void SetupDebugDisplay();
 			void UpdateDebugDisplay();
-
-			void Export();
 
 			std::string FormatTime(float time);
 		};

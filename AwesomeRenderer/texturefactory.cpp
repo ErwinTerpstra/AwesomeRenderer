@@ -18,6 +18,32 @@ bool TextureFactory::Instantiate(Texture** instance) const
 	return true;
 }
 
+
+bool TextureFactory::LoadRAW(const std::string& fileName, Buffer& buffer) const
+{
+	// TODO: Move binary reading of file to FileReader class
+	FILE* filePtr;
+
+	// Open filename in read binary mode 
+	errno_t result = fopen_s(&filePtr, fileName.c_str(), "rb");
+
+	if (result != 0)
+	{
+		printf("[TextureFactory]: Failed to open file \"%s\". Error code: %d\n", fileName.c_str(), result);
+		return false;
+	}
+
+	uchar* destination = buffer.GetBase(0, 0);
+	int readBytes = fread(destination, 1, buffer.size, filePtr);
+
+	if (readBytes < buffer.size)
+		printf("[TextureFactory]: Warning! File only contained %d bytes of the %u bytes the buffer expects\n", readBytes, buffer.size);
+
+	fclose(filePtr);
+
+	return true;
+}
+
 bool TextureFactory::LoadBmp(const std::string& fileName, Texture** texture) const
 {
 	(*texture)->Destroy();
