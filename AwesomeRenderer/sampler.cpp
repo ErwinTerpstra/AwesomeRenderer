@@ -61,11 +61,11 @@ Color Sampler::Sample(const Vector2& uv, float mipLevel) const
 	{
 		case SM_POINT:
 		case SM_BILINEAR:
-			Sample(uv, sample, floor(mipLevel));
+			Sample(uv, sample, (uint32_t) floor(mipLevel));
 			break;
 
 		case SM_TRILINEAR:
-			uint32_t intMipLevel = mipLevel;
+			uint32_t intMipLevel = (uint32_t) mipLevel;
 			float fractMipLevel = mipLevel - intMipLevel;
 
 			Color samples[2];
@@ -86,7 +86,7 @@ Color Sampler::SampleMipMaps(const Vector2& uv, float distance, double surfaceAr
 	float textureToScreenRatio = textureResolution / screenResolution;
 
 	//float log2IdealDistance = 0.5f * log2(surfaceAreaToTextureRatio  / textureToScreenRatio);
-	float log2IdealDistance = log2(surfaceAreaToTextureRatio / textureToScreenRatio);
+	float log2IdealDistance = (float) log2(surfaceAreaToTextureRatio / textureToScreenRatio);
 
 	float mipLevel = log2(distance) - log2IdealDistance;
 

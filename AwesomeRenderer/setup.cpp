@@ -734,7 +734,7 @@ void Setup::SetupFractal()
 			{
 				Node* node = new Node();
 
-				Vector3 p(x, y, z);
+				Vector3 p((float) x, (float)y, (float)z);
 				Vector3 v(0.0f, 0.0f, 0.0f);
 
 				uint32_t iteration;

@@ -63,8 +63,8 @@ void RayTracer::SetRenderContext(const RenderContext* context)
 
 	Texture* frameBuffer = context->renderTarget->frameBuffer;
 	
-	uint32_t horizontalTiles = ceil(frameBuffer->width / (float)TILE_SIZE);
-	uint32_t verticalTiles = ceil(frameBuffer->height / (float)TILE_SIZE);
+	uint32_t horizontalTiles = (uint32_t) ceil(frameBuffer->width / (float)TILE_SIZE);
+	uint32_t verticalTiles = (uint32_t) ceil(frameBuffer->height / (float)TILE_SIZE);
 
 	for (uint32_t verticalTile = 0; verticalTile < verticalTiles; ++verticalTile)
 	{
@@ -187,7 +187,7 @@ void RayTracer::Render(const Point2& pixel)
 	Color color;
 	frameBuffer->GetPixel(pixel[0], pixel[1], color);
 
-	color *= renderedSamples;
+	color *= (float) renderedSamples;
 
 	for (uint32_t sample = 0; sample < samplesPerPixel; ++sample)
 	{

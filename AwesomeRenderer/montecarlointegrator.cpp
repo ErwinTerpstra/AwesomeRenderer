@@ -39,7 +39,7 @@ Vector3 MonteCarloIntegrator::Li(const Ray& ray, const RaycastHit& hitInfo, cons
 		if (!renderContext.lightData->areaLights.empty())
 		{
 			// Select light
-			for (int lightIdx = 0; lightIdx < renderContext.lightData->areaLights.size(); ++lightIdx)
+			for (uint32_t lightIdx = 0; lightIdx < renderContext.lightData->areaLights.size(); ++lightIdx)
 			{
 				const AreaLight* light = renderContext.lightData->areaLights[lightIdx];
 				radiance += SampleAreaLight(*light, hitInfo.point, -ray.direction, hitInfo.normal, hitInfo, material);
