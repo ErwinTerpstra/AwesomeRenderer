@@ -3,12 +3,14 @@
 #include "texturefactory.h"
 #include "memorybufferallocator.h"
 #include "sampler.h"
+#include "lodepng\lodepng.h"
 
 using namespace AwesomeRenderer;
 
 TextureFactory::TextureFactory()
 {
-	AddLoadFunction("bmp", &TextureFactory::LoadBmp);
+	AddLoadFunction("bmp", &TextureFactory::LoadBMP);
+	AddLoadFunction("png", &TextureFactory::LoadPNG);
 }
 
 bool TextureFactory::Instantiate(Texture** instance) const
@@ -44,7 +46,7 @@ bool TextureFactory::LoadRAW(const std::string& fileName, Buffer& buffer) const
 	return true;
 }
 
-bool TextureFactory::LoadBmp(const std::string& fileName, Texture** texture) const
+bool TextureFactory::LoadBMP(const std::string& fileName, Texture** texture) const
 {
 	(*texture)->Destroy();
 		
@@ -115,10 +117,52 @@ bool TextureFactory::LoadBmp(const std::string& fileName, Texture** texture) con
 	
 	assert(bytesRead == (*texture)->size);
 
-	printf("[TextureFactory]: Loaded \"%s\" with %d bytes\n", fileName.c_str(), bytesRead);
+	printf("[TextureFactory]: Loaded BMP \"%s\" with %d bytes\n", fileName.c_str(), bytesRead);
 
 	fclose(filePtr);
 		
+	return true;
+}
+
+bool TextureFactory::LoadPNG(const std::string& fileName, Texture** texture) const
+{
+	(*texture)->Destroy();
+
+	// Load the file from disk
+	// TODO: implement binary file reader
+	std::vector<uchar> png;
+	uint32_t error = lodepng::load_file(png, fileName);
+
+	// Decode the PNG
+	lodepng::State state; //optionally customize this one
+
+	std::vector<uchar> image;
+	uint32_t width, height;
+
+	if (!error)
+		error = lodepng::decode(image, width, height, state, png);
+
+	// Handle errors
+	if (error)
+	{
+		printf("[TextureFactory]: Error while loading PNG (%d): %s\n", error, lodepng_error_text(error));
+		return false;
+	}
+
+	// Allocate memory for the texture
+	Buffer::Encoding encoding = Buffer::RGBA32;
+	(*texture)->Allocate(width, height, encoding);
+
+	// Copy the image to the texture, since PNG rows to top to bottom, instead of bottom to top, reverse the row order
+	uchar* src = &image[0];
+	uchar* dst = (*texture)->data;
+	uint32_t stride = (*texture)->stride;
+
+	for (uint32_t y = 0; y < height; ++y)
+		memcpy(dst + (height - 1 - y) * stride, src + y * stride, stride);
+
+	printf("[TextureFactory]: Loaded PNG \"%s\" with %d bytes\n", fileName.c_str(), png.size());
+
 	return true;
 }
 

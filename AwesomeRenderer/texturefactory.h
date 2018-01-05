@@ -62,7 +62,8 @@ namespace AwesomeRenderer
 	protected:
 
 		bool Instantiate(Texture** instance) const;
-		bool LoadBmp(const std::string& fileName, Texture** texture) const;
+		bool LoadBMP(const std::string& fileName, Texture** texture) const;
+		bool LoadPNG(const std::string& fileName, Texture** texture) const;
 
 		void PostProcessAsset(Texture* instance);
 	};

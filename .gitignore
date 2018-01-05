@@ -10,3 +10,5 @@ ipch/
 *.opendb
 Renders/
 FastDebug/
+*.vspx
+UpgradeLog.htm

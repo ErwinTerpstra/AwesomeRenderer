@@ -73,6 +73,9 @@
     <Filter Include="Source\Renderer\RayTracing\BSDF\Microfacet">
       <UniqueIdentifier>{3de32b15-ef39-4713-899c-1f5f160aaf36}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lodepng">
+      <UniqueIdentifier>{117f22e5-6de8-4d46-9381-6795857416f7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -314,6 +317,9 @@
     </ClCompile>
     <ClCompile Include="microfacetmaterial.cpp">
       <Filter>Source\Renderer\Shading\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="lodepng\lodepng.cpp">
+      <Filter>lodepng</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -631,6 +637,9 @@
     </ClInclude>
     <ClInclude Include="renderutil.h">
       <Filter>Source\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="lodepng\lodepng.h">
+      <Filter>lodepng</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
