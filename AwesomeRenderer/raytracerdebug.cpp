@@ -245,16 +245,16 @@ std::string RayTracerDebug::FormatTime(float time)
 	const uint32_t minute = 60;
 	const uint32_t hour = minute * 60;
 
-	uint32_t frameHours = std::floor(time / hour);
+	uint32_t frameHours = (uint32_t) std::floor(time / hour);
 	time -= frameHours * hour;
 
-	uint32_t frameMinutes = std::floor(time / minute);
+	uint32_t frameMinutes = (uint32_t)std::floor(time / minute);
 	time -= frameMinutes * minute;
 
-	uint32_t frameSeconds = std::floor(time);
+	uint32_t frameSeconds = (uint32_t)std::floor(time);
 	time -= frameSeconds;
 
-	uint32_t frameMillis = time * 1000;
+	uint32_t frameMillis = (uint32_t) (time * 1000);
 
 	sprintf(textBuffer, "%u:%02u:%02u", frameHours, frameMinutes, frameSeconds);
 

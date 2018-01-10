@@ -76,6 +76,9 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{7a8e3932-6f57-4497-9dce-0870a4a61fcd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lodepng">
+      <UniqueIdentifier>{117f22e5-6de8-4d46-9381-6795857416f7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -326,6 +329,9 @@
     </ClCompile>
     <ClCompile Include="imgui\imgui_draw.cpp">
       <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="lodepng\lodepng.cpp">
+      <Filter>lodepng</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -661,6 +667,9 @@
     </ClInclude>
     <ClInclude Include="imgui\stb_truetype.h">
       <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="lodepng\lodepng.h">
+      <Filter>lodepng</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

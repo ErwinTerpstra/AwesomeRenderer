@@ -144,6 +144,7 @@
     <ClCompile Include="imgui\imgui_draw.cpp" />
     <ClCompile Include="lambert.cpp" />
     <ClCompile Include="lightdata.cpp" />
+    <ClCompile Include="lodepng\lodepng.cpp" />
     <ClCompile Include="microfacetdistribution.cpp" />
     <ClCompile Include="microfacetspecular.cpp" />
     <ClCompile Include="montecarlointegrator.cpp" />
@@ -242,6 +243,7 @@
     <ClInclude Include="kdtreenode.h" />
     <ClInclude Include="lambert.h" />
     <ClInclude Include="lightdata.h" />
+    <ClInclude Include="lodepng\lodepng.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="microfacetdistribution.h" />
     <ClInclude Include="microfacetspecular.h" />

@@ -24,7 +24,7 @@ namespace AwesomeRenderer
 			static float ShininessToRoughness(float shininess)
 			{
 				// Brian karis' method
-				return powf(2.0f / (shininess + 2.0), 1.0f / 3.0f);
+				return powf(2.0f / (shininess + 2.0f), 1.0f / 3.0f);
 			}
 
 

@@ -136,7 +136,7 @@ int main()
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	srand(time(0));
+	srand((uint32_t) time(0));
 	
 	// Open window
 	printf("[AwesomeRenderer]: Creating Win32 window...\n");

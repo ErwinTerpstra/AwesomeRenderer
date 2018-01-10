@@ -145,12 +145,12 @@ void Setup::SetupCornellBox()
 
 	// SKYBOX
 	SixSidedSkybox* skybox = new SixSidedSkybox();
-	skybox->right = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0001.bmp");
-	skybox->front = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0002.bmp");
-	skybox->top = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0003.bmp");
-	skybox->left = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0004.bmp");
-	skybox->back = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0005.bmp");
-	skybox->bottom = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0006.bmp");
+	skybox->right = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0001.png");
+	skybox->front = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0002.png");
+	skybox->top = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0003.png");
+	skybox->left = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0004.png");
+	skybox->back = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0005.png");
+	skybox->bottom = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0006.png");
 
 	//context.mainContext->skybox = skybox;
 
@@ -502,12 +502,12 @@ void Setup::SetupSpheres()
 	*/
 
 	SixSidedSkybox* skybox = new SixSidedSkybox();
-	skybox->right = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0001.bmp");
-	skybox->front = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0002.bmp");
-	skybox->top = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0003.bmp");
-	skybox->left = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0004.bmp");
-	skybox->back = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0005.bmp");
-	skybox->bottom = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0006.bmp");
+	skybox->right = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0001.png");
+	skybox->front = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0002.png");
+	skybox->top = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0003.png");
+	skybox->left = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0004.png");
+	skybox->back = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0005.png");
+	skybox->bottom = context.textureFactory->GetTexture("../Assets/Skyboxes/sun5deg/skyrender0006.png");
 
 	context.mainContext->skybox = skybox;
 
@@ -640,12 +640,12 @@ void Setup::SetupSponza()
 
 	// SKYBOX
 	SixSidedSkybox* skybox = new SixSidedSkybox();
-	skybox->right = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0001.bmp");
-	skybox->front = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0002.bmp");
-	skybox->top = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0003.bmp");
-	skybox->left = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0004.bmp");
-	skybox->back = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0005.bmp");
-	skybox->bottom = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0006.bmp");
+	skybox->right = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0001.png");
+	skybox->front = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0002.png");
+	skybox->top = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0003.png");
+	skybox->left = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0004.png");
+	skybox->back = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0005.png");
+	skybox->bottom = context.textureFactory->GetTexture("../Assets/Skyboxes/sun25deg/skyrender0006.png");
 
 	context.mainContext->skybox = skybox;
 
@@ -737,7 +737,7 @@ void Setup::SetupFractal()
 			{
 				Node* node = new Node();
 
-				Vector3 p(x, y, z);
+				Vector3 p((float) x, (float)y, (float)z);
 				Vector3 v(0.0f, 0.0f, 0.0f);
 
 				uint32_t iteration;

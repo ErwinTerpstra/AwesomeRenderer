@@ -30,6 +30,6 @@
 #include <GL/wglew.h>
 
 // CML
-#include <cml/cml.h>
+#include "cml/cml.h"
 
 #endif

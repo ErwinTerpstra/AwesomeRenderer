@@ -2,6 +2,7 @@
 *.opensdf
 AwesomeRenderer/Debug/
 AwesomeRenderer/Release/
+AwesomeRenderer/imgui/examples/
 Debug/
 Release/
 *.sdf
@@ -10,4 +11,6 @@ ipch/
 *.opendb
 Renders/
 FastDebug/
-AwesomeRenderer/imgui/examples/
+*.vspx
+UpgradeLog.htm
+*.user

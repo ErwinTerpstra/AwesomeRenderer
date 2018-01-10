@@ -278,8 +278,8 @@ void SoftwareRenderer::DrawTriangle(const SoftwareShader::VertexInfo* vertexBuff
 		// The vertices that are outside the frusum
 		uint8_t others[] =
 		{
-			(sharedVertex + 1) % 3,
-			(sharedVertex + 2) % 3
+			(sharedVertex + 1) % 3U,
+			(sharedVertex + 2) % 3U
 		};
 
 		for (uint8_t cVertex = 0; cVertex < 2; ++cVertex)

@@ -32,7 +32,7 @@ bool ShaderGL::Compile(const char** source, int amount)
 
 		printf("[ShaderGL]: Source:\n");
 
-		for (uint32_t sourceIdx = 0; sourceIdx < amount; ++sourceIdx)
+		for (int sourceIdx = 0; sourceIdx < amount; ++sourceIdx)
 			printf(source[amount]);
 
 		return FALSE;
