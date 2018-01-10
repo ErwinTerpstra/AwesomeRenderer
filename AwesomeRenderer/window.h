@@ -31,6 +31,8 @@ namespace AwesomeRenderer
 
 		const char* className;
 
+		bool hasFocus;
+
 	public:
 
 		Window(HINSTANCE instance, const char* className, bool createClass = true);
@@ -45,6 +47,8 @@ namespace AwesomeRenderer
 		void DrawBuffer(const Buffer& buffer, const GDIBufferAllocator& allocator) const;
 
 		LRESULT CALLBACK MessageCallback(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+		bool HasFocus() const { return hasFocus; }
 
 	private:
 		

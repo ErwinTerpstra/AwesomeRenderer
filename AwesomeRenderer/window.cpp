@@ -135,6 +135,14 @@ LRESULT CALLBACK Window::MessageCallback(HWND hWnd, UINT msg, WPARAM wParam, LPA
 			inputManager.KeyUp(wParam);
 			break;
 
+		case WM_SETFOCUS:
+			hasFocus = true;
+			break;
+
+		case WM_KILLFOCUS:
+			hasFocus = false;
+			break;
+
 		default:
 			return DefWindowProc(hWnd, msg, wParam, lParam);
 	}

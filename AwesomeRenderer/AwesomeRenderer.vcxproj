@@ -137,6 +137,7 @@
     <ClCompile Include="bxdf.cpp" />
     <ClCompile Include="cameracontroller.cpp" />
     <ClCompile Include="components.cpp" />
+    <ClCompile Include="debugdisplay.cpp" />
     <ClCompile Include="debugintegrator.cpp" />
     <ClCompile Include="ggxdistribution.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
@@ -229,6 +230,7 @@
     <ClInclude Include="component.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="context.h" />
+    <ClInclude Include="debugdisplay.h" />
     <ClInclude Include="debugintegrator.h" />
     <ClInclude Include="extensionprovider.h" />
     <ClInclude Include="extension.h" />

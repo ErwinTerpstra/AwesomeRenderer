@@ -1,5 +1,3 @@
-
-
 #define SCREEN_SCALE 1
 
 #define SCREEN_WIDTH 960
@@ -125,6 +123,9 @@
 
 #include "context.h"
 #include "setup.h"
+
+// Debug
+#include "debugdisplay.h"
 
 using namespace AwesomeRenderer;
 using namespace AwesomeRenderer::RayTracing;
@@ -270,6 +271,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	timer.Tick();
 	
 	Context context;
+	context.window = &window;
+
 	context.mainCamera = &camera;
 	context.mainContext = &mainContext;
 
@@ -294,6 +297,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Debug
 	RayTracerDebug rayTracerDebug(context, rayTracer);
 	rayTracerDebug.Setup();
+	
+	DebugDisplay debugDisplay(context, hudContext);
 
 	// Export previous render
 	//textureFactory.LoadRAW("../Renders/previous.raw", frameBuffer);
@@ -317,7 +322,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			for (auto meshIt = model->meshes.begin(); meshIt != model->meshes.end(); ++meshIt)
 			{
 				MeshGL* meshGL = new MeshGL(**meshIt);
-				meshGL->CreateBuffers();
+				meshGL->Allocate();
+				meshGL->Apply();
 			}
 
 			for (auto materialIt = model->materials.begin(); materialIt != model->materials.end(); ++materialIt)
@@ -430,12 +436,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		windowBuffer.Blit(frameBufferSampler);
 #endif
 		
-		if (inputManager.GetKey('H'))
-		{
-			hudContext.Update();
-			softwareRenderer.SetRenderContext(&hudContext);
-			softwareRenderer.Render();
-		}
+		//debugDisplay.Update(timingInfo.elapsedSeconds);
+		hudContext.Update();
+
+		rendererGL.SetRenderContext(&hudContext);
+		rendererGL.Render();
 
 #if !WIN32_DRAWING
 

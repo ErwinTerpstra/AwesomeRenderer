@@ -79,6 +79,9 @@
     <Filter Include="lodepng">
       <UniqueIdentifier>{117f22e5-6de8-4d46-9381-6795857416f7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Debug">
+      <UniqueIdentifier>{db60f36c-cc96-475c-baea-e08f2dda7605}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -333,6 +336,9 @@
     <ClCompile Include="lodepng\lodepng.cpp">
       <Filter>lodepng</Filter>
     </ClCompile>
+    <ClCompile Include="debugdisplay.cpp">
+      <Filter>Source\Debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h">
@@ -442,9 +448,6 @@
     </ClInclude>
     <ClInclude Include="factory.h">
       <Filter>Source\Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="debug.h">
-      <Filter>Source\Core</Filter>
     </ClInclude>
     <ClInclude Include="phongshader.h">
       <Filter>Source\Renderer\SoftwareRendering\SoftwareShaders</Filter>
@@ -670,6 +673,12 @@
     </ClInclude>
     <ClInclude Include="lodepng\lodepng.h">
       <Filter>lodepng</Filter>
+    </ClInclude>
+    <ClInclude Include="debug.h">
+      <Filter>Source\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="debugdisplay.h">
+      <Filter>Source\Debug</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

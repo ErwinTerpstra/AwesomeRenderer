@@ -31,7 +31,8 @@ namespace AwesomeRenderer
 
 		MeshGL(Mesh& mesh);
 
-		void CreateBuffers();
+		void Allocate();
+		void Apply();
 
 		static uint32_t ExtensionID() { return Mesh::MESH_GL; }
 

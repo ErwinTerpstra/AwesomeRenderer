@@ -60,7 +60,7 @@ namespace AwesomeRenderer
 		void CalculateBounds();
 		void CalculateTangentBasis();
 
-		__inline bool HasAttribute(VertexAttributes attribute) const { return (this->attributes & attribute) != 0; }
+		AR_FORCE_INLINE bool HasAttribute(VertexAttributes attribute) const { return (this->attributes & attribute) != 0; }
 
 		void AddTri(const Vector3& a, const Vector3& b, const Vector3& c);
 		void AddQuad(const Vector3& a, const Vector3& b, const Vector3& c, const Vector3& d);

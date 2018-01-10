@@ -8,11 +8,14 @@ namespace AwesomeRenderer
 	class ObjLoader;
 	class TextureFactory;
 	class Camera;
+	class Window;
 
 	class Context
 	{
 
 	public:
+		Window* window;
+
 		RenderContext* mainContext;
 		RenderContext* hudContext;
 

@@ -14,7 +14,6 @@ using namespace AwesomeRenderer;
 WindowGL::WindowGL(Window& window) : Extension(window)
 {
 	deviceContext = GetDC(window.handle);
-
 }
 
 WindowGL::~WindowGL()
