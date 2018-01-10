@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "phongshader.h"
 #include "sampler.h"
 #include "material.h"

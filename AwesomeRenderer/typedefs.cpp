@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "typedefs.h"
 
 using namespace AwesomeRenderer;

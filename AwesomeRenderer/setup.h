@@ -9,9 +9,11 @@ namespace AwesomeRenderer
 	{
 	private:
 		Context& context;
+		
+		bool calculateExtendedMeshData;
 
 	public:
-		Setup(Context& context);
+		Setup(Context& context, bool calculateExtendedMeshData);
 
 		void SetupScene();
 		void SetupLighting();

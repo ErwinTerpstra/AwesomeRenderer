@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "softwareshader.h"
 
 using namespace AwesomeRenderer;

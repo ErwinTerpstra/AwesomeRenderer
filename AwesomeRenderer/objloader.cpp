@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "awesomerenderer.h"
 #include "objloader.h"
 #include "texturefactory.h"

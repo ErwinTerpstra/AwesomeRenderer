@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "microfacetdistribution.h"
 
 using namespace AwesomeRenderer;

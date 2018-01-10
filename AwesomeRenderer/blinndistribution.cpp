@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "blinndistribution.h"
 #include "microfacetmaterial.h"
 

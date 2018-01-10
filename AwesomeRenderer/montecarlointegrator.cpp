@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "montecarlointegrator.h"
 
 #include "raytracer.h"

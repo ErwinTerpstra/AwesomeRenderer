@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "awesomerenderer.h"
 #include "meshex.h"
 #include "mesh.h"
@@ -36,8 +36,6 @@ MeshEx::MeshEx(Mesh& mesh) : Extension(mesh), tree(20), worldMtx(), world2object
 		// TODO: These references break if the vector decides to resize. Use simple array?
 		tree.elements.push_back(&triangles.back());
 	}
-
-	//tree.elements.insert(tree.elements.end(), triangles.begin(), triangles.end());
 }
 
 MeshEx::~MeshEx()

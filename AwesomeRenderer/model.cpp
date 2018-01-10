@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "awesomerenderer.h"
 #include "model.h"
 #include "mesh.h"

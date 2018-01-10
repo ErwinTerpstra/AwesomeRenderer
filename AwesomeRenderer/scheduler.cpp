@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "scheduler.h"
 
 #include "workerthread.h"

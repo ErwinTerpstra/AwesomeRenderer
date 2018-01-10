@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "lambert.h"
 
 #include "material.h"

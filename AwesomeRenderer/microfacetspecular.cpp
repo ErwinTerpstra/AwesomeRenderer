@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "microfacetspecular.h"
 #include "microfacetdistribution.h"
 

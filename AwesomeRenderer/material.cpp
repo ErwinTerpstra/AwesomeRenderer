@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "material.h"
 
 using namespace AwesomeRenderer;

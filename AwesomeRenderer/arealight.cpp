@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 
 #include "arealight.h"
 #include "shape.h"

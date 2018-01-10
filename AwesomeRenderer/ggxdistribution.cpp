@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "ggxdistribution.h"
 #include "microfacetmaterial.h"
 

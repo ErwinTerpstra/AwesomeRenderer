@@ -64,8 +64,6 @@ void main()
 
 	outColor = vec4(radiance, diffuse.a);
 
-	outColor = diffuse;
-
 	//outColor = vec4(specular.rgb, 1.0);
 	
 	//outColor = vec4(texcoord.x, texcoord.y, 0, 1);

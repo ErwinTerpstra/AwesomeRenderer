@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "awesomerenderer.h"
 
 using namespace AwesomeRenderer;

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 
 #define SCREEN_SCALE 1
 
@@ -11,11 +11,13 @@
 //#define SCREEN_WIDTH 800
 //#define SCREEN_HEIGHT 600
 
-#define RENDER_WIDTH 1200
-#define RENDER_HEIGHT 800
+#define RENDER_WIDTH (SCREEN_WIDTH / SCREEN_SCALE)
+#define RENDER_HEIGHT (SCREEN_HEIGHT / SCREEN_SCALE)
 
-#define USE_FRAMEBUFFER true
+#define USE_FRAMEBUFFER false
 #define WIN32_DRAWING false
+
+#define GENERATE_EXTENDED_MESH_DATA false
 
 #include <stdio.h>
 #include <io.h>
@@ -176,6 +178,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	RenderTargetGL renderTargetGL(renderTarget);
 	renderTargetGL.Load();
+#else
+	Texture frameBuffer(new MemoryBufferAllocator(), Buffer::GAMMA);
+	frameBuffer.Allocate(RENDER_WIDTH, RENDER_HEIGHT, Buffer::BGR24);
+
+	renderTarget.SetupBuffers(&frameBuffer, &depthBuffer);
+
 #endif
 
 #if WIN32_DRAWING
@@ -271,7 +279,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	context.objLoader = &objLoader;
 	context.textureFactory = &textureFactory;
 
-	Setup setup(context);
+	Setup setup(context, GENERATE_EXTENDED_MESH_DATA);
 	setup.SetupLighting();
 	setup.SetupScene();
 	//setup.SetupCornellBox();
@@ -292,6 +300,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//rayTracerDebug.Export();
 
 	// Convert all meshes to OpenGL meshes
+	printf("[AwesomeRenderer]: Loading meshes and textures to GL...\n");
 	std::vector<RenderContext*> contexts = { &mainContext };
 	
 	for (uint32_t contextIdx = 0; contextIdx < contexts.size(); ++contextIdx)
@@ -346,7 +355,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 	}
 
+#if GENERATE_EXTENDED_MESH_DATA
+	printf("[AwesomeRenderer]: Optimizing main KD tree!\n");
+
 	mainContext.Optimize();
+#endif
 
 	window.Show(nCmdShow);
 

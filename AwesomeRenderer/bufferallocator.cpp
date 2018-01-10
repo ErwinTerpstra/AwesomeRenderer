@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "bufferallocator.h"
 
 #include "buffer.h"

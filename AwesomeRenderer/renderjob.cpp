@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 
 #include "raytracer.h"
 #include "renderjob.h"

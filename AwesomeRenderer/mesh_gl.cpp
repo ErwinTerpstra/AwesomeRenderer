@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "awesomerenderer.h"
 #include "mesh_gl.h"
 #include "util_gl.h"
@@ -12,11 +12,7 @@ MeshGL::MeshGL(Mesh& mesh) : Extension(mesh)
 
 void MeshGL::CreateBuffers()
 {
-	if (glGenVertexArrays == NULL || glBindVertexArray == NULL)
-	{
-		printf("[MeshGL]: No support for vertex arrays!\n");
-		return;
-	}
+	assert(glGenVertexArrays != NULL && glBindVertexArray != NULL);
 
 	// Create and bind Vertex Array Object
 	glGenVertexArrays(1, &vertexArray);

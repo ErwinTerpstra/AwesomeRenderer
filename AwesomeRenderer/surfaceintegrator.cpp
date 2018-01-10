@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "surfaceintegrator.h"
 #include "ray.h"
 #include "raycasthit.h"

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+
 #include "setup.h"
 
 #include "awesomerenderer.h"
@@ -59,7 +59,7 @@
 
 using namespace AwesomeRenderer;
 
-Setup::Setup(Context& context) : context(context)
+Setup::Setup(Context& context, bool calculateExtendedMeshData) : context(context), calculateExtendedMeshData(calculateExtendedMeshData)
 {
 
 }
@@ -662,20 +662,23 @@ void Setup::SetupSponza()
 
 		context.objLoader->Load("../Assets/CrytekSponza/sponza.obj", *model);
 
-		ModelEx* modelEx = new ModelEx(*model);
-		for (uint32_t meshIdx = 0; meshIdx < modelEx->meshes.size(); ++meshIdx)
+		if (calculateExtendedMeshData)
 		{
-			Node* meshNode = new Node();
+			ModelEx* modelEx = new ModelEx(*model);
+			for (uint32_t meshIdx = 0; meshIdx < modelEx->meshes.size(); ++meshIdx)
+			{
+				Node* meshNode = new Node();
 
-			meshNode->AddComponent(transform);
+				meshNode->AddComponent(transform);
 
-			Renderable* renderable = new Renderable();
-			renderable->shape = modelEx->meshes[meshIdx];
-			renderable->material = model->materials[meshIdx];
+				Renderable* renderable = new Renderable();
+				renderable->shape = modelEx->meshes[meshIdx];
+				renderable->material = model->materials[meshIdx];
 
-			meshNode->AddComponent(renderable);
+				meshNode->AddComponent(renderable);
 
-			context.mainContext->nodes.push_back(meshNode);
+				context.mainContext->nodes.push_back(meshNode);
+			}
 		}
 
 		context.mainContext->nodes.push_back(node);

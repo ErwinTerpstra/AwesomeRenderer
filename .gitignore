@@ -10,3 +10,4 @@ ipch/
 *.opendb
 Renders/
 FastDebug/
+AwesomeRenderer/imgui/examples/
